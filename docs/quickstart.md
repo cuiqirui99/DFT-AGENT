@@ -162,8 +162,8 @@ See the [CLI examples](examples.md). `prepare` is local; `watch` submits.
 
 ## Updates
 
-The sidebar shows a note when a newer release exists. Upgrade with
-`pip install --upgrade 'dft-agent[agent]'` or `uv tool upgrade dft-agent`.
+The sidebar shows a note when a newer release exists. Download updates from
+[GitHub Releases](https://github.com/cuiqirui99/DFT-AGENT/releases/latest).
 For a cloned install, activate its environment and run:
 
 ```bash
