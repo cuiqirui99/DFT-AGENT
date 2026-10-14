@@ -7,3 +7,4 @@ src/vasp_slurm_agent/knowledge/** -text -whitespace
 src/vasp_slurm_agent/examples/** -text
 examples/** -text
 validation/input-defaults-0.4.1/** -text -whitespace
+validation/qe-0.4.3/** -text -whitespace
