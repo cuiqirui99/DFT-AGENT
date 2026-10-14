@@ -1,5 +1,7 @@
 # Workflows
 
+These examples use VASP. See [Quantum ESPRESSO](qe.md) for QE tasks and continuations.
+
 Upload a structure or choose an example. In **Agent** mode, write the full task
 in **Goal**, then click **Plan**. Structure edits and calculations share one
 conversation. A revision replaces the whole plan and starts from the original

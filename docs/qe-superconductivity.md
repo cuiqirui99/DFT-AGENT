@@ -8,9 +8,9 @@ QE supplies the normal-state electronic structure and lattice response. A superc
 
 | Route | Calculation | Results | Acceptance |
 | --- | --- | --- | --- |
-| Conventional, isotropic | QE → DFPT → `lambda.x` → EPW | α²F, λ, ωlog, Allen–Dynes estimate, Eliashberg gaps and a linearized Tc bracket | Native Al tests and independent kernel checks pass; application acceptance is in progress |
-| Conventional, anisotropic | QE → Wannier90 → EPW | Momentum-dependent coupling and gap, temperature-dependent gap, Tc within Migdal–Eliashberg theory | Reproduce an EPW reference and the MgB₂ gap structure; verify Wannier interpolation and temperature convergence |
-| Unconventional, model based | QE → Wannier90 → an explicit interacting model → susceptibility and pairing solver | Leading pairing eigenvalues, gap functions, symmetry, model-dependent transition scale | Reproduce a published solver benchmark; check orbital conventions, antisymmetry, eigenpair residuals and convergence |
+| Conventional, isotropic | QE → DFPT/`lambda.x` or Wannier interpolation → EPW | α²F, λ, ωlog, Allen–Dynes estimate, Eliashberg gaps and a linearized Tc bracket | Native Al tests and independent kernel checks pass; application acceptance is in progress |
+| Conventional, anisotropic | QE → Wannier90 → EPW | Momentum-dependent gaps at supplied temperatures | Native MgB₂ reference passes; stricter solver and fresh application acceptance are pending |
+| Unconventional, model based | Supplied one-band `hr` → explicit Hubbard model → RPA pairing | Singlet/triplet eigenvalues, gap functions and susceptibility | Numerical benchmarks and an LLM → Slurm model run pass; no automatic material-model construction |
 
 The anisotropic phonon route remains a conventional pairing calculation. It does not establish a spin-fluctuation mechanism or arbitrary unconventional pairing. EPW's [theory description](https://docs.epw-code.org/Theory.html#superconductivity) defines its electron–phonon and Coulomb treatment.
 
@@ -41,7 +41,11 @@ Before analysis, check q coordinates and weights against every coupling file. Th
 
 QE 7.4.1 contains EPW 5.9. Select **Include EPW** when preparing an installation. The managed build includes the pinned Wannier90 dependency and builds core QE before EPW. A real Slurm installation passed checks for all 13 programs; it uses a separate prefix and preserves previous installations.
 
-For isotropic calculations, continue an accepted electron–phonon spectrum with **Eliashberg gap** or **Eliashberg Tc**. Choose temperatures, μ*, the frequency cutoff and the electronic-broadening column explicitly. Eight native Al cases passed on the test cluster, covering two broadenings, two cutoffs and both solvers. Independent calculations checked the linearized eigenvalues and nonlinear residuals. These are functional checks at the chosen settings, not a converged prediction for Al.
+For isotropic calculations, use **Eliashberg gap** or **Eliashberg Tc** after an accepted `electron_phonon` or `wannier_electron_phonon` spectrum. Choose temperatures, μ*, the frequency cutoff and `broadening_index` explicitly. The index selects an electronic-broadening column for `lambda.x`, or a phonon-broadening column for Wannier/EPW; that source's electronic broadening stays fixed.
+
+Open the completed run's **Continue this task**, describe the solver and these settings, then **Plan next step → Prepare next step**. Review and submit the new run. Scalar EPW reuses the frozen spectrum without rerunning SCF or phonons. Anisotropic EPW also requires the original remote matrix checkpoint.
+
+Eight native Al cases passed on the test cluster, covering two broadenings, two cutoffs and both scalar solvers. Independent calculations checked linearized eigenvalues and nonlinear residuals. These are functional checks, not a converged prediction for Al.
 
 Negative interpolated spectral weights remain a failed result. An explicit `eph_integration="q_sum"` integrates the original DFPT modes by a separate method. It does not erase or validate a failed Fourier interpolation. Preserve both outcomes and examine grid and broadening dependence.
 
@@ -73,7 +77,7 @@ EOF
 
 The implemented route solves a **single-band paramagnetic Hubbard RPA model**. It accepts a real, spin-independent Wannier90 `hr` Hamiltonian and compares even-frequency singlet and triplet pairing. Multiple orbitals, SOC and magnetic reference states are not supported.
 
-Choose **Quantum ESPRESSO → Pairing model**, upload the Hamiltonian and enter an existing cluster Python with NumPy and SciPy. Describe the model in **Goal**. The agent asks for missing lattice vectors, orbital convention, U, chemical potential, temperature, k grid, Matsubara cutoff, channels and double-counting treatment. Review the plan, prepare inputs and submit. U and chemical potential must be supplied; the agent does not infer them from composition or a DOS peak.
+Choose **Quantum ESPRESSO → Pairing model**, upload the Hamiltonian and enter an existing cluster Python with NumPy and SciPy. Click **Check Python**, then describe the model in **Goal**. This Python runs on the cluster, even when using the Windows desktop app. The agent asks for missing lattice vectors, orbital convention, U, chemical potential, temperature, k grid, Matsubara cutoff, channels and double-counting treatment. Review the plan, prepare inputs and submit. U and chemical potential must be supplied; the agent does not infer them from composition or a DOS peak.
 
 From the CLI, use `plan model_hr.dat "your model settings" --engine qe --pairing --origin model`, then `prepare model_hr.dat RUN --plan plan.json --config cluster.json --cluster-python /path/to/python` and `watch RUN`. Prefix each command with `dft-agent`. Use `--origin wannier_unvalidated` for a Wannier calculation. `files RUN 01_pairing` lists verified local outputs; `bundle RUN` exports them.
 
@@ -87,4 +91,4 @@ A supplied `hr` file is labeled either a model or an unvalidated Wannier calcula
 
 ## Saved evidence
 
-Every route must retain version and executable hashes, structures, pseudopotential hashes, inputs, raw outputs, convergence checks and parser units. Export spectra and gap data as tables alongside plots. A failed or interrupted stage must remain resumable from a compatible checkpoint, without silently substituting a new model or deleting the earlier result.
+Use **Prepare download → Download results (.zip)** to retain inputs, raw outputs, parsed tables and execution receipts. Large QE restart files stay on the cluster; retrieve selected files with `dft-agent files RUN STAGE --fetch FILE` before removing that remote folder. Restart only from a compatible accepted checkpoint. A failed result remains part of the record; it is not silently replaced by another method.

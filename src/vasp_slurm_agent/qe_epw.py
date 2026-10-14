@@ -133,7 +133,7 @@ def read_checkpoint(folder, prefix=qe.PREFIX, *, acoustic_cutoff_cm1=5.0):
             if abs(energy - ef0) < window:
                 weight = .5 * row["weight"] * math.exp(-((energy - ef0) / smearing)**2) / (math.sqrt(math.pi) * smearing * dos)
                 states.append({"kpoint": int(row["index"]), "band": band, "energy_minus_fermi_ev": float((energy - ef0) * qe.RY_EV), "weight": float(weight), "k_fractional": row["k"].tolist()})
-    return {"fine_kmesh": [k1, k2, k3], "fine_qmesh": [q1, q2, q3], "modes": modes, "kpoints": nk, "shell_kpoints": nks, "states": states, "matrix_values": matrix_values, "acoustic_cutoff_cm1": acoustic, "minimum_frequency_cm1": float(frequencies.min() * RY_CM), "sha256": {str(p.relative_to(folder)): qe._hash(p) for p in files}}
+    return {"fine_kmesh": [k1, k2, k3], "fine_qmesh": [q1, q2, q3], "modes": modes, "kpoints": nk, "shell_kpoints": nks, "states": states, "matrix_values": matrix_values, "acoustic_cutoff_cm1": acoustic, "minimum_frequency_cm1": float(frequencies.min() * RY_CM), "sha256": {p.relative_to(folder).as_posix(): qe._hash(p) for p in files}}
 
 
 def validate_parameters(parameters, task="epw_iso"):
@@ -255,7 +255,7 @@ def read_native_spectrum(path):
     return data
 
 
-def _crystal_from_schema(schema, output):
+def _crystal_from_schema(schema, output, *, allow_nscf=False):
     """Create the scalar solver's geometry header from actual PW metadata.
 
     EPW requires crystal.fmt even for fila2f. Its scalar isotropic reader ignores
@@ -267,7 +267,8 @@ def _crystal_from_schema(schema, output):
     bands = qe._required(root, "output/band_structure")
     if qe._required(bands, "noncolin").text.strip().lower() != "false" or qe._required(bands, "lsda").text.strip().lower() != "false":
         raise ValueError("This scalar alpha2F route requires a nonmagnetic PW checkpoint without SOC.")
-    if qe._required(root, "output/convergence_info/scf_conv/convergence_achieved").text.strip().lower() != "true":
+    is_nscf = root.findtext("input/control_variables/calculation", "").strip().lower() == "nscf"
+    if qe._required(root, "output/convergence_info/scf_conv/convergence_achieved").text.strip().lower() != "true" and not (allow_nscf and is_nscf):
         raise ValueError("The PW source checkpoint is not converged.")
     species = qe._required(root, "input/atomic_species").findall("species")
     if not 1 <= len(species) <= 10:
@@ -289,7 +290,7 @@ def _crystal_from_schema(schema, output):
             "native_structure": {"lattice_angstrom": structure.lattice.matrix.tolist(), "elements": [site.specie.symbol for site in structure], "fractional_positions": structure.frac_coords.tolist()}}
 
 
-def _prepare_native(destination, task, parameters, *, spectrum_path, qe_schema, unit="meV", column=1, frequency_precision=None, provenance=None):
+def _prepare_native(destination, task, parameters, *, spectrum_path, qe_schema, unit="meV", column=1, frequency_precision=None, provenance=None, allow_nscf=False):
     """Prepare a standalone native EPW job; execution uses the existing runner."""
     p = validate_parameters(parameters, task)
     w, a2f, spectrum = read_spectrum(spectrum_path, unit=unit, column=column, frequency_precision=frequency_precision)
@@ -303,7 +304,7 @@ def _prepare_native(destination, task, parameters, *, spectrum_path, qe_schema, 
         raise ValueError("Use a new folder for an EPW calculation.")
     shutil.copyfile(spectrum_path, folder / "source.a2f")
     shutil.copyfile(qe_schema, folder / "source-schema.xml")
-    crystal = _crystal_from_schema(folder / "source-schema.xml", folder / "crystal.fmt")
+    crystal = _crystal_from_schema(folder / "source-schema.xml", folder / "crystal.fmt", allow_nscf=allow_nscf)
     np.savetxt(folder / "alpha2f.dat", np.column_stack([w, a2f]), fmt="%.16e", header="energy_meV alpha2F", comments="# ")
     native = {"prefix": qe.PREFIX, "outdir": "./scratch", "ep_coupling": False, "elph": False, "epwread": True, "epwwrite": False, "wannierize": False, "eliashberg": True, "liso": True, "laniso": False, "limag": True, "lpade": False, "lacon": False, "lreal": False, "fila2f": "alpha2f.dat", "nqstep": len(w), "muc": p["mu_star"], "wscut": p["frequency_cutoff_ev"], "nsiter": p["iterations"], "conv_thr_iaxis": p["convergence"], "broyden_beta": p["mixing"], "gridsamp": 0, "nstemp": len(p["temperatures"]), "tc_linear": task == "epw_tc", "tc_linear_solver": "lapack"}
     # Fortran may evaluate MOD before the fila2f guard; these grids are unused.
@@ -336,8 +337,53 @@ def prepare_from_lambda(evidence_dir, destination, task, parameters, *, qe_schem
     return _prepare_native(destination, task, p, spectrum_path=folder / "alpha2F.dat", qe_schema=qe_schema, unit="THz", column=index, frequency_precision=0.0001, provenance={"kind": "verified_lambda", "broadening_index": index, "electronic_broadening_ry": records[index - 1]["degauss_ry"], "source_input_sha256": qe._hash(folder / "qe-input.json"), "scientific_accuracy_validated": False})
 
 
+def prepare_from_wannier(evidence_dir, destination, task, parameters, *, qe_schema):
+    """Use a specified phonon-broadening column from a verified EPW spectrum."""
+    from . import qe_wannier
+
+    folder = Path(evidence_dir)
+    result = qe_wannier.analyze_spectrum(folder)
+    if not result.get("success"):
+        raise ValueError("The source EPW spectrum failed verification: " + result.get("reason", "missing evidence"))
+    p = validate_parameters(parameters, task)
+    if "broadening_index" not in p:
+        raise ValueError("Choose broadening_index explicitly for the native EPW spectrum.")
+    source = json.loads((folder / "qe-input.json").read_text())
+    spectrum_path = folder / (qe.PREFIX + ".a2f")
+    data = read_native_spectrum(spectrum_path)
+    count = (data.shape[1] - 1) // 2
+    index = p["broadening_index"]
+    if index > count:
+        raise ValueError("broadening_index exceeds the available EPW spectra.")
+    text = spectrum_path.read_text()
+    matches = re.findall(r"Phonon smearing \(meV\)\s*\n\s*#([^\n]+)", text)
+    if len(matches) != 1:
+        raise ValueError("The native phonon-broadening labels are missing.")
+    broadenings = qe._floats(matches[0])
+    electronic = qe._floats(re.search(r"Electron smearing \(eV\)\s+(" + qe.FLOAT + r")", text)[1])[0]
+    window = qe._floats(re.search(r"Fermi window \(eV\)\s+(" + qe.FLOAT + r")", text)[1])[0]
+    settings = source["parameters"]
+    if len(broadenings) != count or min(broadenings) <= 0 or any(b <= a for a, b in zip(broadenings, broadenings[1:])):
+        raise ValueError("The phonon-broadening labels are invalid.")
+    if not np.isclose(broadenings[0], settings["ph_smearing_mev"], atol=5.1e-8, rtol=0) or not np.isclose(electronic, settings["el_smearing_ev"], atol=5.1e-8, rtol=0) or not np.isclose(window, settings["fsthick_ev"], atol=5.1e-8, rtol=0):
+        raise ValueError("The native spectral broadenings differ from the interpolation inputs.")
+    provenance = {"kind": "verified_wannier_spectrum", "broadening_index": index,
+                  "phonon_broadening_mev": broadenings[index - 1], "available_phonon_broadenings_mev": broadenings,
+                  "electronic_broadening_ev": electronic, "fermi_window_ev": window,
+                  "source_input_sha256": qe._hash(folder / "qe-input.json"), "scientific_accuracy_validated": False}
+    meta = _prepare_native(destination, task, p, spectrum_path=spectrum_path, qe_schema=qe_schema,
+                           column=index, provenance=provenance, allow_nscf=True)
+    destination = Path(destination)
+    for name, original in (("source-epw.in", "epw.in"), ("source-epw.out", "epw.out"), ("source-wannier.wout", qe.PREFIX + ".wout")):
+        shutil.copyfile(folder / original, destination / name)
+        meta["input_files"].append(name)
+        meta["input_sha256"][name] = qe._hash(destination / name)
+    qe._json(destination / "qe-input.json", meta)
+    return meta
+
+
 def prepare_inputs(structure_path, destination, task, parameters, pseudopotentials=None, *, evidence_dir=None):
-    """Workflow adapter: only a freshly verified lambda stage supplies alpha2F."""
+    """Prepare scalar EPW from verified lambda.x or Wannier spectra."""
     from pymatgen.core import Structure
 
     p = validate_parameters(parameters, task)
@@ -352,17 +398,21 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
         folder.mkdir(parents=True, exist_ok=True)
         if (folder / "qe-input.json").exists():
             raise ValueError("Use a new folder for an EPW calculation.")
-        (folder / "epw.in").write_text("DFT Agent\n! Prepared after the accepted lambda.x spectrum is available.\n")
+        (folder / "epw.in").write_text("DFT Agent\n! Prepared after the source spectrum has passed verification.\n")
         meta = {"schema_version": 1, "engine": "qe", "canonical_task": task, "task": task, "executable": "epw.x", "input_file": "epw.in", "output_file": "epw.out", "input_files": ["epw.in"], "output_files": ["epw.out"] + ([f"{qe.PREFIX}.imag_iso_{t:06.2f}" for t in p["temperatures"]] if task == "epw_iso" else []), "parameters": p, "preview_only": True, "requires_restart": False, "pseudo_files": [], "formula": structure.composition.reduced_formula, "number_of_atoms": len(structure), "sources": [SOURCE]}
     else:
         evidence = Path(evidence_dir)
         schema = evidence / "data-file-schema.xml"
         if not schema.is_file():
-            raise ValueError("The accepted lambda stage needs its source PW data-file-schema.xml.")
+            raise ValueError("The accepted spectrum needs its source PW data-file-schema.xml.")
         actual = qe._xml_structure(qe._required(ET.parse(schema).getroot(), "output/atomic_structure"))
         if not _matches_structure_file(actual, structure, structure_path):
             raise ValueError("The source spectrum checkpoint differs from the planned structure.")
-        meta = prepare_from_lambda(evidence, folder, task, p, qe_schema=schema)
+        source = json.loads((evidence / "qe-input.json").read_text())
+        if source.get("canonical_task") == "epw_interpolate":
+            meta = prepare_from_wannier(evidence, folder, task, p, qe_schema=schema)
+        else:
+            meta = prepare_from_lambda(evidence, folder, task, p, qe_schema=schema)
     structure.to(filename=folder / "structure.cif")
     meta["input_files"].append("structure.cif")
     meta["input_sha256"] = {name: qe._hash(folder / name) for name in meta["input_files"]}
@@ -512,6 +562,9 @@ def analyze_outputs(folder, task=None, expected_structure=None):
                 raise ValueError(f"EPW input {name} changed after preparation.")
         if "structure.cif" in meta["input_sha256"] and qe._hash(folder / "structure.cif") != meta["input_sha256"]["structure.cif"]:
             raise ValueError("The EPW structure changed after preparation.")
+        for name in ("source-epw.in", "source-epw.out", "source-wannier.wout"):
+            if name in meta["input_sha256"] and qe._hash(folder / name) != meta["input_sha256"][name]:
+                raise ValueError("The source Wannier evidence changed after preparation: " + name)
         from pymatgen.core import Structure
 
         native = meta["native_structure"]

@@ -24,6 +24,7 @@ Download the installer for your computer from [v0.4.2](https://github.com/cuiqir
 
 No separate Python installation is needed. See [Install](docs/install.md) for source installation and
 [Desktop builds](docs/desktop.md) for the current verification scope.
+QE requires the [0.4.3 development preview](docs/install.md#development-preview); it is not included in v0.4.2.
 
 ## Try it without a cluster
 
@@ -33,7 +34,7 @@ No separate Python installation is needed. See [Install](docs/install.md) for so
   SrTiO3 and Si workflows, MgO cell relaxation, and Fe NM/FM/AFM comparison.
   Start with SrTiO3: 353 calculated band k-points, projected DOS, plots and raw outputs.
   Results are available offline. **Explain results** requires a model account and network access.
-- Open **New calculation**, pick an example structure, choose **Manual**,
+- Choose **VASP**, open **New calculation**, pick an example structure, choose **Manual**,
   and click **Prepare inputs**. INCAR, KPOINTS and POSCAR are generated locally
   for review; the cluster is attached when you submit.
 - Switch the interface to Chinese in the sidebar.
@@ -63,7 +64,7 @@ Claude API call was made. Bundling the SDK does not change that [validation boun
 
 1. Choose **VASP** or **Quantum ESPRESSO**. In **Cluster setup**, enter your SSH host and user. For VASP, click **Detect from cluster**
    to fill partitions, accounts, VASP modules and POTCAR folders, review and save.
-   Presets for Dardel, Tetralith and BSCC give a head start.
+   For QE, [install or select QE and the needed UPFs](docs/qe.md).
 2. Open **New calculation**. Upload a CIF or POSCAR, or choose **Example**.
 3. Select a provider in **Model**, enter your **Goal**, and click **Plan**. Or use **Manual** without a model.
 4. Review the plan and click **Prepare inputs**.
@@ -75,14 +76,14 @@ Include structure changes in your **Goal**, or use **Edit structure** for geomet
 Structure edits, stage methods, comparisons and follow-up runs are covered in
 [Workflows](docs/workflows.md).
 
-Download CSV data beside each plot and VASP outputs under **Raw data and files**.
+Download tables and raw outputs under **Raw data and files**, or use **Prepare download → Download results (.zip)**.
 
 A desktop notification arrives when a run finishes; add a webhook under
 **Preferences** for Slack, Discord or WeChat Work. Reopening the app resumes
 monitoring of submitted runs. For `needs_attention`, read the error before using **Reconnect**.
 
 Plans include scientific guidance and relevant past runs. For a failed calculation,
-use **Repair** to review a proposed fix and prepare a new run. [Details](docs/harness.md).
+use **Repair** (VASP) or **Continue this task** (QE) to review a fix and prepare a new run. [Details](docs/harness.md).
 
 **Memory** includes checked guidance and calculation cases. Search their evidence
 or import selected local records. Rejected and unverified lessons stay out of

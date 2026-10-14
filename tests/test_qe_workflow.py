@@ -368,10 +368,15 @@ def test_bundle_contains_raw_results_without_config(prepared):
 
 
 class LocalHeaderTransport:
+    def __init__(self, local_root):
+        self.local_root = local_root
+
     def run(self, command, timeout=60):
         words = shlex.split(command)
         assert words[:2] == ["python3", "-c"]
-        result = subprocess.run([sys.executable, "-c", words[2]], capture_output=True, text=True)
+        assert words[2].count("root=Path('/pseudo')") == 1
+        code = words[2].replace("root=Path('/pseudo')", f"root=Path({str(self.local_root)!r})")
+        result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
         return Result(result.returncode, result.stdout, result.stderr)
 
 
@@ -382,24 +387,24 @@ def test_submission_checks_real_upf_element_soc_and_known_hash(tmp_path, config)
     def write(element="Si", soc=False):
         pseudo.write_text(f'<UPF><PP_HEADER element="{element}" functional="PBE" has_so="{"T" if soc else "F"}"/><PP_MESH>' + " " * 220 + '</PP_MESH><PP_LOCAL>0</PP_LOCAL></UPF>')
     write()
-    cfg = replace(config, qe_pseudo_root=str(tmp_path))
+    cfg = config
     stage = {"metadata": {"pseudo_files": ["Si.UPF"]}, "parameters": {}}
-    receipt = workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+    receipt = workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     assert receipt["Si.UPF"]["element"] == "Si"
     assert receipt["Si.UPF"]["sha256"] == workflow._digest(pseudo)
     write(element="Al")
     with pytest.raises(TransportError, match="does not match"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     write()
     cfg = replace(cfg, qe_pseudopotentials={"Si": {"filename": "Si.UPF", "fully_relativistic": True}})
     stage["parameters"]["soc"] = True
     with pytest.raises(TransportError, match="spin-orbit data"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     write(soc=True)
-    assert workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)["Si.UPF"]["fully_relativistic"]
+    assert workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)["Si.UPF"]["fully_relativistic"]
     cfg = replace(cfg, qe_pseudopotentials={"Si": {"filename": "Si.UPF", "sha256": "0" * 64}})
     with pytest.raises(ValueError, match="validated library"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
 
 
 def test_submission_checks_actual_pp_type_and_functional(tmp_path, config):
@@ -408,37 +413,37 @@ def test_submission_checks_actual_pp_type_and_functional(tmp_path, config):
     def write(pseudo_type):
         pseudo.write_text(f'<UPF><PP_HEADER element="Si" functional="PBE" pseudo_type="{pseudo_type}" has_so="F"/><PP_MESH>' + " " * 220 + '</PP_MESH><PP_LOCAL>0</PP_LOCAL></UPF>')
     # User-entered metadata cannot override the actual UPF header.
-    cfg = replace(config, qe_pseudo_root=str(tmp_path), qe_pseudopotentials={
+    cfg = replace(config, qe_pseudopotentials={
         "Si": {"filename": "Si.UPF", "pseudo_type": "NC", "functional": "LDA"}})
     stage = {"name": "relax", "metadata": {"pseudo_files": ["Si.UPF"]}, "parameters": {"functional": "HSE06"}}
     write("PAW")
     with pytest.raises(ValueError, match="norm-conserving"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     stage["name"] = "scf"
-    assert workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)["Si.UPF"]["pseudo_type"] == "PAW"
+    assert workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)["Si.UPF"]["pseudo_type"] == "PAW"
     stage["name"] = "relax"
     write("NC")
-    assert workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)["Si.UPF"]["pseudo_type"] == "NC"
+    assert workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)["Si.UPF"]["pseudo_type"] == "NC"
     stage["parameters"]["spin"] = "noncollinear"
     stage["metadata"]["namelists"] = {"control": {"tstress": True}}
     with pytest.raises(ValueError, match="stress or cell relaxation"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     stage["metadata"]["namelists"]["control"]["tstress"] = False
-    assert workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)["Si.UPF"]["pseudo_type"] == "NC"
+    assert workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)["Si.UPF"]["pseudo_type"] == "NC"
     stage["metadata"].pop("namelists")
     write("")
     with pytest.raises(ValueError, match="verified norm-conserving"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     stage["parameters"] = {"functional": "LDA"}
     with pytest.raises(ValueError, match="compatible LDA UPFs"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
 
     stage.update(name="wannier_scf", parameters={})
     write("PAW")
     with pytest.raises(ValueError, match="norm-conserving"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     write("NC")
-    assert workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)["Si.UPF"]["pseudo_type"] == "NC"
+    assert workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)["Si.UPF"]["pseudo_type"] == "NC"
 
 
 def test_submission_rejects_no_soc_from_actual_full_uspp_header(tmp_path, config):
@@ -447,13 +452,13 @@ def test_submission_rejects_no_soc_from_actual_full_uspp_header(tmp_path, config
     pseudo.write_text('<UPF><PP_HEADER element="Si" functional="PBE" pseudo_type="US" has_so="T"/><PP_MESH>'
                       + " " * 220 + '</PP_MESH><PP_LOCAL>0</PP_LOCAL></UPF>')
     # A stale scalar/NC configuration must not bypass the actual file check.
-    cfg = replace(config, qe_pseudo_root=str(tmp_path), qe_pseudopotentials={
+    cfg = replace(config, qe_pseudopotentials={
         "Si": {"filename": "Si.UPF", "fully_relativistic": False, "pseudo_type": "NC"}})
     stage = {"name": "scf", "metadata": {"pseudo_files": ["Si.UPF"]}, "parameters": {"soc": False}}
     with pytest.raises(ValueError, match="requires SOC"):
-        workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     stage["parameters"] = {"namelists": {"system": {"noncolin": True, "lspinorb": True}}}
-    receipt = workflow._pseudo_snapshot(LocalHeaderTransport(), cfg, stage)
+    receipt = workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
     assert receipt["Si.UPF"]["fully_relativistic"] is True and receipt["Si.UPF"]["pseudo_type"] == "US"
 
 

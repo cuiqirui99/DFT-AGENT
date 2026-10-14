@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import shutil
 
+import numpy as np
 import pytest
 from pymatgen.core import Structure
 
@@ -12,7 +13,7 @@ from vasp_slurm_agent import qe_continuation as continuation, qe_agent, qe_conte
 from vasp_slurm_agent.config import ClusterConfig
 from test_qe import xml_output
 from test_qe_agent import response
-from test_qe_epw import checkpoint_fixture
+from test_qe_epw import checkpoint_fixture, FINISH
 from test_qe_wannier import settings
 
 
@@ -31,17 +32,31 @@ def accepted_interpolation(tmp_path, monkeypatch):
         remote_root="/scratch/jobs", qe_pseudo_root="/pseudo", qe_pseudopotentials={
             "Si": {"filename": "Si.UPF", "pseudo_type": "NC", "sha256": "a" * 64,
                    "functional": "PBE", "fully_relativistic": False}})
-    recipe = settings()
+    recipe = settings(spectral_points=10)
     recipe["projections"] = ["Si:s", "Si:p"]
     root = tmp_path / "source-run"
     state = qe_workflow.prepare_plan(crystal, root, config, ["wannier_electron_phonon"], recipe)
     stage = state["stages"][3]
     output = root / stage["folder"] / "outputs"
     shutil.copytree(root / stage["folder"] / "inputs", output)
-    xml_output(output, root / stage["source_path"])
+    xml_output(output, root / stage["source_path"], calculation="nscf", scf=False)
+    schema = output / "data-file-schema.xml"
+    schema.write_text(schema.read_text().replace('<atomic_structure nat="2">', '<atomic_structure nat="2" alat="8">')
+        .replace("<input>", '<input><atomic_species ntyp="1"><species name="Si"><mass>28.0855</mass></species></atomic_species>')
+        .replace("<band_structure>", "<band_structure><lsda>false</lsda><noncolin>false</noncolin><nelec>8</nelec>"))
     checkpoint_fixture(output)
-    for name in ("epw.out", "dft_agent.wout", "dft_agent.win", "dft_agent.a2f"):
-        (output / name).write_text("synthetic continuation fixture\n")
+    w = np.arange(1, 11, dtype=float)
+    a = np.full((10, 2), [.1, .2])
+    integrals = np.cumsum(2 * a / w[:, None], axis=0)
+    spectrum = " w[meV] a2f and integrated 2*a2f/w for 2 smearing values\n"
+    spectrum += "".join(" ".join(f"{x:.7f}" for x in row) + "\n" for row in np.column_stack([w, a, integrals]))
+    spectrum += "Phonon smearing (meV)\n # .5 .55\nElectron smearing (eV) .1\nFermi window (eV) 10\nSummed el-ph coupling .5\n"
+    (output / "dft_agent.a2f").write_text(spectrum)
+    (output / "epw.out").write_text(f"Program EPW v.5.9\nRunning Wannier90\nFinish writing .ephmat files\nElectron-phonon coupling strength = {integrals[-1, 0]:.7f}\n" + FINISH)
+    wout = "".join(f"{i} 1e-9 1e-8 4 1 <-- CONV\n" for i in range(1, 6)) + "Final State\n"
+    wout += "".join(f"WF centre and spread {i} ( 0.0, 0.0, 0.0 ) 1.0\n" for i in range(1, 5))
+    (output / "dft_agent.wout").write_text(wout + "All done: wannier90 exiting\n")
+    (output / "dft_agent.win").write_text("synthetic continuation fixture\n")
     native = qe_epw.read_checkpoint(output)
     checkpoint = {name: {"sha256": digest, "size": (output / name).stat().st_size}
                   for name, digest in native["sha256"].items()}
@@ -53,7 +68,7 @@ def accepted_interpolation(tmp_path, monkeypatch):
         "checkpoint_sha256": qe_workflow._digest(output / "checkpoint.json")})
     state.update(status="succeeded", current_stage=3)
     qe_workflow._save(root, state)
-    records = {str(path.relative_to(output)): {"sha256": qe_workflow._digest(path), "size": path.stat().st_size}
+    records = {path.relative_to(output).as_posix(): {"sha256": qe_workflow._digest(path), "size": path.stat().st_size}
                for path in output.rglob("*") if path.is_file()}
     qe_workflow._write(output / "artifact_manifest.json", records)
 
@@ -109,11 +124,66 @@ def test_continuation_keeps_original_cluster_and_binary(accepted_interpolation, 
                                           ["epw_aniso"], aniso())
 
 
-@pytest.mark.parametrize("task", ["epw_iso", "epw_tc", "scf"])
-def test_wannier_source_cannot_be_used_as_scalar_spectrum(accepted_interpolation, tmp_path, task):
+def test_wannier_source_rejects_unrelated_task(accepted_interpolation, tmp_path):
     source, _, config = accepted_interpolation
-    with pytest.raises(ValueError, match="with epw_aniso"):
-        continuation.prepare_continuation(source, 3, tmp_path / "wrong-route", config, [task], aniso())
+    with pytest.raises(ValueError, match="with epw_iso, epw_tc or epw_aniso"):
+        continuation.prepare_continuation(source, 3, tmp_path / "wrong-route", config, ["scf"], aniso())
+
+
+@pytest.mark.parametrize("task", ["epw_iso", "epw_tc"])
+def test_scalar_continuation_freezes_spectrum_without_remote_restart(accepted_interpolation, tmp_path, task):
+    source, output, config = accepted_interpolation
+    before = {str(p): qe_workflow._digest(p) for p in source.rglob("*") if p.is_file()}
+    target = tmp_path / task
+    target_config = replace(config, host="other.invalid", qe_pseudopotentials={})
+    state = continuation.prepare_continuation(source, 3, target, target_config, [task],
+        {**aniso(), "broadening_index": 2}, reuse_checkpoint=False)
+    assert len(state["stages"]) == 1
+    stage = state["stages"][0]
+    assert stage["name"] == task and stage["materialized"]
+    assert stage["restart_from"] is None and "external_checkpoint" not in stage
+    assert stage["metadata"]["requires_restart"] is False
+    provenance = stage["metadata"]["source_provenance"]
+    assert provenance["phonon_broadening_mev"] == .55
+    assert provenance["electronic_broadening_ev"] == .1
+    assert not (target / "source/checkpoint.json").exists()
+    assert not (target / "source/wannier/scratch").exists()
+    assert (target / "source/wannier/dft_agent.a2f").read_bytes() == (output / "dft_agent.a2f").read_bytes()
+    inputs = target / stage["folder"] / "inputs"
+    assert np.loadtxt(inputs / "alpha2f.dat")[:, 1] == pytest.approx(.2)
+    assert (inputs / "source-wannier.wout").read_bytes() == (output / "dft_agent.wout").read_bytes()
+    parent = json.loads((target / "parent.json").read_text())
+    assert parent["wannier_spectrum_reused"] and not parent["wannier_checkpoint_reused"]
+    assert ClusterConfig.load(target / "config.json").qe_pseudopotentials == {}
+    qe_workflow._check_config(target, state)
+    assert before == {str(p): qe_workflow._digest(p) for p in source.rglob("*") if p.is_file()}
+
+
+def test_mixed_wannier_continuation_attaches_checkpoint_only_to_anisotropic(accepted_interpolation, tmp_path):
+    source, _, config = accepted_interpolation
+    target = tmp_path / "mixed"
+    state = continuation.prepare_continuation(source, 3, target, config, ["epw_tc", "epw_aniso"],
+        stage_parameters=[{**aniso(), "broadening_index": 1}, aniso()])
+    assert "external_checkpoint" not in state["stages"][0]
+    assert "external_checkpoint" in state["stages"][1]
+    assert (target / "source/wannier/scratch/dft_agent.ephmat/ephmat1").is_file()
+
+
+@pytest.mark.parametrize("missing", ["temperatures", "mu_star", "frequency_cutoff_ev", "broadening_index"])
+def test_scalar_continuation_requires_explicit_choices(accepted_interpolation, tmp_path, missing):
+    source, _, config = accepted_interpolation
+    parameters = {**aniso(), "broadening_index": 1}
+    parameters.pop(missing)
+    with pytest.raises(ValueError, match=missing):
+        continuation.prepare_continuation(source, 3, tmp_path / "missing", config, ["epw_iso"], parameters)
+
+
+def test_scalar_continuation_still_requires_full_source_acceptance(accepted_interpolation, tmp_path, monkeypatch):
+    source, _, config = accepted_interpolation
+    monkeypatch.setattr(qe_context, "load_run_context", lambda _: {"facts": {"stage_4.accepted": {"value": False}}})
+    with pytest.raises(ValueError, match="accepted QE stage"):
+        continuation.prepare_continuation(source, 3, tmp_path / "unaccepted", config, ["epw_tc"],
+                                          {**aniso(), "broadening_index": 1})
 
 
 def test_remote_checkpoint_must_match_local_native_stream(accepted_interpolation):
@@ -155,8 +225,10 @@ def test_reasoning_uses_explicit_anisotropic_recipe_without_wannier_settings():
     plan, recipes = qe_reasoning._continuation_plan(continuation_decision("epw_aniso", aniso()), inspected)
     assert recipes[0]["parameters"] == aniso()
     assert "mesh" not in recipes[0]["parameters"]
-    with pytest.raises(ValueError, match="epw_aniso"):
-        qe_reasoning._continuation_plan(continuation_decision("epw_iso", aniso()), inspected)
+    scalar = {**aniso(), "broadening_index": 2}
+    _, recipes = qe_reasoning._continuation_plan(continuation_decision("epw_iso", scalar), inspected)
+    assert recipes[0]["parameters"] == scalar
+    assert "ph_smearing_mev" not in recipes[0]["parameters"]
     inspected["source_task"] = "eph_lambda"
     inspected["parameters"]["mu_star"] = .1
     with pytest.raises(ValueError, match="epw_iso or epw_tc"):
@@ -164,6 +236,7 @@ def test_reasoning_uses_explicit_anisotropic_recipe_without_wannier_settings():
 
 
 @pytest.mark.parametrize("source,task", [("wannier_electron_phonon", "epw_aniso"),
+                                        ("wannier_electron_phonon", "epw_iso"), ("wannier_electron_phonon", "epw_tc"),
                                         ("electron_phonon", "epw_iso"), ("electron_phonon", "epw_tc")])
 def test_epw_requirements_follow_linked_source_without_adding_solver_parameters(source, task):
     plan = response((source, task))
@@ -178,7 +251,33 @@ def test_epw_requirements_follow_linked_source_without_adding_solver_parameters(
         qe_agent._recipes(plan)
 
 
-@pytest.mark.parametrize("source,task", [("epw_interpolate", "epw_aniso"), ("eph_lambda", "epw_iso")])
+@pytest.mark.parametrize("sources", [("electron_phonon", "wannier_electron_phonon"),
+                                    ("wannier_electron_phonon", "electron_phonon")])
+def test_scalar_source_selection_and_requirements_use_latest_spectrum(sources):
+    tasks = [sources[0], "epw_iso", sources[1], "epw_tc", "epw_aniso"]
+    recipes = [{"functional": "PBE"}, {**aniso(), "broadening_index": 1},
+               {"functional": "LDA"}, {**aniso(), "broadening_index": 2}, aniso()]
+    sequence = qe_workflow._sequence(tasks, {}, recipes)
+    spectra = [i for i, item in enumerate(sequence) if item["name"] in {"eph_lambda", "epw_interpolate"}]
+    scalar = [item for item in sequence if item["name"] in {"epw_iso", "epw_tc"}]
+    assert [item["evidence_from"] for item in scalar] == spectra
+    assert all(item["restart_from"] is None for item in scalar)
+    aniso_source = next(i for i, item in enumerate(sequence) if item["name"] == "epw_interpolate")
+    assert sequence[-1]["evidence_from"] == sequence[-1]["restart_from"] == aniso_source
+    plan = response(tasks)
+    for stage, recipe in zip(plan["stages"], recipes):
+        stage["parameters_json"] = json.dumps(recipe)
+    plan["stages"][1]["requirements"]["functional"] = "PBE"
+    plan["stages"][3]["requirements"]["functional"] = "LDA"
+    plan["stages"][4]["requirements"]["functional"] = "LDA" if sources[1] == "wannier_electron_phonon" else "PBE"
+    assert qe_agent._recipes(plan)[3]["parameters"] == recipes[3]
+    plan["stages"][3]["requirements"]["functional"] = "PBE"
+    with pytest.raises(ValueError, match="functional.*differs"):
+        qe_agent._recipes(plan)
+
+
+@pytest.mark.parametrize("source,task", [("epw_interpolate", "epw_aniso"), ("epw_interpolate", "epw_iso"),
+                                        ("epw_interpolate", "epw_tc"), ("eph_lambda", "epw_iso")])
 def test_continuation_requirements_follow_frozen_source_method(source, task):
     decision = continuation_decision(task, aniso())
     decision["continuation"]["stages"][0]["requirements"]["functional"] = "LDA"

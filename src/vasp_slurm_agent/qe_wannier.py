@@ -132,6 +132,15 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
 
 
 def analyze_outputs(folder, task, expected_structure=None):
+    return _analyze_outputs(folder, task, expected_structure)
+
+
+def analyze_spectrum(folder):
+    """Recheck flat spectral evidence without claiming a reusable matrix checkpoint."""
+    return _analyze_outputs(folder, "epw_interpolate", spectrum_only=True)
+
+
+def _analyze_outputs(folder, task, expected_structure=None, *, spectrum_only=False):
     from . import qe_epw
 
     folder = Path(folder)
@@ -202,12 +211,13 @@ def analyze_outputs(folder, task, expected_structure=None):
             values = [qe._floats(v[1].replace(",", " ")) + qe._floats(v[2]) for v in spreads]
             if any(len(v) != 4 or v[3] < 0 for v in values):
                 raise ValueError("Invalid Wannier centres or spreads.")
-            convergence = [qe._floats(line.split("<-- CONV")[0]) for line in wout.splitlines() if "<-- CONV" in line]
+            convergence = [qe._floats(line.split("<-- CONV")[0]) for line in wout.splitlines() if "<-- CONV" in line and re.match(r"\s*\d+\s", line)]
             if len(convergence) < 5 or any(len(v) != 5 or abs(v[1]) > 1e-6 or v[2] > 1e-4 for v in convergence[-5:]):
                 raise ValueError("Wannier spreads or gradients have not stabilized; revise projections, windows or iterations.")
-            checkpoint = qe_epw.read_checkpoint(folder, acoustic_cutoff_cm1=p["acoustic_cutoff_cm1"])
-            if checkpoint["fine_kmesh"] != p["fine_kmesh"] or checkpoint["fine_qmesh"] != p["fine_qmesh"] or checkpoint["modes"] != 3 * len(actual):
-                raise ValueError("Interpolated grids or mode count differ from the plan.")
+            if not spectrum_only:
+                checkpoint = qe_epw.read_checkpoint(folder, acoustic_cutoff_cm1=p["acoustic_cutoff_cm1"])
+                if checkpoint["fine_kmesh"] != p["fine_kmesh"] or checkpoint["fine_qmesh"] != p["fine_qmesh"] or checkpoint["modes"] != 3 * len(actual):
+                    raise ValueError("Interpolated grids or mode count differ from the plan.")
             _, _, spectrum = qe_epw.read_spectrum(folder / (qe.PREFIX + ".a2f"))
             if spectrum["points"] != p["spectral_points"]:
                 raise ValueError("The spectral grid differs from the plan.")
@@ -215,13 +225,18 @@ def analyze_outputs(folder, task, expected_structure=None):
             if not np.isclose(lam, spectrum["lambda"], atol=1e-6, rtol=1e-6):
                 raise ValueError("The native coupling differs from its spectrum integral.")
             qe._csv(folder / "wannier_centres.csv", ["orbital", "x_A", "y_A", "z_A", "spread_A2"], [[i, *v] for i, v in enumerate(values, 1)])
-            result.update(lambda_integral=lam, omega_log_mev=spectrum["omega_log_mev"], fine_kmesh=p["fine_kmesh"], fine_qmesh=p["fine_qmesh"], matrix_values=checkpoint["matrix_values"], wannier_spread_A2=sum(v[3] for v in values), checkpoint_sha256=checkpoint["sha256"])
-            result["artifacts"] += [qe.PREFIX + ".a2f", qe.PREFIX + ".wout", "wannier_centres.csv", *checkpoint["sha256"]]
+            result.update(lambda_integral=lam, omega_log_mev=spectrum["omega_log_mev"], wannier_spread_A2=sum(v[3] for v in values))
+            result["artifacts"] += [qe.PREFIX + ".a2f", qe.PREFIX + ".wout", "wannier_centres.csv"]
+            if spectrum_only:
+                result["scope"] = "native_spectrum"
+            else:
+                result.update(fine_kmesh=p["fine_kmesh"], fine_qmesh=p["fine_qmesh"], matrix_values=checkpoint["matrix_values"], checkpoint_sha256=checkpoint["sha256"])
+                result["artifacts"] += list(checkpoint["sha256"])
         result.update(success=True, reason="Native outputs and numerical checks passed.")
     except (ValueError, KeyError, OSError, TypeError, ET.ParseError, IndexError, OverflowError) as error:
         result["reason"] = str(error)
         (folder / "wannier_centres.csv").unlink(missing_ok=True)
-    qe._json(folder / "qe-result.json", result)
+    qe._json(folder / ("qe-spectrum-result.json" if spectrum_only else "qe-result.json"), result)
     return result
 
 

@@ -192,10 +192,10 @@ def prepare_continuation(source_run, source_stage, run_dir, config, tasks,
         return _prepare_qsum(source, target, inspected, config, tasks,
                              parameters, stage_parameters)
     if inspected["source_task"] == "epw_interpolate":
-        if not reuse_checkpoint:
+        if "epw_aniso" in tasks and not reuse_checkpoint:
             raise ValueError("Anisotropic EPW continuation requires the accepted remote Wannier checkpoint.")
-        return _prepare_anisotropic(source, target, inspected, config, tasks,
-                                    parameters, stage_parameters)
+        return _prepare_wannier_epw(source, target, inspected, config, tasks,
+                                   parameters, stage_parameters)
     recipe = {**inspected["parameters"], **deepcopy(parameters or {})}
     first_recipe = {**recipe, **deepcopy((stage_parameters or [{}])[0])}
     same_cluster = all(getattr(config, key) == getattr(inspected["config"], key) for key in _CLUSTER_KEYS)
@@ -336,20 +336,26 @@ def _prepare_eliashberg(source, target, inspected, config, tasks, parameters, st
     return state
 
 
-def _freeze_wannier_source(source, prepared, plan, inspected):
+def _freeze_wannier_source(source, prepared, plan, inspected, *, include_checkpoint):
     from . import qe_epw
 
     evidence = source / inspected["source_folder"] / "outputs"
     records = _read(evidence / "artifact_manifest.json")
-    native = qe_epw.read_checkpoint(evidence,
-        acoustic_cutoff_cm1=inspected["parameters"].get("acoustic_cutoff_cm1", 5.0))
+    metadata = _read(evidence / "qe-input.json")
     retained = {"qe-input.json", "epw.in", "epw.out", "structure.cif", "data-file-schema.xml",
-                "dft_agent.wout", "dft_agent.win", "dft_agent.a2f", *native["sha256"]}
+                "dft_agent.wout", "dft_agent.win", "dft_agent.a2f", "crystal.fmt", "selecq.fmt",
+                *metadata["input_sha256"]}
+    if include_checkpoint:
+        native = qe_epw.read_checkpoint(evidence,
+            acoustic_cutoff_cm1=inspected["parameters"].get("acoustic_cutoff_cm1", 5.0))
+        retained.update(native["sha256"])
     for name in sorted(retained):
         path = evidence / name
         if (not qe_context._artifact_name(name) or path.is_symlink()
                 or not path.resolve().is_relative_to(evidence.resolve())
-                or name not in records or qe_workflow._digest(path) != records[name]["sha256"]):
+                or name not in records or not path.is_file()
+                or path.stat().st_size != records[name]["size"]
+                or qe_workflow._digest(path) != records[name]["sha256"]):
             raise ValueError("The accepted Wannier evidence changed or is missing.")
         relative = "source/wannier/" + name
         destination = prepared / relative
@@ -358,25 +364,29 @@ def _freeze_wannier_source(source, prepared, plan, inspected):
         plan["sources"][relative] = records[name]["sha256"]
 
 
-def _prepare_anisotropic(source, target, inspected, config, tasks, parameters, stage_parameters):
-    """Reuse native Wannier matrix elements without recalculating their source."""
+def _prepare_wannier_epw(source, target, inspected, config, tasks, parameters, stage_parameters):
+    """Reuse an accepted Wannier spectrum or native matrix elements."""
     from . import qe_epw
 
-    if not tasks or any(task != "epw_aniso" for task in tasks):
-        raise ValueError("Continue this Wannier checkpoint with epw_aniso.")
+    if not tasks or any(task not in {"epw_iso", "epw_tc", "epw_aniso"} for task in tasks):
+        raise ValueError("Continue this Wannier spectrum with epw_iso, epw_tc or epw_aniso.")
     if stage_parameters is not None and len(stage_parameters) != len(tasks):
         raise ValueError("Supply one parameter override per EPW task.")
-    if (not inspected["checkpoint"]
+    needs_checkpoint = "epw_aniso" in tasks
+    if needs_checkpoint and (not inspected["checkpoint"]
             or any(getattr(config, key) != getattr(inspected["config"], key) for key in _CLUSTER_KEYS)
             or config.qe_pseudopotentials != inspected["config"].qe_pseudopotentials):
         raise ValueError("Use the original cluster, QE installation and pseudopotentials for the accepted Wannier checkpoint.")
     base = deepcopy(parameters or {})
     recipes = [{**base, **deepcopy(overrides)} for overrides in (stage_parameters or [{}] * len(tasks))]
-    for recipe in recipes:
-        qe_epw.validate_parameters(recipe, "epw_aniso")
-    with tempfile.TemporaryDirectory(prefix=".qe-anisotropic-", dir=target.parent) as directory:
+    for task, recipe in zip(tasks, recipes):
+        qe_epw.validate_parameters(recipe, task)
+    with tempfile.TemporaryDirectory(prefix=".qe-wannier-epw-", dir=target.parent) as directory:
         prepared = Path(directory) / "run"
-        state = qe_workflow.prepare_plan(inspected["structure_path"], prepared, config,
+        # The removed source stages use their original UPF metadata. Scalar
+        # EPW itself needs no pseudopotentials or remote source checkpoint.
+        preparation_config = replace(config, qe_pseudopotentials=inspected["config"].qe_pseudopotentials)
+        state = qe_workflow.prepare_plan(inspected["structure_path"], prepared, preparation_config,
             ["wannier_electron_phonon", *tasks], stage_parameters=[inspected["parameters"], *recipes])
         plan = _read(prepared / "plan.json")
         removed = [stage for stage in state["stages"] if stage["request_index"] == 0]
@@ -384,32 +394,39 @@ def _prepare_anisotropic(source, target, inspected, config, tasks, parameters, s
         plan["stages"] = [spec for spec in plan["stages"] if spec["request_index"] != 0]
         for stage in removed:
             shutil.rmtree(prepared / stage["folder"])
-        _freeze_wannier_source(source, prepared, plan, inspected)
-        proof_path = prepared / "source/checkpoint.json"
-        qe_workflow._write(proof_path, inspected["checkpoint"])
-        reference = {"receipt": "source/checkpoint.json", "receipt_sha256": qe_workflow._digest(proof_path)}
-        plan["sources"][reference["receipt"]] = reference["receipt_sha256"]
+        _freeze_wannier_source(source, prepared, plan, inspected, include_checkpoint=needs_checkpoint)
+        reference = None
+        if needs_checkpoint:
+            proof_path = prepared / "source/checkpoint.json"
+            qe_workflow._write(proof_path, inspected["checkpoint"])
+            reference = {"receipt": "source/checkpoint.json", "receipt_sha256": qe_workflow._digest(proof_path)}
+            plan["sources"][reference["receipt"]] = reference["receipt_sha256"]
         for spec, stage in zip(plan["stages"], state["stages"]):
             for item in (spec, stage):
                 item.pop("evidence_from", None)
                 item.pop("auxiliary_from", None)
                 item.update(restart_from=None, structure_from=None, source_evidence="source/wannier",
-                            external_checkpoint=reference, request_index=item["request_index"] - 1)
+                            request_index=item["request_index"] - 1)
+                if stage["name"] == "epw_aniso":
+                    item["external_checkpoint"] = reference
             stage.update(metadata={}, materialized=False)
         plan.update(tasks=list(tasks), parameters=base, stage_parameters=recipes)
         state.update(tasks=list(tasks), task=tasks[0] if len(tasks) == 1 else "pipeline", parameters=base)
         qe_workflow._write(prepared / "plan.json", plan)
         state["plan_sha256"] = qe_workflow._digest(prepared / "plan.json")
+        config.save(prepared / "config.json")
+        state["config_sha256"] = qe_workflow._digest(prepared / "config.json")
         for stage in state["stages"]:
             qe_workflow._materialize(prepared, state, config, stage)
         qe_workflow._write(prepared / "parent.json", {
             "schema_version": 1, "engine": "qe", "source_run_id": inspected["source_run_id"],
             "source_stage": inspected["source_folder"], "source_context_sha256": inspected["context_sha256"],
-            "source_structure_sha256": inspected["structure_sha256"], "wannier_checkpoint_reused": True,
-            "note": "Accepted Wannier matrix elements reused with frozen native evidence."})
+            "source_structure_sha256": inspected["structure_sha256"], "wannier_checkpoint_reused": needs_checkpoint,
+            "wannier_spectrum_reused": any(task in {"epw_iso", "epw_tc"} for task in tasks),
+            "note": "Accepted Wannier evidence reused; source calculations are not repeated."})
         if qe_context.load_run_context(source)["context_sha256"] != inspected["context_sha256"]:
             raise ValueError("The source Wannier evidence changed during preparation.")
-        qe_workflow._save(prepared, state, "Accepted Wannier checkpoint prepared for anisotropic EPW.")
+        qe_workflow._save(prepared, state, "Accepted Wannier evidence prepared for EPW.")
         os.replace(prepared, target)
     return state
 

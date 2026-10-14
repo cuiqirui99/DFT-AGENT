@@ -83,10 +83,12 @@ phonon_smearing_thz or omega_max_thz. New electronic/q grids require a new task.
 EPW epw_iso solves the nonlinear isotropic Eliashberg gap on supplied temperatures.
 epw_tc solves its linearized eigenvalue and reports a temperature bracket only
 when the largest eigenvalue crosses one. Both require an accepted electron_phonon
-spectrum; put electron_phonon first in a new plan. Each EPW stage has its own flat
+or wannier_electron_phonon spectrum; put that source first in a new plan. When
+both sources occur, scalar EPW uses the most recent spectrum. Each EPW stage has its own flat
 parameters_json object, with no epw wrapper and no electronic-stage settings:
 temperatures (explicit increasing kelvin list), mu_star, frequency_cutoff_ev,
-broadening_index (one-based index of the electronic broadening series), iterations,
+broadening_index (one-based electronic broadening index for electron_phonon, or
+phonon broadening index for wannier_electron_phonon), iterations,
 convergence and mixing. Ask for missing temperatures, cutoff or broadening choice.
 Never pick a broadening to maximize Tc. EPW must be installed on the cluster.
 wannier_electron_phonon expands to SCF, DFPT, a full-grid NSCF and EPW Wannier
@@ -197,7 +199,7 @@ def _check_requirements(stage, parameters):
 def _recipes(plan, images=None, *, continuation_source=None):
     stages = []
     source = continuation_source or {}
-    coupling = source.get("parameters") if source.get("source_task") == "eph_lambda" else None
+    spectrum = source.get("parameters") if source.get("source_task") in {"eph_lambda", "epw_interpolate"} else None
     interpolation = source.get("parameters") if source.get("source_task") == "epw_interpolate" else None
     for stage in plan["stages"]:
         value = stage.get("parameters")
@@ -209,14 +211,14 @@ def _recipes(plan, images=None, *, continuation_source=None):
             raise ValueError("Files and pseudopotentials come from your settings, not the model.")
         electronic = value
         if stage["task"] in {"epw_iso", "epw_tc", "epw_aniso"}:
-            electronic = interpolation if stage["task"] == "epw_aniso" else coupling
+            electronic = interpolation if stage["task"] == "epw_aniso" else spectrum
             if electronic is None:
                 raise ValueError("EPW requires its corresponding electron-phonon source before this stage.")
         _check_requirements(stage, electronic)
         if stage["task"] == "electron_phonon":
-            coupling = value
+            spectrum = value
         elif stage["task"] == "wannier_electron_phonon":
-            interpolation = value
+            interpolation = spectrum = value
         if stage["task"] == "neb":
             if not images:
                 raise ValueError("Upload the initial and final structures for NEB.")

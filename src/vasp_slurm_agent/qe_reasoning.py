@@ -26,9 +26,11 @@ An existing checkpoint is an initial state, not proof of convergence for a new m
 Use zero-based source_stage indices from continuations. Preserve stage-specific
 methods, explicit exclusions and requests in the continuation intent. Parameters
 inherit the source stage; explicitly override settings that the user changes.
-For epw_interpolate sources, continue only with epw_aniso using explicit
-temperatures, mu_star and frequency_cutoff_ev. Its Wannier settings and native
-matrix elements stay fixed; do not copy interpolation parameters into epw_aniso.
+For epw_interpolate sources, continue with epw_iso, epw_tc or epw_aniso using
+explicit temperatures, mu_star and frequency_cutoff_ev. Scalar epw_iso/epw_tc
+also require an explicit broadening_index selecting a phonon-broadening column;
+the source electronic broadening stays fixed. epw_aniso instead reuses the native
+matrix checkpoint. Do not copy interpolation settings into EPW solver parameters.
 Native namelist keys merge by section and retain unspecified keys. Native values
 take precedence over shorthand parameters; update the matching native key when
 changing such a setting. Supply complete replacement site-moment and Hubbard lists.
@@ -108,8 +110,8 @@ def _continuation_plan(decision, inspected):
                 raise ValueError("Continue an accepted spectrum with epw_iso or epw_tc.")
             stage["parameters"] = {"mu_star": inspected["parameters"]["mu_star"], **parameters}
         elif inspected.get("source_task") == "epw_interpolate":
-            if stage["task"] != "epw_aniso":
-                raise ValueError("Continue an accepted Wannier checkpoint with epw_aniso.")
+            if stage["task"] not in {"epw_iso", "epw_tc", "epw_aniso"}:
+                raise ValueError("Continue an accepted Wannier spectrum with epw_iso, epw_tc or epw_aniso.")
             stage["parameters"] = parameters
         else:
             stage["parameters"] = _merge_parameters(inspected["parameters"], parameters)

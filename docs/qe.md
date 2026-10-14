@@ -3,6 +3,7 @@
 DFT Agent can prepare and run Quantum ESPRESSO on a Slurm cluster. You need an SSH account and compute allocation. A VASP license is not required.
 
 Version 0.4.3 is in development. Installation and calculation support must pass cluster acceptance before release.
+Use the [development preview](install.md#development-preview); the stable v0.4.2 installers do not contain QE.
 
 ## Connect
 
@@ -22,6 +23,8 @@ The site binaries are in `/public1/soft/qe/7.4.1/bin`. Use your own cluster acco
 ## Install
 
 The managed installer builds QE 7.4.1 in your cluster storage. It downloads the official source and pinned dependencies, checks their hashes, then submits a Slurm build job. Compute nodes do not need Internet access. Existing installations are kept. Select **Include EPW** to also build EPW 5.9 and Wannier90.
+
+In **Cluster setup**, save your connection and environment settings. Open **Install Quantum ESPRESSO**, choose **Build CPUs** and **Include EPW** if needed, review the allocation and click **Install QE**. Use **Check installation** to follow the same build. When it finishes, the app saves the executable folder. Run **Check cluster** before preparing a calculation.
 
 Load your cluster's MPI Fortran compiler, C compiler and math libraries first. For the tested Paracloud environment:
 
@@ -43,11 +46,13 @@ Review `qe-install-plan.json` before installation. Keep `qe-install-receipt.json
 
 For EPW, add `--include-epw` to `install-plan` before running `install`. The core and EPW builds have both passed installation checks on Paracloud. A calculation with the installed binaries is recorded in [QE acceptance](../validation/qe-0.4.3/README.md).
 
-The managed build uses CPU and MPI. GPU calculations need a compatible cluster installation.
+This QE preview uses CPU and MPI. QE GPU execution is not supported yet.
 
 ## Pseudopotentials
 
 Set a dedicated remote UPF folder, then install the elements needed by your structure:
+
+In the app, upload the structure in **New calculation**, open **Pseudopotentials**, select a **Library** and click **Install public UPFs**. The app saves the mapping automatically. For the CLI:
 
 ```bash
 dft-agent qe pseudos --config cluster.json --elements Si O
@@ -71,7 +76,7 @@ Use the same plan, review, prepare, submit and monitor sequence as other calcula
 
 In **Model**, select a provider and enter your API key and model name. See [Model setup](models.md) and [Token use](token-use.md). In **New calculation**, upload a structure, describe your goal and choose **Plan**. You can revise the structure and calculation steps in the same task. Missing scientific settings trigger a question.
 
-After a stage finishes, use **Continue this task** to ask about its results or request another calculation. The model receives verified results and their calculation settings. A continuation or repair creates a new run for review; it does not submit a job by itself.
+After a stage finishes, open **Continue this task**, enter **What next?** and click **Plan next step**. Review the response, then use **Prepare next step** to create a new run. Submit that run after checking its inputs. The model receives verified results and their settings; planning alone submits nothing.
 
 The current integration targets relaxation, SCF, bands, DOS, projected DOS, charge density, magnetism, SOC, DFT+U, hybrid functionals, phonons and NEB. Acceptance is tracked per workflow; installing the full QE suite does not mean every QE package is available through the agent.
 
@@ -79,7 +84,7 @@ The preview accepts PBE, LDA, PBEsol, HSE06 and PBE0. It checks method and UPF c
 
 For NEB, provide endpoints with the same cell, elements and atom order. For phonon dispersions, use a consistent SCF calculation and regular q-point grid before real-space interpolation.
 
-Download the generated inputs, raw output and parsed results from each run. Read convergence checks before interpreting a result. A scheduler's `COMPLETED` state alone does not establish numerical convergence.
+In **Runs**, open the calculation and use **Raw data and files** for individual tables and outputs. **Prepare download → Download results (.zip)** collects the inputs, retained outputs, tables, plots and plan. The CLI equivalent is `dft-agent bundle RUN`. Read convergence checks before interpreting a result; Slurm's `COMPLETED` alone does not establish numerical convergence.
 
 Large checkpoints remain on the cluster. List and retrieve selected files with `dft-agent files RUN STAGE` and `dft-agent files RUN STAGE --fetch FILE`. Collected files are checked against the accepted checkpoint hashes.
 

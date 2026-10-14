@@ -41,7 +41,7 @@ _EPW_RESULT_NAME = re.compile(r"(?:dft_agent\.(?:wout|win|a2f|imag_aniso_[0-9.]+
 _QE_UPLOAD_NAMES = frozenset({"pw.in", "ph.in", "q2r.in", "matdyn.in", "dos.in", "projwfc.in",
     "neb.in", "pp.in", "lambda.in", "structure.cif", "qe-input.json", "pseudo_manifest.json",
     "runtime.json", "qe_runtime.py", "submit.sh", "dispatch.py",
-    "epw.in", "alpha2f.dat", "source.a2f", "source-schema.xml", "source-epw.in", "source-epw.out", "crystal.fmt"})
+    "epw.in", "alpha2f.dat", "source.a2f", "source-schema.xml", "source-epw.in", "source-epw.out", "source-wannier.wout", "crystal.fmt"})
 
 
 def _require_cpu(config):
@@ -224,10 +224,11 @@ def _sequence(tasks, parameters, stage_parameters):
             current = add(task, recipe, interpolation)
             sequence[current]["evidence_from"] = interpolation
         elif task.startswith("epw_"):
-            if coupling is None:
-                raise ValueError("EPW needs an accepted electron-phonon spectrum. Add electron_phonon first or continue an accepted coupling run.")
+            sources = [item for item in (coupling, interpolation) if item is not None]
+            if not sources:
+                raise ValueError("EPW needs an accepted electron-phonon spectrum. Add electron_phonon or wannier_electron_phonon first, or continue an accepted spectrum.")
             current = add(task, recipe)
-            sequence[current]["evidence_from"] = coupling
+            sequence[current]["evidence_from"] = max(sources)
         elif task.startswith("eph_"):
             raise ValueError("Request electron_phonon to prepare the complete validated dependency chain.")
         elif task in {"relax", "vc-relax"}:

@@ -23,10 +23,11 @@ your IT team. [Microsoft's guidance](https://learn.microsoft.com/en-us/windows/a
 ## First use
 
 1. Open **Runs → Load sample runs** to view completed results and plots offline.
-2. In **New calculation**, choose an example structure and **Manual**, then
+2. Choose **VASP**. In **New calculation**, choose an example structure and **Manual**, then
    **Prepare inputs**. This needs neither a cluster nor a model account.
 3. To submit a calculation, save your own **Cluster setup**: SSH access to a
-   Linux Slurm cluster with Python 3, licensed VASP and POTCAR files.
+   Linux Slurm cluster with Python 3 and the selected solver. VASP requires
+   licensed VASP and POTCAR files. The [QE preview](qe.md) can install QE and public UPFs.
 4. For **Plan**, **Explain results** or model-assisted edits, configure your
    own model account under **Model**. Network access and the provider's billing
    apply. Bundled SDKs include no API keys or credits; Codex CLI is optional
@@ -94,6 +95,13 @@ another port. OpenSSH is required for macOS/Linux cluster connections.
 
 `[agent]` adds model SDKs and keychain support; omitting it still allows
 manual preparation and calculation. `[dev]` adds test and build tools.
+
+### Development preview
+
+To try the `0.4.3` candidate, replace `--branch v0.4.2` in the clone command above
+with `--branch desktop-0.4.3`, then follow the same installation steps.
+This branch is under validation; v0.4.2 remains the stable release.
+Start with the [QE setup guide](qe.md).
 
 ## Files and updates
 

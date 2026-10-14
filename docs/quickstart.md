@@ -2,19 +2,20 @@
 
 ## 1. Install
 
-For the local `0.4.2` preview, open the supplied Apple Silicon Mac `.dmg` or
-Windows x64 `.exe` installer. Copy the Mac app to Applications, or run the
+Download the stable [v0.4.2](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.2)
+Apple Silicon Mac `.dmg` or Windows x64 `.exe`. Copy the Mac app to Applications, or run the
 Windows installer, then open **DFT Agent**. Python and model SDKs are included;
-Windows runs natively and does not require WSL. The preview is not yet
-published on GitHub Releases or PyPI. [Install](install.md) also covers source
-installation for Linux and developers.
+Windows runs natively and does not require WSL. QE needs the
+[0.4.3 development preview](install.md#development-preview).
+[Install](install.md) also covers source installation for Linux and developers.
 
 Settings live in `~/.dft-agent/`, runs in `~/dft-agent-runs/`. Settings from
 versions before 0.4.2 are copied over on first start.
 
-The interface runs locally. The cluster needs licensed VASP and POTCAR
-files, Python 3.8+, Bash, `sha256sum`, and Slurm's `sbatch`, `squeue`, `sacct`
-and `scancel` commands.
+The interface runs locally. The cluster needs Python 3.8+, Bash, `sha256sum`,
+and Slurm's `sbatch`, `squeue`, `sacct` and `scancel` commands. VASP requires
+licensed VASP and POTCAR files. For QE, follow [QE setup](qe.md) to install
+the solver and public pseudopotentials.
 
 ## 2. Connect a model
 
@@ -30,19 +31,22 @@ for GLM in China. For Codex, run `codex login` first and choose **Codex CLI**.
 Other services can use **Compatible API** if they support strict JSON-schema
 output through Chat Completions.
 
-Test before connecting a cluster: open **New calculation**, select
+Test before connecting a cluster: choose **VASP**, open **New calculation**, select
 **Example → Si**, choose **Agent**, and enter “Relax this structure with PBE.”
 Click **Plan**. A plan or a follow-up question confirms the connection.
 **Model usage** shows reported token counts. This uses your model account but
 submits no calculation. To work without a model, choose **Manual**.
 
-No cluster yet? Open **Runs** and click **Load sample runs** to explore three
+No cluster yet? Open **Runs** and click **Load sample runs** to explore four
 completed calculations with their plots; explanations require a model account.
 **Prepare inputs**
 also works without a cluster: the INCAR, KPOINTS and POSCAR are generated for
 review, and the cluster settings are attached when you submit.
 
 ## 3. Connect to your cluster
+
+For **Quantum ESPRESSO**, follow [QE setup](qe.md#connect). The instructions
+below describe the VASP connection.
 
 Check SSH access and the host key first. In **Cluster setup**, pick a preset
 if your cluster is listed, enter the SSH host and user, and click
@@ -84,7 +88,7 @@ suggested fix for each failed item.
 ## 4. Prepare and submit
 
 In **New calculation**, upload a CIF or POSCAR, or choose **Example**.
-All [18 examples](structures.md) are included in the installed package.
+The [example structures](structures.md) are included in the installed package.
 Select a material to preview it; **Download input** saves its structure for
 command-line use.
 
@@ -177,16 +181,17 @@ If you installed a release wheel, download the new wheel and install it in the
 same environment with `python -m pip install --upgrade 'PATH_TO_WHEEL[agent]'`.
 Updating does not restart saved calculations.
 
-The app is available to researchers with their own cluster and VASP access.
+The app is available to researchers with their own cluster and solver access.
 Model features also need a model account. Provider support includes request
 format and local output checks; an account's available models and limits vary.
 
 ## Scope
 
-Ordered, fully occupied periodic structures, with PBE, magnetism, SOC,
+The VASP route accepts ordered, fully occupied periodic structures, with PBE, magnetism, SOC,
 Dudarev DFT+U, HSE06 and PBE0. See [Methods](methods.md) for settings and limits.
 The structure editor can prepare substitutions, vacancies and slabs from an input
-crystal. Phonons, NEB and molecular dynamics are not implemented.
+crystal. The [QE preview](qe.md) adds phonons, NEB and electron–phonon workflows;
+molecular dynamics is not integrated.
 Failed or unconverged calculations stop without automatic parameter changes.
 
 ## Language

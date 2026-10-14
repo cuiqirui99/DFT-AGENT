@@ -41,7 +41,7 @@ jobs:
           /tmp/dft-agent-wheel/bin/dft-agent convert --help
           /tmp/dft-agent-wheel/bin/dft-agent memory list --query SOC
           /tmp/dft-agent-wheel/bin/vasp-agent --help
-          /tmp/dft-agent-wheel/bin/python -c "from vasp_slurm_agent import app, guidance, experience, recovery, structures, structure_agent, task_agent, batch, continuation"
+          /tmp/dft-agent-wheel/bin/python -c "from vasp_slurm_agent import app, guidance, experience, recovery, structures, structure_agent, task_agent, batch, continuation, qe_workflow, qe_epw, qe_wannier, qe_pairing"
           /tmp/dft-agent-wheel/bin/python - <<'PY'
           from importlib.resources import files
           import json
@@ -60,8 +60,9 @@ jobs:
 
           examples = files("vasp_slurm_agent").joinpath("examples")
           assert len({item.name.rsplit('.', 1)[0] for item in examples.iterdir()
-                      if item.name.endswith(('.cif', '.vasp'))}) == 18
-          assert len([item for item in examples.iterdir() if item.name.endswith('.vasp')]) == 9
+                      if item.name.endswith(('.cif', '.vasp'))}) == 19
+          assert len([item for item in examples.iterdir() if item.name.endswith('.vasp')]) == 10
+          assert examples.joinpath("qe-mgb2-stages.json").is_file()
           assert examples.joinpath("sources.json").is_file()
           with tempfile.TemporaryDirectory() as directory:
               root = Path(directory)

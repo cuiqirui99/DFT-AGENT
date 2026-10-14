@@ -18,7 +18,7 @@ recursive-include validation/results *.json
 recursive-include validation/methods-0.2.0 *.vasp *.py
 recursive-include validation/methods-0.3.0 *.vasp
 recursive-include validation/tasks-0.4.0 INCAR POSCAR KPOINTS
-recursive-include validation/qe-0.4.3 *.md *.json *.cif *.in *.out *.xml *.sha256 *.freq *.gp *.dat *.int *.xyz *.axsf *.path *.dos *.cube pdos.* lambda a2F.dos* force_constants dft_agent.dyn* elph.inp_lambda.* a2Fmatdyn.* a2Fq2r.*
+recursive-include validation/qe-0.4.3 *
 recursive-include validation/input-defaults-0.4.1 INCAR POSCAR KPOINTS seed.INCAR
 recursive-include validation/token-use *.json *.vasp *.py *.md *.txt POSCAR
 include validation/reference/README.md

@@ -21,11 +21,12 @@ DFT Agent 根据自然语言目标或手动参数，准备并在你的 HPC 集�
 - **Windows x64：**运行 `.exe` 安装程序，然后从开始菜单打开 **DFT Agent**。
 
 源码安装见[安装指南](docs/install.md)，打包与验收范围见[桌面版说明](docs/desktop.md)。
+QE 需要使用 [0.4.3 开发预览版](docs/install.md#development-preview)，v0.4.2 不包含 QE。
 
 ## 没有集群也能试用
 
 - 在 **Runs（计算记录）** 点击 **Load sample runs（加载示例计算）**，可离线浏览四个真实计算：SrTiO3 和 Si 工作流、MgO 晶胞弛豫、Fe NM/FM/AFM 磁性对比。建议先看 SrTiO3，包含 353 个实际计算的能带 k 点、投影态密度、图表和原始输出。**解释结果**需要连接模型，使用你自己的账号额度。
-- 在 **New calculation（新建计算）** 页面选择示例结构和 **Manual（手动）** 模式，点击 **Prepare inputs（准备输入文件）**，不需要集群或模型就能看到生成的 INCAR、KPOINTS 和 POSCAR。提交时再关联集群设置。
+- 选择 **VASP**，在 **New calculation（新建计算）** 页面选择示例结构和 **Manual（手动）** 模式，点击 **Prepare inputs（准备输入文件）**，不需要集群或模型就能看到生成的 INCAR、KPOINTS 和 POSCAR。提交时再关联集群设置。
 - 在侧边栏把语言切换为中文。
 
 ## 连接模型
@@ -45,7 +46,7 @@ DFT Agent 根据自然语言目标或手动参数，准备并在你的 HPC 集�
 
 ## 使用
 
-1. 在 **Cluster setup（集群设置）** 中填写 SSH 主机和用户名，点击 **Detect from cluster（从集群探测）** 自动填写分区、账号、VASP 模块和 POTCAR 目录，检查后保存。也可以先从 Dardel、Tetralith 或北京超算等预设开始。
+1. 选择 **VASP** 或 **Quantum ESPRESSO**，在 **Cluster setup（集群设置）** 中填写 SSH 主机和用户名。VASP 可用 **Detect from cluster（从集群探测）** 填写配置；QE 按[设置指南](docs/qe.md)安装或选择程序和 UPF 赝势。
 2. 打开 **New calculation**，上传 CIF 或 POSCAR，或选择示例结构。
 3. 在 **Model** 中选择服务商，填写 **Goal（目标）**，点击 **Plan（生成计划）**。没有模型账号时可用 **Manual（手动）** 模式。
 4. 检查计划，点击 **Prepare inputs**。
@@ -54,11 +55,11 @@ DFT Agent 根据自然语言目标或手动参数，准备并在你的 HPC 集�
 
 结构修改可以直接写在目标里，也可以用 **Edit structure（编辑结构）** 做几何编辑和格式转换。[示例结构](docs/structures.md)。阶段方法、对比和后续计算见[工作流程](docs/workflows.md)。
 
-在图旁下载 CSV，在 **Raw data and files** 中下载 VASP 原始文件。
+在 **Raw data and files** 中下载数据表和原始输出，或点击 **Prepare download → Download results (.zip)** 下载结果包。
 
 计算完成时会发送桌面通知，也可以在偏好设置里填写 Webhook 地址（Slack、Discord、企业微信等）。重新打开应用时会自动恢复已提交计算的监控。
 
-失败的计算可以用 **Repair（修复）** 查看修复建议并准备新的运行。[详情](docs/harness.md)。**Memory（记忆）** 包含经过校验的指导和案例。[记忆](docs/memory.md)。
+失败后，用 **Repair（VASP）** 或 **Continue this task（QE）** 查看修复建议，检查后准备新的运行。[详情](docs/harness.md)。**Memory（记忆）** 包含经过校验的指导和案例。[记忆](docs/memory.md)。
 
 模型调用使用精简的上下文，并记录报告的 token 用量。[模型用量](docs/token-use.md)。
 

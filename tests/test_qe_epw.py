@@ -374,3 +374,68 @@ def test_native_multismearing_spectrum_integrals(tmp_path):
     text=path.read_text().replace(f'{integrated[-1]:.7f}','9.0000000')
     path.write_text(text)
     with pytest.raises(ValueError,match='integrals'):epw.read_spectrum(path)
+
+
+def wannier_spectrum_fixture(tmp_path, source):
+    """Flat synthetic spectrum evidence, deliberately without a g-matrix checkpoint."""
+    from vasp_slurm_agent import qe_wannier
+    from test_qe_wannier import settings
+    folder = tmp_path / 'wannier-spectrum'
+    qe_wannier.prepare_inputs(source / 'Al.cif', folder, 'epw_interpolate', settings(spectral_points=10))
+    schema = (source / 'schema.xml').read_text().replace('<input>', '<input><control_variables><calculation>nscf</calculation></control_variables>')
+    schema = schema.replace('<convergence_achieved>true', '<convergence_achieved>false')
+    (folder / 'data-file-schema.xml').write_text(schema)
+    w = np.arange(1, 11, dtype=float)
+    a = np.full((10, 2), [.1, .2])
+    integrals = np.cumsum(2 * a / w[:, None], axis=0)
+    rows = np.column_stack([w, a, integrals])
+    spectrum = ' w[meV] a2f and integrated 2*a2f/w for 2 smearing values\n'
+    spectrum += ''.join(' '.join(f'{x:.7f}' for x in row) + '\n' for row in rows)
+    spectrum += 'Phonon smearing (meV)\n # .5 .55\nElectron smearing (eV) .1\nFermi window (eV) 10\nSummed el-ph coupling .5\n'
+    (folder / 'dft_agent.a2f').write_text(spectrum)
+    (folder / 'epw.out').write_text(f'Program EPW v.5.9\nRunning Wannier90\nFinish writing .ephmat files\nElectron-phonon coupling strength = {integrals[-1, 0]:.7f}\n' + FINISH)
+    wout = ' +------------------------------------+<-- CONV\n | Iter Delta Spread RMS Gradient Spread Time |<-- CONV\n'
+    wout += ''.join(f'{i} 1e-9 1e-8 4 1 <-- CONV\n' for i in range(1, 6)) + 'Final State\n'
+    wout += ''.join(f'WF centre and spread {i} ( 0.0, 0.0, 0.0 ) 1.0\n' for i in range(1, 5))
+    (folder / 'dft_agent.wout').write_text(wout + 'All done: wannier90 exiting\n')
+    return folder
+
+
+@pytest.mark.parametrize('task', ['epw_iso', 'epw_tc'])
+def test_scalar_wannier_handoff_preserves_all_columns_and_labels(tmp_path, source, task):
+    from vasp_slurm_agent import qe_wannier
+    evidence = wannier_spectrum_fixture(tmp_path, source)
+    assert not qe_wannier.analyze_outputs(evidence, 'epw_interpolate')['success']
+    result_before = (evidence / 'qe-result.json').read_bytes()
+    spectral = qe_wannier.analyze_spectrum(evidence)
+    assert spectral['success'] and spectral['scope'] == 'native_spectrum', spectral
+    assert 'checkpoint_sha256' not in spectral
+    assert (evidence / 'qe-result.json').read_bytes() == result_before
+    folder = tmp_path / task
+    meta = epw.prepare_inputs(source / 'Al.cif', folder, task, parameters(broadening_index=2), evidence_dir=evidence)
+    assert meta['source_provenance']['phonon_broadening_mev'] == .55
+    assert meta['source_provenance']['electronic_broadening_ev'] == .1
+    assert meta['source_provenance']['available_phonon_broadenings_mev'] == [.5, .55]
+    assert not meta['requires_restart']
+    assert (folder / 'source.a2f').read_bytes() == (evidence / 'dft_agent.a2f').read_bytes()
+    assert np.loadtxt(folder / 'alpha2f.dat')[:, 1] == pytest.approx(.2)
+    assert {'source-epw.in', 'source-epw.out', 'source-wannier.wout'} <= set(meta['input_files'])
+    assert all(qe._hash(folder / name) == digest for name, digest in meta['input_sha256'].items())
+
+
+@pytest.mark.parametrize('mutation,match', [('column', 'exceeds'), ('labels', 'labels'), ('smearing', 'broadenings differ'), ('unfinished', 'failed verification'), ('non_nscf', 'not converged')])
+def test_scalar_wannier_rejects_unverified_source(tmp_path, source, mutation, match):
+    evidence = wannier_spectrum_fixture(tmp_path, source)
+    p = parameters()
+    if mutation == 'column':
+        p['broadening_index'] = 3
+    elif mutation in {'labels', 'smearing'}:
+        file = evidence / 'dft_agent.a2f'
+        file.write_text(file.read_text().replace('Phonon smearing', 'Missing smearing') if mutation == 'labels' else file.read_text().replace('Electron smearing (eV) .1', 'Electron smearing (eV) .2'))
+    elif mutation == 'unfinished':
+        (evidence / 'epw.out').write_text('Program EPW v.5.9\n')
+    else:
+        file = evidence / 'data-file-schema.xml'
+        file.write_text(file.read_text().replace('<calculation>nscf', '<calculation>scf'))
+    with pytest.raises(ValueError, match=match):
+        epw.prepare_inputs(source / 'Al.cif', tmp_path / 'rejected', 'epw_iso', p, evidence_dir=evidence)
