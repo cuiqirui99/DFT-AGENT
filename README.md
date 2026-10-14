@@ -4,7 +4,7 @@
 
 Version `0.4.2`. [中文说明](README.zh-CN.md)
 
-[Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology
+[Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology; [Anna Delin](https://www.kth.se/profile/annadel=en) · KTH Royal Institute of Technology
 
 DFT Agent prepares and runs first-principles calculations on your HPC cluster from a natural-language goal or manual settings.
 
