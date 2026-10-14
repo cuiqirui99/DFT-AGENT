@@ -1,0 +1,11 @@
+DFT Agent phonons
+&INPUTPH
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  fildyn = 'dft_agent.dyn',
+  tr2_ph = 1e-12,
+  ldisp = .true.,
+  nq1 = 2,
+  nq2 = 2,
+  nq3 = 2,
+/

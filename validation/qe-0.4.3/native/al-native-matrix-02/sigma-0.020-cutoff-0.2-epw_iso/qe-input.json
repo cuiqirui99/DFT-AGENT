@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "canonical_task": "epw_iso",
+  "task": "epw_iso",
+  "executable": "epw.x",
+  "input_file": "epw.in",
+  "output_file": "epw.out",
+  "input_files": [
+    "epw.in",
+    "alpha2f.dat",
+    "source.a2f",
+    "source-schema.xml",
+    "crystal.fmt"
+  ],
+  "output_files": [
+    "epw.out",
+    "dft_agent.imag_iso_000.50",
+    "dft_agent.imag_iso_001.00"
+  ],
+  "parameters": {
+    "temperatures": [
+      0.5,
+      1.0
+    ],
+    "mu_star": 0.1,
+    "frequency_cutoff_ev": 0.2,
+    "broadening_index": 4,
+    "convergence": 1e-06,
+    "iterations": 1000,
+    "mixing": 0.2
+  },
+  "input_sha256": {
+    "epw.in": "56141d219b8f9be34a7666306af01965475305f5eb398e45b19b80e166d4150e",
+    "alpha2f.dat": "55647fd591ee8573b98abde190eeec972cdc0e942f5ca139c2e383fe0ecdbd0e",
+    "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+    "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+    "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+  },
+  "spectrum": {
+    "lambda": 0.4023860625343359,
+    "omega_log_mev": 28.148159654852137,
+    "points": 1999,
+    "source_unit": "THz",
+    "source_column": 4,
+    "frequency_rounding_correction": 9.769884942478768e-05,
+    "frequency_precision": 0.0001
+  },
+  "source_provenance": {
+    "kind": "verified_lambda",
+    "broadening_index": 4,
+    "electronic_broadening_ry": 0.02,
+    "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+    "scientific_accuracy_validated": false
+  },
+  "sources": [
+    "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src"
+  ],
+  "epw_version": "5.9",
+  "no_mpi": false,
+  "requires_restart": false,
+  "pseudo_files": [],
+  "number_of_atoms": 1,
+  "formula": "Al",
+  "qe_schema_sha256": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        2.4801083612723,
+        0.0,
+        1.4318912299999997
+      ],
+      [
+        0.82670278709076,
+        2.3382685871107998,
+        1.4318912299999997
+      ],
+      [
+        0.0,
+        0.0,
+        2.86378246
+      ]
+    ],
+    "elements": [
+      "Al"
+    ],
+    "fractional_positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  }
+}

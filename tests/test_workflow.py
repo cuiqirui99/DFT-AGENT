@@ -67,6 +67,26 @@ class FakeTransport:
         return {"sha256": hashlib.sha256(data).hexdigest(), "size": len(data)}
 
 
+@pytest.mark.parametrize("accounting,expected", [("COMPLETED", "COMPLETED"), ("", "UNKNOWN")])
+def test_completed_job_removed_from_squeue_uses_accounting(accounting, expected):
+    class ExpiredQueue(FakeTransport):
+        def run(self, command, timeout=60):
+            if command.startswith("squeue "):
+                return Result(1, "", "slurm_load_jobs error: Invalid job id specified")
+            return super().run(command, timeout)
+
+    transport = ExpiredQueue()
+    transport.accounting = accounting
+    assert workflow._poll(transport, {"job_id": transport.job_id}) == expected
+
+
+def test_queue_connection_error_is_not_a_completed_job():
+    transport = FakeTransport()
+    transport.unavailable = True
+    with pytest.raises(workflow.TransportError, match="Connection unavailable"):
+        workflow._poll(transport, {"job_id": transport.job_id})
+
+
 @pytest.fixture
 def prepared(tmp_path, monkeypatch):
     config = ClusterConfig(

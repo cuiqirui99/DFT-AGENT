@@ -1,0 +1,64 @@
+{
+  "status": "ready",
+  "kind": "qe_task",
+  "summary": "Fresh LDA Wannier electron-phonon calculation for unchanged MgB2, followed by the anisotropic Eliashberg gap at 15 K.",
+  "questions": [],
+  "stages": [
+    {
+      "task": "wannier_electron_phonon",
+      "parameters_json": "{\"mesh\":[6,6,6],\"wannier_mesh\":[3,3,3],\"qmesh\":[3,3,3],\"fine_kmesh\":[6,6,6],\"fine_qmesh\":[6,6,6],\"nbnd\":8,\"num_wann\":5,\"projections\":[\"B:pz\",\"f=0.5,1.0,0.5:s\",\"f=0.0,0.5,0.5:s\",\"f=0.5,0.5,0.5:s\"],\"dis_win_min\":-5.0,\"dis_win_max\":18.4,\"dis_froz_min\":-5.0,\"dis_froz_max\":8.8,\"wannier_iterations\":500,\"fsthick_ev\":20.0,\"el_smearing_ev\":0.1,\"ph_smearing_mev\":0.5,\"spectral_points\":500,\"acoustic_cutoff_cm1\":5.0,\"ecutwfc\":40.0,\"ecutrho\":160.0,\"conv_thr\":1e-9,\"tr2_ph\":1e-12,\"degauss\":0.02,\"smearing\":\"mp\",\"functional\":\"LDA\"}",
+      "requirements": {
+        "spin": "none",
+        "soc": false,
+        "functional": "LDA",
+        "hubbard_u": null,
+        "cell_relax": false
+      }
+    },
+    {
+      "task": "epw_aniso",
+      "parameters_json": "{\"temperatures\":[15],\"mu_star\":0.16,\"frequency_cutoff_ev\":0.5,\"iterations\":1000,\"convergence\":1e-6,\"mixing\":0.3}",
+      "requirements": {
+        "spin": "none",
+        "soc": false,
+        "functional": "LDA",
+        "hubbard_u": null,
+        "cell_relax": false
+      }
+    }
+  ],
+  "intent": {
+    "requested_tasks": [
+      "wannier_electron_phonon",
+      "epw_aniso"
+    ],
+    "forbidden_tasks": [
+      "relax",
+      "vc-relax",
+      "epw_iso"
+    ],
+    "unsupported": []
+  },
+  "source_sha256": "2f97fa892fa8e3e785c9605752e2bfd527120eba3c113bd234e8819a77e17385",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 16774,
+    "output_tokens": 836,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 142,
+    "total_tokens": 17610,
+    "token_counts_source": "provider",
+    "call_id": "938323c5f90a46c1b7880445f85f49bd",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 26.182314,
+    "input_characters": 6177,
+    "instruction_characters": 7502,
+    "schema_characters": 4538,
+    "output_characters": 2187,
+    "max_output_tokens": null
+  }
+}

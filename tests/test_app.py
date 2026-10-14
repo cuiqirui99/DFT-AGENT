@@ -360,7 +360,7 @@ def test_complex_examples_use_poscar_without_duplicate_choices(workbench):
     app, worker, _ = workbench
     widget(app.radio, "Structure source").set_value("Example").run()
     examples = widget(app.selectbox, "Example")
-    assert len(examples.options) == 18
+    assert len(examples.options) == 19
     examples.select("CrOCl-MoS2.vasp").run()
     assert not app.exception
     assert widget(app.metric, "Atoms").value == "114"
@@ -540,7 +540,8 @@ def test_structure_editor_indices_follow_cif_rows(workbench):
     assert not app.exception
     sites = app.session_state["structure_original"]["sites"]
     assert [(site["index"], site["element"]) for site in sites] == [(0, "O"), (1, "Mg")]
-    table = app.dataframe[0].value
+    table = next(item.value for item in app.dataframe if {"index", "element"}.issubset(item.value.columns))
+    assert table["index"].tolist() == [0, 1]
     assert table["element"].tolist() == ["O", "Mg"]
     widget(app.button, "Convert").click().run()
     widget(app.button, "Use structure").click().run()

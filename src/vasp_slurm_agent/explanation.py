@@ -117,6 +117,17 @@ def load_run_context(run_dir: str | Path) -> dict[str, Any]:
     Current parsing runs in a temporary copy and is cached by artifact digests.
     """
     root = Path(run_dir).resolve()
+    try:
+        selected_state = json.loads((root / "run.json").read_text())
+        selected_engine = selected_state.get("engine")
+        if selected_state.get("workflow") == "pairing":
+            from .qe_pairing_workflow import load_run_context as pairing_context
+            return pairing_context(root)
+    except (OSError, ValueError, AttributeError):
+        selected_engine = None
+    if selected_engine == "qe":
+        from .qe_context import load_run_context as qe_context
+        return qe_context(root)
     fingerprints: dict[str, str | None] = {}
 
     def path(relative: str) -> Path | None:

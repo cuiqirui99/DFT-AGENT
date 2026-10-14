@@ -1,0 +1,81 @@
+{
+  "status": "ready",
+  "kind": "qe_next_action",
+  "action": "continue",
+  "summary": "Continue both isotropic EPW models from the accepted Al spectrum, preserving it without rerunning SCF or phonons.",
+  "questions": [],
+  "limits": [
+    "EPW installation on the cluster must be verified before execution.",
+    "Report epw_tc as a temperature bracket only if the largest eigenvalue crosses one; check nonlinear residuals for epw_iso.",
+    "These are isotropic phonon-mediated model results. Mesh, broadening and frequency-cutoff convergence remain unestablished; results do not establish material Tc or superconductivity."
+  ],
+  "continuation": {
+    "source_stage": 0,
+    "intent": {
+      "requested_tasks": [
+        "epw_tc",
+        "epw_iso"
+      ],
+      "forbidden_tasks": [
+        "electron_phonon",
+        "scf",
+        "phonon"
+      ],
+      "unsupported": []
+    },
+    "stages": [
+      {
+        "task": "epw_tc",
+        "parameters_json": "{\"temperatures\":[0.5,1,2,3,4,5],\"mu_star\":0.1,\"frequency_cutoff_ev\":0.2,\"broadening_index\":2}",
+        "requirements": {
+          "spin": null,
+          "soc": null,
+          "functional": null,
+          "hubbard_u": null,
+          "cell_relax": null
+        }
+      },
+      {
+        "task": "epw_iso",
+        "parameters_json": "{\"temperatures\":[0.5,1,2,3,4,5],\"mu_star\":0.1,\"frequency_cutoff_ev\":0.2,\"broadening_index\":2}",
+        "requirements": {
+          "spin": null,
+          "soc": null,
+          "functional": null,
+          "hubbard_u": null,
+          "cell_relax": null
+        }
+      }
+    ]
+  },
+  "evidence": [
+    "stage_1.accepted",
+    "stage_1.alpha2F.dat",
+    "stage_1.integration_method",
+    "stage_1.electron_phonon.2.degauss_ry"
+  ],
+  "context_sha256": "ebdf658b90c9436c0698fbd28bade34fa1eed747cc4a236751a57e1e8a2d9355",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 21363,
+    "output_tokens": 546,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 68,
+    "total_tokens": 21909,
+    "token_counts_source": "provider",
+    "call_id": "30b69e9c4962436aa31376189b1b734e",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 20.415547,
+    "input_characters": 19628,
+    "instruction_characters": 7054,
+    "schema_characters": 5565,
+    "output_characters": 1686,
+    "max_output_tokens": null
+  },
+  "requires_review": true,
+  "submits_jobs": false
+}

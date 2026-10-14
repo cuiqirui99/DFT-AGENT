@@ -2,18 +2,18 @@
 
 ![DFT Agent](docs/assets/dft-agent-logo.png)
 
-Version `0.4.2`. [中文说明](README.zh-CN.md)
+Version `0.4.3` preview. Stable release: `0.4.2`. [中文说明](README.zh-CN.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology
 
 DFT Agent prepares and runs first-principles calculations on your HPC cluster from a natural-language goal or manual settings.
 
-Describe a task, review the plan, and run VASP on your Slurm cluster. Combine structure edits, relaxation, SCF, bands and DOS with magnetism, SOC, DFT+U, HSE06 or PBE0. Choose methods by stage and compare magnetic orders, U values or strains.
+Describe a task, review the plan, and run VASP or Quantum ESPRESSO on your Slurm cluster. Combine structure edits, relaxation, SCF, bands and DOS with magnetism, SOC, DFT+U or hybrid functionals. The [QE preview](docs/qe.md) adds open-source installation, phonons, NEB and electron–phonon workflows.
 
 ![SrTiO3 crystal](docs/assets/crystal.png)
 
 Desktop packages target Apple Silicon Macs and Windows x64, with Python and the model SDKs included. Windows runs natively; WSL is optional. Linux users can use the Python installation.
-Actual calculations require your own Slurm account and licensed VASP/POTCAR files on the cluster. Model features use your own account and billing; no compute time or model credits are included.
+Calculations require your own Slurm account. VASP also requires licensed VASP/POTCAR files; QE uses public pseudopotentials. Model features use your own account and billing; no compute time or model credits are included.
 
 ## Install and open
 
@@ -61,7 +61,7 @@ Claude API call was made. Bundling the SDK does not change that [validation boun
 
 ## Use
 
-1. In **Cluster setup**, enter your SSH host and user, click **Detect from cluster**
+1. Choose **VASP** or **Quantum ESPRESSO**. In **Cluster setup**, enter your SSH host and user. For VASP, click **Detect from cluster**
    to fill partitions, accounts, VASP modules and POTCAR folders, review and save.
    Presets for Dardel, Tetralith and BSCC give a head start.
 2. Open **New calculation**. Upload a CIF or POSCAR, or choose **Example**.
@@ -71,7 +71,7 @@ Claude API call was made. Bundling the SDK does not change that [validation boun
 6. Follow progress in **Runs**, explain the results, and download the structure.
 
 Include structure changes in your **Goal**, or use **Edit structure** for geometry and file conversion.
-[Browse the 18 examples](docs/structures.md).
+[Browse the examples](docs/structures.md).
 Structure edits, stage methods, comparisons and follow-up runs are covered in
 [Workflows](docs/workflows.md).
 

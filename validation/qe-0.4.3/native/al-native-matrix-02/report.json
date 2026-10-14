@@ -1,0 +1,837 @@
+{
+  "scope": "Independent isotropic Migdal-Eliashberg check from direct PH q-grid lambda.x spectra; failed Fourier interpolation is not accepted.",
+  "job_id": "7495062",
+  "all_native_success": true,
+  "all_linear_checks": true,
+  "all_nonlinear_checks": true,
+  "records": [
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "alpha2f.dat",
+        "source.a2f",
+        "source-schema.xml",
+        "crystal.fmt",
+        "epw.in",
+        "dft_agent.imag_iso_000.50",
+        "dft_agent.imag_iso_001.00",
+        "eliashberg_gap.csv"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "task": "epw_iso",
+      "mu_star": 0.1,
+      "lambda_integral": 0.4388851,
+      "omega_log_mev": 28.9827,
+      "allen_dynes_estimate_kelvin": 2.303606,
+      "source_provenance": {
+        "kind": "verified_lambda",
+        "broadening_index": 2,
+        "electronic_broadening_ry": 0.01,
+        "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+        "scientific_accuracy_validated": false
+      },
+      "temperature_results": [
+        {
+          "temperature_kelvin": 0.5,
+          "gap_iw0_mev": 0.48283476146,
+          "renormalization_iw0": 1.4013419957,
+          "residual": 9.515539e-07,
+          "iterations": 12,
+          "file": "dft_agent.imag_iso_000.50"
+        },
+        {
+          "temperature_kelvin": 1.0,
+          "gap_iw0_mev": 0.48071245054,
+          "renormalization_iw0": 1.4015166784,
+          "residual": 7.550662e-07,
+          "iterations": 12,
+          "file": "dft_agent.imag_iso_001.00"
+        }
+      ],
+      "name": "sigma-0.010-cutoff-0.1-epw_iso",
+      "native_exit_code": 0,
+      "independent_equations": {
+        "passed": true,
+        "tolerance": 1e-05,
+        "checks": [
+          {
+            "temperature_kelvin": 0.5,
+            "max_z_residual": 3.599160969258719e-10,
+            "relative_gap_residual": 3.2642421302333085e-07,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 1.0,
+            "max_z_residual": 5.4754201173068395e-11,
+            "relative_gap_residual": 6.871030641669424e-10,
+            "passed": true
+          }
+        ],
+        "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+      }
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "alpha2f.dat",
+        "source.a2f",
+        "source-schema.xml",
+        "crystal.fmt",
+        "epw.in",
+        "eliashberg_eigenvalues.csv"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "task": "epw_tc",
+      "mu_star": 0.1,
+      "lambda_integral": 0.4388851,
+      "omega_log_mev": 28.9827,
+      "allen_dynes_estimate_kelvin": 2.303606,
+      "source_provenance": {
+        "kind": "verified_lambda",
+        "broadening_index": 2,
+        "electronic_broadening_ry": 0.01,
+        "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+        "scientific_accuracy_validated": false
+      },
+      "temperature_results": [
+        {
+          "temperature_kelvin": 0.5,
+          "eigenvalue": 1.6168113,
+          "matsubara_points": 369,
+          "cutoff_ev": 0.1,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 1.0,
+          "eigenvalue": 1.3844635,
+          "matsubara_points": 185,
+          "cutoff_ev": 0.1004,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 2.0,
+          "eigenvalue": 1.1534419,
+          "matsubara_points": 92,
+          "cutoff_ev": 0.1002,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 3.0,
+          "eigenvalue": 1.0181473,
+          "matsubara_points": 62,
+          "cutoff_ev": 0.1015,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 4.0,
+          "eigenvalue": 0.9234703,
+          "matsubara_points": 46,
+          "cutoff_ev": 0.1007,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 5.0,
+          "eigenvalue": 0.8495246,
+          "matsubara_points": 37,
+          "cutoff_ev": 0.1015,
+          "iterations": 1
+        }
+      ],
+      "tc_bracket_kelvin": [
+        3.0,
+        4.0
+      ],
+      "tc_bracketed": true,
+      "name": "sigma-0.010-cutoff-0.1-epw_tc",
+      "native_exit_code": 0,
+      "independent_kernel": {
+        "passed": true,
+        "tolerance": 2e-06,
+        "checks": [
+          {
+            "temperature_kelvin": 0.5,
+            "native_eigenvalue": 1.6168113,
+            "independent_eigenvalue": 1.6168113322854312,
+            "absolute_difference": 3.228543121736038e-08,
+            "eigenpair_residual": 8.486620960154833e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 1.0,
+            "native_eigenvalue": 1.3844635,
+            "independent_eigenvalue": 1.3844634867993795,
+            "absolute_difference": 1.3200620596620638e-08,
+            "eigenpair_residual": 4.502477801603513e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 2.0,
+            "native_eigenvalue": 1.1534419,
+            "independent_eigenvalue": 1.1534419180970652,
+            "absolute_difference": 1.8097065179745186e-08,
+            "eigenpair_residual": 5.26992862447873e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 3.0,
+            "native_eigenvalue": 1.0181473,
+            "independent_eigenvalue": 1.0181473129392546,
+            "absolute_difference": 1.2939254556698643e-08,
+            "eigenpair_residual": 7.039565676423175e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 4.0,
+            "native_eigenvalue": 0.9234703,
+            "independent_eigenvalue": 0.9234703176718085,
+            "absolute_difference": 1.7671808572039538e-08,
+            "eigenpair_residual": 6.560422846245055e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 5.0,
+            "native_eigenvalue": 0.8495246,
+            "independent_eigenvalue": 0.8495245676861838,
+            "absolute_difference": 3.231381617840867e-08,
+            "eigenpair_residual": 3.575602276794404e-16,
+            "passed": true
+          }
+        ],
+        "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+      }
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "alpha2f.dat",
+        "source.a2f",
+        "source-schema.xml",
+        "crystal.fmt",
+        "epw.in",
+        "dft_agent.imag_iso_000.50",
+        "dft_agent.imag_iso_001.00",
+        "eliashberg_gap.csv"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "task": "epw_iso",
+      "mu_star": 0.1,
+      "lambda_integral": 0.4388851,
+      "omega_log_mev": 28.9827,
+      "allen_dynes_estimate_kelvin": 2.303606,
+      "source_provenance": {
+        "kind": "verified_lambda",
+        "broadening_index": 2,
+        "electronic_broadening_ry": 0.01,
+        "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+        "scientific_accuracy_validated": false
+      },
+      "temperature_results": [
+        {
+          "temperature_kelvin": 0.5,
+          "gap_iw0_mev": 0.47165965222,
+          "renormalization_iw0": 1.42847054,
+          "residual": 4.504336e-07,
+          "iterations": 13,
+          "file": "dft_agent.imag_iso_000.50"
+        },
+        {
+          "temperature_kelvin": 1.0,
+          "gap_iw0_mev": 0.46947045852999997,
+          "renormalization_iw0": 1.4284380943,
+          "residual": 1.390886e-07,
+          "iterations": 12,
+          "file": "dft_agent.imag_iso_001.00"
+        }
+      ],
+      "name": "sigma-0.010-cutoff-0.2-epw_iso",
+      "native_exit_code": 0,
+      "independent_equations": {
+        "passed": true,
+        "tolerance": 1e-05,
+        "checks": [
+          {
+            "temperature_kelvin": 0.5,
+            "max_z_residual": 5.3819837475543864e-11,
+            "relative_gap_residual": 9.096004585754799e-09,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 1.0,
+            "max_z_residual": 5.523603796575571e-11,
+            "relative_gap_residual": 3.781326625986214e-09,
+            "passed": true
+          }
+        ],
+        "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+      }
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "alpha2f.dat",
+        "source.a2f",
+        "source-schema.xml",
+        "crystal.fmt",
+        "epw.in",
+        "eliashberg_eigenvalues.csv"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "task": "epw_tc",
+      "mu_star": 0.1,
+      "lambda_integral": 0.4388851,
+      "omega_log_mev": 28.9827,
+      "allen_dynes_estimate_kelvin": 2.303606,
+      "source_provenance": {
+        "kind": "verified_lambda",
+        "broadening_index": 2,
+        "electronic_broadening_ry": 0.01,
+        "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+        "scientific_accuracy_validated": false
+      },
+      "temperature_results": [
+        {
+          "temperature_kelvin": 0.5,
+          "eigenvalue": 1.6064889,
+          "matsubara_points": 739,
+          "cutoff_ev": 0.2002,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 1.0,
+          "eigenvalue": 1.374782,
+          "matsubara_points": 369,
+          "cutoff_ev": 0.2001,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 2.0,
+          "eigenvalue": 1.1441551,
+          "matsubara_points": 185,
+          "cutoff_ev": 0.2009,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 3.0,
+          "eigenvalue": 1.0098513,
+          "matsubara_points": 123,
+          "cutoff_ev": 0.2006,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 4.0,
+          "eigenvalue": 0.914929,
+          "matsubara_points": 92,
+          "cutoff_ev": 0.2003,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 5.0,
+          "eigenvalue": 0.8416798,
+          "matsubara_points": 74,
+          "cutoff_ev": 0.2017,
+          "iterations": 1
+        }
+      ],
+      "tc_bracket_kelvin": [
+        3.0,
+        4.0
+      ],
+      "tc_bracketed": true,
+      "name": "sigma-0.010-cutoff-0.2-epw_tc",
+      "native_exit_code": 0,
+      "independent_kernel": {
+        "passed": true,
+        "tolerance": 2e-06,
+        "checks": [
+          {
+            "temperature_kelvin": 0.5,
+            "native_eigenvalue": 1.6064889,
+            "independent_eigenvalue": 1.6064889090240175,
+            "absolute_difference": 9.02401753322124e-09,
+            "eigenpair_residual": 5.972334964208917e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 1.0,
+            "native_eigenvalue": 1.374782,
+            "independent_eigenvalue": 1.3747820338329941,
+            "absolute_difference": 3.38329941840243e-08,
+            "eigenpair_residual": 4.519553545565812e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 2.0,
+            "native_eigenvalue": 1.1441551,
+            "independent_eigenvalue": 1.1441551359495385,
+            "absolute_difference": 3.5949538457202834e-08,
+            "eigenpair_residual": 7.1776403883990235e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 3.0,
+            "native_eigenvalue": 1.0098513,
+            "independent_eigenvalue": 1.0098513142047885,
+            "absolute_difference": 1.4204788456595452e-08,
+            "eigenpair_residual": 4.3475511112802917e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 4.0,
+            "native_eigenvalue": 0.914929,
+            "independent_eigenvalue": 0.9149290022754784,
+            "absolute_difference": 2.27547836129105e-09,
+            "eigenpair_residual": 1.974830135643067e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 5.0,
+            "native_eigenvalue": 0.8416798,
+            "independent_eigenvalue": 0.841679842622888,
+            "absolute_difference": 4.262288799683489e-08,
+            "eigenpair_residual": 2.926576483006945e-16,
+            "passed": true
+          }
+        ],
+        "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+      }
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "alpha2f.dat",
+        "source.a2f",
+        "source-schema.xml",
+        "crystal.fmt",
+        "epw.in",
+        "dft_agent.imag_iso_000.50",
+        "dft_agent.imag_iso_001.00",
+        "eliashberg_gap.csv"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "task": "epw_iso",
+      "mu_star": 0.1,
+      "lambda_integral": 0.4023861,
+      "omega_log_mev": 28.14816,
+      "allen_dynes_estimate_kelvin": 1.418491,
+      "source_provenance": {
+        "kind": "verified_lambda",
+        "broadening_index": 4,
+        "electronic_broadening_ry": 0.02,
+        "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+        "scientific_accuracy_validated": false
+      },
+      "temperature_results": [
+        {
+          "temperature_kelvin": 0.5,
+          "gap_iw0_mev": 0.30775385847000003,
+          "renormalization_iw0": 1.3695438397,
+          "residual": 7.933973e-08,
+          "iterations": 14,
+          "file": "dft_agent.imag_iso_000.50"
+        },
+        {
+          "temperature_kelvin": 1.0,
+          "gap_iw0_mev": 0.2952549647,
+          "renormalization_iw0": 1.3697124575,
+          "residual": 1.849985e-07,
+          "iterations": 13,
+          "file": "dft_agent.imag_iso_001.00"
+        }
+      ],
+      "name": "sigma-0.020-cutoff-0.1-epw_iso",
+      "native_exit_code": 0,
+      "independent_equations": {
+        "passed": true,
+        "tolerance": 1e-05,
+        "checks": [
+          {
+            "temperature_kelvin": 0.5,
+            "max_z_residual": 5.671174641008747e-11,
+            "relative_gap_residual": 5.927244625831205e-10,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 1.0,
+            "max_z_residual": 5.4581228425831796e-11,
+            "relative_gap_residual": 2.1973420598665092e-10,
+            "passed": true
+          }
+        ],
+        "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+      }
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "alpha2f.dat",
+        "source.a2f",
+        "source-schema.xml",
+        "crystal.fmt",
+        "epw.in",
+        "eliashberg_eigenvalues.csv"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "task": "epw_tc",
+      "mu_star": 0.1,
+      "lambda_integral": 0.4023861,
+      "omega_log_mev": 28.14816,
+      "allen_dynes_estimate_kelvin": 1.418491,
+      "source_provenance": {
+        "kind": "verified_lambda",
+        "broadening_index": 4,
+        "electronic_broadening_ry": 0.02,
+        "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+        "scientific_accuracy_validated": false
+      },
+      "temperature_results": [
+        {
+          "temperature_kelvin": 0.5,
+          "eigenvalue": 1.417263,
+          "matsubara_points": 369,
+          "cutoff_ev": 0.1,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 1.0,
+          "eigenvalue": 1.2100304,
+          "matsubara_points": 185,
+          "cutoff_ev": 0.1004,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 2.0,
+          "eigenvalue": 1.0039447,
+          "matsubara_points": 92,
+          "cutoff_ev": 0.1002,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 3.0,
+          "eigenvalue": 0.883376,
+          "matsubara_points": 62,
+          "cutoff_ev": 0.1015,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 4.0,
+          "eigenvalue": 0.7988632,
+          "matsubara_points": 46,
+          "cutoff_ev": 0.1007,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 5.0,
+          "eigenvalue": 0.7329722,
+          "matsubara_points": 37,
+          "cutoff_ev": 0.1015,
+          "iterations": 1
+        }
+      ],
+      "tc_bracket_kelvin": [
+        2.0,
+        3.0
+      ],
+      "tc_bracketed": true,
+      "name": "sigma-0.020-cutoff-0.1-epw_tc",
+      "native_exit_code": 0,
+      "independent_kernel": {
+        "passed": true,
+        "tolerance": 2e-06,
+        "checks": [
+          {
+            "temperature_kelvin": 0.5,
+            "native_eigenvalue": 1.417263,
+            "independent_eigenvalue": 1.417263040254572,
+            "absolute_difference": 4.025457212009087e-08,
+            "eigenpair_residual": 6.004961157282404e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 1.0,
+            "native_eigenvalue": 1.2100304,
+            "independent_eigenvalue": 1.2100304150046859,
+            "absolute_difference": 1.5004685938180273e-08,
+            "eigenpair_residual": 5.936046967003515e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 2.0,
+            "native_eigenvalue": 1.0039447,
+            "independent_eigenvalue": 1.0039447147219818,
+            "absolute_difference": 1.4721981855814192e-08,
+            "eigenpair_residual": 4.113754059598167e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 3.0,
+            "native_eigenvalue": 0.883376,
+            "independent_eigenvalue": 0.8833759567534867,
+            "absolute_difference": 4.324651337039853e-08,
+            "eigenpair_residual": 3.4037558937917695e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 4.0,
+            "native_eigenvalue": 0.7988632,
+            "independent_eigenvalue": 0.7988631824633656,
+            "absolute_difference": 1.7536634366877024e-08,
+            "eigenpair_residual": 6.214724970740468e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 5.0,
+            "native_eigenvalue": 0.7329722,
+            "independent_eigenvalue": 0.7329721897542891,
+            "absolute_difference": 1.0245710835299349e-08,
+            "eigenpair_residual": 2.9154369919198474e-16,
+            "passed": true
+          }
+        ],
+        "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+      }
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "alpha2f.dat",
+        "source.a2f",
+        "source-schema.xml",
+        "crystal.fmt",
+        "epw.in",
+        "dft_agent.imag_iso_000.50",
+        "dft_agent.imag_iso_001.00",
+        "eliashberg_gap.csv"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "task": "epw_iso",
+      "mu_star": 0.1,
+      "lambda_integral": 0.4023861,
+      "omega_log_mev": 28.14816,
+      "allen_dynes_estimate_kelvin": 1.418491,
+      "source_provenance": {
+        "kind": "verified_lambda",
+        "broadening_index": 4,
+        "electronic_broadening_ry": 0.02,
+        "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+        "scientific_accuracy_validated": false
+      },
+      "temperature_results": [
+        {
+          "temperature_kelvin": 0.5,
+          "gap_iw0_mev": 0.30576670483,
+          "renormalization_iw0": 1.3934166528,
+          "residual": 2.123478e-07,
+          "iterations": 14,
+          "file": "dft_agent.imag_iso_000.50"
+        },
+        {
+          "temperature_kelvin": 1.0,
+          "gap_iw0_mev": 0.29308399982,
+          "renormalization_iw0": 1.3934027821,
+          "residual": 1.022163e-07,
+          "iterations": 13,
+          "file": "dft_agent.imag_iso_001.00"
+        }
+      ],
+      "name": "sigma-0.020-cutoff-0.2-epw_iso",
+      "native_exit_code": 0,
+      "independent_equations": {
+        "passed": true,
+        "tolerance": 1e-05,
+        "checks": [
+          {
+            "temperature_kelvin": 0.5,
+            "max_z_residual": 5.5259574693877767e-11,
+            "relative_gap_residual": 2.3615797652712335e-09,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 1.0,
+            "max_z_residual": 5.5529580933466605e-11,
+            "relative_gap_residual": 1.011512781363707e-09,
+            "passed": true
+          }
+        ],
+        "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+      }
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "alpha2f.dat",
+        "source.a2f",
+        "source-schema.xml",
+        "crystal.fmt",
+        "epw.in",
+        "eliashberg_eigenvalues.csv"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "task": "epw_tc",
+      "mu_star": 0.1,
+      "lambda_integral": 0.4023861,
+      "omega_log_mev": 28.14816,
+      "allen_dynes_estimate_kelvin": 1.418491,
+      "source_provenance": {
+        "kind": "verified_lambda",
+        "broadening_index": 4,
+        "electronic_broadening_ry": 0.02,
+        "source_input_sha256": "0e36cc0d4435029418b0850a8b85297779420f3c5833cb1173b0a84a410e08ba",
+        "scientific_accuracy_validated": false
+      },
+      "temperature_results": [
+        {
+          "temperature_kelvin": 0.5,
+          "eigenvalue": 1.4133096,
+          "matsubara_points": 739,
+          "cutoff_ev": 0.2002,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 1.0,
+          "eigenvalue": 1.2067916,
+          "matsubara_points": 369,
+          "cutoff_ev": 0.2001,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 2.0,
+          "eigenvalue": 1.0013587,
+          "matsubara_points": 185,
+          "cutoff_ev": 0.2009,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 3.0,
+          "eigenvalue": 0.881754,
+          "matsubara_points": 123,
+          "cutoff_ev": 0.2006,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 4.0,
+          "eigenvalue": 0.7972514,
+          "matsubara_points": 92,
+          "cutoff_ev": 0.2003,
+          "iterations": 1
+        },
+        {
+          "temperature_kelvin": 5.0,
+          "eigenvalue": 0.7321323,
+          "matsubara_points": 74,
+          "cutoff_ev": 0.2017,
+          "iterations": 1
+        }
+      ],
+      "tc_bracket_kelvin": [
+        2.0,
+        3.0
+      ],
+      "tc_bracketed": true,
+      "name": "sigma-0.020-cutoff-0.2-epw_tc",
+      "native_exit_code": 0,
+      "independent_kernel": {
+        "passed": true,
+        "tolerance": 2e-06,
+        "checks": [
+          {
+            "temperature_kelvin": 0.5,
+            "native_eigenvalue": 1.4133096,
+            "independent_eigenvalue": 1.41330960911885,
+            "absolute_difference": 9.118849897404857e-09,
+            "eigenpair_residual": 4.681820509194824e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 1.0,
+            "native_eigenvalue": 1.2067916,
+            "independent_eigenvalue": 1.206791573594084,
+            "absolute_difference": 2.6405916120353368e-08,
+            "eigenpair_residual": 6.118507886879919e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 2.0,
+            "native_eigenvalue": 1.0013587,
+            "independent_eigenvalue": 1.001358685822634,
+            "absolute_difference": 1.417736594788721e-08,
+            "eigenpair_residual": 5.097273706354558e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 3.0,
+            "native_eigenvalue": 0.881754,
+            "independent_eigenvalue": 0.8817540419153926,
+            "absolute_difference": 4.191539260123278e-08,
+            "eigenpair_residual": 3.4186710050468905e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 4.0,
+            "native_eigenvalue": 0.7972514,
+            "independent_eigenvalue": 0.7972513743418026,
+            "absolute_difference": 2.565819745559139e-08,
+            "eigenpair_residual": 2.2225605072715335e-16,
+            "passed": true
+          },
+          {
+            "temperature_kelvin": 5.0,
+            "native_eigenvalue": 0.7321323,
+            "independent_eigenvalue": 0.7321323030167707,
+            "absolute_difference": 3.0167707221195883e-09,
+            "eigenpair_residual": 3.6153584289686563e-16,
+            "passed": true
+          }
+        ],
+        "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+      }
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "scf",
+  "canonical_task": "scf",
+  "formula": "Al",
+  "number_of_atoms": 1,
+  "nat": 1,
+  "parameters": {
+    "mesh": [
+      8,
+      8,
+      8
+    ],
+    "electronic_type": "metal",
+    "qmesh": [
+      2,
+      2,
+      2
+    ],
+    "line_density": 80,
+    "degauss": 0.02
+  },
+  "source_sha256": "e469f550bbd904870a069ac85d081d4f3dba647e49bf9e0b5ce2b0b2e0193ee5",
+  "requires_restart": false,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {
+    "Al": {
+      "filename": "Al.pbe-n-kjpaw_psl.1.0.0.UPF",
+      "sha256": "fd7b78921e6d0939095b681c328732668eaefd1dee6882fdbc03be463550cc97",
+      "ecutwfc": 30.0,
+      "ecutrho": 240.0,
+      "element": "Al",
+      "functional": "SLA  PW   PBX  PBC",
+      "relativistic": "scalar",
+      "fully_relativistic": false
+    }
+  },
+  "pseudo_files": [
+    "Al.pbe-n-kjpaw_psl.1.0.0.UPF"
+  ],
+  "mesh": [
+    8,
+    8,
+    8
+  ],
+  "namelists": {
+    "control": {
+      "calculation": "scf",
+      "prefix": "dft_agent",
+      "outdir": "./scratch",
+      "pseudo_dir": "./pseudo",
+      "tprnfor": true,
+      "tstress": true,
+      "verbosity": "high"
+    },
+    "system": {
+      "ibrav": 0,
+      "nat": 1,
+      "ntyp": 1,
+      "ecutwfc": 60.0,
+      "ecutrho": 480.0,
+      "input_dft": "PBE",
+      "occupations": "smearing",
+      "smearing": "mv",
+      "degauss": 0.02
+    },
+    "electrons": {
+      "conv_thr": 1e-08,
+      "electron_maxstep": 120
+    }
+  },
+  "site_labels": [
+    "Al"
+  ],
+  "species": {
+    "Al": "Al"
+  },
+  "energy_input_unit": "Ry",
+  "force_input_unit": "Ry/bohr",
+  "hubbard_unit": "eV",
+  "executable": "pw.x",
+  "input_file": "pw.in",
+  "output_file": "pw.out",
+  "input_files": [
+    "pw.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pw.out"
+  ],
+  "input_sha256": {
+    "pw.in": "e2c450f2960d6082ac3b85a1df76403ee87218d565f6c65a7cd6db641dcc0fec",
+    "structure.cif": "0ad3d2bd5ee270069897b222b0b17fe1956b87746654795a3b0bcf0e5e53f023"
+  }
+}

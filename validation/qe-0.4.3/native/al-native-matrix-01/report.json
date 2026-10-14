@@ -1,0 +1,113 @@
+{
+  "scope": "Independent isotropic Migdal-Eliashberg check from direct PH q-grid lambda.x spectra; failed Fourier interpolation is not accepted.",
+  "job_id": "7495051",
+  "all_native_success": false,
+  "all_linear_checks": true,
+  "all_nonlinear_checks": true,
+  "records": [
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": false,
+      "artifacts": [],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "reason": "EPW 5.9 did not finish normally.",
+      "name": "sigma-0.010-cutoff-0.1-epw_iso",
+      "native_exit_code": 71
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": false,
+      "artifacts": [],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "reason": "EPW 5.9 did not finish normally.",
+      "name": "sigma-0.010-cutoff-0.1-epw_tc",
+      "native_exit_code": 71
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": false,
+      "artifacts": [],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "reason": "EPW 5.9 did not finish normally.",
+      "name": "sigma-0.010-cutoff-0.2-epw_iso",
+      "native_exit_code": 71
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": false,
+      "artifacts": [],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "reason": "EPW 5.9 did not finish normally.",
+      "name": "sigma-0.010-cutoff-0.2-epw_tc",
+      "native_exit_code": 71
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": false,
+      "artifacts": [],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "reason": "EPW 5.9 did not finish normally.",
+      "name": "sigma-0.020-cutoff-0.1-epw_iso",
+      "native_exit_code": 71
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": false,
+      "artifacts": [],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "reason": "EPW 5.9 did not finish normally.",
+      "name": "sigma-0.020-cutoff-0.1-epw_tc",
+      "native_exit_code": 71
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": false,
+      "artifacts": [],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "reason": "EPW 5.9 did not finish normally.",
+      "name": "sigma-0.020-cutoff-0.2-epw_iso",
+      "native_exit_code": 71
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "success": false,
+      "artifacts": [],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "reason": "EPW 5.9 did not finish normally.",
+      "name": "sigma-0.020-cutoff-0.2-epw_tc",
+      "native_exit_code": 71
+    }
+  ]
+}

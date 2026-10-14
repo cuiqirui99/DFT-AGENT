@@ -1,0 +1,27 @@
+{
+  "job_id": "7495022",
+  "job_name": "qe-pairing-ef71f3244140",
+  "exit_code": 0,
+  "finished_at": "2026-10-14T14:08:35.618209+00:00",
+  "input_sha256": {
+    "request.json": "5ba643e10f523d146c315f4002a29941f6415a6b5a86d768d069463b16db7295",
+    "qe_pairing.py": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214",
+    "dispatch.py": "9c9a5a98b26a2fc8846b2ed2ab804a9a44e28383bfb3c2ea455bbadc47830aba",
+    "execute.py": "3222fd177076465a2e32465f870b394e08dfcafae3b3ff8e4c7c9b292c5a2e34",
+    "hamiltonian_hr.dat": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+    "submit.sh": "84682ec1f92e099967f8f3fe284432de0e81c93e1fe2f1d7f087451840a93db4"
+  },
+  "runtime_sha256": "94a749e349aff4f715e27b82adcaf515ba350ce6a8dec55775d4be23b4927d7f",
+  "output_sha256": {
+    "result.json": "190dc0834e477773f3bfd4ac2297f6d69de5c85af747b13a5feffc6410198f1b",
+    "pairing.npz": "4b43134b48b5113d62f1876a4ed320ac943a8a7333bbae1ed90f3d090a45c0b9",
+    "pairing.out": "190dc0834e477773f3bfd4ac2297f6d69de5c85af747b13a5feffc6410198f1b",
+    "pairing.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "environment": {
+    "python": "3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:45:41) [GCC 13.3.0]",
+    "numpy": "1.26.4",
+    "scipy": "1.15.2",
+    "python_sha256": "a9bb63708d77d18ac04e9e0b52f14c5389b6ddbc84df29e46614ef3643a24b23"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "status": "needs_input",
+  "kind": "qe_task",
+  "summary": "Plan PBE electron-phonon coupling for Al, followed by the isotropic Eliashberg gap solution.",
+  "questions": [
+    "Which temperatures in kelvin should EPW use? Supply an increasing list.",
+    "What Matsubara frequency cutoff, frequency_cutoff_ev, should be used in eV?",
+    "Which spectral broadening column should be used? Supply its one-based broadening_index."
+  ],
+  "stages": [
+    {
+      "task": "electron_phonon",
+      "parameters_json": "{\"functional\":\"PBE\",\"dense_mesh\":[16,16,16],\"mesh\":[8,8,8],\"qmesh\":[4,4,4],\"eph_integration\":\"q_sum\",\"mu_star\":0.1}",
+      "requirements": {
+        "spin": null,
+        "soc": null,
+        "functional": "PBE",
+        "hubbard_u": null,
+        "cell_relax": null
+      }
+    },
+    {
+      "task": "epw_iso",
+      "parameters_json": "{\"mu_star\":0.1}",
+      "requirements": {
+        "spin": null,
+        "soc": null,
+        "functional": "PBE",
+        "hubbard_u": null,
+        "cell_relax": null
+      }
+    }
+  ],
+  "intent": {
+    "requested_tasks": [
+      "electron_phonon",
+      "epw_iso"
+    ],
+    "forbidden_tasks": [],
+    "unsupported": []
+  },
+  "source_sha256": "e469f550bbd904870a069ac85d081d4f3dba647e49bf9e0b5ce2b0b2e0193ee5",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 16008,
+    "output_tokens": 591,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 120,
+    "total_tokens": 16599,
+    "token_counts_source": "provider",
+    "call_id": "cccd0edc8a284d9c8807d76b002bf6b5",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 20.803781,
+    "input_characters": 5179,
+    "instruction_characters": 6256,
+    "schema_characters": 4424,
+    "output_characters": 1739,
+    "max_output_tokens": null
+  }
+}

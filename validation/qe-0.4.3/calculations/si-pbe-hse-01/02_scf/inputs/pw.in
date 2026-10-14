@@ -1,0 +1,43 @@
+&CONTROL
+  calculation = 'scf',
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  pseudo_dir = './pseudo',
+  tprnfor = .true.,
+  tstress = .false.,
+  verbosity = 'high',
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 2,
+  ntyp = 1,
+  ecutwfc = 60.0,
+  ecutrho = 480.0,
+  input_dft = 'HSE',
+  exx_fraction = 0.25,
+  screening_parameter = 0.106,
+  occupations = 'fixed',
+  nbnd = 8,
+  nqx1 = 3,
+  nqx2 = 3,
+  nqx3 = 3,
+  ace = .true.,
+  exxdiv_treatment = 'gygi-baldereschi',
+/
+&ELECTRONS
+  conv_thr = 1e-08,
+  electron_maxstep = 200,
+  mixing_beta = 0.5,
+  diago_full_acc = .true.,
+/
+ATOMIC_SPECIES
+Si 28.0855 Si.pbe-n-rrkjus_psl.1.0.0.UPF
+CELL_PARAMETERS angstrom
+3.3251823242321 0 1.91979491
+1.1083941080774 3.1350119601949 1.91979491
+0 0 3.83958982
+ATOMIC_POSITIONS crystal
+Si 0 0 0
+Si 0.25 0.25 0.25
+K_POINTS automatic
+6 6 6 0 0 0

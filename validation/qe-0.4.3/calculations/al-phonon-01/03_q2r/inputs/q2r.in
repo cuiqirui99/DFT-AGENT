@@ -1,0 +1,5 @@
+&INPUT
+  fildyn = 'dft_agent.dyn',
+  flfrc = 'force_constants',
+  zasr = 'simple',
+/

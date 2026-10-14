@@ -1,0 +1,73 @@
+{
+  "route": "real LLM -> reviewed plan -> frozen executable inputs -> shared SSH/Slurm bridge -> native outputs -> independent acceptance/context",
+  "job_id": "7495022",
+  "job_name": "qe-pairing-ef71f3244140",
+  "slurm_state": "COMPLETED",
+  "exit_code": 0,
+  "environment": {
+    "python": "3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:45:41) [GCC 13.3.0]",
+    "numpy": "1.26.4",
+    "scipy": "1.15.2",
+    "python_sha256": "a9bb63708d77d18ac04e9e0b52f14c5389b6ddbc84df29e46614ef3643a24b23"
+  },
+  "model_usage": {
+    "input_tokens": 13383,
+    "output_tokens": 503,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 108,
+    "total_tokens": 13886,
+    "token_counts_source": "provider",
+    "call_id": "148f98f3bd8148e4b16356899cf00aaa",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 21.611358,
+    "input_characters": 732,
+    "instruction_characters": 1874,
+    "schema_characters": 1323,
+    "output_characters": 1505,
+    "max_output_tokens": null
+  },
+  "artifact_sha256": {
+    "proposal.json": "0de098d418393cbbec4f635e06fa405a0376fa71b557db241d1923dd1421ab6f",
+    "plan.json": "bd502b0228fa9c5bb19218b86ef4500b3cfcdc55ffdd5bb048edae2faeeaac31",
+    "01_pairing/inputs/request.json": "5ba643e10f523d146c315f4002a29941f6415a6b5a86d768d069463b16db7295",
+    "01_pairing/inputs/qe_pairing.py": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214",
+    "01_pairing/outputs/execution.json": "f0445476c6dcaa08039d0149b3e1fc9170c0989575edf3f3753ae5dac7f5da07",
+    "01_pairing/outputs/result.json": "190dc0834e477773f3bfd4ac2297f6d69de5c85af747b13a5feffc6410198f1b",
+    "01_pairing/outputs/pairing.npz": "4b43134b48b5113d62f1876a4ed320ac943a8a7333bbae1ed90f3d090a45c0b9",
+    "01_pairing/outputs/scheduler.txt": "c61de98d56d4ef9a2bcdc090d195da0f5347b6ffeca89b62e400eaca8e2d1537",
+    "verified-context.json": "f4b2d3d82b9aec8c28b0c69d505dfcf063c377ae993de6a54ed7720f65e990bd"
+  },
+  "channels": [
+    {
+      "channel": "singlet",
+      "frequency_parity": "even",
+      "momentum_parity": "even",
+      "eigenvalue": 0.05518270833852677,
+      "residual": 1.6367250759096465e-15,
+      "relative_residual": 2.966010776181745e-14,
+      "unprojected_fft_residual": 1.6367250759096465e-15,
+      "symmetry_error": 3.8883224868198174e-16
+    },
+    {
+      "channel": "triplet",
+      "frequency_parity": "even",
+      "momentum_parity": "odd",
+      "eigenvalue": 0.007482736781241365,
+      "residual": 1.5029188815772846e-17,
+      "relative_residual": 2.0085149665360197e-15,
+      "unprojected_fft_residual": 1.5029188815772846e-17,
+      "symmetry_error": 5.54954857183971e-16
+    }
+  ],
+  "local_eigenvalue_absolute_errors": {
+    "singlet": 4.163336342344337e-17,
+    "triplet": 5.204170427930421e-18
+  },
+  "fresh_context_accepted": true,
+  "model_solver_accepted": true,
+  "material_prediction_accepted": false,
+  "tc_accepted": false,
+  "release_accepted": false,
+  "note": "This historical run predates adding proposal.json to plan.sources. Its original proposal checksum is preserved here; executed model parameters and code were frozen before submission."
+}

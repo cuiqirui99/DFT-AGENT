@@ -1,0 +1,6 @@
+&PROJWFC
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  filpdos = 'pdos',
+  deltae = 0.01,
+/

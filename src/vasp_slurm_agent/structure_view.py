@@ -107,6 +107,7 @@ button.active{{background:#eaf1f7;border-color:#7c9bb4;color:#254c6c;}}
 .element{{display:flex;align-items:center;gap:7px;font-size:12px;margin-bottom:9px;}}
 .element i{{display:inline-block;width:11px;height:11px;border-radius:50%;}}
 #orientation{{width:84px;height:94px;}}
+@media(max-width:400px){{.side{{width:64px;}} #orientation{{width:64px;}} .toolbar{{padding:8px;}}}}
 </style>
 <div class="crystal">
 <div class="toolbar"><button id="crystal" class="active">Crystal</button><button id="cell">Input cell</button><span id="view-note" class="note"></span></div>
@@ -144,7 +145,7 @@ button.active{{background:#eaf1f7;border-color:#7c9bb4;color:#254c6c;}}
     models[index].edges.forEach(function(edge) {{
       viewer.addLine({{start:{{x:edge[0][0],y:edge[0][1],z:edge[0][2]}},end:{{x:edge[1][0],y:edge[1][1],z:edge[1][2]}},color:"#a8b4be",linewidth:1}});
     }});
-    viewer.zoomTo(); viewer.zoom(1.35);
+    viewer.zoomTo(); viewer.zoom(window.innerWidth < 400 ? 1.75 : 1.35);
     if (!initialized) {{ viewer.rotate(25,"x"); viewer.rotate(32,"y"); initialized = true; }}
     viewer.render(); orientation();
     note.textContent = index === 0 ? {_json(repeats + " view · " + str(len(structure)) + " atoms in input")} : {_json(str(len(structure)) + " atoms in input")};

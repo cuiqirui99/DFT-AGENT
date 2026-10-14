@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "pp",
+  "canonical_task": "pp",
+  "formula": "Si",
+  "number_of_atoms": 2,
+  "nat": 2,
+  "parameters": {
+    "mesh": [
+      8,
+      8,
+      8
+    ],
+    "nbnd": 12,
+    "electronic_type": "insulator",
+    "line_density": 80,
+    "namelists": {
+      "electrons": {
+        "diagonalization": "cg",
+        "diago_cg_maxiter": 200,
+        "diago_full_acc": true
+      }
+    }
+  },
+  "source_sha256": "5460d4ac80b7e63745a6341c8bfc5b2f36df3218079e9b60e46789179e967739",
+  "requires_restart": true,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {},
+  "pseudo_files": [],
+  "executable": "pp.x",
+  "input_file": "pp.in",
+  "output_file": "pp.out",
+  "input_files": [
+    "pp.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pp.out"
+  ],
+  "input_sha256": {
+    "pp.in": "e779dd024eefddb3ee91c0e7083e4f631a9d36446e036385eaa1d4b145ab2772",
+    "structure.cif": "177ab6b45199cabae1010dedde2fe3404c7b812a923c847de354e80a6e17c3bd"
+  }
+}

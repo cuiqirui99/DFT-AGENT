@@ -1,0 +1,44 @@
+{
+  "method": "single_band_hubbard_rpa",
+  "origin": "model",
+  "parameters": {
+    "lattice_angstrom": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "orbital": "model s",
+    "spin_convention": "spin_degenerate_no_soc",
+    "u_ev": 1.0,
+    "mu_ev": 0.0,
+    "temperature_k": 1160.4518121550323,
+    "kmesh": [
+      32,
+      32,
+      1
+    ],
+    "matsubara_points": 100,
+    "channels": [
+      "singlet",
+      "triplet"
+    ],
+    "double_counting": "No DFT baseline: explicit Hubbard model."
+  },
+  "hamiltonian_sha256": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "backend": {
+    "name": "numpy"
+  },
+  "source": "https://triqs.github.io/tprf/3.3.x/theory/eliashberg.html"
+}

@@ -1,0 +1,114 @@
+{
+  "method": "single_band_hubbard_rpa",
+  "backend": "numpy/scipy",
+  "source_sha256": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214",
+  "comparison_checks": [
+    {
+      "run": "square-direct-check",
+      "channel": "singlet",
+      "tprf_eigenvalue": 0.0014492556843294885,
+      "numpy_eigenvalue": 0.0014492556824397729,
+      "absolute_error": 1.8897155975444724e-12,
+      "relative_error": 1.3039214667070752e-09,
+      "gap_or_degenerate_subspace_overlap": 0.9999999999999876,
+      "chi0_max_absolute_error_per_ev": 7.956923464094733e-10,
+      "passed": true
+    },
+    {
+      "run": "square-24-100",
+      "channel": "singlet",
+      "tprf_eigenvalue": 0.05553888240913262,
+      "numpy_eigenvalue": 0.055538856500181984,
+      "absolute_error": 2.5908950637698602e-08,
+      "relative_error": 4.6650111622408566e-07,
+      "gap_or_degenerate_subspace_overlap": 0.9999999934210564,
+      "chi0_max_absolute_error_per_ev": 2.1697890544123058e-07,
+      "passed": true
+    },
+    {
+      "run": "square-24-100",
+      "channel": "triplet",
+      "tprf_eigenvalue": 0.007652293856024738,
+      "numpy_eigenvalue": 0.007652294172990986,
+      "absolute_error": 3.1696624751970104e-10,
+      "relative_error": 4.142107627899704e-08,
+      "gap_or_degenerate_subspace_overlap": 0.9999999998816372,
+      "chi0_max_absolute_error_per_ev": 2.1697890544123058e-07,
+      "passed": true
+    },
+    {
+      "run": "square-32-100",
+      "channel": "singlet",
+      "tprf_eigenvalue": 0.05524025828298752,
+      "numpy_eigenvalue": 0.0552402322403688,
+      "absolute_error": 2.6042618721244803e-08,
+      "relative_error": 4.7144273996389356e-07,
+      "gap_or_degenerate_subspace_overlap": 0.9999999934211039,
+      "chi0_max_absolute_error_per_ev": 2.1698659723334535e-07,
+      "passed": true
+    },
+    {
+      "run": "square-32-100",
+      "channel": "triplet",
+      "tprf_eigenvalue": 0.007511079661076266,
+      "numpy_eigenvalue": 0.00751107997081121,
+      "absolute_error": 3.0973494428987447e-10,
+      "relative_error": 4.1237073532181444e-08,
+      "gap_or_degenerate_subspace_overlap": 0.9999999998795015,
+      "chi0_max_absolute_error_per_ev": 2.1698659723334535e-07,
+      "passed": true
+    },
+    {
+      "run": "square-32-150",
+      "channel": "singlet",
+      "tprf_eigenvalue": 0.05524023344325544,
+      "numpy_eigenvalue": 0.055240232409788675,
+      "absolute_error": 1.033466763555868e-09,
+      "relative_error": 1.8708587910249848e-08,
+      "gap_or_degenerate_subspace_overlap": 0.9999999993418738,
+      "chi0_max_absolute_error_per_ev": 4.55786305932595e-08,
+      "passed": true
+    },
+    {
+      "run": "square-32-150",
+      "channel": "triplet",
+      "tprf_eigenvalue": 0.0075110799089734325,
+      "numpy_eigenvalue": 0.007511079970811983,
+      "absolute_error": 6.183855077307454e-11,
+      "relative_error": 8.232977351125831e-09,
+      "gap_or_degenerate_subspace_overlap": 0.9999999999974466,
+      "chi0_max_absolute_error_per_ev": 4.55786305932595e-08,
+      "passed": true
+    },
+    {
+      "run": "square-40-150",
+      "channel": "singlet",
+      "tprf_eigenvalue": 0.055182709375043375,
+      "numpy_eigenvalue": 0.055182708338526815,
+      "absolute_error": 1.0365165600823012e-09,
+      "relative_error": 1.8783357537552703e-08,
+      "gap_or_degenerate_subspace_overlap": 0.9999999993417781,
+      "chi0_max_absolute_error_per_ev": 4.5578621344499975e-08,
+      "passed": true
+    },
+    {
+      "run": "square-40-150",
+      "channel": "triplet",
+      "tprf_eigenvalue": 0.007482736719675816,
+      "numpy_eigenvalue": 0.00748273678124136,
+      "absolute_error": 6.1565544329234e-11,
+      "relative_error": 8.227677470910841e-09,
+      "gap_or_degenerate_subspace_overlap": 0.9999999999975576,
+      "chi0_max_absolute_error_per_ev": 4.5578621344499975e-08,
+      "passed": true
+    }
+  ],
+  "all_comparisons_passed": true,
+  "independent_direct_matrix_absolute_error": 8.456776945386935e-18,
+  "expected_stoner_rejection": true,
+  "runtime_location": "local macOS arm64",
+  "qe_material_handoff_accepted": false,
+  "paracloud_accepted": false,
+  "tc_accepted": false,
+  "release_accepted": false
+}

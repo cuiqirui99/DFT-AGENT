@@ -1,0 +1,60 @@
+{
+  "status": "ready",
+  "kind": "qe_task",
+  "summary": "Plan PBE q_sum electron–phonon pairing followed by isotropic EPW Tc evaluation for Al.",
+  "questions": [],
+  "stages": [
+    {
+      "task": "electron_phonon",
+      "parameters_json": "{\"functional\":\"PBE\",\"spin\":\"none\",\"soc\":false,\"electronic_type\":\"metal\",\"eph_integration\":\"q_sum\",\"dense_mesh\":[16,16,16],\"mesh\":[8,8,8],\"qmesh\":[4,4,4],\"mu_star\":0.1,\"el_ph_sigma\":0.005,\"el_ph_nsigma\":10,\"phonon_smearing_thz\":0.03}",
+      "requirements": {
+        "spin": "none",
+        "soc": false,
+        "functional": "PBE",
+        "hubbard_u": null,
+        "cell_relax": null
+      }
+    },
+    {
+      "task": "epw_tc",
+      "parameters_json": "{\"temperatures\":[0.5,1,2,3,4,5],\"mu_star\":0.1,\"frequency_cutoff_ev\":0.2,\"broadening_index\":2}",
+      "requirements": {
+        "spin": "none",
+        "soc": false,
+        "functional": "PBE",
+        "hubbard_u": null,
+        "cell_relax": null
+      }
+    }
+  ],
+  "intent": {
+    "requested_tasks": [
+      "electron_phonon",
+      "epw_tc"
+    ],
+    "forbidden_tasks": [],
+    "unsupported": []
+  },
+  "source_sha256": "e469f550bbd904870a069ac85d081d4f3dba647e49bf9e0b5ce2b0b2e0193ee5",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 16085,
+    "output_tokens": 647,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 107,
+    "total_tokens": 16732,
+    "token_counts_source": "provider",
+    "call_id": "06b27e1a92d549a3acd7b2bd6ac0f8ac",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 23.051841,
+    "input_characters": 5392,
+    "instruction_characters": 6256,
+    "schema_characters": 4424,
+    "output_characters": 1934,
+    "max_output_tokens": null
+  }
+}

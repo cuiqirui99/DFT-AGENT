@@ -1,0 +1,45 @@
+{
+  "method": "single_band_hubbard_rpa",
+  "origin": "model",
+  "backend": {
+    "name": "numpy",
+    "numpy": "1.26.4",
+    "scipy": "1.15.2"
+  },
+  "temperature_k": 1160.4518121550323,
+  "hamiltonian_sha256": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "static_lindhard_max_error_per_ev": 0.0,
+  "stoner_factor": 0.6772141238304116,
+  "filling_per_cell": 0.9999999999999999,
+  "channels": [
+    {
+      "channel": "singlet",
+      "frequency_parity": "even",
+      "momentum_parity": "even",
+      "eigenvalue": 0.05518270833852677,
+      "residual": 1.6367250759096465e-15,
+      "relative_residual": 2.966010776181745e-14,
+      "unprojected_fft_residual": 1.6367250759096465e-15,
+      "symmetry_error": 3.8883224868198174e-16
+    },
+    {
+      "channel": "triplet",
+      "frequency_parity": "even",
+      "momentum_parity": "odd",
+      "eigenvalue": 0.007482736781241365,
+      "residual": 1.5029188815772846e-17,
+      "relative_residual": 2.0085149665360197e-15,
+      "unprojected_fft_residual": 1.5029188815772846e-17,
+      "symmetry_error": 5.54954857183971e-16
+    }
+  ],
+  "numerical_checks_passed": true,
+  "material_prediction_accepted": false,
+  "limits": [
+    "One spin-degenerate orbital; paramagnetic Hubbard RPA without SOC.",
+    "No self-energy feedback. U, filling and double counting define the model.",
+    "Finite Matsubara sum; verify frequency and momentum convergence.",
+    "A temperature point is not Tc; a two-dimensional pairing scale is not a phase-ordering temperature."
+  ],
+  "source": "https://triqs.github.io/tprf/3.3.x/theory/eliashberg.html"
+}

@@ -2,16 +2,16 @@
 
 ![DFT Agent](docs/assets/dft-agent-logo.png)
 
-版本 `0.4.2`。[English](README.md)
+版本 `0.4.3` 开发预览；稳定版为 `0.4.2`。[English](README.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH 皇家理工学院 · [ORCID](https://orcid.org/0009-0005-6165-3237)
 
 DFT Agent 根据自然语言目标或手动参数，准备并在你的 HPC 集群上执行第一性原理计算。
 
-描述任务，检查计划，然后在你的 Slurm 集群上运行 VASP。支持结构编辑、弛豫、SCF、能带和态密度，可组合磁性、SOC、DFT+U、HSE06 或 PBE0，按阶段选择方法，并对比磁性构型、U 值或应变。
+描述任务，检查计划，然后在你的 Slurm 集群上运行 VASP 或 Quantum ESPRESSO。支持结构编辑、弛豫、SCF、能带、态密度、磁性、SOC、DFT+U 和杂化泛函。[QE 预览版](docs/qe.md)还提供开源程序安装、声子、NEB 和电子–声子流程。
 
 桌面安装包面向 Apple Silicon Mac 和 Windows x64，内置 Python 和模型 SDK，无需另装 Python。Windows 原生运行，WSL 为可选方案；Linux 可使用 Python 安装方式。
-真正执行计算仍需你自己的 Slurm 集群账号，以及集群上已授权的 VASP 和 POTCAR 文件。模型功能使用你自己的账号和账单，DFT Agent 不包含计算时间或模型额度。
+计算需要你自己的 Slurm 账号。VASP 还需要已授权的程序和 POTCAR；QE 可使用公开赝势。模型功能使用你自己的账号和账单，DFT Agent 不包含计算时间或模型额度。
 
 ## 安装并打开
 
@@ -52,7 +52,7 @@ DFT Agent 根据自然语言目标或手动参数，准备并在你的 HPC 集�
 5. 检查输入文件，勾选确认框，点击 **Submit calculation（提交计算）**。
 6. 在 **Runs** 中跟踪进度，解释结果，下载结构。
 
-结构修改可以直接写在目标里，也可以用 **Edit structure（编辑结构）** 做几何编辑和格式转换。[18 个示例结构](docs/structures.md)。阶段方法、对比和后续计算见[工作流程](docs/workflows.md)。
+结构修改可以直接写在目标里，也可以用 **Edit structure（编辑结构）** 做几何编辑和格式转换。[示例结构](docs/structures.md)。阶段方法、对比和后续计算见[工作流程](docs/workflows.md)。
 
 在图旁下载 CSV，在 **Raw data and files** 中下载 VASP 原始文件。
 

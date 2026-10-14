@@ -1,0 +1,9 @@
+{
+  "Al.pbe-n-kjpaw_psl.1.0.0.UPF": {
+    "sha256": "fd7b78921e6d0939095b681c328732668eaefd1dee6882fdbc03be463550cc97",
+    "size": 1762723,
+    "element": "Al",
+    "fully_relativistic": false,
+    "functional": "SLA  PW   PBX  PBC"
+  }
+}

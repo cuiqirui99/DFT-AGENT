@@ -1,0 +1,275 @@
+{
+  "scope": "Independent isotropic Migdal-Eliashberg check from direct PH q-grid lambda.x spectra; failed Fourier interpolation is not accepted.",
+  "source_ph_job": "7494558",
+  "source_lambda_job": "7494806",
+  "source_qe_schema_sha256": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+  "cases": [
+    {
+      "name": "sigma-0.010-cutoff-0.1-epw_iso",
+      "task": "epw_iso",
+      "parameters": {
+        "temperatures": [
+          0.5,
+          1.0
+        ],
+        "mu_star": 0.1,
+        "frequency_cutoff_ev": 0.1,
+        "broadening_index": 2,
+        "convergence": 1e-06,
+        "iterations": 1000
+      },
+      "input_sha256": {
+        "epw.in": "3ea1dcdee577ccdd4682de4da92b86fdc8fffcc9988cff641c2414939bdfe89b",
+        "alpha2f.dat": "da7064041e8d779031de58f347ac0f24ed92babf0db23ce70738fbb234ae427f",
+        "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+        "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+        "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+      },
+      "spectrum": {
+        "lambda": 0.43888514851861987,
+        "omega_log_mev": 28.98270011266782,
+        "points": 1999,
+        "source_unit": "THz",
+        "source_column": 2,
+        "frequency_rounding_correction": 9.769884942478768e-05,
+        "frequency_precision": 0.0001
+      }
+    },
+    {
+      "name": "sigma-0.010-cutoff-0.1-epw_tc",
+      "task": "epw_tc",
+      "parameters": {
+        "temperatures": [
+          0.5,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "mu_star": 0.1,
+        "frequency_cutoff_ev": 0.1,
+        "broadening_index": 2,
+        "convergence": 1e-06,
+        "iterations": 1000
+      },
+      "input_sha256": {
+        "epw.in": "67786af87e12ba6b73462784d46f45e7ae991a35f21fdf5016cd5b4b9c84d772",
+        "alpha2f.dat": "da7064041e8d779031de58f347ac0f24ed92babf0db23ce70738fbb234ae427f",
+        "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+        "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+        "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+      },
+      "spectrum": {
+        "lambda": 0.43888514851861987,
+        "omega_log_mev": 28.98270011266782,
+        "points": 1999,
+        "source_unit": "THz",
+        "source_column": 2,
+        "frequency_rounding_correction": 9.769884942478768e-05,
+        "frequency_precision": 0.0001
+      }
+    },
+    {
+      "name": "sigma-0.010-cutoff-0.2-epw_iso",
+      "task": "epw_iso",
+      "parameters": {
+        "temperatures": [
+          0.5,
+          1.0
+        ],
+        "mu_star": 0.1,
+        "frequency_cutoff_ev": 0.2,
+        "broadening_index": 2,
+        "convergence": 1e-06,
+        "iterations": 1000
+      },
+      "input_sha256": {
+        "epw.in": "57ea851f028dec0d19ed12644b3faa39ae8990ab341f80b04cecfe7e113b6be4",
+        "alpha2f.dat": "da7064041e8d779031de58f347ac0f24ed92babf0db23ce70738fbb234ae427f",
+        "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+        "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+        "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+      },
+      "spectrum": {
+        "lambda": 0.43888514851861987,
+        "omega_log_mev": 28.98270011266782,
+        "points": 1999,
+        "source_unit": "THz",
+        "source_column": 2,
+        "frequency_rounding_correction": 9.769884942478768e-05,
+        "frequency_precision": 0.0001
+      }
+    },
+    {
+      "name": "sigma-0.010-cutoff-0.2-epw_tc",
+      "task": "epw_tc",
+      "parameters": {
+        "temperatures": [
+          0.5,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "mu_star": 0.1,
+        "frequency_cutoff_ev": 0.2,
+        "broadening_index": 2,
+        "convergence": 1e-06,
+        "iterations": 1000
+      },
+      "input_sha256": {
+        "epw.in": "d6f3984dcdfe5f55e3c7410f3b2d485982b2797766130098f234aa444d3da619",
+        "alpha2f.dat": "da7064041e8d779031de58f347ac0f24ed92babf0db23ce70738fbb234ae427f",
+        "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+        "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+        "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+      },
+      "spectrum": {
+        "lambda": 0.43888514851861987,
+        "omega_log_mev": 28.98270011266782,
+        "points": 1999,
+        "source_unit": "THz",
+        "source_column": 2,
+        "frequency_rounding_correction": 9.769884942478768e-05,
+        "frequency_precision": 0.0001
+      }
+    },
+    {
+      "name": "sigma-0.020-cutoff-0.1-epw_iso",
+      "task": "epw_iso",
+      "parameters": {
+        "temperatures": [
+          0.5,
+          1.0
+        ],
+        "mu_star": 0.1,
+        "frequency_cutoff_ev": 0.1,
+        "broadening_index": 4,
+        "convergence": 1e-06,
+        "iterations": 1000
+      },
+      "input_sha256": {
+        "epw.in": "3ea1dcdee577ccdd4682de4da92b86fdc8fffcc9988cff641c2414939bdfe89b",
+        "alpha2f.dat": "55647fd591ee8573b98abde190eeec972cdc0e942f5ca139c2e383fe0ecdbd0e",
+        "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+        "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+        "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+      },
+      "spectrum": {
+        "lambda": 0.4023860625343359,
+        "omega_log_mev": 28.148159654852137,
+        "points": 1999,
+        "source_unit": "THz",
+        "source_column": 4,
+        "frequency_rounding_correction": 9.769884942478768e-05,
+        "frequency_precision": 0.0001
+      }
+    },
+    {
+      "name": "sigma-0.020-cutoff-0.1-epw_tc",
+      "task": "epw_tc",
+      "parameters": {
+        "temperatures": [
+          0.5,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "mu_star": 0.1,
+        "frequency_cutoff_ev": 0.1,
+        "broadening_index": 4,
+        "convergence": 1e-06,
+        "iterations": 1000
+      },
+      "input_sha256": {
+        "epw.in": "67786af87e12ba6b73462784d46f45e7ae991a35f21fdf5016cd5b4b9c84d772",
+        "alpha2f.dat": "55647fd591ee8573b98abde190eeec972cdc0e942f5ca139c2e383fe0ecdbd0e",
+        "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+        "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+        "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+      },
+      "spectrum": {
+        "lambda": 0.4023860625343359,
+        "omega_log_mev": 28.148159654852137,
+        "points": 1999,
+        "source_unit": "THz",
+        "source_column": 4,
+        "frequency_rounding_correction": 9.769884942478768e-05,
+        "frequency_precision": 0.0001
+      }
+    },
+    {
+      "name": "sigma-0.020-cutoff-0.2-epw_iso",
+      "task": "epw_iso",
+      "parameters": {
+        "temperatures": [
+          0.5,
+          1.0
+        ],
+        "mu_star": 0.1,
+        "frequency_cutoff_ev": 0.2,
+        "broadening_index": 4,
+        "convergence": 1e-06,
+        "iterations": 1000
+      },
+      "input_sha256": {
+        "epw.in": "57ea851f028dec0d19ed12644b3faa39ae8990ab341f80b04cecfe7e113b6be4",
+        "alpha2f.dat": "55647fd591ee8573b98abde190eeec972cdc0e942f5ca139c2e383fe0ecdbd0e",
+        "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+        "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+        "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+      },
+      "spectrum": {
+        "lambda": 0.4023860625343359,
+        "omega_log_mev": 28.148159654852137,
+        "points": 1999,
+        "source_unit": "THz",
+        "source_column": 4,
+        "frequency_rounding_correction": 9.769884942478768e-05,
+        "frequency_precision": 0.0001
+      }
+    },
+    {
+      "name": "sigma-0.020-cutoff-0.2-epw_tc",
+      "task": "epw_tc",
+      "parameters": {
+        "temperatures": [
+          0.5,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "mu_star": 0.1,
+        "frequency_cutoff_ev": 0.2,
+        "broadening_index": 4,
+        "convergence": 1e-06,
+        "iterations": 1000
+      },
+      "input_sha256": {
+        "epw.in": "d6f3984dcdfe5f55e3c7410f3b2d485982b2797766130098f234aa444d3da619",
+        "alpha2f.dat": "55647fd591ee8573b98abde190eeec972cdc0e942f5ca139c2e383fe0ecdbd0e",
+        "source.a2f": "90caed242105df197ac092d841ae24c3ee1ee907755d85c71f1304f2164c448a",
+        "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+        "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6"
+      },
+      "spectrum": {
+        "lambda": 0.4023860625343359,
+        "omega_log_mev": 28.148159654852137,
+        "points": 1999,
+        "source_unit": "THz",
+        "source_column": 4,
+        "frequency_rounding_correction": 9.769884942478768e-05,
+        "frequency_precision": 0.0001
+      }
+    }
+  ],
+  "submit_script_sha256": "73b680446a9ce10e849941fba5ea808681868b756605d57453dcd1bd6226cf7b",
+  "job_id": "7495051",
+  "archive_sha256": "8e2e8bbfa9853b5c588bcffdee47c005b04cb498e22bdaf0d6f598cdbf98df29"
+}

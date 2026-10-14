@@ -4,6 +4,7 @@ import ast
 import hashlib
 import io
 import os
+import signal
 import shlex
 import shutil
 import subprocess
@@ -288,6 +289,52 @@ def test_timeout_kills_descendants_even_when_they_ignore_term(config, tmp_path, 
     assert os.getpgrp() != pid
 
 
+@pytest.mark.parametrize("ignore_term", [False, True])
+def test_timeout_falls_back_to_own_child_when_group_signal_is_denied(config, monkeypatch, ignore_term):
+    signals = []
+    children = []
+    real_popen = subprocess.Popen
+
+    def own_child(*args, **kwargs):
+        child = real_popen(*args, **kwargs)
+        children.append(child)
+        return child
+
+    def deny_group(pid, sig):
+        signals.append((pid, sig))
+        raise PermissionError(1, "Operation not permitted")
+
+    code = (
+        "import os,signal,sys,time; "
+        + ("signal.signal(signal.SIGTERM, signal.SIG_IGN); " if ignore_term else "")
+        + "print('partial output', flush=True); "
+        "print('partial error', file=sys.stderr, flush=True); time.sleep(10)"
+    )
+    # A separate session models a pre-existing, independently owned SSH master.
+    master = real_popen([sys.executable, "-c", "import time; time.sleep(10)"], start_new_session=True)
+    monkeypatch.setattr(transport_module.subprocess, "Popen", own_child)
+    monkeypatch.setattr(transport_module.os, "killpg", deny_group)
+    try:
+        started = time.monotonic()
+        with SSHTransport(config, password="") as transport:
+            result = transport._execute([sys.executable, "-c", code], timeout=0.5)
+        assert result.returncode == 124
+        assert "timed out" in result.stderr
+        assert "partial output" in result.stdout and "partial error" in result.stderr
+        assert "Operation not permitted" not in result.stderr
+        assert time.monotonic() - started < 6
+        assert len(children) == 1 and children[0].poll() is not None
+        assert {pid for pid, _ in signals} == {children[0].pid}
+        if ignore_term:
+            assert children[0].returncode == -signal.SIGKILL
+        assert master.poll() is None
+    finally:
+        for child in [*children, master]:
+            if child.poll() is None:
+                child.kill()
+            child.wait(timeout=2)
+
+
 def test_batch_roundtrip_uses_one_scp_and_verifies_every_file(config, local_wire, tmp_path):
     source = tmp_path / "local inputs"
     source.mkdir()
@@ -420,3 +467,73 @@ def test_batch_refuses_symlink_sources(config, local_wire, tmp_path):
         with pytest.raises(TransportError, match="non-symlink"):
             transport.download_many(str(source), tmp_path / "output", ["POSCAR"])
     assert not list(source.glob(".vsa-*.tar.gz"))
+
+
+def test_qe_bulk_roundtrip_nested_outputs_and_bounded_command_count(config, local_wire, tmp_path):
+    inputs = tmp_path / "inputs"
+    inputs.mkdir()
+    names = ["pw.in", "structure.cif", "qe-input.json", "runtime.json", "pseudo_manifest.json", "qe_runtime.py", "submit.sh", "dispatch.py"]
+    for index, name in enumerate(names):
+        (inputs / name).write_text(f"approved input {index}\n")
+    remote = tmp_path / "remote"
+    with SSHTransport(config, password="") as transport:
+        uploaded = transport.upload_many([inputs / name for name in names], str(remote), permitted_names=frozenset(names))
+        assert set(uploaded) == set(names)
+        assert [call[0][0] for call in local_wire.calls] == ["ssh", "scp", "ssh"]
+        for index in range(1, 11):
+            path = remote / "elph_dir" / f"a2Fq2r.51.{index}"
+            path.parent.mkdir(exist_ok=True)
+            path.write_text(f"coupling {index}\n")
+        names += [f"elph_dir/a2Fq2r.51.{index}" for index in range(1, 11)]
+        local_wire.calls.clear()
+        result = transport.download_many(str(remote), tmp_path / "result", names, permitted_names=frozenset(names))
+        assert [call[0][0] for call in local_wire.calls] == ["ssh", "scp", "ssh"]
+        for name in names:
+            assert (tmp_path / "result" / name).read_bytes() == (remote / name).read_bytes()
+            assert result[name] == transport_module._local_metadata(remote / name)
+
+
+@pytest.mark.parametrize("name", ["../outside", "/absolute", "elph_dir/../../outside", "elph_dir/./data", "elph_dir//data", "C:/file", "elph_dir\\data", "data\nfile", "."])
+def test_custom_batch_allowlist_cannot_authorize_unsafe_paths(config, local_wire, tmp_path, name):
+    with SSHTransport(config, password="") as transport:
+        with pytest.raises(TransportError, match="allowlist"):
+            transport.download_many("/remote", tmp_path, [name], permitted_names=frozenset({name}))
+    assert not local_wire.calls
+
+
+def test_custom_batch_requires_immutable_allowlist_and_retains_default_restrictions(config, local_wire, tmp_path):
+    with SSHTransport(config, password="") as transport:
+        with pytest.raises(TransportError, match="immutable"):
+            transport.download_many("/remote", tmp_path, ["pw.out"], permitted_names={"pw.out"})
+        with pytest.raises(TransportError, match="allowlist"):
+            transport.download_many("/remote", tmp_path, ["pw.out"])
+    assert not local_wire.calls
+
+
+def test_nested_batch_refuses_symlink_parent_escape(config, local_wire, tmp_path):
+    remote = tmp_path / "remote"
+    remote.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "data").write_bytes(b"private")
+    (remote / "elph_dir").symlink_to(outside)
+    with SSHTransport(config, password="") as transport:
+        with pytest.raises(TransportError, match="non-symlink"):
+            transport.download_many(str(remote), tmp_path / "output", ["elph_dir/data"], permitted_names=frozenset({"elph_dir/data"}))
+    assert not (tmp_path / "output" / "elph_dir" / "data").exists()
+
+
+def test_nested_batch_refuses_local_destination_escape(config, local_wire, tmp_path):
+    remote = tmp_path / "remote" / "elph_dir"
+    remote.mkdir(parents=True)
+    (remote / "data").write_bytes(b"result")
+    destination = tmp_path / "destination"
+    destination.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "data").write_bytes(b"keep")
+    (destination / "elph_dir").symlink_to(outside)
+    with SSHTransport(config, password="") as transport:
+        with pytest.raises(TransportError, match="escapes"):
+            transport.download_many(str(remote.parent), destination, ["elph_dir/data"], permitted_names=frozenset({"elph_dir/data"}))
+    assert (outside / "data").read_bytes() == b"keep"

@@ -1,0 +1,1983 @@
+{
+  "source": "https://github.com/QEF/q-e/blob/qe-7.4.1/PHonon/examples/example03/reference/al.elph.out",
+  "source_sha256": "f793440f40373abebea413b9b66c2f5f13c7785903e6283ffa9a3d24f43cb44d",
+  "description": "Numbers extracted from the shipped QE reference stdout; these are not DFT Agent live results. Matrix fixtures and lambda.x spectra are constructed separately in unit tests.",
+  "records": [
+    {
+      "q": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frequency_thz": [
+        0.173268,
+        0.173268,
+        0.173268
+      ],
+      "weight": 1,
+      "spectra": [
+        {
+          "degauss_ry": 0.005,
+          "dos_ef_states_spin_ry": 1.33921,
+          "fermi_ev": 8.321793,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.01,
+          "dos_ef_states_spin_ry": 1.881761,
+          "fermi_ev": 8.327153,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.015,
+          "dos_ef_states_spin_ry": 2.123229,
+          "fermi_ev": 8.328621,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.02,
+          "dos_ef_states_spin_ry": 2.249739,
+          "fermi_ev": 8.324319,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.02
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.03
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.03
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.025,
+          "dos_ef_states_spin_ry": 2.329803,
+          "fermi_ev": 8.317861,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.08
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.09
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.09
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.03,
+          "dos_ef_states_spin_ry": 2.396029,
+          "fermi_ev": 8.311296,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.16
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.18
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.18
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.035,
+          "dos_ef_states_spin_ry": 2.455226,
+          "fermi_ev": 8.305262,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.25
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.27
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.27
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.04,
+          "dos_ef_states_spin_ry": 2.507873,
+          "fermi_ev": 8.299955,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.35
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.38
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.38
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.045,
+          "dos_ef_states_spin_ry": 2.552966,
+          "fermi_ev": 8.295411,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.48
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.5
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.5
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.05,
+          "dos_ef_states_spin_ry": 2.589582,
+          "fermi_ev": 8.291553,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.61
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.63
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.64
+            }
+          ]
+        }
+      ],
+      "q_star": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "q": [
+        -0.25,
+        0.25,
+        -0.25
+      ],
+      "frequency_thz": [
+        3.512771,
+        3.512771,
+        6.33804
+      ],
+      "weight": 8,
+      "spectra": [
+        {
+          "degauss_ry": 0.005,
+          "dos_ef_states_spin_ry": 1.33921,
+          "fermi_ev": 8.321793,
+          "modes": [
+            {
+              "lambda": 0.0023,
+              "gamma_ghz": 0.04
+            },
+            {
+              "lambda": 0.0023,
+              "gamma_ghz": 0.04
+            },
+            {
+              "lambda": 0.0285,
+              "gamma_ghz": 1.47
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.01,
+          "dos_ef_states_spin_ry": 1.881761,
+          "fermi_ev": 8.327153,
+          "modes": [
+            {
+              "lambda": 0.0204,
+              "gamma_ghz": 0.45
+            },
+            {
+              "lambda": 0.0207,
+              "gamma_ghz": 0.46
+            },
+            {
+              "lambda": 0.2321,
+              "gamma_ghz": 16.75
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.015,
+          "dos_ef_states_spin_ry": 2.123229,
+          "fermi_ev": 8.328621,
+          "modes": [
+            {
+              "lambda": 0.025,
+              "gamma_ghz": 0.63
+            },
+            {
+              "lambda": 0.0251,
+              "gamma_ghz": 0.63
+            },
+            {
+              "lambda": 0.228,
+              "gamma_ghz": 18.57
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.02,
+          "dos_ef_states_spin_ry": 2.249739,
+          "fermi_ev": 8.324319,
+          "modes": [
+            {
+              "lambda": 0.0283,
+              "gamma_ghz": 0.75
+            },
+            {
+              "lambda": 0.0282,
+              "gamma_ghz": 0.75
+            },
+            {
+              "lambda": 0.2027,
+              "gamma_ghz": 17.5
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.025,
+          "dos_ef_states_spin_ry": 2.329803,
+          "fermi_ev": 8.317861,
+          "modes": [
+            {
+              "lambda": 0.0323,
+              "gamma_ghz": 0.89
+            },
+            {
+              "lambda": 0.0322,
+              "gamma_ghz": 0.88
+            },
+            {
+              "lambda": 0.188,
+              "gamma_ghz": 16.81
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.03,
+          "dos_ef_states_spin_ry": 2.396029,
+          "fermi_ev": 8.311296,
+          "modes": [
+            {
+              "lambda": 0.0366,
+              "gamma_ghz": 1.03
+            },
+            {
+              "lambda": 0.0365,
+              "gamma_ghz": 1.03
+            },
+            {
+              "lambda": 0.1841,
+              "gamma_ghz": 16.92
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.035,
+          "dos_ef_states_spin_ry": 2.455226,
+          "fermi_ev": 8.305262,
+          "modes": [
+            {
+              "lambda": 0.0408,
+              "gamma_ghz": 1.18
+            },
+            {
+              "lambda": 0.0408,
+              "gamma_ghz": 1.18
+            },
+            {
+              "lambda": 0.1873,
+              "gamma_ghz": 17.64
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.04,
+          "dos_ef_states_spin_ry": 2.507873,
+          "fermi_ev": 8.299955,
+          "modes": [
+            {
+              "lambda": 0.0448,
+              "gamma_ghz": 1.33
+            },
+            {
+              "lambda": 0.0449,
+              "gamma_ghz": 1.33
+            },
+            {
+              "lambda": 0.1946,
+              "gamma_ghz": 18.72
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.045,
+          "dos_ef_states_spin_ry": 2.552966,
+          "fermi_ev": 8.295411,
+          "modes": [
+            {
+              "lambda": 0.0485,
+              "gamma_ghz": 1.46
+            },
+            {
+              "lambda": 0.0485,
+              "gamma_ghz": 1.46
+            },
+            {
+              "lambda": 0.2039,
+              "gamma_ghz": 19.97
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.05,
+          "dos_ef_states_spin_ry": 2.589582,
+          "fermi_ev": 8.291553,
+          "modes": [
+            {
+              "lambda": 0.0517,
+              "gamma_ghz": 1.58
+            },
+            {
+              "lambda": 0.0516,
+              "gamma_ghz": 1.57
+            },
+            {
+              "lambda": 0.2137,
+              "gamma_ghz": 21.23
+            }
+          ]
+        }
+      ],
+      "q_star": [
+        [
+          -0.25,
+          0.25,
+          -0.25
+        ],
+        [
+          0.25,
+          -0.25,
+          -0.25
+        ],
+        [
+          0.25,
+          -0.25,
+          0.25
+        ],
+        [
+          0.25,
+          0.25,
+          0.25
+        ],
+        [
+          -0.25,
+          -0.25,
+          -0.25
+        ],
+        [
+          -0.25,
+          -0.25,
+          0.25
+        ],
+        [
+          -0.25,
+          0.25,
+          0.25
+        ],
+        [
+          0.25,
+          0.25,
+          -0.25
+        ]
+      ]
+    },
+    {
+      "q": [
+        0.5,
+        -0.5,
+        0.5
+      ],
+      "frequency_thz": [
+        4.438882,
+        4.438882,
+        9.422553
+      ],
+      "weight": 4,
+      "spectra": [
+        {
+          "degauss_ry": 0.005,
+          "dos_ef_states_spin_ry": 1.33921,
+          "fermi_ev": 8.321793,
+          "modes": [
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            },
+            {
+              "lambda": 0.0,
+              "gamma_ghz": 0.0
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.01,
+          "dos_ef_states_spin_ry": 1.881761,
+          "fermi_ev": 8.327153,
+          "modes": [
+            {
+              "lambda": 0.029,
+              "gamma_ghz": 1.03
+            },
+            {
+              "lambda": 0.0262,
+              "gamma_ghz": 0.93
+            },
+            {
+              "lambda": 0.0411,
+              "gamma_ghz": 6.56
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.015,
+          "dos_ef_states_spin_ry": 2.123229,
+          "fermi_ev": 8.328621,
+          "modes": [
+            {
+              "lambda": 0.0668,
+              "gamma_ghz": 2.67
+            },
+            {
+              "lambda": 0.061,
+              "gamma_ghz": 2.44
+            },
+            {
+              "lambda": 0.103,
+              "gamma_ghz": 18.53
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.02,
+          "dos_ef_states_spin_ry": 2.249739,
+          "fermi_ev": 8.324319,
+          "modes": [
+            {
+              "lambda": 0.0779,
+              "gamma_ghz": 3.3
+            },
+            {
+              "lambda": 0.0722,
+              "gamma_ghz": 3.06
+            },
+            {
+              "lambda": 0.1296,
+              "gamma_ghz": 24.73
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.025,
+          "dos_ef_states_spin_ry": 2.329803,
+          "fermi_ev": 8.317861,
+          "modes": [
+            {
+              "lambda": 0.0826,
+              "gamma_ghz": 3.62
+            },
+            {
+              "lambda": 0.0782,
+              "gamma_ghz": 3.43
+            },
+            {
+              "lambda": 0.1457,
+              "gamma_ghz": 28.78
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.03,
+          "dos_ef_states_spin_ry": 2.396029,
+          "fermi_ev": 8.311296,
+          "modes": [
+            {
+              "lambda": 0.0853,
+              "gamma_ghz": 3.84
+            },
+            {
+              "lambda": 0.0824,
+              "gamma_ghz": 3.71
+            },
+            {
+              "lambda": 0.1554,
+              "gamma_ghz": 31.56
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.035,
+          "dos_ef_states_spin_ry": 2.455226,
+          "fermi_ev": 8.305262,
+          "modes": [
+            {
+              "lambda": 0.0869,
+              "gamma_ghz": 4.01
+            },
+            {
+              "lambda": 0.0853,
+              "gamma_ghz": 3.94
+            },
+            {
+              "lambda": 0.1609,
+              "gamma_ghz": 33.49
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.04,
+          "dos_ef_states_spin_ry": 2.507873,
+          "fermi_ev": 8.299955,
+          "modes": [
+            {
+              "lambda": 0.0881,
+              "gamma_ghz": 4.16
+            },
+            {
+              "lambda": 0.0876,
+              "gamma_ghz": 4.13
+            },
+            {
+              "lambda": 0.1647,
+              "gamma_ghz": 35.02
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.045,
+          "dos_ef_states_spin_ry": 2.552966,
+          "fermi_ev": 8.295411,
+          "modes": [
+            {
+              "lambda": 0.0891,
+              "gamma_ghz": 4.28
+            },
+            {
+              "lambda": 0.0894,
+              "gamma_ghz": 4.29
+            },
+            {
+              "lambda": 0.1676,
+              "gamma_ghz": 36.28
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.05,
+          "dos_ef_states_spin_ry": 2.589582,
+          "fermi_ev": 8.291553,
+          "modes": [
+            {
+              "lambda": 0.0897,
+              "gamma_ghz": 4.37
+            },
+            {
+              "lambda": 0.0906,
+              "gamma_ghz": 4.42
+            },
+            {
+              "lambda": 0.1699,
+              "gamma_ghz": 37.3
+            }
+          ]
+        }
+      ],
+      "q_star": [
+        [
+          0.5,
+          -0.5,
+          0.5
+        ],
+        [
+          0.5,
+          0.5,
+          0.5
+        ],
+        [
+          -0.5,
+          0.5,
+          0.5
+        ],
+        [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      ]
+    },
+    {
+      "q": [
+        0.0,
+        0.5,
+        0.0
+      ],
+      "frequency_thz": [
+        4.200435,
+        4.200435,
+        6.478556
+      ],
+      "weight": 6,
+      "spectra": [
+        {
+          "degauss_ry": 0.005,
+          "dos_ef_states_spin_ry": 1.33921,
+          "fermi_ev": 8.321793,
+          "modes": [
+            {
+              "lambda": 0.0004,
+              "gamma_ghz": 0.01
+            },
+            {
+              "lambda": 0.0004,
+              "gamma_ghz": 0.01
+            },
+            {
+              "lambda": 0.0021,
+              "gamma_ghz": 0.11
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.01,
+          "dos_ef_states_spin_ry": 1.881761,
+          "fermi_ev": 8.327153,
+          "modes": [
+            {
+              "lambda": 0.0593,
+              "gamma_ghz": 1.88
+            },
+            {
+              "lambda": 0.0593,
+              "gamma_ghz": 1.88
+            },
+            {
+              "lambda": 0.0605,
+              "gamma_ghz": 4.56
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.015,
+          "dos_ef_states_spin_ry": 2.123229,
+          "fermi_ev": 8.328621,
+          "modes": [
+            {
+              "lambda": 0.1028,
+              "gamma_ghz": 3.68
+            },
+            {
+              "lambda": 0.1028,
+              "gamma_ghz": 3.68
+            },
+            {
+              "lambda": 0.0888,
+              "gamma_ghz": 7.56
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.02,
+          "dos_ef_states_spin_ry": 2.249739,
+          "fermi_ev": 8.324319,
+          "modes": [
+            {
+              "lambda": 0.1112,
+              "gamma_ghz": 4.21
+            },
+            {
+              "lambda": 0.1112,
+              "gamma_ghz": 4.21
+            },
+            {
+              "lambda": 0.1107,
+              "gamma_ghz": 9.98
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.025,
+          "dos_ef_states_spin_ry": 2.329803,
+          "fermi_ev": 8.317861,
+          "modes": [
+            {
+              "lambda": 0.115,
+              "gamma_ghz": 4.51
+            },
+            {
+              "lambda": 0.115,
+              "gamma_ghz": 4.51
+            },
+            {
+              "lambda": 0.1419,
+              "gamma_ghz": 13.25
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.03,
+          "dos_ef_states_spin_ry": 2.396029,
+          "fermi_ev": 8.311296,
+          "modes": [
+            {
+              "lambda": 0.121,
+              "gamma_ghz": 4.88
+            },
+            {
+              "lambda": 0.121,
+              "gamma_ghz": 4.88
+            },
+            {
+              "lambda": 0.1719,
+              "gamma_ghz": 16.5
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.035,
+          "dos_ef_states_spin_ry": 2.455226,
+          "fermi_ev": 8.305262,
+          "modes": [
+            {
+              "lambda": 0.1287,
+              "gamma_ghz": 5.32
+            },
+            {
+              "lambda": 0.1287,
+              "gamma_ghz": 5.32
+            },
+            {
+              "lambda": 0.1953,
+              "gamma_ghz": 19.22
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.04,
+          "dos_ef_states_spin_ry": 2.507873,
+          "fermi_ev": 8.299955,
+          "modes": [
+            {
+              "lambda": 0.1366,
+              "gamma_ghz": 5.77
+            },
+            {
+              "lambda": 0.1366,
+              "gamma_ghz": 5.77
+            },
+            {
+              "lambda": 0.2129,
+              "gamma_ghz": 21.4
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.045,
+          "dos_ef_states_spin_ry": 2.552966,
+          "fermi_ev": 8.295411,
+          "modes": [
+            {
+              "lambda": 0.1439,
+              "gamma_ghz": 6.19
+            },
+            {
+              "lambda": 0.1439,
+              "gamma_ghz": 6.19
+            },
+            {
+              "lambda": 0.2263,
+              "gamma_ghz": 23.15
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.05,
+          "dos_ef_states_spin_ry": 2.589582,
+          "fermi_ev": 8.291553,
+          "modes": [
+            {
+              "lambda": 0.15,
+              "gamma_ghz": 6.54
+            },
+            {
+              "lambda": 0.15,
+              "gamma_ghz": 6.54
+            },
+            {
+              "lambda": 0.2365,
+              "gamma_ghz": 24.55
+            }
+          ]
+        }
+      ],
+      "q_star": [
+        [
+          0.0,
+          0.5,
+          0.0
+        ],
+        [
+          0.0,
+          -0.5,
+          0.0
+        ],
+        [
+          0.5,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.5
+        ],
+        [
+          0.0,
+          0.0,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    {
+      "q": [
+        0.75,
+        -0.25,
+        0.75
+      ],
+      "frequency_thz": [
+        5.392336,
+        6.727093,
+        8.791383
+      ],
+      "weight": 24,
+      "spectra": [
+        {
+          "degauss_ry": 0.005,
+          "dos_ef_states_spin_ry": 1.33921,
+          "fermi_ev": 8.321793,
+          "modes": [
+            {
+              "lambda": 0.0085,
+              "gamma_ghz": 0.32
+            },
+            {
+              "lambda": 0.021,
+              "gamma_ghz": 1.22
+            },
+            {
+              "lambda": 0.0282,
+              "gamma_ghz": 2.79
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.01,
+          "dos_ef_states_spin_ry": 1.881761,
+          "fermi_ev": 8.327153,
+          "modes": [
+            {
+              "lambda": 0.0619,
+              "gamma_ghz": 3.23
+            },
+            {
+              "lambda": 0.1351,
+              "gamma_ghz": 10.99
+            },
+            {
+              "lambda": 0.2006,
+              "gamma_ghz": 27.86
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.015,
+          "dos_ef_states_spin_ry": 2.123229,
+          "fermi_ev": 8.328621,
+          "modes": [
+            {
+              "lambda": 0.0789,
+              "gamma_ghz": 4.65
+            },
+            {
+              "lambda": 0.1337,
+              "gamma_ghz": 12.27
+            },
+            {
+              "lambda": 0.2248,
+              "gamma_ghz": 35.23
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.02,
+          "dos_ef_states_spin_ry": 2.249739,
+          "fermi_ev": 8.324319,
+          "modes": [
+            {
+              "lambda": 0.0854,
+              "gamma_ghz": 5.34
+            },
+            {
+              "lambda": 0.1171,
+              "gamma_ghz": 11.39
+            },
+            {
+              "lambda": 0.2243,
+              "gamma_ghz": 37.24
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.025,
+          "dos_ef_states_spin_ry": 2.329803,
+          "fermi_ev": 8.317861,
+          "modes": [
+            {
+              "lambda": 0.0863,
+              "gamma_ghz": 5.58
+            },
+            {
+              "lambda": 0.1046,
+              "gamma_ghz": 10.54
+            },
+            {
+              "lambda": 0.216,
+              "gamma_ghz": 37.14
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.03,
+          "dos_ef_states_spin_ry": 2.396029,
+          "fermi_ev": 8.311296,
+          "modes": [
+            {
+              "lambda": 0.0867,
+              "gamma_ghz": 5.77
+            },
+            {
+              "lambda": 0.0977,
+              "gamma_ghz": 10.12
+            },
+            {
+              "lambda": 0.2082,
+              "gamma_ghz": 36.81
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.035,
+          "dos_ef_states_spin_ry": 2.455226,
+          "fermi_ev": 8.305262,
+          "modes": [
+            {
+              "lambda": 0.0876,
+              "gamma_ghz": 5.97
+            },
+            {
+              "lambda": 0.0948,
+              "gamma_ghz": 10.05
+            },
+            {
+              "lambda": 0.2033,
+              "gamma_ghz": 36.84
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.04,
+          "dos_ef_states_spin_ry": 2.507873,
+          "fermi_ev": 8.299955,
+          "modes": [
+            {
+              "lambda": 0.0889,
+              "gamma_ghz": 6.19
+            },
+            {
+              "lambda": 0.0942,
+              "gamma_ghz": 10.21
+            },
+            {
+              "lambda": 0.2011,
+              "gamma_ghz": 37.23
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.045,
+          "dos_ef_states_spin_ry": 2.552966,
+          "fermi_ev": 8.295411,
+          "modes": [
+            {
+              "lambda": 0.0905,
+              "gamma_ghz": 6.41
+            },
+            {
+              "lambda": 0.095,
+              "gamma_ghz": 10.48
+            },
+            {
+              "lambda": 0.2009,
+              "gamma_ghz": 37.85
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.05,
+          "dos_ef_states_spin_ry": 2.589582,
+          "fermi_ev": 8.291553,
+          "modes": [
+            {
+              "lambda": 0.0919,
+              "gamma_ghz": 6.61
+            },
+            {
+              "lambda": 0.0963,
+              "gamma_ghz": 10.78
+            },
+            {
+              "lambda": 0.2017,
+              "gamma_ghz": 38.54
+            }
+          ]
+        }
+      ],
+      "q_star": [
+        [
+          0.75,
+          -0.25,
+          0.75
+        ],
+        [
+          0.75,
+          -0.25,
+          -0.75
+        ],
+        [
+          -0.75,
+          -0.25,
+          -0.75
+        ],
+        [
+          -0.75,
+          -0.25,
+          0.75
+        ],
+        [
+          -0.75,
+          0.25,
+          -0.75
+        ],
+        [
+          -0.25,
+          0.75,
+          -0.75
+        ],
+        [
+          -0.75,
+          0.75,
+          -0.25
+        ],
+        [
+          0.75,
+          0.25,
+          0.75
+        ],
+        [
+          -0.75,
+          0.25,
+          0.75
+        ],
+        [
+          0.75,
+          0.25,
+          -0.75
+        ],
+        [
+          -0.75,
+          0.75,
+          0.25
+        ],
+        [
+          -0.25,
+          0.75,
+          0.75
+        ],
+        [
+          0.25,
+          0.75,
+          -0.75
+        ],
+        [
+          -0.25,
+          -0.75,
+          -0.75
+        ],
+        [
+          0.75,
+          0.75,
+          -0.25
+        ],
+        [
+          0.75,
+          -0.75,
+          0.25
+        ],
+        [
+          -0.75,
+          -0.75,
+          -0.25
+        ],
+        [
+          0.25,
+          -0.75,
+          0.75
+        ],
+        [
+          -0.75,
+          -0.75,
+          0.25
+        ],
+        [
+          0.25,
+          0.75,
+          0.75
+        ],
+        [
+          -0.25,
+          -0.75,
+          0.75
+        ],
+        [
+          0.75,
+          0.75,
+          0.25
+        ],
+        [
+          0.25,
+          -0.75,
+          -0.75
+        ],
+        [
+          0.75,
+          -0.75,
+          -0.25
+        ]
+      ]
+    },
+    {
+      "q": [
+        0.5,
+        0.0,
+        0.5
+      ],
+      "frequency_thz": [
+        4.864075,
+        6.528731,
+        8.467305
+      ],
+      "weight": 12,
+      "spectra": [
+        {
+          "degauss_ry": 0.005,
+          "dos_ef_states_spin_ry": 1.33921,
+          "fermi_ev": 8.321793,
+          "modes": [
+            {
+              "lambda": 0.0231,
+              "gamma_ghz": 0.7
+            },
+            {
+              "lambda": 0.0561,
+              "gamma_ghz": 3.06
+            },
+            {
+              "lambda": 1.3275,
+              "gamma_ghz": 121.72
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.01,
+          "dos_ef_states_spin_ry": 1.881761,
+          "fermi_ev": 8.327153,
+          "modes": [
+            {
+              "lambda": 0.0651,
+              "gamma_ghz": 2.77
+            },
+            {
+              "lambda": 0.0805,
+              "gamma_ghz": 6.17
+            },
+            {
+              "lambda": 0.8798,
+              "gamma_ghz": 113.35
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.015,
+          "dos_ef_states_spin_ry": 2.123229,
+          "fermi_ev": 8.328621,
+          "modes": [
+            {
+              "lambda": 0.0533,
+              "gamma_ghz": 2.56
+            },
+            {
+              "lambda": 0.1119,
+              "gamma_ghz": 9.67
+            },
+            {
+              "lambda": 0.5477,
+              "gamma_ghz": 79.62
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.02,
+          "dos_ef_states_spin_ry": 2.249739,
+          "fermi_ev": 8.324319,
+          "modes": [
+            {
+              "lambda": 0.0426,
+              "gamma_ghz": 2.16
+            },
+            {
+              "lambda": 0.126,
+              "gamma_ghz": 11.53
+            },
+            {
+              "lambda": 0.3883,
+              "gamma_ghz": 59.81
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.025,
+          "dos_ef_states_spin_ry": 2.329803,
+          "fermi_ev": 8.317861,
+          "modes": [
+            {
+              "lambda": 0.0363,
+              "gamma_ghz": 1.91
+            },
+            {
+              "lambda": 0.1256,
+              "gamma_ghz": 11.91
+            },
+            {
+              "lambda": 0.3073,
+              "gamma_ghz": 49.02
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.03,
+          "dos_ef_states_spin_ry": 2.396029,
+          "fermi_ev": 8.311296,
+          "modes": [
+            {
+              "lambda": 0.0334,
+              "gamma_ghz": 1.81
+            },
+            {
+              "lambda": 0.1249,
+              "gamma_ghz": 12.18
+            },
+            {
+              "lambda": 0.2655,
+              "gamma_ghz": 43.55
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.035,
+          "dos_ef_states_spin_ry": 2.455226,
+          "fermi_ev": 8.305262,
+          "modes": [
+            {
+              "lambda": 0.0324,
+              "gamma_ghz": 1.8
+            },
+            {
+              "lambda": 0.1264,
+              "gamma_ghz": 12.63
+            },
+            {
+              "lambda": 0.2437,
+              "gamma_ghz": 40.96
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.04,
+          "dos_ef_states_spin_ry": 2.507873,
+          "fermi_ev": 8.299955,
+          "modes": [
+            {
+              "lambda": 0.0323,
+              "gamma_ghz": 1.83
+            },
+            {
+              "lambda": 0.129,
+              "gamma_ghz": 13.16
+            },
+            {
+              "lambda": 0.2317,
+              "gamma_ghz": 39.79
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.045,
+          "dos_ef_states_spin_ry": 2.552966,
+          "fermi_ev": 8.295411,
+          "modes": [
+            {
+              "lambda": 0.0325,
+              "gamma_ghz": 1.87
+            },
+            {
+              "lambda": 0.1316,
+              "gamma_ghz": 13.68
+            },
+            {
+              "lambda": 0.2246,
+              "gamma_ghz": 39.25
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.05,
+          "dos_ef_states_spin_ry": 2.589582,
+          "fermi_ev": 8.291553,
+          "modes": [
+            {
+              "lambda": 0.0329,
+              "gamma_ghz": 1.92
+            },
+            {
+              "lambda": 0.1338,
+              "gamma_ghz": 14.1
+            },
+            {
+              "lambda": 0.2196,
+              "gamma_ghz": 38.94
+            }
+          ]
+        }
+      ],
+      "q_star": [
+        [
+          0.5,
+          0.0,
+          0.5
+        ],
+        [
+          -0.5,
+          0.0,
+          0.5
+        ],
+        [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        [
+          0.5,
+          0.0,
+          -0.5
+        ],
+        [
+          0.0,
+          0.5,
+          -0.5
+        ],
+        [
+          -0.5,
+          0.5,
+          0.0
+        ],
+        [
+          0.0,
+          0.5,
+          0.5
+        ],
+        [
+          0.0,
+          -0.5,
+          -0.5
+        ],
+        [
+          0.5,
+          0.5,
+          0.0
+        ],
+        [
+          0.5,
+          -0.5,
+          0.0
+        ],
+        [
+          -0.5,
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          -0.5,
+          0.5
+        ]
+      ]
+    },
+    {
+      "q": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "frequency_thz": [
+        6.062697,
+        6.062697,
+        9.88107
+      ],
+      "weight": 3,
+      "spectra": [
+        {
+          "degauss_ry": 0.005,
+          "dos_ef_states_spin_ry": 1.33921,
+          "fermi_ev": 8.321793,
+          "modes": [
+            {
+              "lambda": 0.0244,
+              "gamma_ghz": 1.15
+            },
+            {
+              "lambda": 0.0244,
+              "gamma_ghz": 1.15
+            },
+            {
+              "lambda": 0.0002,
+              "gamma_ghz": 0.02
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.01,
+          "dos_ef_states_spin_ry": 1.881761,
+          "fermi_ev": 8.327153,
+          "modes": [
+            {
+              "lambda": 0.1849,
+              "gamma_ghz": 12.21
+            },
+            {
+              "lambda": 0.1833,
+              "gamma_ghz": 12.11
+            },
+            {
+              "lambda": 0.0909,
+              "gamma_ghz": 15.95
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.015,
+          "dos_ef_states_spin_ry": 2.123229,
+          "fermi_ev": 8.328621,
+          "modes": [
+            {
+              "lambda": 0.1777,
+              "gamma_ghz": 13.24
+            },
+            {
+              "lambda": 0.1681,
+              "gamma_ghz": 12.53
+            },
+            {
+              "lambda": 0.188,
+              "gamma_ghz": 37.21
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.02,
+          "dos_ef_states_spin_ry": 2.249739,
+          "fermi_ev": 8.324319,
+          "modes": [
+            {
+              "lambda": 0.1597,
+              "gamma_ghz": 12.61
+            },
+            {
+              "lambda": 0.1445,
+              "gamma_ghz": 11.41
+            },
+            {
+              "lambda": 0.2032,
+              "gamma_ghz": 42.62
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.025,
+          "dos_ef_states_spin_ry": 2.329803,
+          "fermi_ev": 8.317861,
+          "modes": [
+            {
+              "lambda": 0.1482,
+              "gamma_ghz": 12.12
+            },
+            {
+              "lambda": 0.1312,
+              "gamma_ghz": 10.73
+            },
+            {
+              "lambda": 0.1871,
+              "gamma_ghz": 40.65
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.03,
+          "dos_ef_states_spin_ry": 2.396029,
+          "fermi_ev": 8.311296,
+          "modes": [
+            {
+              "lambda": 0.1396,
+              "gamma_ghz": 11.74
+            },
+            {
+              "lambda": 0.1229,
+              "gamma_ghz": 10.34
+            },
+            {
+              "lambda": 0.1681,
+              "gamma_ghz": 37.55
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.035,
+          "dos_ef_states_spin_ry": 2.455226,
+          "fermi_ev": 8.305262,
+          "modes": [
+            {
+              "lambda": 0.1327,
+              "gamma_ghz": 11.44
+            },
+            {
+              "lambda": 0.1169,
+              "gamma_ghz": 10.07
+            },
+            {
+              "lambda": 0.1551,
+              "gamma_ghz": 35.49
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.04,
+          "dos_ef_states_spin_ry": 2.507873,
+          "fermi_ev": 8.299955,
+          "modes": [
+            {
+              "lambda": 0.1273,
+              "gamma_ghz": 11.21
+            },
+            {
+              "lambda": 0.1124,
+              "gamma_ghz": 9.89
+            },
+            {
+              "lambda": 0.1484,
+              "gamma_ghz": 34.7
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.045,
+          "dos_ef_states_spin_ry": 2.552966,
+          "fermi_ev": 8.295411,
+          "modes": [
+            {
+              "lambda": 0.1234,
+              "gamma_ghz": 11.06
+            },
+            {
+              "lambda": 0.1092,
+              "gamma_ghz": 9.78
+            },
+            {
+              "lambda": 0.1458,
+              "gamma_ghz": 34.72
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.05,
+          "dos_ef_states_spin_ry": 2.589582,
+          "fermi_ev": 8.291553,
+          "modes": [
+            {
+              "lambda": 0.1207,
+              "gamma_ghz": 10.97
+            },
+            {
+              "lambda": 0.1071,
+              "gamma_ghz": 9.73
+            },
+            {
+              "lambda": 0.1455,
+              "gamma_ghz": 35.12
+            }
+          ]
+        }
+      ],
+      "q_star": [
+        [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -1.0
+        ]
+      ]
+    },
+    {
+      "q": [
+        -0.5,
+        -1.0,
+        0.0
+      ],
+      "frequency_thz": [
+        6.453881,
+        7.605739,
+        7.605739
+      ],
+      "weight": 6,
+      "spectra": [
+        {
+          "degauss_ry": 0.005,
+          "dos_ef_states_spin_ry": 1.33921,
+          "fermi_ev": 8.321793,
+          "modes": [
+            {
+              "lambda": 0.0002,
+              "gamma_ghz": 0.01
+            },
+            {
+              "lambda": 0.0004,
+              "gamma_ghz": 0.03
+            },
+            {
+              "lambda": 0.0004,
+              "gamma_ghz": 0.03
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.01,
+          "dos_ef_states_spin_ry": 1.881761,
+          "fermi_ev": 8.327153,
+          "modes": [
+            {
+              "lambda": 0.033,
+              "gamma_ghz": 2.47
+            },
+            {
+              "lambda": 0.0635,
+              "gamma_ghz": 6.6
+            },
+            {
+              "lambda": 0.0631,
+              "gamma_ghz": 6.55
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.015,
+          "dos_ef_states_spin_ry": 2.123229,
+          "fermi_ev": 8.328621,
+          "modes": [
+            {
+              "lambda": 0.0685,
+              "gamma_ghz": 5.79
+            },
+            {
+              "lambda": 0.1081,
+              "gamma_ghz": 12.68
+            },
+            {
+              "lambda": 0.1074,
+              "gamma_ghz": 12.6
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.02,
+          "dos_ef_states_spin_ry": 2.249739,
+          "fermi_ev": 8.324319,
+          "modes": [
+            {
+              "lambda": 0.074,
+              "gamma_ghz": 6.62
+            },
+            {
+              "lambda": 0.1144,
+              "gamma_ghz": 14.21
+            },
+            {
+              "lambda": 0.1141,
+              "gamma_ghz": 14.17
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.025,
+          "dos_ef_states_spin_ry": 2.329803,
+          "fermi_ev": 8.317861,
+          "modes": [
+            {
+              "lambda": 0.0718,
+              "gamma_ghz": 6.65
+            },
+            {
+              "lambda": 0.1157,
+              "gamma_ghz": 14.89
+            },
+            {
+              "lambda": 0.1158,
+              "gamma_ghz": 14.91
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.03,
+          "dos_ef_states_spin_ry": 2.396029,
+          "fermi_ev": 8.311296,
+          "modes": [
+            {
+              "lambda": 0.0695,
+              "gamma_ghz": 6.63
+            },
+            {
+              "lambda": 0.1197,
+              "gamma_ghz": 15.85
+            },
+            {
+              "lambda": 0.1201,
+              "gamma_ghz": 15.9
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.035,
+          "dos_ef_states_spin_ry": 2.455226,
+          "fermi_ev": 8.305262,
+          "modes": [
+            {
+              "lambda": 0.0687,
+              "gamma_ghz": 6.71
+            },
+            {
+              "lambda": 0.1268,
+              "gamma_ghz": 17.2
+            },
+            {
+              "lambda": 0.1273,
+              "gamma_ghz": 17.27
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.04,
+          "dos_ef_states_spin_ry": 2.507873,
+          "fermi_ev": 8.299955,
+          "modes": [
+            {
+              "lambda": 0.0694,
+              "gamma_ghz": 6.92
+            },
+            {
+              "lambda": 0.1358,
+              "gamma_ghz": 18.82
+            },
+            {
+              "lambda": 0.1364,
+              "gamma_ghz": 18.89
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.045,
+          "dos_ef_states_spin_ry": 2.552966,
+          "fermi_ev": 8.295411,
+          "modes": [
+            {
+              "lambda": 0.0712,
+              "gamma_ghz": 7.23
+            },
+            {
+              "lambda": 0.1453,
+              "gamma_ghz": 20.49
+            },
+            {
+              "lambda": 0.1458,
+              "gamma_ghz": 20.56
+            }
+          ]
+        },
+        {
+          "degauss_ry": 0.05,
+          "dos_ef_states_spin_ry": 2.589582,
+          "fermi_ev": 8.291553,
+          "modes": [
+            {
+              "lambda": 0.0735,
+              "gamma_ghz": 7.57
+            },
+            {
+              "lambda": 0.1539,
+              "gamma_ghz": 22.02
+            },
+            {
+              "lambda": 0.1544,
+              "gamma_ghz": 22.09
+            }
+          ]
+        }
+      ],
+      "q_star": [
+        [
+          -0.5,
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.5
+        ],
+        [
+          0.0,
+          -1.0,
+          -0.5
+        ],
+        [
+          0.5,
+          1.0,
+          0.0
+        ],
+        [
+          -1.0,
+          -0.5,
+          0.0
+        ],
+        [
+          0.0,
+          -0.5,
+          -1.0
+        ]
+      ]
+    }
+  ]
+}

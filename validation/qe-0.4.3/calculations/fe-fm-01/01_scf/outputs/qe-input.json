@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "scf",
+  "canonical_task": "scf",
+  "formula": "Fe",
+  "number_of_atoms": 2,
+  "nat": 2,
+  "parameters": {
+    "mesh": [
+      10,
+      10,
+      10
+    ],
+    "electronic_type": "metal",
+    "degauss": 0.015,
+    "spin": "collinear",
+    "starting_magnetization": {
+      "Fe": 0.5
+    }
+  },
+  "source_sha256": "bd6aa6f0b56de4ae2dfed9c07157052cc79cc2029fa59eb7ee7acb45c9a86169",
+  "requires_restart": false,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {
+    "Fe": {
+      "filename": "Fe.pbe-spn-kjpaw_psl.0.2.1.UPF",
+      "sha256": "2317a0d3b136c09b6263e1ba328b505fb1ebf33bb4b28dc3df9e39af3184ef19",
+      "ecutwfc": 90.0,
+      "ecutrho": 1080.0,
+      "element": "Fe",
+      "functional": "SLA  PW   PBX  PBC",
+      "relativistic": "scalar",
+      "fully_relativistic": false
+    }
+  },
+  "pseudo_files": [
+    "Fe.pbe-spn-kjpaw_psl.0.2.1.UPF"
+  ],
+  "mesh": [
+    10,
+    10,
+    10
+  ],
+  "namelists": {
+    "control": {
+      "calculation": "scf",
+      "prefix": "dft_agent",
+      "outdir": "./scratch",
+      "pseudo_dir": "./pseudo",
+      "tprnfor": true,
+      "tstress": true,
+      "verbosity": "high"
+    },
+    "system": {
+      "ibrav": 0,
+      "nat": 2,
+      "ntyp": 1,
+      "ecutwfc": 90.0,
+      "ecutrho": 1080.0,
+      "input_dft": "PBE",
+      "nspin": 2,
+      "starting_magnetization(1)": 0.5,
+      "occupations": "smearing",
+      "smearing": "mv",
+      "degauss": 0.015
+    },
+    "electrons": {
+      "conv_thr": 1e-08,
+      "electron_maxstep": 120
+    }
+  },
+  "site_labels": [
+    "Fe",
+    "Fe"
+  ],
+  "species": {
+    "Fe": "Fe"
+  },
+  "energy_input_unit": "Ry",
+  "force_input_unit": "Ry/bohr",
+  "hubbard_unit": "eV",
+  "executable": "pw.x",
+  "input_file": "pw.in",
+  "output_file": "pw.out",
+  "input_files": [
+    "pw.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pw.out"
+  ],
+  "input_sha256": {
+    "pw.in": "ed3693a6fa947366faa57641d9befac7bfe41f79887f617dfff2362d1290092c",
+    "structure.cif": "46e6462bb59539aec7d2fabd640cebf2972fabe52d35472b89bd7a24e5bbe5f0"
+  }
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "image": "dft_agent_1",
+    "scf_converged": true,
+    "energy_hartree": -1.667249169983642,
+    "xml_sha256": "38180929a7f20e2cce0a2acdb0e5e6626407979839b277b93fb17c84c80f5e7d"
+  },
+  {
+    "image": "dft_agent_2",
+    "scf_converged": true,
+    "energy_hartree": -1.666872936411581,
+    "xml_sha256": "26613b41f1dcda247c08de5e8635696ff4b606beb2ee46257277b17fdf106792"
+  },
+  {
+    "image": "dft_agent_3",
+    "scf_converged": true,
+    "energy_hartree": -1.664983098881577,
+    "xml_sha256": "d1bc66ac4c68218f27cab54d1a9ba8abd3b4c99b47deb095582e6460e2835b10"
+  },
+  {
+    "image": "dft_agent_4",
+    "scf_converged": true,
+    "energy_hartree": -1.66134664082569,
+    "xml_sha256": "69b60e4b4bca16df2ddc075a696098758b45a8eca5d59535fd617e5b7c21a87d"
+  },
+  {
+    "image": "dft_agent_5",
+    "scf_converged": true,
+    "energy_hartree": -1.664982101028973,
+    "xml_sha256": "d9d4be4f5ce9e2f078afb0d5a1c3f042034712cdc2de8075ecf17bba0ff9c51a"
+  },
+  {
+    "image": "dft_agent_6",
+    "scf_converged": true,
+    "energy_hartree": -1.666872651018863,
+    "xml_sha256": "374082418a48ba527049c6905520a5f52078ada51263ef4144171fa3869b59b1"
+  },
+  {
+    "image": "dft_agent_7",
+    "scf_converged": true,
+    "energy_hartree": -1.667248258225406,
+    "xml_sha256": "9f7ca7f152bd88205d92bde1164365fce4a145b90c6bf3d845877bfffc1dda26"
+  }
+]

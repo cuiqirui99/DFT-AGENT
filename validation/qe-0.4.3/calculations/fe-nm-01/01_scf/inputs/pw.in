@@ -1,0 +1,35 @@
+&CONTROL
+  calculation = 'scf',
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  pseudo_dir = './pseudo',
+  tprnfor = .true.,
+  tstress = .true.,
+  verbosity = 'high',
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 2,
+  ntyp = 1,
+  ecutwfc = 90.0,
+  ecutrho = 1080.0,
+  input_dft = 'PBE',
+  occupations = 'smearing',
+  smearing = 'mv',
+  degauss = 0.015,
+/
+&ELECTRONS
+  conv_thr = 1e-08,
+  electron_maxstep = 120,
+/
+ATOMIC_SPECIES
+Fe 55.845 Fe.pbe-spn-kjpaw_psl.0.2.1.UPF
+CELL_PARAMETERS angstrom
+2.86 0 1.7512449227807e-16
+-1.7512449227807e-16 2.86 1.7512449227807e-16
+0 0 2.86
+ATOMIC_POSITIONS crystal
+Fe 0 0 0
+Fe 0.5 0.5 0.5
+K_POINTS automatic
+10 10 10 0 0 0

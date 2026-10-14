@@ -1,0 +1,64 @@
+BEGIN
+BEGIN_PATH_INPUT
+&PATH
+  restart_mode = 'from_scratch',
+  string_method = 'neb',
+  nstep_path = 160,
+  num_of_images = 7,
+  opt_scheme = 'broyden',
+  path_thr = 0.03,
+  ci_scheme = 'auto',
+  first_last_opt = .true.,
+/
+END_PATH_INPUT
+BEGIN_ENGINE_INPUT
+&CONTROL
+  calculation = 'scf',
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  pseudo_dir = './pseudo',
+  tprnfor = .true.,
+  tstress = .true.,
+  verbosity = 'high',
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 3,
+  ntyp = 1,
+  ecutwfc = 60.0,
+  ecutrho = 480.0,
+  input_dft = 'PBE',
+  nspin = 2,
+  starting_magnetization(1) = 0.5,
+  occupations = 'smearing',
+  smearing = 'mv',
+  degauss = 0.005,
+  tot_magnetization = 1,
+/
+&ELECTRONS
+  conv_thr = 1e-08,
+  electron_maxstep = 120,
+  mixing_beta = 0.3,
+/
+ATOMIC_SPECIES
+H 1.00794 H.pbe-rrkjus_psl.1.0.0.UPF
+CELL_PARAMETERS angstrom
+10 0 6.1232339957368e-16
+-3.6739403974421e-16 6 3.6739403974421e-16
+0 0 6
+K_POINTS automatic
+1 1 1 0 0 0
+BEGIN_POSITIONS
+FIRST_IMAGE
+ATOMIC_POSITIONS crystal
+H 0.2583 0.5 0.5
+H 0.5 0.5 0.5
+H 0.5824 0.5 0.5
+LAST_IMAGE
+ATOMIC_POSITIONS crystal
+H 0.4176 0.5 0.5
+H 0.5 0.5 0.5
+H 0.7417 0.5 0.5
+END_POSITIONS
+END_ENGINE_INPUT
+END

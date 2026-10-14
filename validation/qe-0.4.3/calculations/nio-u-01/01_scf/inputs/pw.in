@@ -1,0 +1,49 @@
+&CONTROL
+  calculation = 'scf',
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  pseudo_dir = './pseudo',
+  tprnfor = .true.,
+  tstress = .true.,
+  verbosity = 'high',
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 4,
+  ntyp = 3,
+  ecutwfc = 60.0,
+  ecutrho = 480.0,
+  input_dft = 'PBE',
+  nspin = 2,
+  starting_magnetization(1) = 0.5,
+  starting_magnetization(2) = -0.5,
+  occupations = 'smearing',
+  smearing = 'gaussian',
+  degauss = 0.001,
+/
+&ELECTRONS
+  conv_thr = 1e-08,
+  electron_maxstep = 200,
+  mixing_beta = 0.3,
+  diago_full_acc = .true.,
+/
+ATOMIC_SPECIES
+Ni1 58.6934 ni_pbe_v1.4.uspp.F.UPF
+Ni2 58.6934 ni_pbe_v1.4.uspp.F.UPF
+O 15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
+CELL_PARAMETERS angstrom
+2.8230467618025 0 4.2559031250946
+1.2832030735622 2.5145542132403 4.2559031250946
+0 0 5.10708375
+ATOMIC_POSITIONS crystal
+Ni1 0 0 0
+Ni2 0.5 0.5 0.5
+O 0.75 0.75 0.75
+O 0.25 0.25 0.25
+K_POINTS automatic
+6 6 6 0 0 0
+HUBBARD (ortho-atomic)
+U Ni1-3d 5
+J0 Ni1-3d 0
+U Ni2-3d 5
+J0 Ni2-3d 0

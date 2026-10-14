@@ -1,0 +1,675 @@
+{
+  "archive": {
+    "sha256": "603d7f07d364b60b321aa5c8eb0ae809aab339c3e884e4b62f31c35370991067",
+    "url": "https://www.pseudo-dojo.org/pseudos/nc-sr-04_pbe_standard_upf.tgz"
+  },
+  "citations": [
+    "https://doi.org/10.1016/j.cpc.2018.01.012",
+    "https://doi.org/10.1103/PhysRevB.88.085117"
+  ],
+  "cutoff_source": {
+    "density_cutoff": "Four times the wavefunction cutoff for norm-conserving UPFs; verify convergence for the target calculation.",
+    "hints_unit": "Hartree",
+    "selected_hint": "normal",
+    "sha256": "c22539521bd9b6ec0859eb53ab9948fd095d6e695437a4f6f1b1cd27fb080f26",
+    "unit_reference": "https://www.pseudo-dojo.org/faq.html",
+    "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/standard.djson"
+  },
+  "elements": {
+    "Ag": {
+      "archive_filename": "Ag.upf",
+      "cutoff_rho": 328.0,
+      "cutoff_wfc": 82.0,
+      "filename": "Ag.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "fb763a0f87fbf272d57e911ccc341133660ac4af8dab7426350d72c7b9bbc680",
+      "valence_electrons": 19.0
+    },
+    "Al": {
+      "archive_filename": "Al.upf",
+      "cutoff_rho": 160.0,
+      "cutoff_wfc": 40.0,
+      "filename": "Al.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "b02eaa07c5d98f5eeae1bec4155854a7a94ea3635ca6b42e914f3f7ebd6912fb",
+      "valence_electrons": 3.0
+    },
+    "Ar": {
+      "archive_filename": "Ar.upf",
+      "cutoff_rho": 264.0,
+      "cutoff_wfc": 66.0,
+      "filename": "Ar.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "e366a9edd6ab498b4ffdedccbd021caa0672d9a475c22bbfc28715c3d0649790",
+      "valence_electrons": 8.0
+    },
+    "As": {
+      "archive_filename": "As.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "As.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "39d557b0496b28f758c2e3e5c0bafa35c8095b7fd72ec30cb3f912c3f0c0f68f",
+      "valence_electrons": 15.0
+    },
+    "Au": {
+      "archive_filename": "Au.upf",
+      "cutoff_rho": 304.0,
+      "cutoff_wfc": 76.0,
+      "filename": "Au.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "e28a7f0dbf857739321cdc3e4b076da4a83da72fe7ae02a4985b25882dc77bb2",
+      "valence_electrons": 19.0
+    },
+    "B": {
+      "archive_filename": "B.upf",
+      "cutoff_rho": 304.0,
+      "cutoff_wfc": 76.0,
+      "filename": "B.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "0684ccd9b6b3fded340d7b690c90745f075018366eb4e6c876736eb56111f799",
+      "valence_electrons": 3.0
+    },
+    "Ba": {
+      "archive_filename": "Ba.upf",
+      "cutoff_rho": 176.0,
+      "cutoff_wfc": 44.0,
+      "filename": "Ba.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "17b0a62dbdb2f64d705d50e3442b91039011fce724f841658c67f7f34a03ed30",
+      "valence_electrons": 10.0
+    },
+    "Be": {
+      "archive_filename": "Be.upf",
+      "cutoff_rho": 352.0,
+      "cutoff_wfc": 88.0,
+      "filename": "Be.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "e6e1e6117567d44f370da37c3f0cd322e19e54c71e4ef8c176e0aca83fc2778c",
+      "valence_electrons": 4.0
+    },
+    "Bi": {
+      "archive_filename": "Bi.upf",
+      "cutoff_rho": 264.0,
+      "cutoff_wfc": 66.0,
+      "filename": "Bi.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "d66becbf2f03888cdbb328f6cac7abd5cec5f333d7de6e6a9b39989b94f92374",
+      "valence_electrons": 15.0
+    },
+    "Br": {
+      "archive_filename": "Br.upf",
+      "cutoff_rho": 184.0,
+      "cutoff_wfc": 46.0,
+      "filename": "Br.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "d9d3be41791733ed357ff10e3d7206ac9fcc524c6a306c4340688ab783d48d8b",
+      "valence_electrons": 7.0
+    },
+    "C": {
+      "archive_filename": "C.upf",
+      "cutoff_rho": 328.0,
+      "cutoff_wfc": 82.0,
+      "filename": "C.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "f828e50a154e3cad756d748c0b6d5320f920bbcd36d07f2cde696fd68f0fc188",
+      "valence_electrons": 4.0
+    },
+    "Ca": {
+      "archive_filename": "Ca.upf",
+      "cutoff_rho": 272.0,
+      "cutoff_wfc": 68.0,
+      "filename": "Ca.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "b40a013605d9f9c5fe59d820c8becf16b0f590701f2365e05b96b885539424c3",
+      "valence_electrons": 10.0
+    },
+    "Cd": {
+      "archive_filename": "Cd.upf",
+      "cutoff_rho": 408.0,
+      "cutoff_wfc": 102.0,
+      "filename": "Cd.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "a846ebe214aef677f539ae79045318fed833009c41080cfaf7c56a72ac441ecc",
+      "valence_electrons": 20.0
+    },
+    "Cl": {
+      "archive_filename": "Cl.upf",
+      "cutoff_rho": 232.0,
+      "cutoff_wfc": 58.0,
+      "filename": "Cl.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "c009006302553d7060ce6ba4a155766e55de9c99a1d45bccb36b5c4e5040b923",
+      "valence_electrons": 7.0
+    },
+    "Co": {
+      "archive_filename": "Co.upf",
+      "cutoff_rho": 384.0,
+      "cutoff_wfc": 96.0,
+      "filename": "Co.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "bec2f703494aef2258129ef296d009cafe6defc33cae2e10d6d9201801becb07",
+      "valence_electrons": 17.0
+    },
+    "Cr": {
+      "archive_filename": "Cr.upf",
+      "cutoff_rho": 376.0,
+      "cutoff_wfc": 94.0,
+      "filename": "Cr.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "933b7a0756ab542be156b0c23de10d74cf15667cf88b59fd83dc8677d3a7b0fe",
+      "valence_electrons": 14.0
+    },
+    "Cs": {
+      "archive_filename": "Cs.upf",
+      "cutoff_rho": 200.0,
+      "cutoff_wfc": 50.0,
+      "filename": "Cs.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "fca9b791147aa97d0743a59902fd715f5b6d6d29e57ebae8b1c00a58bf20d4ec",
+      "valence_electrons": 9.0
+    },
+    "Cu": {
+      "archive_filename": "Cu.upf",
+      "cutoff_rho": 368.0,
+      "cutoff_wfc": 92.0,
+      "filename": "Cu.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "0b53f2257151069b2e092336ff39463cd0bb38394bf22ab995a6e432bdbf9919",
+      "valence_electrons": 19.0
+    },
+    "F": {
+      "archive_filename": "F.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "F.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "257f2c746b9e624ccc9e1d925430c3f74caf34915badfe6bfcbeab5f8cd08bb4",
+      "valence_electrons": 7.0
+    },
+    "Fe": {
+      "archive_filename": "Fe.upf",
+      "cutoff_rho": 360.0,
+      "cutoff_wfc": 90.0,
+      "filename": "Fe.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "79848bdb660ac0fe3f93ac0967cba01fe200f5cc2cf37e7f01e6ac051f107105",
+      "valence_electrons": 16.0
+    },
+    "Ga": {
+      "archive_filename": "Ga.upf",
+      "cutoff_rho": 320.0,
+      "cutoff_wfc": 80.0,
+      "filename": "Ga.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "e890f0d10ab5554c3c6440f8a617507740e625ca5a28f266d6fec4260a9d0723",
+      "valence_electrons": 13.0
+    },
+    "Ge": {
+      "archive_filename": "Ge.upf",
+      "cutoff_rho": 312.0,
+      "cutoff_wfc": 78.0,
+      "filename": "Ge.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "111d01f680802ef14c03b72987e32a91e9ff8b4741bce2a17613b4e0845afd72",
+      "valence_electrons": 14.0
+    },
+    "H": {
+      "archive_filename": "H.upf",
+      "cutoff_rho": 288.0,
+      "cutoff_wfc": 72.0,
+      "filename": "H.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "38add5ec2a81b907d7ae0891de1d8353c5d60f4b53b27ed854f05c2a955d7ddf",
+      "valence_electrons": 1.0
+    },
+    "He": {
+      "archive_filename": "He.upf",
+      "cutoff_rho": 360.0,
+      "cutoff_wfc": 90.0,
+      "filename": "He.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "727b7304d401747db7d98c5a5ace74cdce0984dc1fff1c6cf8a1cc015b222c1a",
+      "valence_electrons": 2.0
+    },
+    "Hf": {
+      "archive_filename": "Hf.upf",
+      "cutoff_rho": 232.0,
+      "cutoff_wfc": 58.0,
+      "filename": "Hf.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "d07d52110056548980792a7eb8b696f7c5a1c0945a126dfd1ddb90ea98186003",
+      "valence_electrons": 12.0
+    },
+    "Hg": {
+      "archive_filename": "Hg.upf",
+      "cutoff_rho": 264.0,
+      "cutoff_wfc": 66.0,
+      "filename": "Hg.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "bd5757a6343be5e73038065e1d5edd43464e187cfcdbbb3eb8d144a14dcfcc73",
+      "valence_electrons": 20.0
+    },
+    "I": {
+      "archive_filename": "I.upf",
+      "cutoff_rho": 280.0,
+      "cutoff_wfc": 70.0,
+      "filename": "I.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "4ff52e6962f6ff5dd44fc08d47931f0e189a657cf0b359252d0ac31094fb0281",
+      "valence_electrons": 7.0
+    },
+    "In": {
+      "archive_filename": "In.upf",
+      "cutoff_rho": 280.0,
+      "cutoff_wfc": 70.0,
+      "filename": "In.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "de14d1ba51dba2ff7db0ef8c933749ad0520b4318996e1f3880710c54aa41fc6",
+      "valence_electrons": 13.0
+    },
+    "Ir": {
+      "archive_filename": "Ir.upf",
+      "cutoff_rho": 272.0,
+      "cutoff_wfc": 68.0,
+      "filename": "Ir.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "e5e9add90e5161d08db217a0e3b54bd5e830ba8174386b3b70a38899b4bd8bc0",
+      "valence_electrons": 17.0
+    },
+    "K": {
+      "archive_filename": "K.upf",
+      "cutoff_rho": 296.0,
+      "cutoff_wfc": 74.0,
+      "filename": "K.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "d8c19bc3930fe9002d73b1a7a56f320b73cfa0b34c7443a5ba6b49cf32038aa5",
+      "valence_electrons": 9.0
+    },
+    "Kr": {
+      "archive_filename": "Kr.upf",
+      "cutoff_rho": 208.0,
+      "cutoff_wfc": 52.0,
+      "filename": "Kr.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "42d25c77ed07bf438be5b8543f4afd66f10ae46f90d1b80155b6519f4c9bb8c3",
+      "valence_electrons": 8.0
+    },
+    "La": {
+      "archive_filename": "La.upf",
+      "cutoff_rho": 440.0,
+      "cutoff_wfc": 110.0,
+      "filename": "La.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "7a5b05be056c96292827043b6c564de17805566e789d043250c57bba1cd10c57",
+      "valence_electrons": 11.0
+    },
+    "Li": {
+      "archive_filename": "Li.upf",
+      "cutoff_rho": 296.0,
+      "cutoff_wfc": 74.0,
+      "filename": "Li.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "624e3e059780d686fe878f7879686a9452edf2256a7711b1004e730d1d94c6b1",
+      "valence_electrons": 3.0
+    },
+    "Lu": {
+      "archive_filename": "Lu.upf",
+      "cutoff_rho": 400.0,
+      "cutoff_wfc": 100.0,
+      "filename": "Lu.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "be1121fc0f955f04349f45bc950c8dde12b21b225652f62415db48e441815e5b",
+      "valence_electrons": 25.0
+    },
+    "Mg": {
+      "archive_filename": "Mg.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "Mg.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "15cdd9380687a47a1f4bc4ab5fe1f0c6d9c50891350fd8534c8f292b3ce0be14",
+      "valence_electrons": 10.0
+    },
+    "Mn": {
+      "archive_filename": "Mn.upf",
+      "cutoff_rho": 384.0,
+      "cutoff_wfc": 96.0,
+      "filename": "Mn.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "f2e8f85a8510f3dda861fa0e84eb29a11ad8a1bf79a6bfcaddfeaa1246f6d150",
+      "valence_electrons": 15.0
+    },
+    "Mo": {
+      "archive_filename": "Mo.upf",
+      "cutoff_rho": 320.0,
+      "cutoff_wfc": 80.0,
+      "filename": "Mo.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "7a392dee2cc7088d02184ddefa73b709f11e266fdde348a08eeaf8ea2870e448",
+      "valence_electrons": 14.0
+    },
+    "N": {
+      "archive_filename": "N.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "N.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "287a8723d1e8959fdab0c143bb4673be4fa0f82dfc4bff6497417d2e1a6c6079",
+      "valence_electrons": 5.0
+    },
+    "Na": {
+      "archive_filename": "Na.upf",
+      "cutoff_rho": 352.0,
+      "cutoff_wfc": 88.0,
+      "filename": "Na.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "9451b6a1be0db8045279837afd86635a030ebbd1499275565df434053fbfbbb5",
+      "valence_electrons": 9.0
+    },
+    "Nb": {
+      "archive_filename": "Nb.upf",
+      "cutoff_rho": 328.0,
+      "cutoff_wfc": 82.0,
+      "filename": "Nb.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "3fa51732ec4a6374f3581dd0d8a8f57a7ccb7b66304f983251e6122a2c21bd00",
+      "valence_electrons": 13.0
+    },
+    "Ne": {
+      "archive_filename": "Ne.upf",
+      "cutoff_rho": 272.0,
+      "cutoff_wfc": 68.0,
+      "filename": "Ne.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "863af1a764da12a25ac72b3c19e617207d0385f280715a002f3cb0054d427c96",
+      "valence_electrons": 8.0
+    },
+    "Ni": {
+      "archive_filename": "Ni.upf",
+      "cutoff_rho": 392.0,
+      "cutoff_wfc": 98.0,
+      "filename": "Ni.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "f83c9ee8062152d26e736c0ff9c0af7c86936f0642f3ab66ffb2eda42bd46a64",
+      "valence_electrons": 18.0
+    },
+    "O": {
+      "archive_filename": "O.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "O.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "2a543889f6522e2a1f94e2c2ff1477e61cb89f25c67b27c54940e8263ec6fb11",
+      "valence_electrons": 6.0
+    },
+    "Os": {
+      "archive_filename": "Os.upf",
+      "cutoff_rho": 296.0,
+      "cutoff_wfc": 74.0,
+      "filename": "Os.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "41047476d89b068ae2a4d6e0e9f596b8848353c829a936e3d88e52e7ba247c9e",
+      "valence_electrons": 16.0
+    },
+    "P": {
+      "archive_filename": "P.upf",
+      "cutoff_rho": 176.0,
+      "cutoff_wfc": 44.0,
+      "filename": "P.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "3b46321966e4e991647ab91662fbe9971276908440488075fbd1c07248355151",
+      "valence_electrons": 5.0
+    },
+    "Pb": {
+      "archive_filename": "Pb.upf",
+      "cutoff_rho": 224.0,
+      "cutoff_wfc": 56.0,
+      "filename": "Pb.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "84bde21a5ebcd3047e42cd48a4a24b8c8985197ec772d0ab348c51125027d03a",
+      "valence_electrons": 14.0
+    },
+    "Pd": {
+      "archive_filename": "Pd.upf",
+      "cutoff_rho": 328.0,
+      "cutoff_wfc": 82.0,
+      "filename": "Pd.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "3b2cac5272fcab98ade99eff6cc6153e4c450ca1632ac96202a7e182bf592d67",
+      "valence_electrons": 18.0
+    },
+    "Po": {
+      "archive_filename": "Po.upf",
+      "cutoff_rho": 256.0,
+      "cutoff_wfc": 64.0,
+      "filename": "Po.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "d55450f7b93d60d40c4183beae809680ad49cf1de507f30ce3434e7dd4f4deff",
+      "valence_electrons": 16.0
+    },
+    "Pt": {
+      "archive_filename": "Pt.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "Pt.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "d720e74ecee92d6f9d701eb0505324bef77d0b67d115f32eadb9a0639162ce46",
+      "valence_electrons": 18.0
+    },
+    "Rb": {
+      "archive_filename": "Rb.upf",
+      "cutoff_rho": 184.0,
+      "cutoff_wfc": 46.0,
+      "filename": "Rb.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "b40d0424cd413a24da3396b6fb62081bbb13be49acbf1fc666ca976c239ed736",
+      "valence_electrons": 9.0
+    },
+    "Re": {
+      "archive_filename": "Re.upf",
+      "cutoff_rho": 288.0,
+      "cutoff_wfc": 72.0,
+      "filename": "Re.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "3498e1627922400adc6fabb9f136dd2099a02a54a3c5b7e63053dbe8efe8d7d8",
+      "valence_electrons": 15.0
+    },
+    "Rh": {
+      "archive_filename": "Rh.upf",
+      "cutoff_rho": 352.0,
+      "cutoff_wfc": 88.0,
+      "filename": "Rh.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "2c5ac1aeca2d407236885fd9a777221beeb1869cc30b1efb327105cb6b640696",
+      "valence_electrons": 17.0
+    },
+    "Rn": {
+      "archive_filename": "Rn.upf",
+      "cutoff_rho": 288.0,
+      "cutoff_wfc": 72.0,
+      "filename": "Rn.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "25e07ee3f97321ee498e6c32c7b76bdfa49d654cce1956a9d32157c0fc870806",
+      "valence_electrons": 18.0
+    },
+    "Ru": {
+      "archive_filename": "Ru.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "Ru.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "25cc2bcbe97813f0e1f9f249fb52c12bc80c25351d7141cda6773c66d4cfccef",
+      "valence_electrons": 16.0
+    },
+    "S": {
+      "archive_filename": "S.upf",
+      "cutoff_rho": 208.0,
+      "cutoff_wfc": 52.0,
+      "filename": "S.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "7dcddbca51ad05414445cc784264d39f139300f47897ae96740f49d6ba96daa7",
+      "valence_electrons": 6.0
+    },
+    "Sb": {
+      "archive_filename": "Sb.upf",
+      "cutoff_rho": 320.0,
+      "cutoff_wfc": 80.0,
+      "filename": "Sb.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "b4337adb7f4b57558854601f2d2103f0d3a254706ef5396aa5507bc2c9117285",
+      "valence_electrons": 15.0
+    },
+    "Sc": {
+      "archive_filename": "Sc.upf",
+      "cutoff_rho": 312.0,
+      "cutoff_wfc": 78.0,
+      "filename": "Sc.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "ec0fa80e6ac23bc50a8ee2fc1531e450afdae5155214d646151193c7d9eebe66",
+      "valence_electrons": 11.0
+    },
+    "Se": {
+      "archive_filename": "Se.upf",
+      "cutoff_rho": 344.0,
+      "cutoff_wfc": 86.0,
+      "filename": "Se.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "1f5d0f8b99028dee90766aab811ce5d8bb2c2b2ad38ec60436d1c2888ef5109c",
+      "valence_electrons": 16.0
+    },
+    "Si": {
+      "archive_filename": "Si.upf",
+      "cutoff_rho": 144.0,
+      "cutoff_wfc": 36.0,
+      "filename": "Si.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "39822757f53f36e3bf3bfb779356152a8d3f21199c7db9dd5a931e5d18c45282",
+      "valence_electrons": 4.0
+    },
+    "Sn": {
+      "archive_filename": "Sn.upf",
+      "cutoff_rho": 288.0,
+      "cutoff_wfc": 72.0,
+      "filename": "Sn.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "906d1ea74f62e3b3454e9aaccc70d6a295c1fc73bf6fa90a9627c34b1a40c29c",
+      "valence_electrons": 14.0
+    },
+    "Sr": {
+      "archive_filename": "Sr.upf",
+      "cutoff_rho": 272.0,
+      "cutoff_wfc": 68.0,
+      "filename": "Sr.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "1c3bc7a8bcda41b8d18dd308015102e6c96aedf3c90af7cfad2ef2d3087b70ef",
+      "valence_electrons": 10.0
+    },
+    "Ta": {
+      "archive_filename": "Ta.upf",
+      "cutoff_rho": 232.0,
+      "cutoff_wfc": 58.0,
+      "filename": "Ta.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "501ad7414b574482365276672ae4ab7324c203b7e314435398f4b0ecde3fbc94",
+      "valence_electrons": 13.0
+    },
+    "Tc": {
+      "archive_filename": "Tc.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "Tc.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "a4d9dafd84d4ecf4872bb95da006357fd8d103016ba263fa522cd0994fd51e3d",
+      "valence_electrons": 15.0
+    },
+    "Te": {
+      "archive_filename": "Te.upf",
+      "cutoff_rho": 320.0,
+      "cutoff_wfc": 80.0,
+      "filename": "Te.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "25619aa442ecbc91d34143cc07c0f54a7235492a992ef744a7357f690d09c7a5",
+      "valence_electrons": 16.0
+    },
+    "Ti": {
+      "archive_filename": "Ti.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "Ti.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "c33e68554a687043cdd03f175f0c482b4ba30c41b93cb5f75ee46da96fcc4506",
+      "valence_electrons": 12.0
+    },
+    "Tl": {
+      "archive_filename": "Tl.upf",
+      "cutoff_rho": 248.0,
+      "cutoff_wfc": 62.0,
+      "filename": "Tl.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "57cc0c577c0fdc985e1e839c12dc84ca285a85e57f530fe5bd75502f588bdfa9",
+      "valence_electrons": 13.0
+    },
+    "V": {
+      "archive_filename": "V.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "V.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "e1ee37c0003003ae9520ac934ed8d90a488b4b01e5a862c658ecfc1e47e402a2",
+      "valence_electrons": 13.0
+    },
+    "W": {
+      "archive_filename": "W.upf",
+      "cutoff_rho": 296.0,
+      "cutoff_wfc": 74.0,
+      "filename": "W.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "5d0f2e6b719a56a204b5e1cd366cbbe71c307664bcfe759a29ea40fce89312de",
+      "valence_electrons": 14.0
+    },
+    "Xe": {
+      "archive_filename": "Xe.upf",
+      "cutoff_rho": 272.0,
+      "cutoff_wfc": 68.0,
+      "filename": "Xe.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "eea30f20d7ad3f13f4ba99737ec2f615ff46cca099c08c6a8653ad3fb34d89d7",
+      "valence_electrons": 8.0
+    },
+    "Y": {
+      "archive_filename": "Y.upf",
+      "cutoff_rho": 288.0,
+      "cutoff_wfc": 72.0,
+      "filename": "Y.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "f4891994689f69dbe041d3b75acbe1a9773b348434fe6b01007d0df9f1dbd898",
+      "valence_electrons": 11.0
+    },
+    "Zn": {
+      "archive_filename": "Zn.upf",
+      "cutoff_rho": 336.0,
+      "cutoff_wfc": 84.0,
+      "filename": "Zn.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "baaf5117e5ef03b8ab97977e1e9dee10f2e241c635f027f6bd12a2e41d2b2678",
+      "valence_electrons": 20.0
+    },
+    "Zr": {
+      "archive_filename": "Zr.upf",
+      "cutoff_rho": 264.0,
+      "cutoff_wfc": 66.0,
+      "filename": "Zr.pbe-nc-sr-04-pd.upf",
+      "pseudo_type": "NC",
+      "sha256": "3d046a1f8b0e83f3778eb7b3afc3ad29301ae1fee4bd1d3e20768e2bc7fcc890",
+      "valence_electrons": 12.0
+    }
+  },
+  "library": "PseudoDojo 0.4 PBE standard",
+  "license": {
+    "legalcode_url": "https://creativecommons.org/licenses/by/4.0/legalcode",
+    "name": "CC-BY-4.0",
+    "sha256": "a58b12d847a819a766f1fe38211daec8a09ccc3db450bf2bd23dad93bd65a28a",
+    "url": "https://raw.githubusercontent.com/abinit/pseudo_dojo/4048962957711c04281ffe6c2bd2c96f0f7110aa/README.md"
+  }
+}

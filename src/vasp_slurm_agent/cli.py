@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import sys
 import threading
@@ -27,6 +28,7 @@ CHECK_LABELS = {
     "remote_parent": "Parent of the remote run folder",
     "vasp": "VASP command",
     "vasp_ncl": "SOC / noncollinear command",
+    "gpu_partition": "GPU partition",
 }
 FIX_HINTS = {
     "python3": "Load a Python 3 module in the environment setup commands.",
@@ -38,10 +40,14 @@ FIX_HINTS = {
     "remote_parent": "Create the parent folder on the cluster, or choose another remote run folder.",
     "vasp": "Add the VASP module to the setup commands, or use the full path to vasp_std in the VASP command.",
     "vasp_ncl": "Check the noncollinear command, or leave it blank when SOC is not needed.",
+    "gpu_partition": "Choose an available GPU partition and a supported number of GPUs per node.",
 }
 
 
 def doctor(config, transport=None):
+    if config.engine == "qe":
+        from .qe_setup import doctor as qe_doctor
+        return qe_doctor(config, transport=transport)
     from .transport import SSHTransport
     owned = transport is None
     remote = transport or SSHTransport(config)
@@ -53,11 +59,23 @@ def doctor(config, transport=None):
         for name, path in (("potcar_root", config.potcar_root), ("remote_parent", str(Path(config.remote_root).parent))):
             result = remote.run("test -d " + shlex.quote(path))
             checks[name] = {"ok": result.returncode == 0, "detail": path}
+        if config.compute_backend == "gpu":
+            result = remote.run("sinfo -h -p " + shlex.quote(config.partition) + " -o '%a|%G'")
+            available = False
+            for line in result.stdout.splitlines():
+                state, _, resources = line.partition("|")
+                counts = re.findall(r"(?:^|,)gpu(?::[^,:()]+)?:(\d+)", resources)
+                if state.strip() == "up" and any(int(count) >= config.gpus_per_node for count in counts):
+                    available = True
+            checks["gpu_partition"] = {
+                "ok": result.returncode == 0 and available,
+                "detail": result.stdout.strip() or result.stderr.strip() or "No GPU resources were listed.",
+            }
         # Launch commands come from the user's configuration.
         words = shlex.split(config.vasp_command)
         solver = next((w for w in words if "vasp" in Path(w).name.lower()), "")
         if solver:
-            command = "\n".join(config.setup_commands + ["command -v " + shlex.quote(solver)])
+            command = "\n".join(["set -e", *config.setup_commands, "command -v " + shlex.quote(solver)])
             result = remote.run(command)
             checks["vasp"] = {"ok": result.returncode == 0, "detail": result.stdout.strip() or result.stderr.strip()}
         else:
@@ -66,7 +84,7 @@ def doctor(config, transport=None):
             words = shlex.split(config.vasp_ncl_command)
             solver = next((w for w in words if "vasp" in Path(w).name.lower()), "")
             if solver:
-                result = remote.run("\n".join(config.setup_commands + ["command -v " + shlex.quote(solver)]))
+                result = remote.run("\n".join(["set -e", *config.setup_commands, "command -v " + shlex.quote(solver)]))
                 checks["vasp_ncl"] = {"ok": result.returncode == 0, "detail": result.stdout.strip() or result.stderr.strip()}
             else:
                 checks["vasp_ncl"] = {"ok": False, "detail": "Check the noncollinear launch command."}
@@ -117,7 +135,7 @@ def _open_browser_later(url, delay=1.5):
 
 def main():
     default_config = default_config_path()
-    parser = argparse.ArgumentParser(description="Run VASP on Slurm.")
+    parser = argparse.ArgumentParser(description="Run DFT calculations on Slurm.")
     parser.add_argument("--version", action="version", version=f"dft-agent {__version__}")
     commands = parser.add_subparsers(dest="command", required=True)
     ui = commands.add_parser("ui", help="Open app")
@@ -145,6 +163,9 @@ def main():
     plan.add_argument("--base-url", default="")
     plan.add_argument("--output", type=Path, default=Path("plan.json"))
     plan.add_argument("--runs", type=Path, help="Past runs for method guidance")
+    plan.add_argument("--engine", choices=("vasp", "qe"), default="vasp")
+    plan.add_argument("--config", type=Path, default=default_config)
+    plan.add_argument("--images", type=Path, nargs="+", help="QE NEB endpoints or images")
     task = commands.add_parser("task", help="Plan edits, stages and comparisons")
     task.add_argument("structure", type=Path)
     task.add_argument("goal")
@@ -154,6 +175,23 @@ def main():
     task.add_argument("--base-url", default="")
     task.add_argument("--output", type=Path, default=Path("task.json"))
     task.add_argument("--runs", type=Path)
+    task.add_argument("--engine", choices=("vasp", "qe"), default="vasp")
+    task.add_argument("--config", type=Path, default=default_config)
+    task.add_argument("--images", type=Path, nargs="+", help="QE NEB endpoints or images")
+    for planner in (plan, task):
+        planner.add_argument("--pairing", action="store_true", help="Plan a supplied single-band Hamiltonian; requires --engine qe")
+        planner.add_argument("--origin", choices=("model", "wannier_unvalidated"), help="Hamiltonian provenance for --pairing")
+    qe_command = commands.add_parser("qe", help="Install and check Quantum ESPRESSO")
+    qe_command.add_argument("action", choices=("inspect", "install-plan", "install", "install-status", "pseudos"))
+    qe_command.add_argument("--config", type=Path, default=default_config)
+    qe_command.add_argument("--plan", type=Path, default=Path("qe-install-plan.json"))
+    qe_command.add_argument("--receipt", type=Path, default=Path("qe-install-receipt.json"))
+    qe_command.add_argument("--prefix")
+    qe_command.add_argument("--build-cpus", type=int, default=8)
+    qe_command.add_argument("--include-epw", action="store_true", help="Build EPW and Wannier90")
+    qe_command.add_argument("--library", choices=("sssp", "pseudodojo"), default="sssp", help="Public UPF library")
+    qe_command.add_argument("--elements", nargs="+")
+    qe_command.add_argument("--password", action="store_true")
     structure_plan = commands.add_parser("structure-plan", help="Plan structure edits")
     structure_plan.add_argument("structure", type=Path)
     structure_plan.add_argument("goal")
@@ -199,6 +237,17 @@ def main():
     explain.add_argument("--provider", choices=tuple(PROVIDERS), default="responses")
     explain.add_argument("--model", default="")
     explain.add_argument("--base-url", default="")
+    next_step = commands.add_parser("next", help="Plan the next QE step from saved results")
+    next_step.add_argument("run_dir", type=Path)
+    next_step.add_argument("question")
+    next_step.add_argument("--provider", choices=tuple(PROVIDERS), default="responses")
+    next_step.add_argument("--model", default="")
+    next_step.add_argument("--base-url", default="")
+    next_step.add_argument("--output", type=Path, default=Path("next-step.json"))
+    prepare_next = commands.add_parser("prepare-next", help="Prepare a reviewed QE continuation or repair")
+    prepare_next.add_argument("run_dir", type=Path)
+    prepare_next.add_argument("new_run_dir", type=Path)
+    prepare_next.add_argument("--plan", type=Path, required=True)
     repair = commands.add_parser("repair", help="Plan a bounded repair")
     repair.add_argument("run_dir", type=Path)
     repair.add_argument("--provider", choices=tuple(PROVIDERS), default="responses")
@@ -214,10 +263,12 @@ def main():
     prep.add_argument("run_dir", type=Path)
     prep.add_argument("--config", type=Path, default=None, help=f"Cluster settings (default: {default_config} when present)")
     source = prep.add_mutually_exclusive_group()
-    source.add_argument("--task", choices=("relax", "scf", "bands", "dos"))
+    source.add_argument("--task", choices=("relax", "vc-relax", "scf", "nscf", "bands", "dos", "pdos", "phonon", "phonon_bands", "electron_phonon", "wannier_electron_phonon", "neb", "pp"))
     source.add_argument("--plan", type=Path)
     prep.add_argument("--magnetic-states", nargs="+", choices=("NM", "FM", "AFM"))
     prep.add_argument("--parameters", default="{}", help="Calculation settings as a JSON object")
+    prep.add_argument("--images", type=Path, nargs="+", help="QE NEB endpoints or images")
+    prep.add_argument("--cluster-python", help="Existing cluster Python executable for a reviewed pairing plan")
     attach = commands.add_parser("attach", help="Attach cluster settings to a prepared run or batch")
     attach.add_argument("run_dir", type=Path)
     attach.add_argument("--config", type=Path, default=default_config)
@@ -225,7 +276,7 @@ def main():
     continuation.add_argument("source_run", type=Path)
     continuation.add_argument("stage", help="Stage folder, for example 01_relax")
     continuation.add_argument("run_dir", type=Path)
-    continuation.add_argument("--tasks", nargs="+", choices=("relax", "scf", "bands", "dos"), required=True)
+    continuation.add_argument("--tasks", nargs="+", choices=("relax", "vc-relax", "scf", "nscf", "bands", "dos", "pdos", "phonon", "phonon_bands", "electron_phonon", "epw_iso", "epw_tc", "epw_aniso", "pp"), required=True)
     continuation.add_argument("--parameters", default="{}", help="Changes to inherited settings (JSON)")
     continuation.add_argument("--stage-parameters", default="null", help="Per-stage changes (JSON list)")
     extra = commands.add_parser("files", help="List or collect additional cluster outputs")
@@ -289,12 +340,34 @@ def main():
                 print(json.dumps(result, indent=2))
             return 0 if result["ok"] else 1
         if args.command == "files":
-            from .postprocessing import fetch_outputs, list_remote_outputs
-            result = (fetch_outputs(args.run_dir, args.stage, args.fetch) if args.fetch
-                      else list_remote_outputs(args.run_dir, args.stage))
+            from .workflow import read_state
+            state = read_state(args.run_dir)
+            if state.get("workflow") == "pairing":
+                from .qe_pairing_workflow import load_run_context
+                if args.stage not in {stage["folder"] for stage in state["stages"]}:
+                    raise ValueError("Choose the existing pairing stage folder.")
+                if args.fetch:
+                    raise ValueError("Pairing outputs are already collected. Use dft-agent bundle RUN_DIR to download them.")
+                context = load_run_context(args.run_dir)
+                result = {"status": context["status"], "artifacts": [item for item in context["artifacts"] if item["status"] == "verified"],
+                          "download": "Use dft-agent bundle RUN_DIR to export the model and collected results."}
+            elif state.get("engine") == "qe":
+                from .qe_workflow import checkpoint_files, fetch_raw_files
+                matches = [i for i, stage in enumerate(state["stages"]) if stage["folder"] == args.stage]
+                if len(matches) != 1:
+                    raise ValueError("Choose an existing QE stage folder.")
+                result = (fetch_raw_files(args.run_dir, args.fetch, matches[0]) if args.fetch
+                          else checkpoint_files(args.run_dir, matches[0]))
+            else:
+                from .postprocessing import fetch_outputs, list_remote_outputs
+                result = (fetch_outputs(args.run_dir, args.stage, args.fetch) if args.fetch
+                          else list_remote_outputs(args.run_dir, args.stage))
             print(json.dumps(result, indent=2))
             return 0
         if args.command == "postprocess":
+            from .workflow import read_state
+            if read_state(args.run_dir).get("engine") == "qe":
+                raise ValueError("QE results are exported during collection. Use next to plan further analysis.")
             from .postprocessing import postprocess_run
             result = postprocess_run(args.run_dir, args.stage, args.tasks, executable=args.executable)
             print(json.dumps(result, indent=2))
@@ -368,8 +441,16 @@ def main():
             from .agent import ModelSettings, draft_plan
             from .task_agent import draft_task
             goal, history = args.goal, []
+            if args.pairing and (args.engine != "qe" or not args.origin or args.images):
+                raise ValueError("Pairing plans require --engine qe and --origin model or wannier_unvalidated, without --images.")
+            if args.origin and not args.pairing:
+                raise ValueError("Use --origin only with --pairing.")
             if args.previous:
                 previous = json.loads(args.previous.read_text())
+                if bool(previous.get("kind") == "qe_pairing") != args.pairing:
+                    raise ValueError("Keep --pairing when revising a pairing plan; start a new plan to change routes.")
+                if args.pairing and previous.get("origin") != args.origin:
+                    raise ValueError("The Hamiltonian provenance changed. Start a new pairing plan.")
                 if previous.get("source_sha256") != hashlib.sha256(args.structure.read_bytes()).hexdigest():
                     raise ValueError("The source changed. Start a new calculation plan.")
                 if not isinstance(previous.get("goal"), str) or not isinstance(previous.get("dialogue"), list):
@@ -377,11 +458,47 @@ def main():
                 goal = previous["goal"]
                 history = previous["dialogue"] + [{"role": "user", "content": args.goal}]
             settings = ModelSettings(provider=args.provider, model=args.model, base_url=args.base_url or None)
-            planner = draft_task if args.command == "task" else draft_plan
-            result = planner(goal, args.structure, settings, history=history, runs_root=args.runs)
+            if args.pairing:
+                from .qe_pairing_agent import draft_task as draft_pairing_task
+                result = draft_pairing_task(goal, args.structure, settings, origin=args.origin, history=history)
+            elif args.engine == "qe":
+                from .qe_agent import draft_task as draft_qe_task
+                result = draft_qe_task(goal, args.structure, settings, history=history,
+                                       config=ClusterConfig.load(args.config), images=args.images, runs_root=args.runs)
+            else:
+                planner = draft_task if args.command == "task" else draft_plan
+                result = planner(goal, args.structure, settings, history=history, runs_root=args.runs)
             args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
             print(json.dumps(result, indent=2, ensure_ascii=False))
             return 0 if result["status"] == "ready" else 1
+        if args.command == "qe":
+            from . import qe_setup
+            from dataclasses import replace
+            config = ClusterConfig.load(args.config)
+            if config.engine != "qe":
+                raise ValueError("Select Quantum ESPRESSO in cluster settings.")
+            if args.action == "inspect":
+                result = qe_setup.inspect(config)
+            elif args.action == "install-plan":
+                result = qe_setup.install_plan(config, prefix=args.prefix, build_jobs=args.build_cpus, include_epw=args.include_epw)
+                args.plan.write_text(json.dumps(result, indent=2) + "\n")
+            elif args.action == "install":
+                result = qe_setup.start_install(config, json.loads(args.plan.read_text()))
+                args.receipt.write_text(json.dumps(result, indent=2) + "\n")
+            elif args.action == "install-status":
+                result = qe_setup.poll_install(config, json.loads(args.receipt.read_text()))
+            else:
+                if not args.elements:
+                    raise ValueError("Give --elements, for example Si O.")
+                result = qe_setup.ensure_pseudos(config, args.elements, library=args.library)
+                mapping = dict(config.qe_pseudopotentials)
+                for element, item in result["elements"].items():
+                    mapping[element] = {"filename": item["filename"], "sha256": item["sha256"],
+                        "ecutwfc": item["cutoff_wfc"], "ecutrho": item["cutoff_rho"],
+                        "element": element, "relativistic": item["header"]["relativistic"]}
+                replace(config, qe_pseudopotentials=mapping).save(args.config)
+            print(json.dumps(result, indent=2))
+            return 1 if result.get("status") in {"failed", "needs_attention"} else 0
         if args.command == "structure-plan":
             from .agent import ModelSettings
             from .structure_agent import draft_structure
@@ -412,6 +529,17 @@ def main():
             result = explain_run(args.run_dir, settings, question=args.question)
             print(json.dumps(result, indent=2, ensure_ascii=False))
             return 0
+        if args.command in {"next", "prepare-next"}:
+            from . import qe_reasoning
+            from .agent import ModelSettings
+            if args.command == "next":
+                settings = ModelSettings(provider=args.provider, model=args.model, base_url=args.base_url or None)
+                result = qe_reasoning.draft_next_action(args.question, args.run_dir, settings)
+                args.output.write_text(json.dumps(result, indent=2) + "\n")
+            else:
+                result = qe_reasoning.prepare_next_action(args.run_dir, args.new_run_dir, json.loads(args.plan.read_text()))
+            print(json.dumps(result, indent=2))
+            return 0
         if args.command == "repair":
             from .agent import ModelSettings
             from .recovery import draft_repair
@@ -436,7 +564,10 @@ def main():
             print(json.dumps(result, indent=2))
             return 0
         if args.command == "continue":
-            from .continuation import prepare_continuation
+            if read_state(args.source_run).get("engine") == "qe":
+                from .qe_continuation import prepare_continuation
+            else:
+                from .continuation import prepare_continuation
             result = prepare_continuation(args.source_run, args.stage, args.run_dir,
                                          ClusterConfig.load(args.source_run / "config.json"), args.tasks,
                                          parameters=json.loads(args.parameters), stage_parameters=json.loads(args.stage_parameters))
@@ -462,28 +593,51 @@ def main():
         if args.command == "watch-batch":
             raise ValueError("Choose a prepared batch folder.")
         if args.command == "prepare":
+            if args.cluster_python and not args.plan:
+                raise ValueError("Use --cluster-python with a reviewed pairing --plan.")
             config = _load_optional_config(args.config, default_config)
             if args.plan:
                 if args.parameters != "{}" or args.magnetic_states:
                     raise ValueError("Edit the plan before changing its settings.")
                 proposal = json.loads(args.plan.read_text())
+                if args.cluster_python and proposal.get("kind") != "qe_pairing":
+                    raise ValueError("Use --cluster-python only with a pairing plan.")
                 if proposal.get("status") != "ready":
                     raise ValueError("Resolve the plan's questions before preparing inputs.")
                 if proposal.get("source_sha256") != hashlib.sha256(args.structure.read_bytes()).hexdigest():
                     raise ValueError("The structure differs from the plan. Create a new plan.")
-                if proposal.get("kind") == "task":
+                if proposal.get("kind") == "qe_pairing":
+                    from dataclasses import replace
+                    from .qe_pairing_agent import prepare_task
+                    if not args.cluster_python or config is None or config.engine != "qe":
+                        raise ValueError("Pairing preparation requires --cluster-python and a saved QE --config.")
+                    if args.images:
+                        raise ValueError("A pairing plan uses the supplied Hamiltonian, not --images.")
+                    config = replace(config, compute_backend="cpu", nodes=1, tasks=1, cpus_per_task=1)
+                    result = prepare_task(args.structure, args.run_dir, config, proposal, python_executable=args.cluster_python)
+                elif proposal.get("kind") == "qe_task":
+                    from .qe_agent import prepare_task
+                    result = prepare_task(args.structure, args.run_dir, config, proposal, images=args.images)
+                elif proposal.get("kind") == "task":
                     from .task_agent import prepare_task
                     result = prepare_task(args.structure, args.run_dir, config, proposal)
                 else:
                     result = prepare_plan(args.structure, args.run_dir, config, proposal["tasks"], proposal["parameters"],
                                           proposal.get("magnetic_states") or None, proposal.get("initial_moment", 3.0))
-                if proposal.get("kind") != "task":
+                if proposal.get("kind") not in {"task", "qe_task", "qe_pairing"}:
                     (args.run_dir / "proposal.json").write_text(json.dumps(proposal, indent=2, ensure_ascii=False) + "\n")
             elif args.magnetic_states:
                 result = prepare_plan(args.structure, args.run_dir, config, [args.task or "scf"],
                                       json.loads(args.parameters), args.magnetic_states)
             else:
-                result = prepare_run(args.structure, args.run_dir, config, args.task or "relax", json.loads(args.parameters))
+                parameters = json.loads(args.parameters)
+                if args.images:
+                    if config is None or config.engine != "qe" or args.task != "neb":
+                        raise ValueError("Use --images with a QE NEB calculation.")
+                    if "images" in parameters:
+                        raise ValueError("Supply images once, using --images.")
+                    parameters["images"] = [str(path.resolve()) for path in args.images]
+                result = prepare_run(args.structure, args.run_dir, config, args.task or "relax", parameters)
         elif args.command == "watch":
             if args.interval < 1:
                 parser.error("Choose a polling interval of at least one second.")

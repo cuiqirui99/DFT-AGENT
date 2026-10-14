@@ -1,0 +1,37 @@
+{
+  "limits": [
+    "A single temperature cannot establish Tc; momentum and Matsubara convergence remain unverified.",
+    "The model Hamiltonian and interaction require separate material validation."
+  ],
+  "evidence": [
+    "stage_1.accepted",
+    "stage_1.temperature_k",
+    "stage_1.singlet.eigenvalue",
+    "stage_1.triplet.eigenvalue",
+    "stage_1.material_prediction_accepted"
+  ],
+  "answer": "At 1160.45 K, the accepted model gives a larger singlet pairing eigenvalue (0.05518) than triplet (0.007483), favoring singlet pairing within this calculation. These model results do not establish material superconductivity or a superconducting transition temperature.",
+  "next_steps": [],
+  "context_sha256": "be8b951dfcc4e7c3e146f469403bd1d12af96849ab3ee0076bcbf1973a68f5b5",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 13541,
+    "output_tokens": 151,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 0,
+    "total_tokens": 13692,
+    "token_counts_source": "provider",
+    "call_id": "6cbc0aa86b404e22b6f59e1ea9d952f3",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 8.335513,
+    "input_characters": 2688,
+    "instruction_characters": 1499,
+    "schema_characters": 305,
+    "output_characters": 638,
+    "max_output_tokens": null
+  }
+}

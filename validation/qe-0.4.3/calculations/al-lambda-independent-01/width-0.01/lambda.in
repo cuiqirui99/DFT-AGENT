@@ -1,0 +1,51 @@
+9.76664852469 0.01 0
+24
+0 0 0 1
+-0.144337567297 -0.102062072616 0.25 4
+0.288675134595 0.204124145232 -0.5 2
+0 0.306186217848 0 2
+-0.144337567297 0.204124145232 0.25 4
+0.288675134595 0.51031036308 -0.5 4
+0.144337567297 0.408248290464 -0.25 4
+0 -0.612372435696 0 1
+-0.144337567297 -0.714434508312 0.25 4
+0.288675134595 -0.408248290464 -0.5 2
+0.288675134595 -0.102062072616 0 2
+0.57735026919 0.102062072616 -0.5 4
+0.433012701892 1.22124532709e-15 -0.25 4
+0.288675134595 0.204124145232 0 2
+0.57735026919 0.408248290464 -0.5 2
+0.433012701892 0.306186217848 -0.25 4
+0.288675134595 -0.714434508312 0 2
+0.433012701892 -0.612372435696 -0.25 4
+0.288675134595 -0.408248290464 0 2
+0.57735026919 -0.204124145232 -0.5 2
+0.433012701892 -0.306186217848 -0.25 4
+-0.57735026919 0.204124145232 0 1
+-0.57735026919 0.51031036308 0 2
+-0.57735026919 -0.408248290464 0 1
+elph_dir/elph.inp_lambda.1
+elph_dir/elph.inp_lambda.2
+elph_dir/elph.inp_lambda.3
+elph_dir/elph.inp_lambda.4
+elph_dir/elph.inp_lambda.5
+elph_dir/elph.inp_lambda.6
+elph_dir/elph.inp_lambda.7
+elph_dir/elph.inp_lambda.8
+elph_dir/elph.inp_lambda.9
+elph_dir/elph.inp_lambda.10
+elph_dir/elph.inp_lambda.11
+elph_dir/elph.inp_lambda.12
+elph_dir/elph.inp_lambda.13
+elph_dir/elph.inp_lambda.14
+elph_dir/elph.inp_lambda.15
+elph_dir/elph.inp_lambda.16
+elph_dir/elph.inp_lambda.17
+elph_dir/elph.inp_lambda.18
+elph_dir/elph.inp_lambda.19
+elph_dir/elph.inp_lambda.20
+elph_dir/elph.inp_lambda.21
+elph_dir/elph.inp_lambda.22
+elph_dir/elph.inp_lambda.23
+elph_dir/elph.inp_lambda.24
+0.1

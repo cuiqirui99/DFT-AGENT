@@ -1,0 +1,14 @@
+&INPUTPP
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  filplot = 'charge_density.dat',
+  plot_num = 0,
+/
+&PLOT
+  nfile = 1,
+  filepp(1) = 'charge_density.dat',
+  weight(1) = 1.0,
+  iflag = 3,
+  output_format = 6,
+  fileout = 'charge_density.cube',
+/

@@ -1,0 +1,1201 @@
+
+     Program NEB v.7.4.1 starts on 14Oct2026 at 20: 5:26 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     8 processors
+
+     MPI processes distributed on     1 nodes
+     233678 MiB available memory on the printing compute node when the environment starts
+ 
+
+     Parsing file: neb.in
+     Reading input from pw_1.in
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PBE
+                           (   1   4   3   4   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+     Reading input from pw_2.in
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PBE
+                           (   1   4   3   4   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+
+     initial path length           =  4.2573 bohr
+     initial inter-image distance  =  0.7095 bohr
+ 
+     string_method                 =    neb
+     restart_mode                  =    from_scratch
+     opt_scheme                    =    broyden
+     num_of_images                 =    7
+     nstep_path                    =    160
+     CI_scheme                     =    auto
+     first_last_opt                =    T
+     use_freezing                  =    F
+     ds                            =    1.0000 a.u.
+     k_max                         =    0.1000 a.u.
+     k_min                         =    0.1000 a.u.
+     suggested k_max               =    0.6169 a.u.
+     suggested k_min               =    0.6169 a.u.
+     path_thr                      =    0.0300 eV / A
+
+     ------------------------------ iteration   1 ------------------------------
+
+     tcpu =      1.2    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     10.1    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     13.2    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     15.9    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     18.3    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     21.0    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     24.1    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   2.595724 eV
+     activation energy (<-) =   2.595719 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.2897050            2.010916            F
+         2        -44.3268025            4.410607            F
+         3        -43.2146234            3.565650            F
+         4        -42.6939813            1.998005            F
+         5        -43.2146234            3.565557            F
+         6        -44.3268024            4.411984            F
+         7        -45.2897007            1.982470            F
+
+     climbing image =  4
+
+     path length          =  4.257 bohr
+     inter-image distance =  0.710 bohr
+
+     ------------------------------ iteration   2 ------------------------------
+
+     tcpu =     33.0    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     34.8    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     36.9    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     39.3    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     41.6    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     44.1    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     46.1    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   2.574190 eV
+     activation energy (<-) =   2.574164 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3511564            0.995674            F
+         2        -44.6240452            4.138557            F
+         3        -43.4529622            3.561246            F
+         4        -42.7769660            2.037461            F
+         5        -43.4529573            3.561242            F
+         6        -44.6240246            4.138441            F
+         7        -45.3511296            0.995699            F
+
+     climbing image =  4
+
+     path length          =  4.324 bohr
+     inter-image distance =  0.721 bohr
+
+     ------------------------------ iteration   3 ------------------------------
+
+     tcpu =     47.9    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     49.6    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     51.5    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     53.4    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     55.8    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     57.8    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     59.6    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   2.318780 eV
+     activation energy (<-) =   2.318758 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3536235            1.049044            F
+         2        -45.2680239            2.053184            F
+         3        -44.1716797            2.979612            F
+         4        -43.0348438            2.139470            F
+         5        -44.1716754            2.979718            F
+         6        -45.2679635            2.053605            F
+         7        -45.3536018            1.049082            F
+
+     climbing image =  4
+
+     path length          =  4.600 bohr
+     inter-image distance =  0.767 bohr
+
+     ------------------------------ iteration   4 ------------------------------
+
+     tcpu =     61.4    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     62.8    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     64.8    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     67.0    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     69.3    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     71.5    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     73.5    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   1.985560 eV
+     activation energy (<-) =   1.985529 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3373969            1.581881            F
+         2        -45.1703241            4.161373            F
+         3        -44.8810615            2.404570            F
+         4        -43.3518368            2.225639            F
+         5        -44.8810504            2.404765            F
+         6        -45.1705209            4.158589            F
+         7        -45.3373654            1.581863            F
+
+     climbing image =  4
+
+     path length          =  5.075 bohr
+     inter-image distance =  0.846 bohr
+
+     ------------------------------ iteration   5 ------------------------------
+
+     tcpu =     75.0    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     76.7    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     78.7    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     80.7    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     82.4    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     84.4    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     86.4    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   2.078713 eV
+     activation energy (<-) =   2.078684 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3663010            0.306833            F
+         2        -45.3571184            0.525326            F
+         3        -44.6595722            2.693882            F
+         4        -43.2875877            2.212093            F
+         5        -44.6595529            2.694058            F
+         6        -45.3571108            0.525766            F
+         7        -45.3662722            0.306974            F
+
+     climbing image =  4
+
+     path length          =  4.820 bohr
+     inter-image distance =  0.803 bohr
+
+     ------------------------------ iteration   6 ------------------------------
+
+     tcpu =     88.2    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     89.6    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     91.2    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     93.0    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     95.1    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     97.0    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =     98.7    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   1.923462 eV
+     activation energy (<-) =   1.923430 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3674321            0.098010            F
+         2        -45.3586251            0.408140            F
+         3        -44.8976865            2.302664            F
+         4        -43.4439701            2.242692            F
+         5        -44.8976579            2.302889            F
+         6        -45.3586266            0.407879            F
+         7        -45.3674000            0.098012            F
+
+     climbing image =  4
+
+     path length          =  4.976 bohr
+     inter-image distance =  0.829 bohr
+
+     ------------------------------ iteration   7 ------------------------------
+
+     tcpu =    100.2    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    101.6    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    103.4    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    105.0    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    107.1    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    108.7    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    110.5    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   1.721757 eV
+     activation energy (<-) =   1.721728 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3662220            0.306122            F
+         2        -45.3580351            0.517460            F
+         3        -45.0492616            1.877604            F
+         4        -43.6444648            2.265808            F
+         5        -45.0492131            1.877897            F
+         6        -45.3580354            0.517365            F
+         7        -45.3661933            0.306127            F
+
+     climbing image =  4
+
+     path length          =  5.074 bohr
+     inter-image distance =  0.846 bohr
+
+     ------------------------------ iteration   8 ------------------------------
+
+     tcpu =    111.9    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    113.1    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    114.9    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    116.7    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    118.8    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    120.6    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    122.4    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   1.336284 eV
+     activation energy (<-) =   1.336257 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3655705            0.373064            F
+         2        -45.3213075            1.638770            F
+         3        -45.2281270            1.347403            F
+         4        -44.0292869            2.248787            F
+         5        -45.2280619            1.347550            F
+         6        -45.3213192            1.638560            F
+         7        -45.3655444            0.373086            F
+
+     climbing image =  4
+
+     path length          =  5.283 bohr
+     inter-image distance =  0.881 bohr
+
+     ------------------------------ iteration   9 ------------------------------
+
+     tcpu =    123.6    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    125.0    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    126.4    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    128.0    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    130.1    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    131.7    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    133.1    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   1.102820 eV
+     activation energy (<-) =   1.102795 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3676056            0.029783            F
+         2        -45.3428217            1.209178            F
+         3        -45.2911981            1.045125            F
+         4        -44.2647853            2.187071            F
+         5        -45.2911478            1.045507            F
+         6        -45.3428210            1.209158            F
+         7        -45.3675807            0.029823            F
+
+     climbing image =  4
+
+     path length          =  5.404 bohr
+     inter-image distance =  0.901 bohr
+
+     ------------------------------ iteration  10 ------------------------------
+
+     tcpu =    134.5    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    135.9    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    137.3    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    139.1    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    141.2    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    143.1    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    144.4    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.553554 eV
+     activation energy (<-) =   0.553526 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3673522            0.164033            F
+         2        -45.3492427            1.122923            F
+         3        -45.2535767            2.051279            F
+         4        -44.8137978            1.760632            F
+         5        -45.2536644            2.049914            F
+         6        -45.3492386            1.122911            F
+         7        -45.3673239            0.164036            F
+
+     climbing image =  4
+
+     path length          =  5.855 bohr
+     inter-image distance =  0.976 bohr
+
+     ------------------------------ iteration  11 ------------------------------
+
+     tcpu =    145.9    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    147.3    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    148.7    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    150.3    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    152.6    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    154.2    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    155.6    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.736368 eV
+     activation energy (<-) =   0.736341 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3676501            0.024971            F
+         2        -45.3561554            0.770437            F
+         3        -45.3238773            0.512901            F
+         4        -44.6312819            1.967014            F
+         5        -45.3238691            0.512306            F
+         6        -45.3561533            0.770405            F
+         7        -45.3676231            0.025032            F
+
+     climbing image =  4
+
+     path length          =  5.645 bohr
+     inter-image distance =  0.941 bohr
+
+     ------------------------------ iteration  12 ------------------------------
+
+     tcpu =    157.1    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    158.2    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    159.6    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    160.9    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    162.9    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    164.3    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    165.7    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.610831 eV
+     activation energy (<-) =   0.610801 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3676699            0.024248            F
+         2        -45.3610619            0.715647            F
+         3        -45.3210641            0.686442            F
+         4        -44.7568386            1.835588            F
+         5        -45.3210606            0.686032            F
+         6        -45.3610594            0.715964            F
+         7        -45.3676396            0.024277            F
+
+     climbing image =  4
+
+     path length          =  5.734 bohr
+     inter-image distance =  0.956 bohr
+
+     ------------------------------ iteration  13 ------------------------------
+
+     tcpu =    166.8    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    168.1    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    169.5    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    170.9    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    173.0    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    174.4    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    175.8    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.362958 eV
+     activation energy (<-) =   0.362932 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3676908            0.043145            F
+         2        -45.3596181            0.460918            F
+         3        -45.3229147            0.563089            F
+         4        -45.0047329            1.396354            F
+         5        -45.3228983            0.563299            F
+         6        -45.3596150            0.461236            F
+         7        -45.3676652            0.043181            F
+
+     climbing image =  4
+
+     path length          =  5.955 bohr
+     inter-image distance =  0.993 bohr
+
+     ------------------------------ iteration  14 ------------------------------
+
+     tcpu =    177.1    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    178.2    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    179.6    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    181.2    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    183.1    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    184.7    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    186.1    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.228012 eV
+     activation energy (<-) =   0.227988 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3677324            0.030521            F
+         2        -45.3596340            0.229408            F
+         3        -45.3287474            0.364477            F
+         4        -45.1397205            0.891834            F
+         5        -45.3287357            0.364487            F
+         6        -45.3596300            0.229465            F
+         7        -45.3677080            0.030563            F
+
+     climbing image =  4
+
+     path length          =  6.156 bohr
+     inter-image distance =  1.026 bohr
+
+     ------------------------------ iteration  15 ------------------------------
+
+     tcpu =    187.2    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    188.3    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    189.7    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    191.1    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    192.9    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    194.4    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    195.8    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.167207 eV
+     activation energy (<-) =   0.167176 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3677783            0.023234            F
+         2        -45.3593469            0.113911            F
+         3        -45.3272627            0.695193            F
+         4        -45.2005717            0.312571            F
+         5        -45.3272500            0.695308            F
+         6        -45.3593425            0.113940            F
+         7        -45.3677473            0.023247            F
+
+     climbing image =  4
+
+     path length          =  6.347 bohr
+     inter-image distance =  1.058 bohr
+
+     ------------------------------ iteration  16 ------------------------------
+
+     tcpu =    196.9    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    198.2    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    199.9    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    201.2    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    203.2    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    204.4    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    206.2    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.309791 eV
+     activation energy (<-) =   0.309763 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3678743            0.023477            F
+         2        -45.3582099            0.231958            F
+         3        -45.3260725            1.235416            F
+         4        -45.0580836            1.779542            F
+         5        -45.3260497            1.235609            F
+         6        -45.3582037            0.231882            F
+         7        -45.3678467            0.023548            F
+
+     climbing image =  4
+
+     path length          =  6.824 bohr
+     inter-image distance =  1.137 bohr
+
+     ------------------------------ iteration  17 ------------------------------
+
+     tcpu =    207.5    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    208.7    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    210.1    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    211.6    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    213.5    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    215.0    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    216.4    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.165152 eV
+     activation energy (<-) =   0.165124 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3678246            0.024654            F
+         2        -45.3589768            0.053079            F
+         3        -45.3269317            0.789246            F
+         4        -45.2026724            0.280985            F
+         5        -45.3269149            0.789389            F
+         6        -45.3589713            0.053122            F
+         7        -45.3677965            0.024727            F
+
+     climbing image =  4
+
+     path length          =  6.499 bohr
+     inter-image distance =  1.083 bohr
+
+     ------------------------------ iteration  18 ------------------------------
+
+     tcpu =    217.6    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    218.4    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    219.5    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    220.7    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    222.3    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    223.6    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    224.7    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160909 eV
+     activation energy (<-) =   0.160878 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3675722            0.024600            F
+         2        -45.3590864            0.047337            F
+         3        -45.3257987            0.670549            F
+         4        -45.2066633            0.119062            F
+         5        -45.3257817            0.670677            F
+         6        -45.3590813            0.047372            F
+         7        -45.3675417            0.024673            F
+
+     climbing image =  4
+
+     path length          =  6.448 bohr
+     inter-image distance =  1.075 bohr
+
+     ------------------------------ iteration  19 ------------------------------
+
+     tcpu =    225.4    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    226.4    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    227.6    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    229.0    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    230.3    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    231.7    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    232.9    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160388 eV
+     activation energy (<-) =   0.160364 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3678461            0.023616            F
+         2        -45.3591200            0.079940            F
+         3        -45.3234127            0.530840            F
+         4        -45.2074582            0.042551            F
+         5        -45.3233945            0.530958            F
+         6        -45.3591148            0.080091            F
+         7        -45.3678220            0.023705            F
+
+     climbing image =  4
+
+     path length          =  6.412 bohr
+     inter-image distance =  1.069 bohr
+
+     ------------------------------ iteration  20 ------------------------------
+
+     tcpu =    233.9    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    234.9    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    236.2    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    237.8    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    239.4    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    240.9    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    242.2    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160831 eV
+     activation energy (<-) =   0.160807 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3679012            0.022436            F
+         2        -45.3591184            0.189978            F
+         3        -45.3164937            0.200525            F
+         4        -45.2070703            0.086623            F
+         5        -45.3164725            0.200601            F
+         6        -45.3591129            0.190102            F
+         7        -45.3678771            0.022523            F
+
+     climbing image =  4
+
+     path length          =  6.341 bohr
+     inter-image distance =  1.057 bohr
+
+     ------------------------------ iteration  21 ------------------------------
+
+     tcpu =    243.3    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    244.2    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    245.5    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    246.8    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    247.5    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    248.8    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    250.0    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.162135 eV
+     activation energy (<-) =   0.162106 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3679239            0.023271            F
+         2        -45.3590364            0.192698            F
+         3        -45.3148484            0.151378            F
+         4        -45.2057890            0.086939            F
+         5        -45.3148263            0.151437            F
+         6        -45.3590308            0.192813            F
+         7        -45.3678953            0.023327            F
+
+     climbing image =  4
+
+     path length          =  6.334 bohr
+     inter-image distance =  1.056 bohr
+
+     ------------------------------ iteration  22 ------------------------------
+
+     tcpu =    251.0    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    252.2    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    253.6    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    255.2    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    256.1    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    257.7    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    259.2    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160891 eV
+     activation energy (<-) =   0.160867 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3679994            0.023302            F
+         2        -45.3586850            0.183574            F
+         3        -45.3091683            0.031795            F
+         4        -45.2071086            0.083489            F
+         5        -45.3091432            0.031756            F
+         6        -45.3586788            0.183655            F
+         7        -45.3679758            0.023364            F
+
+     climbing image =  4
+
+     path length          =  6.317 bohr
+     inter-image distance =  1.053 bohr
+
+     ------------------------------ iteration  23 ------------------------------
+
+     tcpu =    260.4    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    261.2    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    261.9    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    263.2    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    264.4    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    265.7    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    266.4    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160788 eV
+     activation energy (<-) =   0.160766 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3680408            0.023736            F
+         2        -45.3606085            0.163103            F
+         3        -45.3099152            0.018179            F
+         4        -45.2072531            0.069395            F
+         5        -45.3098904            0.018202            F
+         6        -45.3606014            0.163185            F
+         7        -45.3680194            0.023803            F
+
+     climbing image =  4
+
+     path length          =  6.323 bohr
+     inter-image distance =  1.054 bohr
+
+     ------------------------------ iteration  24 ------------------------------
+
+     tcpu =    267.2    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    268.1    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    269.3    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    270.4    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    271.5    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    272.6    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    273.9    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160680 eV
+     activation energy (<-) =   0.160655 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3680123            0.023475            F
+         2        -45.3585849            0.148906            F
+         3        -45.3096072            0.016777            F
+         4        -45.2073326            0.060406            F
+         5        -45.3095823            0.016799            F
+         6        -45.3585785            0.148983            F
+         7        -45.3679879            0.023537            F
+
+     climbing image =  4
+
+     path length          =  6.326 bohr
+     inter-image distance =  1.054 bohr
+
+     ------------------------------ iteration  25 ------------------------------
+
+     tcpu =    274.8    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    276.0    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    277.4    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    278.8    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    280.3    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    281.6    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    283.0    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160566 eV
+     activation energy (<-) =   0.160542 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3681204            0.022822            F
+         2        -45.3579841            0.034080            F
+         3        -45.3069458            0.012189            F
+         4        -45.2075541            0.019174            F
+         5        -45.3069190            0.012172            F
+         6        -45.3579768            0.034081            F
+         7        -45.3680959            0.022901            F
+
+     climbing image =  4
+
+     path length          =  6.347 bohr
+     inter-image distance =  1.058 bohr
+
+     ------------------------------ iteration  26 ------------------------------
+
+     tcpu =    284.3    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    285.3    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    286.5    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    287.7    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    288.6    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    289.6    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    290.9    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160600 eV
+     activation energy (<-) =   0.160579 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3681397            0.022776            F
+         2        -45.3579289            0.031309            F
+         3        -45.3066533            0.009582            F
+         4        -45.2075393            0.023999            F
+         5        -45.3066263            0.009593            F
+         6        -45.3579217            0.031312            F
+         7        -45.3681181            0.022846            F
+
+     climbing image =  4
+
+     path length          =  6.349 bohr
+     inter-image distance =  1.058 bohr
+
+     ------------------------------ iteration  27 ------------------------------
+
+     tcpu =    291.9    self-consistency for image   1
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    292.8    self-consistency for image   2
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    294.0    self-consistency for image   3
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    294.9    self-consistency for image   4
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    295.8    self-consistency for image   5
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    296.8    self-consistency for image   6
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+     tcpu =    298.0    self-consistency for image   7
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     activation energy (->) =   0.160616 eV
+     activation energy (<-) =   0.160591 eV
+
+     image        energy (eV)        error (eV/A)        frozen
+
+         1        -45.3681611            0.022627            F
+         2        -45.3579233            0.029775            F
+         3        -45.3064982            0.007816            F
+         4        -45.2075451            0.022368            F
+         5        -45.3064710            0.007826            F
+         6        -45.3579155            0.029779            F
+         7        -45.3681363            0.022703            F
+
+     climbing image =  4
+
+     path length          =  6.351 bohr
+     inter-image distance =  1.059 bohr
+
+     ---------------------------------------------------------------------------
+
+
+     neb: convergence achieved in  27 iterations
+ 
+     NEB          :   3m59.37s CPU   4m58.93s WALL
+
+ 
+   This run was terminated on:  20:10:25  14Oct2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=

@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.4.2"
+  #error Pass /DAppVersion with the version being packaged.
 #endif
 
 [Setup]

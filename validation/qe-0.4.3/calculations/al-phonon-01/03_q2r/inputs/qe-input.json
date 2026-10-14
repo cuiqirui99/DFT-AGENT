@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "q2r",
+  "canonical_task": "q2r",
+  "formula": "Al",
+  "number_of_atoms": 1,
+  "nat": 1,
+  "parameters": {
+    "mesh": [
+      8,
+      8,
+      8
+    ],
+    "electronic_type": "metal",
+    "qmesh": [
+      2,
+      2,
+      2
+    ],
+    "line_density": 80,
+    "degauss": 0.02
+  },
+  "source_sha256": "e469f550bbd904870a069ac85d081d4f3dba647e49bf9e0b5ce2b0b2e0193ee5",
+  "requires_restart": true,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {},
+  "pseudo_files": [],
+  "executable": "q2r.x",
+  "input_file": "q2r.in",
+  "output_file": "q2r.out",
+  "input_files": [
+    "q2r.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "q2r.out"
+  ],
+  "input_sha256": {
+    "q2r.in": "b5ffd01c8902c4e261dbbee95085cb6fb4af8963996b95a4b4e0661a787437e3",
+    "structure.cif": "0ad3d2bd5ee270069897b222b0b17fe1956b87746654795a3b0bcf0e5e53f023"
+  }
+}

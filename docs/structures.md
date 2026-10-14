@@ -1,12 +1,13 @@
 # Structures
 
 Choose **Example** in the app, or use the files in [`examples`](../examples).
-The package includes all 18 choices. When both formats are available, the app
+The package includes all 19 choices. When both formats are available, the app
 uses POSCAR to preserve the lattice frame and site order.
 
 The simple examples are Al, C, Cu, Ge, MgO, NaCl, Si, SiC and
 [SrTiO3](../examples/SrTiO3.cif). SrTiO3 is a five-atom cubic perovskite.
 Its completed sample includes relaxation, 353 band k-points, DOS, plots and raw data.
+The [MgB2 example](qe-superconductivity.md#mgb2-example) includes a complete QE/EPW recipe.
 The following starting geometries come from earlier user calculations:
 
 | Structure | Atoms | Source | Files |

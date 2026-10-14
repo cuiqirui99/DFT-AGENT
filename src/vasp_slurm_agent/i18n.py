@@ -28,6 +28,14 @@ def t(text: str) -> str:
 
 
 ZH = {
+    "Structure": "结构",
+    "Volume (Å³)": "体积 (Å³)",
+    "What would you like to calculate?": "想进行什么计算？",
+    "Settings saved": "设置已保存",
+    "Set up a cluster to submit calculations.": "配置集群后即可提交计算。",
+    "Active configuration": "当前配置",
+    "CIF or POSCAR; no extension needed for POSCAR.": "支持 CIF 或 POSCAR；POSCAR 无需扩展名。",
+    "The configuration file belongs to another engine. Choose a different file in Local settings.": "此配置文件属于另一个求解器。请在本地设置中选择其他文件。",
     "Cluster setup": "集群设置",
     "Settings are saved on this computer. Fill in your SSH host and user, then let Detect from cluster find the rest.": "设置保存在本机。填写 SSH 主机和用户名后，点“从集群探测”自动填写其余字段。",
     "Check cluster connection": "检查集群连接",
@@ -153,6 +161,12 @@ ZH = {
     "Slurm partition": "Slurm 分区",
     "Slurm account (optional)": "Slurm 账号（可选）",
     "MPI tasks": "MPI 进程数",
+    "Compute": "计算设备",
+    "GPUs per node": "每节点 GPU 数",
+    "CPUs per task": "每进程 CPU 核数",
+    "GPU resources": "GPU 资源",
+    "One MPI task per GPU.": "每个 GPU 使用一个 MPI 进程。",
+    "Use a GPU-enabled VASP build.": "请使用支持 GPU 的 VASP 版本。",
     "Nodes": "节点数",
     "Time limit per stage": "每阶段时间限制",
     "SSH connection timeout (s)": "SSH 连接超时（秒）",

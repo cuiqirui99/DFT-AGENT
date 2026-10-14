@@ -1,0 +1,9 @@
+{
+  "H.pbe-rrkjus_psl.1.0.0.UPF": {
+    "sha256": "27f8a7e87851d59a2698237d6ab4578d62950640f4f175781b015a0ce731f962",
+    "size": 227296,
+    "element": "H",
+    "fully_relativistic": false,
+    "functional": "PBE"
+  }
+}

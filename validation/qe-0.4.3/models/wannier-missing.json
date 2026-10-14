@@ -1,0 +1,64 @@
+{
+  "status": "needs_input",
+  "kind": "qe_task",
+  "summary": "Plan LDA Wannier electron-phonon interpolation, then an anisotropic gap at 15 K.",
+  "questions": [
+    "What native Wannier90 projection strings should be used for the five Wannier functions?",
+    "What are dis_win_min, dis_win_max, dis_froz_min and dis_froz_max in eV, and their energy reference?",
+    "Can you confirm from the Mg and B UPF headers that both are scalar-relativistic, norm-conserving LDA files, and that EPW is installed on the cluster?"
+  ],
+  "stages": [
+    {
+      "task": "wannier_electron_phonon",
+      "parameters_json": "{\"mesh\":[6,6,6],\"wannier_mesh\":[3,3,3],\"qmesh\":[3,3,3],\"fine_kmesh\":[6,6,6],\"fine_qmesh\":[6,6,6],\"nbnd\":8,\"num_wann\":5,\"wannier_iterations\":500,\"fsthick_ev\":20.0,\"el_smearing_ev\":0.1,\"ph_smearing_mev\":0.5,\"spectral_points\":500,\"acoustic_cutoff_cm1\":5.0,\"ecutwfc\":40.0,\"ecutrho\":160.0,\"conv_thr\":1e-9,\"tr2_ph\":1e-12,\"degauss\":0.02,\"smearing\":\"mp\",\"functional\":\"LDA\"}",
+      "requirements": {
+        "spin": "none",
+        "soc": false,
+        "functional": "LDA",
+        "hubbard_u": null,
+        "cell_relax": null
+      }
+    },
+    {
+      "task": "epw_aniso",
+      "parameters_json": "{\"temperatures\":[15],\"mu_star\":0.16,\"frequency_cutoff_ev\":0.5}",
+      "requirements": {
+        "spin": "none",
+        "soc": false,
+        "functional": "LDA",
+        "hubbard_u": null,
+        "cell_relax": null
+      }
+    }
+  ],
+  "intent": {
+    "requested_tasks": [
+      "wannier_electron_phonon",
+      "epw_aniso"
+    ],
+    "forbidden_tasks": [],
+    "unsupported": []
+  },
+  "source_sha256": "2f97fa892fa8e3e785c9605752e2bfd527120eba3c113bd234e8819a77e17385",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 16811,
+    "output_tokens": 618,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 0,
+    "total_tokens": 17429,
+    "token_counts_source": "provider",
+    "call_id": "6f7ed6ae92cc413284c55368f4291c5d",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 18.761324,
+    "input_characters": 6631,
+    "instruction_characters": 7502,
+    "schema_characters": 4538,
+    "output_characters": 2117,
+    "max_output_tokens": null
+  }
+}

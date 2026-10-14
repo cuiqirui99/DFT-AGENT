@@ -1,0 +1,14 @@
+{
+  "method": "independent direct finite Matsubara matrix",
+  "beta_per_ev": 1.0,
+  "u_ev": 1.0,
+  "kmesh": [
+    4,
+    4,
+    1
+  ],
+  "matsubara_points": 32,
+  "singlet_eigenvalue": 0.0014492556824397813,
+  "eigenpair_residual": 2.217266112959187e-17,
+  "stoner_factor": 0.20401220043315527
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "dos",
+  "canonical_task": "dos",
+  "formula": "Si",
+  "number_of_atoms": 2,
+  "nat": 2,
+  "parameters": {
+    "mesh": [
+      8,
+      8,
+      8
+    ],
+    "nbnd": 12,
+    "electronic_type": "insulator",
+    "line_density": 80,
+    "namelists": {
+      "electrons": {
+        "diagonalization": "cg",
+        "diago_cg_maxiter": 200,
+        "diago_full_acc": true
+      }
+    }
+  },
+  "source_sha256": "5460d4ac80b7e63745a6341c8bfc5b2f36df3218079e9b60e46789179e967739",
+  "requires_restart": true,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {},
+  "pseudo_files": [],
+  "executable": "dos.x",
+  "input_file": "dos.in",
+  "output_file": "dos.out",
+  "input_files": [
+    "dos.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "dos.out"
+  ],
+  "input_sha256": {
+    "dos.in": "18ac3d854ba20d20a4af5663f5704def0a570994628d4b69ef040afc4deb1a29",
+    "structure.cif": "177ab6b45199cabae1010dedde2fe3404c7b812a923c847de354e80a6e17c3bd"
+  }
+}

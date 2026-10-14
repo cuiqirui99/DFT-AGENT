@@ -22,7 +22,7 @@ id -un 2>/dev/null
 section slurm
 for n in sbatch squeue sacct scancel sinfo; do command -v "$n" >/dev/null 2>&1 && printf '%s\n' "$n"; done
 section partitions
-sinfo -h -o '%P|%a|%l|%D' 2>/dev/null | head -n 50
+sinfo -h -o '%P|%a|%l|%D|%G' 2>/dev/null | head -n 50
 section accounts
 sacctmgr -n -P show assoc user="$(id -un)" format=account 2>/dev/null | sort -u | head -n 20
 section modules
@@ -48,6 +48,7 @@ done 2>/dev/null | awk '!seen[$0]++' | head -n 10
 SECTIONS = ("home", "user", "slurm", "partitions", "accounts", "modules", "executables", "potcar", "scratch")
 _SAFE_TEXT = re.compile(r"[^\x20-\x7e]")
 _NAME = re.compile(r"[\w.+/:@-]+")
+_GPU_MODULE = re.compile(r"(?:^|[^a-z])(gpu|cuda|openacc)(?:[^a-z]|$)", re.I)
 
 
 class DiscoveryError(RuntimeError):
@@ -55,11 +56,12 @@ class DiscoveryError(RuntimeError):
 
 
 def probe_config(host: str, user: str, port: int = 22, *, connect_timeout: int = 15, ssh_control_path: str = "",
-                 setup_commands: list[str] | None = None) -> ClusterConfig:
+                 setup_commands: list[str] | None = None, compute_backend: str = "cpu") -> ClusterConfig:
     """A provisional configuration that only carries connection settings."""
     return ClusterConfig(host=host.strip(), user=user.strip(), remote_root="/tmp", vasp_command="vasp_std",
                          potcar_root="/tmp", partition="probe", port=int(port), connect_timeout=int(connect_timeout),
-                         ssh_control_path=ssh_control_path or "", setup_commands=list(setup_commands or []))
+                         ssh_control_path=ssh_control_path or "", setup_commands=list(setup_commands or []),
+                         compute_backend=compute_backend, tasks=1 if compute_backend == "gpu" else 8)
 
 
 def _clean(line: str, limit: int = 300) -> str:
@@ -84,9 +86,12 @@ def parse_probe(output: str) -> dict:
         name = fields[0]
         if not _NAME.fullmatch(name.rstrip("*")):
             continue
+        gres = fields[4] if len(fields) > 4 else ""
+        gpu_counts = re.findall(r"(?:^|,)gpu:(?:[^,:()]+:)?([1-9]\d*)(?=[,(]|$)", gres)
         partitions.append({"name": name.rstrip("*"), "default": name.endswith("*"),
                            "state": fields[1] if len(fields) > 1 else "", "timelimit": fields[2] if len(fields) > 2 else "",
-                           "nodes": fields[3] if len(fields) > 3 else ""})
+                           "nodes": fields[3] if len(fields) > 3 else "", "gres": gres,
+                           "gpus_per_node": sum(int(count) for count in gpu_counts)})
     accounts = [line for line in sections["accounts"] if re.fullmatch(r"[\w.-]+", line)]
     modules = [line for line in sections["modules"] if _NAME.fullmatch(line)]
     executables = {}
@@ -102,16 +107,21 @@ def parse_probe(output: str) -> dict:
             "executables": executables, "potcar_roots": potcar, "scratch_dirs": scratch}
 
 
-def suggest(facts: dict) -> dict:
+def suggest(facts: dict, compute_backend: str = "cpu") -> dict:
     """Suggested settings and notes. Every value still needs the user's review."""
     suggested: dict = {}
     notes: list[str] = []
     partitions = facts.get("partitions") or []
-    if partitions:
-        default = next((item for item in partitions if item["default"]), partitions[0])
+    compatible = [item for item in partitions if bool(item.get("gpus_per_node")) == (compute_backend == "gpu")]
+    if compatible:
+        default = next((item for item in compatible if item["default"]), compatible[0])
         suggested["partition"] = default["name"]
         if default.get("timelimit") and default["timelimit"] not in {"infinite", "UNLIMITED"}:
             notes.append(f"Partition {default['name']} allows up to {default['timelimit']} per job.")
+    elif compute_backend == "gpu" and partitions:
+        notes.append("No GPU resources were listed. Enter your GPU partition manually.")
+    elif partitions:
+        notes.append("Only GPU partitions were found. Select GPU to use them.")
     else:
         notes.append("No Slurm partitions were listed. Check that Slurm commands are on the login node's PATH.")
     if facts.get("accounts"):
@@ -130,8 +140,9 @@ def suggest(facts: dict) -> dict:
     if scratch:
         suggested["remote_root"] = scratch[0].rstrip("/") + "/dft-agent-runs"
     executables = facts.get("executables") or {}
-    modules = facts.get("modules") or []
-    if "vasp_std" in executables:
+    modules = [name for name in facts.get("modules") or []
+               if bool(_GPU_MODULE.search(name)) == (compute_backend == "gpu")]
+    if "vasp_std" in executables and compute_backend == "cpu":
         suggested["vasp_command"] = "srun vasp_std"
         suggested["vasp_ncl_command"] = "srun vasp_ncl" if "vasp_ncl" in executables else ""
     elif modules:
@@ -140,6 +151,8 @@ def suggest(facts: dict) -> dict:
         suggested["vasp_ncl_command"] = "srun vasp_ncl"
         if len(modules) > 1:
             notes.append("Other VASP modules: " + ", ".join(modules[1:6]) + ".")
+    elif compute_backend == "gpu":
+        notes.append("No GPU VASP module was identified. Set the module and command for your GPU build.")
     else:
         notes.append("VASP was not found on the PATH or as a module. Use the full path to vasp_std in the VASP command.")
     missing = {"sbatch", "squeue", "sacct", "scancel"} - set(facts.get("slurm") or [])
@@ -180,7 +193,7 @@ def probe_cluster(config: ClusterConfig, transport=None, timeout: int = 90) -> d
             detail = (result.stderr or output or "no output").strip()[-500:]
             raise DiscoveryError(f"The cluster did not answer the probe: {detail}")
         facts = parse_probe(output)
-        report = suggest(facts)
+        report = suggest(facts, config.compute_backend)
         if config.setup_commands and "setup_commands" in report["suggested"]:
             report["suggested"]["setup_commands"] = merge_suggestions(
                 {"setup_commands": config.setup_commands}, report["suggested"])["setup_commands"]
@@ -204,7 +217,8 @@ def load_presets() -> list[dict]:
 
 
 PRESET_FIELDS = ("host", "port", "partition", "account", "vasp_command", "vasp_ncl_command", "setup_commands",
-                 "potcar_root", "remote_root", "tasks", "nodes", "walltime", "extra_sbatch")
+                 "potcar_root", "remote_root", "tasks", "nodes", "walltime", "extra_sbatch",
+                 "compute_backend", "gpus_per_node", "cpus_per_task")
 
 
 def preset_values(preset: dict) -> dict:

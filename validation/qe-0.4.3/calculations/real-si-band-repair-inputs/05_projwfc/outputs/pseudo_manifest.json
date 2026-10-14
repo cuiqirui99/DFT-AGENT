@@ -1,0 +1,10 @@
+{
+  "Si.pbe-n-rrkjus_psl.1.0.0.UPF": {
+    "sha256": "ae3aefd0811f9499dbc4a72f1f9ae02ef4fc7f3568bf6f559b68668719c69e2b",
+    "size": 1299382,
+    "element": "Si",
+    "fully_relativistic": false,
+    "functional": "PBE",
+    "pseudo_type": "US"
+  }
+}

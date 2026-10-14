@@ -147,6 +147,33 @@ def _check_plot_exports(output):
     assert b"<svg" in contents["svg"][:2048]
 
 
+def _check_qe_bundle(root):
+    from importlib.resources import files
+    from .config import ClusterConfig
+    from . import qe, qe_setup, qe_workflow
+
+    for name in ("qe_pseudos.json", "qe_nc_pseudos.json", "qe_setup.py", "qe_epw.py", "qe_pairing.py"):
+        assert files("vasp_slurm_agent").joinpath(name).is_file()
+    assert qe_setup.plan_pseudopotentials(["Si"])["elements"]["Si"]
+    nc = qe_setup.plan_pseudopotentials(["Si"], library="pseudodojo")
+    assert nc["pseudo_type"] == "NC"
+    source = root / "qe-Si.cif"
+    source.write_bytes(files("vasp_slurm_agent").joinpath("examples", "Si.cif").read_bytes())
+    config = ClusterConfig(engine="qe", host="cluster.example.invalid", user="researcher",
+                           remote_root="/scratch/check-qe", partition="cpu", qe_pseudo_root="/scratch/upf",
+                           qe_pseudopotentials={"Si": nc["elements"]["Si"]["filename"]})
+    plan = qe_setup.install_plan(config, include_epw=True)
+    assert {"pw.x", "ph.x", "epw.x", "wannier90.x"} <= set(plan["programs"])
+    run = root / "qe-run"
+    state = qe_workflow.prepare_plan(source, run, config, ["scf"],
+                                    {"ecutwfc": nc["ecutwfc_ry"], "ecutrho": nc["ecutrho_ry"], "mesh": [2, 2, 2]})
+    assert state["status"] == "planned" and state["stages"][0]["job_id"] is None
+    inputs = run / "01_scf" / "inputs"
+    assert (inputs / "pw.in").is_file() and not (inputs / "INCAR").exists()
+    metadata = json.loads((inputs / "qe-input.json").read_text())
+    assert len(qe._expected_structure(inputs, metadata)) == 2
+
+
 def check_bundle(output):
     """Exercise packaged resources and input preparation without network access."""
     import tempfile
@@ -181,6 +208,7 @@ def check_bundle(output):
             __import__(module)
         if sys.platform == "win32":
             __import__("paramiko")
+        _check_qe_bundle(root)
         _check_plot_exports(Path(output).resolve().parent / "plot-exports")
         from streamlit.testing.v1 import AppTest
         original = dict(os.environ)
@@ -207,7 +235,8 @@ def check_bundle(output):
         result = {"version": __version__, "platform": sys.platform, "frozen": bool(getattr(sys, "frozen", False)),
                   "input_preparation": True, "cluster_attach": True, "samples": len(installed),
                   "resources": True, "provider_sdks": True, "first_run_ui": True,
-                  "plot_exports": True}
+                  "plot_exports": True, "qe_catalogues": True, "qe_input_preparation": True,
+                  "qe_install_plan": True}
     Path(output).write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     return 0
 

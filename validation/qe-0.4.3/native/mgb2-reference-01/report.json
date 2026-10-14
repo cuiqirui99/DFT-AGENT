@@ -1,0 +1,104 @@
+{
+  "job_id": "7495057",
+  "scope": "Pinned upstream software regression; coarse meshes and original tolerance are not a material Tc determination.",
+  "source": "QEF/q-e qe-7.4.1 test-suite/epw_super",
+  "native_epw": "5.9",
+  "reference_epw": "5.8",
+  "stages": {
+    "phonons/scf.out": {
+      "completed": true,
+      "no_native_error": true,
+      "sha256": "aa1710889e314052f04513e4f6e8c573a87e40a64d2c40f7322954915232563a"
+    },
+    "phonons/ph.out": {
+      "completed": true,
+      "no_native_error": true,
+      "sha256": "70a8fb88797538a5f683087b212eb5e5c91458ca0c850127f88714e1085b1f45"
+    },
+    "electronic/scf.out": {
+      "completed": true,
+      "no_native_error": true,
+      "sha256": "13a42f5f3841cfec71870db9e7bfa3261e8cd86fe1a1462f671361433f1fd7f7"
+    },
+    "electronic/nscf.out": {
+      "completed": true,
+      "no_native_error": true,
+      "sha256": "fee156c70168bc8a168c6cd6f57011f3d99962651fb875d5c13a887223a16137"
+    },
+    "isotropic": {
+      "completed": true,
+      "spectrum": {
+        "lambda": 0.8710667943681971,
+        "omega_log_mev": 61.49901742163178,
+        "points": 500,
+        "source_unit": "meV",
+        "source_column": 1,
+        "frequency_rounding_correction": 6.460000179231429e-08,
+        "frequency_precision": 1e-07
+      },
+      "lambda_native": 0.8710668,
+      "states": 140,
+      "matrix_values": 1360800,
+      "fine_kmesh": [
+        6,
+        6,
+        6
+      ],
+      "fine_qmesh": [
+        6,
+        6,
+        6
+      ],
+      "minimum_frequency_cm1": 1.1168728528949787e-05,
+      "checkpoint_sha256": {
+        "MgB2.ephmat/freq": "499c3d86371f3dff7f5b23ba0279868af3a667670d6802aefd41d194ddbf10a5",
+        "MgB2.ephmat/egnv": "7ad0776b370f33a5d2592937f7468fb211d23df391f84f475757937a94e3498c",
+        "MgB2.ephmat/ikmap": "181be876984d6dad1940290d187debe42bc46eeea4ab210b06e53d9efabc58ed",
+        "MgB2.ephmat/npool": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+        "crystal.fmt": "cd5e44486eaaead4dfdbc30ac4915b0a124b1975480fac519894d2837f032dc5",
+        "selecq.fmt": "0a1f57f001e9537172544ff33489cb2b1a48df3296cb5b0dd59920975bed8bd5",
+        "MgB2.ephmat/ephmat1": "33f9144eb2dee62c97559e468624ecef34c9dd3bfee6ba9cb88ba89d5beceb97"
+      }
+    },
+    "anisotropic": {
+      "completed": true,
+      "spectrum": {
+        "lambda": 0.8710667943681971,
+        "omega_log_mev": 61.49901742163178,
+        "points": 500,
+        "source_unit": "meV",
+        "source_column": 1,
+        "frequency_rounding_correction": 6.460000179231429e-08,
+        "frequency_precision": 1e-07
+      },
+      "lambda_native": 0.8710668,
+      "states": 140,
+      "matrix_values": 1360800,
+      "fine_kmesh": [
+        6,
+        6,
+        6
+      ],
+      "fine_qmesh": [
+        6,
+        6,
+        6
+      ],
+      "minimum_frequency_cm1": 1.1168728528949787e-05,
+      "checkpoint_sha256": {
+        "MgB2.ephmat/freq": "499c3d86371f3dff7f5b23ba0279868af3a667670d6802aefd41d194ddbf10a5",
+        "MgB2.ephmat/egnv": "7ad0776b370f33a5d2592937f7468fb211d23df391f84f475757937a94e3498c",
+        "MgB2.ephmat/ikmap": "181be876984d6dad1940290d187debe42bc46eeea4ab210b06e53d9efabc58ed",
+        "MgB2.ephmat/npool": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+        "crystal.fmt": "cd5e44486eaaead4dfdbc30ac4915b0a124b1975480fac519894d2837f032dc5",
+        "selecq.fmt": "0a1f57f001e9537172544ff33489cb2b1a48df3296cb5b0dd59920975bed8bd5",
+        "MgB2.ephmat/ephmat1": "3013da5c972cee47230d40357b36a25fb029e225c0b338c17ea667c5146f9b5d"
+      },
+      "weighted_z": 1.8214710630144224,
+      "weighted_gap_mev": 8.040777325013996,
+      "state_gap_min_mev": 2.4360465933,
+      "state_gap_max_mev": 14.498095518,
+      "native_threshold": 0.01
+    }
+  }
+}

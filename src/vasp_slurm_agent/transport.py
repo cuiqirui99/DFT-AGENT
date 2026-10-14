@@ -6,7 +6,6 @@ Uses OpenSSH on Unix and Paramiko on Windows. Passwords never enter files or arg
 from __future__ import annotations
 
 import hashlib
-import inspect
 import json
 import os
 import platform
@@ -68,11 +67,12 @@ def _local_metadata(path: Path) -> dict[str, Any]:
     return {"sha256": digest.hexdigest(), "size": size}
 
 
-def _extract_checked_archive(archive_path, folder, expected):
+# This same Python 3.6-compatible helper is sent over SSH and works in frozen apps.
+_CHECKED_ARCHIVE_CODE = r'''def _extract_checked_archive(archive_path, folder, expected):
     """Extract plain, named files only; this function also runs on the host."""
     import hashlib
     import os
-    from pathlib import Path
+    from pathlib import Path, PurePosixPath
     import tarfile
 
     folder = Path(folder)
@@ -80,7 +80,10 @@ def _extract_checked_archive(archive_path, folder, expected):
     with tarfile.open(archive_path, "r:gz") as archive:
         for member in archive:
             name = member.name
-            if name not in expected or name in actual or Path(name).name != name or not member.isfile():
+            relative = PurePosixPath(name)
+            if (name not in expected or name in actual or not name or name in {".", ".."} or relative.is_absolute()
+                    or relative.as_posix() != name or any(part in {".", ".."} for part in relative.parts)
+                    or any(c in name for c in "\\\r\n\x00:") or not member.isfile()):
                 raise ValueError("Archive contains an unexpected, duplicate, linked, or unsafe member")
             if member.size != expected[name]["size"]:
                 raise ValueError("Archive member size mismatch")
@@ -89,7 +92,11 @@ def _extract_checked_archive(archive_path, folder, expected):
             source = archive.extractfile(member)
             if source is None:
                 raise ValueError("Archive member is not a regular readable file")
-            with source, (folder / name).open("xb") as target:
+            destination = folder / name
+            if folder.resolve() not in destination.resolve().parents:
+                raise ValueError("Archive member escapes its extraction folder")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with source, destination.open("xb") as target:
                 if hasattr(os, "fchmod"):
                     os.fchmod(target.fileno(), 0o600)
                 for block in iter(lambda: source.read(1024 * 1024), b""):
@@ -105,6 +112,14 @@ def _extract_checked_archive(archive_path, folder, expected):
         raise ValueError("Archive is missing required files")
     return actual
 
+'''
+_ARCHIVE_HELPERS: dict[str, Any] = {}
+exec(_CHECKED_ARCHIVE_CODE, _ARCHIVE_HELPERS)
+
+
+def _extract_checked_archive(archive_path, folder, expected):
+    return _ARCHIVE_HELPERS["_extract_checked_archive"](archive_path, folder, expected)
+
 
 def _kill_group(process: subprocess.Popen, sig: int) -> None:
     """Signal only the fresh session created for this local SSH/SCP call."""
@@ -112,6 +127,13 @@ def _kill_group(process: subprocess.Popen, sig: int) -> None:
         os.killpg(process.pid, sig)
     except ProcessLookupError:
         pass
+    except PermissionError:
+        # Some macOS hosts deny process-group signals but allow the child.
+        # Popen checks its own child status before sending the signal.
+        try:
+            process.send_signal(sig)
+        except ProcessLookupError:
+            pass
 
 
 def _run_process(argv: list[str], *, timeout: float, **kwargs: Any) -> subprocess.CompletedProcess:
@@ -408,8 +430,13 @@ class SSHTransport:
     @staticmethod
     def _bulk_names(names: Sequence[str], allowed: frozenset[str]) -> list[str]:
         names = list(names)
-        if any(not isinstance(name, str) or name not in allowed for name in names) or len(names) != len(set(names)):
-            raise TransportError("Batch filenames must be unique names from the explicit transfer allowlist")
+        if not isinstance(allowed, frozenset):
+            raise TransportError("The explicit transfer allowlist must be an immutable frozenset")
+        if any(not isinstance(name, str) or not name or name in {".", ".."} or name not in allowed
+               or PurePosixPath(name).is_absolute() or PurePosixPath(name).as_posix() != name
+               or any(part in {".", ".."} for part in PurePosixPath(name).parts)
+               or any(c in name for c in "\\\r\n\x00:") for name in names) or len(names) != len(set(names)):
+            raise TransportError("Batch filenames must be unique safe relative names from the explicit transfer allowlist")
         return names
 
     @staticmethod
@@ -445,14 +472,15 @@ class SSHTransport:
             f"import os\ntry:\n    os.unlink({path!r})\nexcept FileNotFoundError:\n    pass\n", timeout=15
         )
 
-    def upload_many(self, local_paths: Sequence[str | Path], remote_dir: str) -> dict[str, dict[str, Any]]:
+    def upload_many(self, local_paths: Sequence[str | Path], remote_dir: str, *,
+                    permitted_names: frozenset[str] | None = None) -> dict[str, dict[str, Any]]:
         """Transfer allowlisted inputs; verify all before per-file atomic replacement.
 
         Mark staged after all replacements. Excludes POTCAR, CHGCAR and WAVECAR.
         """
         destination = self._remote_path(remote_dir)
         sources = [Path(path).expanduser().absolute() for path in local_paths]
-        names = self._bulk_names([path.name for path in sources], UPLOAD_ALLOWLIST)
+        names = self._bulk_names([path.name for path in sources], UPLOAD_ALLOWLIST if permitted_names is None else permitted_names)
         if not names:
             return {}
         remote_archive = destination.rstrip("/") + "/.vsa-upload-" + uuid.uuid4().hex + ".tar.gz"
@@ -477,7 +505,7 @@ class SSHTransport:
                 self._require_success(self._upload_file(archive_path, remote_archive), "Batch upload")
                 code = (
                     "import json, os, shutil, tempfile\n"
-                    + inspect.getsource(_extract_checked_archive)
+                    + _CHECKED_ARCHIVE_CODE
                     + f"temporary = tempfile.mkdtemp(prefix='.vsa-unpack-', dir={destination!r})\n"
                     + "try:\n"
                     + f"    actual = _extract_checked_archive({remote_archive!r}, temporary, {expected!r})\n"
@@ -502,11 +530,12 @@ class SSHTransport:
             raise TransportError(self._redact(str(exc))) from None
 
     def download_many(
-        self, remote_dir: str, local_dir: str | Path, filenames: Sequence[str]
+        self, remote_dir: str, local_dir: str | Path, filenames: Sequence[str], *,
+        permitted_names: frozenset[str] | None = None,
     ) -> dict[str, dict[str, Any]]:
         """Download allowed output files in one archive and verify before publish."""
         source = self._remote_path(remote_dir)
-        names = self._bulk_names(filenames, DOWNLOAD_ALLOWLIST)
+        names = self._bulk_names(filenames, DOWNLOAD_ALLOWLIST if permitted_names is None else permitted_names)
         if not names:
             return {}
         destination = Path(local_dir).expanduser().absolute()
@@ -520,7 +549,7 @@ class SSHTransport:
                 + f"root = Path({source!r})\nfiles = {{}}\n"
                 + f"for name in {names!r}:\n"
                 + "    path = root / name\n"
-                + "    if path.is_symlink() or not path.is_file():\n"
+                + "    if path.is_symlink() or not path.is_file() or root.resolve() not in path.resolve().parents:\n"
                 + "        raise ValueError('Batch download source is not a regular non-symlink file')\n"
                 + "    files[name] = metadata(path)\n"
                 + f"descriptor = os.open({remote_archive!r}, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\n"
@@ -546,6 +575,11 @@ class SSHTransport:
                 if _local_metadata(archive_path) != archive_metadata:
                     raise TransportError("Download verification failed (archive size or SHA-256 mismatch). Your existing files were kept.")
                 manifest = _extract_checked_archive(archive_path, temporary_path, expected)
+                for name in names:
+                    target = destination / name
+                    if destination.resolve() not in target.resolve().parents or target.is_symlink():
+                        raise TransportError("Batch download destination escapes its result folder")
+                    target.parent.mkdir(parents=True, exist_ok=True)
                 for name in names:
                     os.replace(temporary_path / name, destination / name)
             success = True

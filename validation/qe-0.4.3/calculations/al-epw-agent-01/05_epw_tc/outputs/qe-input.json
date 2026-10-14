@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "canonical_task": "epw_tc",
+  "task": "epw_tc",
+  "executable": "epw.x",
+  "input_file": "epw.in",
+  "output_file": "epw.out",
+  "input_files": [
+    "epw.in",
+    "alpha2f.dat",
+    "source.a2f",
+    "source-schema.xml",
+    "crystal.fmt",
+    "structure.cif"
+  ],
+  "output_files": [
+    "epw.out"
+  ],
+  "parameters": {
+    "mu_star": 0.1,
+    "temperatures": [
+      0.5,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0
+    ],
+    "frequency_cutoff_ev": 0.2,
+    "broadening_index": 2,
+    "iterations": 500,
+    "convergence": 1e-06,
+    "mixing": 0.2
+  },
+  "input_sha256": {
+    "epw.in": "8f71b6437cd46be1ef470d543d7521248b472d1e43f8516399bb324bd5b233da",
+    "alpha2f.dat": "c80bcc261a557e6c97f430a91cb53b102b4a22dc107462c2d9d45bd601c30af3",
+    "source.a2f": "2648dd9da4275726e26d5cdcbe26c3c6cff761e9b1fbab05a86754c2dc1addfa",
+    "source-schema.xml": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+    "crystal.fmt": "eb6e3688666f130da9ded5c1402b8af7c96e47983153e044b5b00753f106ced6",
+    "structure.cif": "0ad3d2bd5ee270069897b222b0b17fe1956b87746654795a3b0bcf0e5e53f023"
+  },
+  "spectrum": {
+    "lambda": 0.43881565208759343,
+    "omega_log_mev": 28.99029615981327,
+    "points": 1999,
+    "source_unit": "THz",
+    "source_column": 2,
+    "frequency_rounding_correction": 9.709854927564265e-05,
+    "frequency_precision": 0.0001
+  },
+  "source_provenance": {
+    "kind": "verified_lambda",
+    "broadening_index": 2,
+    "electronic_broadening_ry": 0.01,
+    "source_input_sha256": "d803a071077130b28875b14abb38921ebaa0dd959b2eaa2657a80254b88172d1",
+    "scientific_accuracy_validated": false
+  },
+  "sources": [
+    "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src"
+  ],
+  "epw_version": "5.9",
+  "no_mpi": false,
+  "requires_restart": false,
+  "pseudo_files": [],
+  "number_of_atoms": 1,
+  "formula": "Al",
+  "qe_schema_sha256": "ae00e120397b8ad18c23de9c0241327da6294d63b067ba927487d4143ef42292",
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        2.4801083612723,
+        0.0,
+        1.4318912299999997
+      ],
+      [
+        0.82670278709076,
+        2.3382685871107998,
+        1.4318912299999997
+      ],
+      [
+        0.0,
+        0.0,
+        2.86378246
+      ]
+    ],
+    "elements": [
+      "Al"
+    ],
+    "fractional_positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  }
+}

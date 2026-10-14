@@ -114,11 +114,11 @@ def _preset_panel(config):
             st.rerun()
 
 
-def _detect(host, user, port, control_path, timeout, setup):
+def _detect(host, user, port, control_path, timeout, setup, compute_backend="cpu"):
     from vasp_slurm_agent.discovery import DiscoveryError, probe_cluster, probe_config
 
     probe = probe_config(host, user, int(port), connect_timeout=int(timeout), ssh_control_path=control_path,
-                         setup_commands=setup)
+                         setup_commands=setup, compute_backend=compute_backend)
     try:
         with st.spinner(t("Reading partitions, accounts, VASP and POTCAR folders. Nothing is submitted.")):
             return _with_password(probe_cluster, probe)
@@ -143,7 +143,8 @@ def _detection_report(report):
     with st.expander(t("Detected details")):
         if facts.get("partitions"):
             st.dataframe([{t("Partition"): item["name"] + (" *" if item["default"] else ""), t("State"): item["state"],
-                           t("Time limit"): item["timelimit"], t("Nodes"): item["nodes"]} for item in facts["partitions"]],
+                           t("Time limit"): item["timelimit"], t("Nodes"): item["nodes"],
+                           t("GPU resources"): item.get("gres", "")} for item in facts["partitions"]],
                          hide_index=True)
         for key, label in (("accounts", "Accounts"), ("modules", "VASP modules"), ("potcar_roots", "POTCAR folders"),
                            ("scratch_dirs", "Writable folders")):
@@ -152,6 +153,11 @@ def _detection_report(report):
 
 
 def _config_editor(path: Path, config: ClusterConfig | None) -> None:
+    engine = st.session_state.get("cluster_engine", config.engine if config else "vasp")
+    if engine == "qe":
+        from vasp_slurm_agent.qe_app import config_editor
+        config_editor(path, config)
+        return
     st.subheader(t("Cluster setup"))
     st.caption(t("Settings are saved on this computer. Fill in your SSH host and user, then let Detect from cluster find the rest."))
     editor_path = str(path.expanduser().resolve())
@@ -188,10 +194,27 @@ def _config_editor(path: Path, config: ClusterConfig | None) -> None:
             vaspkit_executable = st.text_input(t("VASPKIT executable"), value=value("vaspkit_executable", "vaspkit"),
                                               help=t("Optional post-processing tool on the cluster."), key=key("vaspkit"))
         with right:
+            compute_backend = st.selectbox(t("Compute"), ("cpu", "gpu"),
+                                           index=("cpu", "gpu").index(value("compute_backend", "cpu")),
+                                           format_func=str.upper, key=key("compute_backend"))
             partition = st.text_input(t("Slurm partition"), value=value("partition", ""), key=key("partition"))
             account = st.text_input(t("Slurm account (optional)"), value=value("account", ""), key=key("account"))
-            tasks = st.number_input(t("MPI tasks"), 1, 4096, int(value("tasks", 8)), help=t("Total across all nodes."), key=key("tasks"))
             nodes = st.number_input(t("Nodes"), 1, 4096, int(value("nodes", 1)), key=key("nodes"))
+            gpus_per_node = int(value("gpus_per_node", 1))
+            cpus_per_task = int(value("cpus_per_task", 1))
+            if compute_backend == "gpu":
+                gpus_per_node = st.number_input(t("GPUs per node"), 1, 64, gpus_per_node, key=key("gpus_per_node"))
+                cpus_per_task = st.number_input(t("CPUs per task"), 1, 4096, cpus_per_task, key=key("cpus_per_task"))
+                tasks = int(nodes) * int(gpus_per_node)
+                st.number_input(t("MPI tasks"), value=tasks, disabled=True,
+                                help=t("One MPI task per GPU."), key=key(f"gpu_tasks_{tasks}"))
+                st.caption(t("Use a GPU-enabled VASP build."))
+            else:
+                cpu_tasks = st.session_state.get(key("cpu_tasks_saved"),
+                                                value("tasks", 8) if value("compute_backend", "cpu") == "cpu" else 8)
+                tasks = st.number_input(t("MPI tasks"), 1, 4096, int(cpu_tasks),
+                                        help=t("Total across all nodes."), key=key("tasks"))
+                st.session_state[key("cpu_tasks_saved")] = int(tasks)
             walltime = st.text_input(t("Time limit per stage"), value=value("walltime", "00:30:00"), key=key("walltime"))
             timeout = st.number_input(t("SSH connection timeout (s)"), 1, 120, int(value("connect_timeout", 15)), key=key("timeout"))
             sbatch = st.text_area(t("Extra Slurm options"), value="\n".join(value("extra_sbatch", [])),
@@ -211,7 +234,7 @@ def _config_editor(path: Path, config: ClusterConfig | None) -> None:
         else:
             try:
                 report = _detect(host.strip(), user.strip(), port, control_path.strip(), timeout,
-                                 [line for line in setup.splitlines() if line.strip()])
+                                 [line for line in setup.splitlines() if line.strip()], compute_backend)
             except Exception as exc:
                 st.error(t("Cannot detect cluster settings: {error}").format(error=exc))
             else:
@@ -220,6 +243,8 @@ def _config_editor(path: Path, config: ClusterConfig | None) -> None:
                            "vasp_ncl_command": ncl_command.strip(), "partition": partition.strip(), "account": account.strip(),
                            "vaspkit_executable": vaspkit_executable.strip(),
                            "tasks": int(tasks), "nodes": int(nodes), "walltime": walltime.strip(), "connect_timeout": int(timeout),
+                           "compute_backend": compute_backend, "gpus_per_node": int(gpus_per_node),
+                           "cpus_per_task": int(cpus_per_task),
                            "extra_sbatch": [line for line in sbatch.splitlines() if line.strip()],
                            "setup_commands": [line for line in setup.splitlines() if line.strip()]}
                 try:
@@ -247,6 +272,7 @@ def _config_editor(path: Path, config: ClusterConfig | None) -> None:
                 vasp_ncl_command=ncl_command.strip(),
                 ssh_control_path=control_path.strip(),
                 nodes=int(nodes), extra_sbatch=[line for line in sbatch.splitlines() if line.strip()],
+                compute_backend=compute_backend, gpus_per_node=int(gpus_per_node), cpus_per_task=int(cpus_per_task),
                 vaspkit_executable=vaspkit_executable.strip(),
             )
             candidate.save(path)
@@ -296,18 +322,18 @@ def viewer_html(poscar: str, height: int = 430) -> str:
     )
 
 
-def _structure_viewer(structure: Structure) -> None:
+def _structure_viewer(structure: Structure, height=430) -> None:
     from pymatgen.io.vasp import Poscar
     import streamlit.components.v1 as components
 
-    components.html(viewer_html(Poscar(structure).get_str()), height=442)
+    components.html(viewer_html(Poscar(structure).get_str(), height=height), height=height + 12)
     st.caption(t("Drag to rotate, scroll to zoom. Repetition changes the view only."))
 
 
-def _structure_view(structure: Structure) -> None:
+def _structure_view(structure: Structure, height=430) -> None:
     if _prefs().get("interactive_viewer", True):
         try:
-            _structure_viewer(structure)
+            _structure_viewer(structure, height=height)
             return
         except Exception:
             pass
@@ -324,9 +350,9 @@ def _preview(upload) -> Structure | None:
         cols = st.columns(3)
         cols[0].metric(t("Formula"), structure.composition.reduced_formula)
         cols[1].metric(t("Atoms"), len(structure))
-        cols[2].metric(t("Cell volume (Å³)"), f"{structure.volume:.3f}")
+        cols[2].metric(t("Volume (Å³)"), f"{structure.volume:.3f}")
         st.caption("a, b, c (Å): " + ", ".join(f"{v:.4f}" for v in structure.lattice.abc))
-        _structure_view(structure)
+        _structure_view(structure, height=330)
         with st.expander(t("Elements and fractional coordinates")):
             st.dataframe([
                 {t("Element"): str(site.species_string), "x": site.a, "y": site.b, "z": site.c}
@@ -339,6 +365,10 @@ def _preview(upload) -> Structure | None:
 
 
 def _stage_results(run_dir: Path, stage: dict, scf_fermi_energy: float | None = None) -> None:
+    if (stage.get("metadata") or {}).get("engine") == "qe":
+        from vasp_slurm_agent.qe_app import stage_results
+        stage_results(run_dir, stage)
+        return
     result = stage.get("result")
     if not result:
         return
@@ -440,7 +470,8 @@ def _stage_downloads(run_dir: Path, stage: dict) -> None:
     output = run_dir / stage["folder"] / "outputs"
     key = f"files_{run_dir}_{stage['folder']}"
     show_plots = bool((stage.get("result") or {}).get("success"))
-    if (show_plots and stage["name"] == "relax" and (run_dir / "run.json").is_file()
+    is_qe = (stage.get("metadata") or {}).get("engine") == "qe"
+    if (not is_qe and show_plots and stage["name"] == "relax" and (run_dir / "run.json").is_file()
             and (output / "relax_energy.png").is_file()):
         from vasp_slurm_agent.postprocessing import refresh_energy_exports
         try:
@@ -483,7 +514,7 @@ def _stage_downloads(run_dir: Path, stage: dict) -> None:
             st.download_button(t("Download file"), chosen.read_bytes(), file_name=chosen.name, key=key + "_download")
         else:
             st.caption(t("Included in Download results (.zip)."))
-    if has_config(run_dir) and stage.get("job_id"):
+    if not is_qe and has_config(run_dir) and stage.get("job_id"):
         with st.expander(t("More files and VASPKIT")):
             _postprocess_panel(run_dir, stage, key)
 
@@ -927,7 +958,8 @@ def _memory_panel(runs_root):
 def _agent_plan(upload, structure, config, runs_root, settings):
     from vasp_slurm_agent.task_agent import draft_task
 
-    goal = st.text_area(t("Goal"), max_chars=4000, key="calculation_goal")
+    goal = st.text_area(t("Goal"), max_chars=4000, key="calculation_goal",
+                        placeholder=t("What would you like to calculate?"))
     stamp = hashlib.sha256((upload.getvalue() if upload else b"") + goal.encode()).hexdigest()
     if st.session_state.get("agent_stamp") != stamp:
         for key in ("agent_proposal", "agent_history", "agent_clear_revision", "plan_revision", "agent_error_usage"):
@@ -1007,27 +1039,48 @@ def _task_preview(plan):
 
 
 def _new_run(config: ClusterConfig | None, runs_root: Path, model_settings=None) -> None:
-    st.subheader(t("New calculation"))
-    st.write(t("Prepare inputs locally. Review before submitting."))
-    source = st.radio(t("Structure source"), ["Upload", "Example"], horizontal=True, format_func=t, key="structure_source")
-    if source == "Upload":
-        upload = st.file_uploader(t("Upload a structure"), key="structure_upload",
-                                  help=t("CIF or POSCAR; no extension needed for POSCAR. POTCAR stays on the cluster."))
-    else:
-        examples = files("vasp_slurm_agent").joinpath("examples")
-        choices = {}
-        for item in sorted(examples.iterdir(), key=lambda item: item.name):
-            if item.name.endswith((".cif", ".vasp")):
-                choices[Path(item.name).stem] = item.name
-        name = st.selectbox(t("Example"), [choices[label] for label in sorted(choices)],
-                            format_func=lambda value: Path(value).stem, key="structure_example")
-        upload = BytesIO(examples.joinpath(name).read_bytes())
-        upload.name = name
-        st.download_button(t("Download input"), upload.getvalue(), file_name=name,
-                           mime="chemical/x-cif" if name.endswith(".cif") else "text/plain")
-    upload = _structure_editor(upload, model_settings)
-    structure = _preview(upload) if upload is not None else None
+    if st.session_state.get("cluster_engine", config.engine if config else "vasp") == "qe":
+        kind = st.radio("Input", ["Structure", "Pairing model"], horizontal=True, key="qe_input_kind")
+        if kind == "Pairing model":
+            from vasp_slurm_agent.qe_pairing_app import new_run
+            new_run(config, runs_root, model_settings)
+            return
+    with st.container(key="calculation_workspace"):
+        structure_column, task_column = st.columns([1, 1.15], gap="medium")
+        with structure_column, st.container(border=True, key="structure_panel"):
+            st.subheader(t("Structure"))
+            source = st.radio(t("Structure source"), ["Upload", "Example"], horizontal=True, format_func=t, key="structure_source")
+            if source == "Upload":
+                upload = st.file_uploader(t("Upload a structure"), key="structure_upload",
+                                          help=t("CIF or POSCAR; no extension needed for POSCAR."))
+            else:
+                examples = files("vasp_slurm_agent").joinpath("examples")
+                choices = {}
+                for item in sorted(examples.iterdir(), key=lambda item: item.name):
+                    if item.name.endswith((".cif", ".vasp")):
+                        choices[Path(item.name).stem] = item.name
+                name = st.selectbox(t("Example"), [choices[label] for label in sorted(choices)],
+                                    format_func=lambda value: Path(value).stem, key="structure_example")
+                upload = BytesIO(examples.joinpath(name).read_bytes())
+                upload.name = name
+            preview = st.container()
+            upload = _structure_editor(upload, model_settings)
+            with preview:
+                structure = _preview(upload) if upload is not None else None
+            if source == "Example":
+                st.download_button(t("Download input"), examples.joinpath(name).read_bytes(), file_name=name,
+                                   mime="chemical/x-cif" if name.endswith(".cif") else "text/plain")
+        with task_column, st.container(border=True, key="task_panel"):
+            st.subheader(t("Calculation"))
+            _calculation_controls(upload, structure, config, runs_root, model_settings)
+
+
+def _calculation_controls(upload, structure, config, runs_root, model_settings):
     mode = st.radio(t("Mode"), ["Agent", "Manual"], horizontal=True, format_func=t, key="calculation_mode")
+    if st.session_state.get("cluster_engine", config.engine if config else "vasp") == "qe":
+        from vasp_slurm_agent.qe_app import new_run
+        new_run(upload, structure, config, runs_root, model_settings, mode)
+        return
     if mode == "Agent":
         _agent_plan(upload, structure, config, runs_root, model_settings)
         return
@@ -1212,6 +1265,10 @@ def _run_panel(run_dir: Path, model_settings=None, config=None) -> None:
 
     try:
         state = read_state(run_dir)
+        if state.get("workflow") == "pairing":
+            from vasp_slurm_agent.qe_pairing_app import run_panel
+            run_panel(run_dir, model_settings)
+            return
         context = load_run_context(run_dir)
     except Exception as exc:
         st.error(t("Cannot read run: {error}").format(error=exc))
@@ -1229,6 +1286,12 @@ def _run_panel(run_dir: Path, model_settings=None, config=None) -> None:
                    "scope": facts.get(f"stage_{index}.band_gap_scope", {}).get("value"),
                    "partial_occupations": facts.get(f"stage_{index}.band_gap_status", {}).get("value") == "metallic_or_partially_occupied"}
             stage["result"] = {**stage["result"], "band_gap": gap}
+            if state.get("engine") == "qe":
+                for field, suffix in (("endpoint_relaxed", "endpoint_relaxed"), ("barrier_scope", "barrier_scope"),
+                                      ("converged_ionic", "ionic_converged"), ("path_converged", "path_converged")):
+                    item = facts.get(f"stage_{index}.{suffix}")
+                    if item is not None:
+                        stage["result"][field] = item["value"]
         stages.append(stage)
     awaiting_submission = status == "planned" and not any(stage.get("job_id") for stage in stages)
     attached = has_config(run_dir)
@@ -1259,13 +1322,14 @@ def _run_panel(run_dir: Path, model_settings=None, config=None) -> None:
             st.info(t("No cluster is attached to this run yet. Submitting attaches the saved Cluster setup."))
     with st.expander(t("Stage details and run history")):
         st.json({"stages": stages, "history": state.get("history", [])})
-    with st.expander(t("Generated INCAR and KPOINTS")):
+    is_qe = state.get("engine") == "qe"
+    with st.expander("Generated inputs" if is_qe else t("Generated INCAR and KPOINTS")):
         for stage in stages:
             folder = stage.get("folder")
             if not folder:
                 continue
             st.write(stage.get("name", folder))
-            for name in ("INCAR", "KPOINTS"):
+            for name in ([stage.get("metadata", {}).get("input_file", "pw.in")] if is_qe else ("INCAR", "KPOINTS")):
                 source = run_dir / folder / "inputs" / name
                 if source.is_file():
                     st.caption(name)
@@ -1352,10 +1416,14 @@ def _run_panel(run_dir: Path, model_settings=None, config=None) -> None:
         st.info(t("Complete. Results are ready to download."))
     elif status == "needs_attention":
         st.info(t("Check the error before reconnecting. Settings are unchanged."))
-    if status in {"needs_attention", "failed"}:
+    if not is_qe and status in {"needs_attention", "failed"}:
         _repair_panel(run_dir, model_settings)
     _result_dialogue(run_dir, model_settings, context)
-    _continue_panel(run_dir, model_settings, context)
+    if not is_qe:
+        _continue_panel(run_dir, model_settings, context)
+    else:
+        from vasp_slurm_agent.qe_app import followup_panel
+        followup_panel(run_dir, model_settings, context)
 
 
 def _continue_panel(run_dir, settings, context):
@@ -1623,34 +1691,68 @@ def _update_notice(prefs):
 
 def main() -> None:
     st.set_page_config(page_title="DFT Agent", page_icon="⚛", layout="wide")
+    from vasp_slurm_agent.ui_style import apply_style
+    apply_style()
     try:
         migrate_legacy_config()
     except OSError:
         pass
     prefs = _prefs()
     with st.sidebar:
-        _language_selector(prefs)
-    st.title("DFT Agent")
-    st.caption(t("Version") + f" {__version__}")
-    _update_notice(prefs)
-    with st.sidebar:
-        st.header(t("Local settings"))
-        config_path = Path(st.text_input(t("Configuration file"), value=str(default_config_path()), key="config_path")).expanduser()
-        runs_root = Path(st.text_input(t("Run folder"), value=str(default_runs_root()), key="runs_root")).expanduser()
-        st.text_input(t("SSH password (optional)"), type="password", key="ssh_password",
-                      help=t("SSH keys are preferred. Passwords stay in memory and are never saved."))
-        st.button(t("Clear password"), on_click=lambda: st.session_state.update(ssh_password=""))
-        st.caption(t("Requires a Slurm account and VASP license."))
+        st.html('<div class="dfa-eyebrow">DFT Agent</div><div class="dfa-workspace">Workspace</div>')
+        set_language(st.session_state.get("language", prefs.get("language", "en")))
         model_settings = _model_editor()
+        local_settings = st.expander(t("Local settings"))
+        with local_settings:
+            _language_selector(prefs)
+            base_path = Path(st.text_input(t("Configuration file"), value=str(default_config_path()), key="config_path")).expanduser()
+            runs_root = Path(st.text_input(t("Run folder"), value=str(default_runs_root()), key="runs_root")).expanduser()
+            st.text_input(t("SSH password (optional)"), type="password", key="ssh_password",
+                          help=t("SSH keys are preferred. Passwords stay in memory and are never saved."))
+            st.button(t("Clear password"), on_click=lambda: st.session_state.update(ssh_password=""))
         _preferences(prefs)
         if st.session_state.get("auto_resumed"):
             st.caption(t("Monitoring resumed for: ") + ", ".join(st.session_state["auto_resumed"]))
-    config = _load_config(config_path)
+    base_config = _load_config(base_path)
+    base_identity = str(base_path.resolve())
+    if st.session_state.get("engine_base_path") != base_identity:
+        st.session_state["engine_base_path"] = base_identity
+        st.session_state["cluster_engine"] = base_config.engine if base_config else "vasp"
+    title, version = st.columns([5, 1], vertical_alignment="center")
+    with title:
+        st.title("DFT Agent")
+    with version:
+        st.html(f'<span class="dfa-version">{__version__}</span>')
+    engine = st.radio("Engine", ("vasp", "qe"), horizontal=True,
+                      format_func=lambda value: "Quantum ESPRESSO" if value == "qe" else "VASP",
+                      key="cluster_engine", label_visibility="collapsed")
+    config_path = base_path
+    if base_config and base_config.engine != engine:
+        config_path = base_path.with_name(f"{base_path.stem}.{engine}{base_path.suffix}")
+    config = base_config if config_path == base_path else _load_config(config_path)
+    profile_conflict = config is not None and config.engine != engine
+    if profile_conflict:
+        st.error(t("The configuration file belongs to another engine. Choose a different file in Local settings."))
+        config = None
+    profile_identity = (str(config_path.resolve()), engine)
+    if st.session_state.get("active_engine_profile") != profile_identity:
+        st.session_state["active_engine_profile"] = profile_identity
+        st.session_state["qe_editor_version"] = st.session_state.get("qe_editor_version", 0) + 1
+    with st.sidebar:
+        st.html('<div class="dfa-section">Cluster</div>')
+        st.caption(t("Settings saved") if config else t("Set up a cluster to submit calculations."))
+    if config_path != base_path:
+        with local_settings:
+            st.caption(t("Active configuration"))
+            st.code(str(config_path), language="text")
+    st.session_state["qe_config_path"] = str(config_path)
+    _update_notice(prefs)
     if prefs.get("auto_resume"):
         _auto_resume(runs_root)
     task_tab, history_tab, config_tab, memory_tab = st.tabs([t("New calculation"), t("Runs"), t("Cluster setup"), t("Memory")])
     with config_tab:
-        _config_editor(config_path, config)
+        if not profile_conflict:
+            _config_editor(config_path, config)
     with task_tab:
         _new_run(config, runs_root, model_settings)
     with memory_tab:

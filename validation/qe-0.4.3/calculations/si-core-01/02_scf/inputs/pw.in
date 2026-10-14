@@ -1,0 +1,34 @@
+&CONTROL
+  calculation = 'scf',
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  pseudo_dir = './pseudo',
+  tprnfor = .true.,
+  tstress = .true.,
+  verbosity = 'high',
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 2,
+  ntyp = 1,
+  ecutwfc = 60.0,
+  ecutrho = 480.0,
+  input_dft = 'PBE',
+  occupations = 'fixed',
+  nbnd = 12,
+/
+&ELECTRONS
+  conv_thr = 1e-08,
+  electron_maxstep = 120,
+/
+ATOMIC_SPECIES
+Si 28.0855 Si.pbe-n-rrkjus_psl.1.0.0.UPF
+CELL_PARAMETERS angstrom
+3.3257946994554 0 1.920148465
+1.1085982331518 3.1355893130922 1.920148465
+0 0 3.84029693
+ATOMIC_POSITIONS crystal
+Si 0.00495881 0.00317852 0.99593133
+Si 0.25494226 0.25319987 0.24592894
+K_POINTS automatic
+8 8 8 0 0 0

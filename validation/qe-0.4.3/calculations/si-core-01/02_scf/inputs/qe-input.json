@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "scf",
+  "canonical_task": "scf",
+  "formula": "Si",
+  "number_of_atoms": 2,
+  "nat": 2,
+  "parameters": {
+    "mesh": [
+      8,
+      8,
+      8
+    ],
+    "nbnd": 12,
+    "electronic_type": "insulator",
+    "line_density": 80
+  },
+  "source_sha256": "177ab6b45199cabae1010dedde2fe3404c7b812a923c847de354e80a6e17c3bd",
+  "requires_restart": false,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {
+    "Si": {
+      "filename": "Si.pbe-n-rrkjus_psl.1.0.0.UPF",
+      "sha256": "ae3aefd0811f9499dbc4a72f1f9ae02ef4fc7f3568bf6f559b68668719c69e2b",
+      "ecutwfc": 30.0,
+      "ecutrho": 240.0,
+      "element": "Si",
+      "functional": "PBE",
+      "relativistic": "scalar",
+      "fully_relativistic": false
+    }
+  },
+  "pseudo_files": [
+    "Si.pbe-n-rrkjus_psl.1.0.0.UPF"
+  ],
+  "mesh": [
+    8,
+    8,
+    8
+  ],
+  "namelists": {
+    "control": {
+      "calculation": "scf",
+      "prefix": "dft_agent",
+      "outdir": "./scratch",
+      "pseudo_dir": "./pseudo",
+      "tprnfor": true,
+      "tstress": true,
+      "verbosity": "high"
+    },
+    "system": {
+      "ibrav": 0,
+      "nat": 2,
+      "ntyp": 1,
+      "ecutwfc": 60.0,
+      "ecutrho": 480.0,
+      "input_dft": "PBE",
+      "occupations": "fixed",
+      "nbnd": 12
+    },
+    "electrons": {
+      "conv_thr": 1e-08,
+      "electron_maxstep": 120
+    }
+  },
+  "site_labels": [
+    "Si",
+    "Si"
+  ],
+  "species": {
+    "Si": "Si"
+  },
+  "energy_input_unit": "Ry",
+  "force_input_unit": "Ry/bohr",
+  "hubbard_unit": "eV",
+  "executable": "pw.x",
+  "input_file": "pw.in",
+  "output_file": "pw.out",
+  "input_files": [
+    "pw.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pw.out"
+  ],
+  "input_sha256": {
+    "pw.in": "bd7ad5c63024f63a71655188f6cf6ec056616f54a6ae7885e255314abe6c8942",
+    "structure.cif": "ce9853b8b925c85356b4f734b8c01369cd95ff87378692e361df0d82820a1cb0"
+  }
+}

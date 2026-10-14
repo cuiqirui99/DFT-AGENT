@@ -1,7 +1,7 @@
 # Connect a model
 
 Anyone can install DFT Agent. To run calculations, you need your own Slurm
-account, licensed VASP and POTCAR files. To use the agent, you also need one of
+account and either Quantum ESPRESSO or licensed VASP and POTCAR files. To use the agent, you also need one of
 the model accounts below. The download does not include model credits or cluster
 access. [Install and open the app](install.md), then choose a route.
 

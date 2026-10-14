@@ -1,0 +1,26 @@
+{
+  "scope": "Pinned upstream MgB2 software regression; coarse meshes and original tolerances are not a material convergence claim.",
+  "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/test-suite/epw_super",
+  "source_inputs": {
+    "scf.in": "cc7e943d294d033a4fd01bef5a7cf3ad06092016d37359a27958f79cd244e852",
+    "ph.in": "5776acc6940361045b7e1cf15602f42c05ec65d0904225c93185ecbcac3d87d2",
+    "scf_epw.in": "7aa0c6da9d9ba90bcb903826db7d859ef4b1a5820dc730d6106a7b8f446caf70",
+    "nscf_epw.in": "3532b05508ceae2245da45a5c199567f24e1e47a517f7af74c6a3f9615999937",
+    "epw1.in": "ee0b951a8cba3542dd70cb222cf013fe55f737890686e47552a64d708391eab1",
+    "epw2.in": "e771a6fc1e2b61a70c129aa59747e059a7f01ec8ad7a426ddb7b0dab90be514c"
+  },
+  "reference_outputs": {
+    "benchmark.out.git.inp=scf_epw.in.args=1": "394f69a4e959abf7a3593c4f97c308207a01f0d6f0093e314b5052c0a440b9e3",
+    "benchmark.out.git.inp=epw1.in.args=3": "62a17b552f9ce52ecc44e3b3f68e25d02afc85a488487e20c361006322037f1b",
+    "benchmark.out.git.inp=scf.in.args=1": "2f6749d6632e715684d48bf323136729e78fcf1c832c564ce3f1e9749906fb5c",
+    "benchmark.out.git.inp=nscf_epw.in.args=1": "ff02681c3dc9c11bdb208a37444f9c116ef7341f81128ccb246d0def72ba5fc7",
+    "benchmark.out.git.inp=ph.in.args=2": "f64d05b4a9055717c123c9eb24f4f87857311e01c322ee1d54f370851c419a3e",
+    "benchmark.out.git.inp=epw2.in.args=3": "a11d58539156b65fe905d401c090c55e63d3eee8c1cde386fefcae67d3f60b7f"
+  },
+  "input_edits": "Only relative pseudopotential and phonon checkpoint paths. Separate iso/aniso folders preserve all outputs.",
+  "expected_runtime_epw": "5.9",
+  "reference_epw": "5.8",
+  "submit_script_sha256": "9b663a3ce85074154acb27e5864d2b1847bffb0031a45bc6825cf810d3c4caae",
+  "job_id": "7495057",
+  "archive_sha256": "7cd0edd70be5e2c59149b757f466f8e1834cde6acdb0af355ec8763057544936"
+}

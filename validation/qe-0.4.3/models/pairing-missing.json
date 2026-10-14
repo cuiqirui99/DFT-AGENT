@@ -1,0 +1,55 @@
+{
+  "status": "needs_input",
+  "kind": "qe_pairing",
+  "summary": "Plan to compute susceptibility and compare leading singlet and triplet Hubbard RPA pairing eigenvalues and gap functions at one temperature after the missing settings are supplied.",
+  "questions": [
+    "What are the three lattice vectors in angstrom and the orbital label?",
+    "Do you confirm a paramagnetic, spin-degenerate, real one-orbital Hamiltonian without SOC (spin_degenerate_no_soc)?",
+    "What repulsive U (eV), chemical potential (eV), and temperature (K) should be used?",
+    "What three kmesh sizes and number of positive Matsubara frequencies should be used?",
+    "What double-counting treatment should be used, including explicitly none if intended?"
+  ],
+  "limits": [
+    "Origin remains model; this is not a validated material model.",
+    "Check the Hamiltonian against the stated model assumptions before computing the bare susceptibility, RPA susceptibility, and singlet/triplet pairing kernels, then solve the linearized gap equations.",
+    "A magnetic instability must stop the paramagnetic RPA route.",
+    "An eigenvalue below one is a valid negative result; this single-temperature calculation does not infer a material Tc or demonstrate superconductivity.",
+    "The chemical potential is an input, not a target filling; numerical convergence remains to be checked.",
+    "No commands were run or numerical results produced."
+  ],
+  "unsupported": [],
+  "parameters": {
+    "lattice_angstrom": null,
+    "orbital": null,
+    "spin_convention": null,
+    "u_ev": null,
+    "mu_ev": null,
+    "temperature_k": null,
+    "kmesh": null,
+    "matsubara_points": null,
+    "channels": [
+      "singlet",
+      "triplet"
+    ],
+    "double_counting": null
+  },
+  "origin": "model",
+  "source_sha256": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "model_usage": {
+    "input_tokens": 13256,
+    "output_tokens": 335,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 0,
+    "total_tokens": 13591,
+    "token_counts_source": "provider",
+    "call_id": "38a8b2624bb2478ab09038acc9f623c7",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 13.438995,
+    "input_characters": 388,
+    "instruction_characters": 1874,
+    "schema_characters": 1323,
+    "output_characters": 1564,
+    "max_output_tokens": null
+  }
+}

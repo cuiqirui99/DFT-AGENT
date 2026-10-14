@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "ph",
+  "canonical_task": "phonon",
+  "formula": "Al",
+  "number_of_atoms": 1,
+  "nat": 1,
+  "parameters": {
+    "mesh": [
+      8,
+      8,
+      8
+    ],
+    "electronic_type": "metal",
+    "qmesh": [
+      2,
+      2,
+      2
+    ],
+    "line_density": 80,
+    "degauss": 0.02,
+    "namelists": {
+      "inputph": {
+        "ldisp": true,
+        "nq1": 2,
+        "nq2": 2,
+        "nq3": 2
+      }
+    }
+  },
+  "source_sha256": "e469f550bbd904870a069ac85d081d4f3dba647e49bf9e0b5ce2b0b2e0193ee5",
+  "requires_restart": true,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {},
+  "pseudo_files": [],
+  "phonon_grid": [
+    2,
+    2,
+    2
+  ],
+  "executable": "ph.x",
+  "input_file": "ph.in",
+  "output_file": "ph.out",
+  "input_files": [
+    "ph.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "ph.out"
+  ],
+  "input_sha256": {
+    "ph.in": "a0b00dc405e379b2b4327d8da827e5e0f740e4b64a72e2c0d34c290d9d9dab0a",
+    "structure.cif": "0ad3d2bd5ee270069897b222b0b17fe1956b87746654795a3b0bcf0e5e53f023"
+  }
+}

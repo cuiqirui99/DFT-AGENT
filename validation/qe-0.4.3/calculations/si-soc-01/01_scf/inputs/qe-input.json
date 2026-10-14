@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "scf",
+  "canonical_task": "scf",
+  "formula": "Si",
+  "number_of_atoms": 2,
+  "nat": 2,
+  "parameters": {
+    "mesh": [
+      8,
+      8,
+      8
+    ],
+    "ecutwfc": 60.0,
+    "ecutrho": 480.0,
+    "electronic_type": "insulator",
+    "nbnd": 16,
+    "conv_thr": 1e-10,
+    "line_density": 80,
+    "namelists": {
+      "electrons": {
+        "diagonalization": "cg",
+        "diago_cg_maxiter": 200,
+        "diago_full_acc": true
+      }
+    },
+    "soc": false
+  },
+  "source_sha256": "c8ccab633de0d20ce460c5ae302d47af078ec56ba3c41c1a6d4e7f7d7882dc1f",
+  "requires_restart": false,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {
+    "Si": {
+      "filename": "Si.rel-pbe-n-rrkjus_psl.1.0.0.UPF",
+      "element": "Si",
+      "fully_relativistic": true,
+      "sha256": "c0f40bb5c3308718837b8073ce2d4ec45c773a42dd0c740c57df1feaecc22d7b",
+      "ecutwfc": 43.80152651067,
+      "ecutrho": 175.2061060427,
+      "source_url": "https://pseudopotentials.quantum-espresso.org/upf_files/Si.rel-pbe-n-rrkjus_psl.1.0.0.UPF",
+      "functional": "PBE",
+      "license": "GPL-2.0-or-later"
+    }
+  },
+  "pseudo_files": [
+    "Si.rel-pbe-n-rrkjus_psl.1.0.0.UPF"
+  ],
+  "mesh": [
+    8,
+    8,
+    8
+  ],
+  "namelists": {
+    "control": {
+      "calculation": "scf",
+      "prefix": "dft_agent",
+      "outdir": "./scratch",
+      "pseudo_dir": "./pseudo",
+      "tprnfor": true,
+      "tstress": true,
+      "verbosity": "high"
+    },
+    "system": {
+      "ibrav": 0,
+      "nat": 2,
+      "ntyp": 1,
+      "ecutwfc": 60.0,
+      "ecutrho": 480.0,
+      "input_dft": "PBE",
+      "occupations": "fixed",
+      "nbnd": 16
+    },
+    "electrons": {
+      "conv_thr": 1e-10,
+      "electron_maxstep": 120,
+      "diagonalization": "cg",
+      "diago_cg_maxiter": 200,
+      "diago_full_acc": true
+    }
+  },
+  "site_labels": [
+    "Si",
+    "Si"
+  ],
+  "species": {
+    "Si": "Si"
+  },
+  "energy_input_unit": "Ry",
+  "force_input_unit": "Ry/bohr",
+  "hubbard_unit": "eV",
+  "executable": "pw.x",
+  "input_file": "pw.in",
+  "output_file": "pw.out",
+  "input_files": [
+    "pw.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pw.out"
+  ],
+  "input_sha256": {
+    "pw.in": "c15793876acdc7549e4495887a931ef2813bcff672b601be8bbdd6a197b0de91",
+    "structure.cif": "9f865a19205eae7af407f629dd4b72a2df96935b27623d481b175a33a369a7d3"
+  }
+}

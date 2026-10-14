@@ -1,0 +1,200 @@
+
+     Program Q2R v.7.4.1 starts on 14Oct2026 at 21: 4:13 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     8 processors
+
+     MPI processes distributed on     1 nodes
+     R & G space division:  proc/nbgrp/npool/nimage =       8
+     225257 MiB available memory on the printing compute node when the environment starts
+ 
+
+  reading grid info from file dft_agent.dyn0    
+
+  reading force constants from file dft_agent.dyn1
+  Dielectric Tensor not found
+  nqs=            1
+ q=   0.00000000  0.00000000  0.00000000
+  reading force constants from file dft_agent.dyn2
+  nqs=            4
+ q=  -0.14433757 -0.10206207  0.25000000
+ q=  -0.14433757 -0.10206207 -0.25000000
+ q=   0.14433757  0.10206207  0.25000000
+ q=   0.14433757  0.10206207 -0.25000000
+  reading force constants from file dft_agent.dyn3
+  nqs=            2
+ q=   0.28867514  0.20412415 -0.50000000
+ q=  -0.28867514 -0.20412415 -0.50000000
+  reading force constants from file dft_agent.dyn4
+  nqs=            2
+ q=   0.00000000  0.30618622  0.00000000
+ q=   0.00000000 -0.30618622  0.00000000
+  reading force constants from file dft_agent.dyn5
+  nqs=            4
+ q=  -0.14433757  0.20412415  0.25000000
+ q=  -0.14433757  0.20412415 -0.25000000
+ q=   0.14433757 -0.20412415  0.25000000
+ q=   0.14433757 -0.20412415 -0.25000000
+  reading force constants from file dft_agent.dyn6
+  nqs=            4
+ q=   0.28867514  0.51031036 -0.50000000
+ q=   0.28867514  0.51031036  0.50000000
+ q=  -0.28867514 -0.51031036 -0.50000000
+ q=  -0.28867514 -0.51031036  0.50000000
+  reading force constants from file dft_agent.dyn7
+  nqs=            4
+ q=   0.14433757  0.40824829 -0.25000000
+ q=   0.14433757  0.40824829  0.25000000
+ q=  -0.14433757 -0.40824829 -0.25000000
+ q=  -0.14433757 -0.40824829  0.25000000
+  reading force constants from file dft_agent.dyn8
+  nqs=            1
+ q=   0.00000000 -0.61237244  0.00000000
+  reading force constants from file dft_agent.dyn9
+  nqs=            4
+ q=  -0.14433757 -0.71443451  0.25000000
+ q=  -0.14433757 -0.71443451 -0.25000000
+ q=   0.14433757  0.71443451  0.25000000
+ q=   0.14433757  0.71443451 -0.25000000
+  reading force constants from file dft_agent.dyn10
+  nqs=            2
+ q=   0.28867514 -0.40824829 -0.50000000
+ q=  -0.28867514  0.40824829 -0.50000000
+  reading force constants from file dft_agent.dyn11
+  nqs=            2
+ q=   0.28867514 -0.10206207  0.00000000
+ q=  -0.28867514  0.10206207  0.00000000
+  reading force constants from file dft_agent.dyn12
+  nqs=            4
+ q=   0.57735027  0.10206207 -0.50000000
+ q=   0.57735027  0.10206207  0.50000000
+ q=  -0.57735027 -0.10206207 -0.50000000
+ q=  -0.57735027 -0.10206207  0.50000000
+  reading force constants from file dft_agent.dyn13
+  nqs=            4
+ q=   0.43301270  0.00000000 -0.25000000
+ q=   0.43301270  0.00000000  0.25000000
+ q=  -0.43301270  0.00000000 -0.25000000
+ q=  -0.43301270  0.00000000  0.25000000
+  reading force constants from file dft_agent.dyn14
+  nqs=            2
+ q=   0.28867514  0.20412415  0.00000000
+ q=  -0.28867514 -0.20412415  0.00000000
+  reading force constants from file dft_agent.dyn15
+  nqs=            2
+ q=   0.57735027  0.40824829 -0.50000000
+ q=   0.57735027  0.40824829  0.50000000
+  reading force constants from file dft_agent.dyn16
+  nqs=            4
+ q=   0.43301270  0.30618622 -0.25000000
+ q=  -0.43301270 -0.30618622 -0.25000000
+ q=   0.43301270  0.30618622  0.25000000
+ q=  -0.43301270 -0.30618622  0.25000000
+  reading force constants from file dft_agent.dyn17
+  nqs=            2
+ q=   0.28867514 -0.71443451  0.00000000
+ q=  -0.28867514  0.71443451  0.00000000
+  reading force constants from file dft_agent.dyn18
+  nqs=            4
+ q=   0.43301270 -0.61237244 -0.25000000
+ q=   0.43301270 -0.61237244  0.25000000
+ q=  -0.43301270  0.61237244 -0.25000000
+ q=  -0.43301270  0.61237244  0.25000000
+  reading force constants from file dft_agent.dyn19
+  nqs=            2
+ q=   0.28867514 -0.40824829  0.00000000
+ q=  -0.28867514  0.40824829  0.00000000
+  reading force constants from file dft_agent.dyn20
+  nqs=            2
+ q=   0.57735027 -0.20412415 -0.50000000
+ q=   0.57735027 -0.20412415  0.50000000
+  reading force constants from file dft_agent.dyn21
+  nqs=            4
+ q=   0.43301270 -0.30618622 -0.25000000
+ q=  -0.43301270  0.30618622 -0.25000000
+ q=   0.43301270 -0.30618622  0.25000000
+ q=  -0.43301270  0.30618622  0.25000000
+  reading force constants from file dft_agent.dyn22
+  nqs=            1
+ q=  -0.57735027  0.20412415  0.00000000
+  reading force constants from file dft_agent.dyn23
+  nqs=            2
+ q=  -0.57735027  0.51031036  0.00000000
+ q=   0.57735027 -0.51031036  0.00000000
+  reading force constants from file dft_agent.dyn24
+  nqs=            1
+ q=  -0.57735027 -0.40824829  0.00000000
+
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+   Preparing gamma for a2F 
+ 
+ 
+ Broadening =      0.005
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.010
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.015
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.020
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.025
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.030
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.035
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.040
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.045
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.050
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+     Q2R          :      0.04s CPU      0.51s WALL
+
+ 
+   This run was terminated on:  21: 4:13  14Oct2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=

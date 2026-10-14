@@ -84,6 +84,21 @@ def test_bundle_check_renders_plot_exports(tmp_path):
     assert {path.suffix for path in (tmp_path / "plots").iterdir()} == {".png", ".pdf", ".svg"}
 
 
+def test_bundle_check_prepares_qe_with_packaged_catalogues_without_remote_calls(tmp_path, monkeypatch):
+    import json
+    from vasp_slurm_agent import qe_setup, qe_workflow
+
+    remote = Mock(side_effect=AssertionError("Bundle checks must not contact a cluster"))
+    monkeypatch.setattr(qe_setup, "SSHTransport", remote)
+    monkeypatch.setattr(qe_workflow, "SSHTransport", remote)
+    desktop._check_qe_bundle(tmp_path)
+    state = json.loads((tmp_path / "qe-run/run.json").read_text())
+    assert state["engine"] == "qe" and state["status"] == "planned"
+    assert all(stage["job_id"] is None for stage in state["stages"])
+    assert "Si.pbe-nc-sr-04-pd.upf" in (tmp_path / "qe-run/01_scf/inputs/pw.in").read_text()
+    remote.assert_not_called()
+
+
 def test_bundle_check_rejects_empty_plot_exports(tmp_path, monkeypatch):
     from vasp_slurm_agent import vasp
 

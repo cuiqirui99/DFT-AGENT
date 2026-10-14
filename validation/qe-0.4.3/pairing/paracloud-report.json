@@ -1,0 +1,79 @@
+{
+  "job_id": "7494956",
+  "source_sha256": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214",
+  "frozen_inputs_verified": true,
+  "slurm_state": "COMPLETED",
+  "slurm_exit": "0:0",
+  "checks": [
+    {
+      "run": "square-direct-check",
+      "channel": "singlet",
+      "eigenvalue": 0.0014492556824397763,
+      "local_absolute_error": 3.469446951953614e-18,
+      "gap_subspace_overlap": 1.0000000000000004,
+      "relative_residual": 1.7542556346483164e-13
+    },
+    {
+      "run": "square-32-100",
+      "channel": "singlet",
+      "eigenvalue": 0.05524023224036874,
+      "local_absolute_error": 6.245004513516506e-17,
+      "gap_subspace_overlap": 1.0000000000000047,
+      "relative_residual": 1.2193361955380454e-14
+    },
+    {
+      "run": "square-32-100",
+      "channel": "triplet",
+      "eigenvalue": 0.007511079970811213,
+      "local_absolute_error": 2.6020852139652106e-18,
+      "gap_subspace_overlap": 0.9999999999999983,
+      "relative_residual": 2.92736089198775e-15
+    },
+    {
+      "run": "square-32-150",
+      "channel": "singlet",
+      "eigenvalue": 0.055240232409788655,
+      "local_absolute_error": 2.0816681711721685e-17,
+      "gap_subspace_overlap": 1.0000000000000129,
+      "relative_residual": 1.0792399244365723e-14
+    },
+    {
+      "run": "square-32-150",
+      "channel": "triplet",
+      "eigenvalue": 0.007511079970812006,
+      "local_absolute_error": 2.2551405187698492e-17,
+      "gap_subspace_overlap": 1.0000000000000004,
+      "relative_residual": 2.7297756033877686e-15
+    },
+    {
+      "run": "square-40-150",
+      "channel": "singlet",
+      "eigenvalue": 0.05518270833852677,
+      "local_absolute_error": 4.163336342344337e-17,
+      "gap_subspace_overlap": 1.0000000000000093,
+      "relative_residual": 2.966010776181745e-14
+    },
+    {
+      "run": "square-40-150",
+      "channel": "triplet",
+      "eigenvalue": 0.007482736781241365,
+      "local_absolute_error": 5.204170427930421e-18,
+      "gap_subspace_overlap": 1.0000000000000102,
+      "relative_residual": 2.0085149665360197e-15
+    },
+    {
+      "run": "square-4-100",
+      "rejection_verified": true
+    }
+  ],
+  "runtime": {
+    "python": "3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:45:41) [GCC 13.3.0]",
+    "numpy": "1.26.4",
+    "scipy": "1.15.2",
+    "executable_sha256": "a9bb63708d77d18ac04e9e0b52f14c5389b6ddbc84df29e46614ef3643a24b23"
+  },
+  "model_solver_accepted": true,
+  "qe_material_handoff_accepted": false,
+  "tc_accepted": false,
+  "release_accepted": false
+}

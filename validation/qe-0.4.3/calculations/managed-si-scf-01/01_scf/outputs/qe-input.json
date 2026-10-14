@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "scf",
+  "canonical_task": "scf",
+  "formula": "Si",
+  "number_of_atoms": 2,
+  "nat": 2,
+  "parameters": {
+    "spin": "none",
+    "electronic_type": "insulator",
+    "mesh": [
+      6,
+      6,
+      6
+    ],
+    "ecutwfc": 60,
+    "ecutrho": 480,
+    "nbnd": 8,
+    "conv_thr": 1e-08,
+    "electron_maxstep": 200,
+    "functional": "PBE",
+    "namelists": {
+      "control": {
+        "tstress": false
+      },
+      "electrons": {
+        "mixing_beta": 0.5,
+        "diago_full_acc": true
+      }
+    }
+  },
+  "source_sha256": "c8ccab633de0d20ce460c5ae302d47af078ec56ba3c41c1a6d4e7f7d7882dc1f",
+  "requires_restart": false,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {
+    "Si": {
+      "filename": "Si.pbe-n-rrkjus_psl.1.0.0.UPF",
+      "sha256": "ae3aefd0811f9499dbc4a72f1f9ae02ef4fc7f3568bf6f559b68668719c69e2b",
+      "ecutwfc": 30.0,
+      "ecutrho": 240.0,
+      "element": "Si",
+      "functional": "PBE",
+      "relativistic": "scalar",
+      "fully_relativistic": false
+    }
+  },
+  "pseudo_files": [
+    "Si.pbe-n-rrkjus_psl.1.0.0.UPF"
+  ],
+  "mesh": [
+    6,
+    6,
+    6
+  ],
+  "namelists": {
+    "control": {
+      "calculation": "scf",
+      "prefix": "dft_agent",
+      "outdir": "./scratch",
+      "pseudo_dir": "./pseudo",
+      "tprnfor": true,
+      "tstress": false,
+      "verbosity": "high"
+    },
+    "system": {
+      "ibrav": 0,
+      "nat": 2,
+      "ntyp": 1,
+      "ecutwfc": 60.0,
+      "ecutrho": 480.0,
+      "input_dft": "PBE",
+      "occupations": "fixed",
+      "nbnd": 8
+    },
+    "electrons": {
+      "conv_thr": 1e-08,
+      "electron_maxstep": 200,
+      "mixing_beta": 0.5,
+      "diago_full_acc": true
+    }
+  },
+  "site_labels": [
+    "Si",
+    "Si"
+  ],
+  "species": {
+    "Si": "Si"
+  },
+  "energy_input_unit": "Ry",
+  "force_input_unit": "Ry/bohr",
+  "hubbard_unit": "eV",
+  "executable": "pw.x",
+  "input_file": "pw.in",
+  "output_file": "pw.out",
+  "input_files": [
+    "pw.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pw.out"
+  ],
+  "input_sha256": {
+    "pw.in": "e79d6a05ed7fd385044076a348359fc04c16cb96de213537f409ccd5c8b0c7d2",
+    "structure.cif": "9f865a19205eae7af407f629dd4b72a2df96935b27623d481b175a33a369a7d3"
+  }
+}

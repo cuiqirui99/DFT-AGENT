@@ -1,0 +1,70 @@
+[
+  {
+    "task": "wannier_electron_phonon",
+    "parameters": {
+      "mesh": [
+        6,
+        6,
+        6
+      ],
+      "wannier_mesh": [
+        3,
+        3,
+        3
+      ],
+      "qmesh": [
+        3,
+        3,
+        3
+      ],
+      "fine_kmesh": [
+        6,
+        6,
+        6
+      ],
+      "fine_qmesh": [
+        6,
+        6,
+        6
+      ],
+      "nbnd": 8,
+      "num_wann": 5,
+      "projections": [
+        "B:pz",
+        "f=0.5,1.0,0.5:s",
+        "f=0.0,0.5,0.5:s",
+        "f=0.5,0.5,0.5:s"
+      ],
+      "dis_win_min": -5.0,
+      "dis_win_max": 18.4,
+      "dis_froz_min": -5.0,
+      "dis_froz_max": 8.8,
+      "wannier_iterations": 500,
+      "fsthick_ev": 20.0,
+      "el_smearing_ev": 0.1,
+      "ph_smearing_mev": 0.5,
+      "spectral_points": 500,
+      "acoustic_cutoff_cm1": 5.0,
+      "ecutwfc": 40.0,
+      "ecutrho": 160.0,
+      "conv_thr": 1e-09,
+      "tr2_ph": 1e-12,
+      "degauss": 0.02,
+      "smearing": "mp",
+      "functional": "LDA"
+    }
+  },
+  {
+    "task": "epw_aniso",
+    "parameters": {
+      "temperatures": [
+        15.0
+      ],
+      "mu_star": 0.16,
+      "frequency_cutoff_ev": 0.5,
+      "iterations": 1000,
+      "convergence": 1e-06,
+      "mixing": 0.2
+    }
+  }
+]

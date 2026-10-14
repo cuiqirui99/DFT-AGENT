@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "scf",
+  "canonical_task": "scf",
+  "formula": "NiO",
+  "number_of_atoms": 4,
+  "nat": 4,
+  "parameters": {
+    "functional": "PBE",
+    "spin": "collinear",
+    "site_labels": [
+      "Ni1",
+      "Ni2",
+      "O",
+      "O"
+    ],
+    "starting_magnetization": {
+      "Ni1": 0.5,
+      "Ni2": -0.5
+    },
+    "hubbard": [
+      {
+        "label": "Ni1",
+        "manifold": "3d",
+        "U": 5.0,
+        "J0": 0.0
+      },
+      {
+        "label": "Ni2",
+        "manifold": "3d",
+        "U": 5.0,
+        "J0": 0.0
+      }
+    ],
+    "hubbard_projector": "ortho-atomic",
+    "ecutwfc": 60,
+    "ecutrho": 480,
+    "mesh": [
+      6,
+      6,
+      6
+    ],
+    "electronic_type": "auto",
+    "degauss": 0.001,
+    "conv_thr": 1e-08,
+    "electron_maxstep": 200,
+    "namelists": {
+      "electrons": {
+        "mixing_beta": 0.3,
+        "diago_full_acc": true
+      }
+    }
+  },
+  "source_sha256": "3ba0e3f14c625e72d828faa1fdc25c123a13936bd446c1d4de500db4e9d65006",
+  "requires_restart": false,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "pseudopotentials": {
+    "Ni": {
+      "filename": "ni_pbe_v1.4.uspp.F.UPF",
+      "sha256": "f76b86ce60cde3d83dfcc8df79ba05478db573d158289f1b226919442d977d25",
+      "ecutwfc": 45.0,
+      "ecutrho": 360.0,
+      "element": "Ni",
+      "functional": "SLA  PW   PBX  PBC    PBE  Exchange-Correlation functional",
+      "relativistic": "scalar",
+      "fully_relativistic": false
+    },
+    "O": {
+      "filename": "O.pbe-n-kjpaw_psl.0.1.UPF",
+      "sha256": "7c4b6ed541f83d0afdf5c1d3a8c611340f073f3e2b11e95b7963bb2ee26929aa",
+      "ecutwfc": 50.0,
+      "ecutrho": 400.0,
+      "element": "O",
+      "functional": "SLA  PW   PBX  PBC",
+      "relativistic": "scalar",
+      "fully_relativistic": false
+    }
+  },
+  "pseudo_files": [
+    "ni_pbe_v1.4.uspp.F.UPF",
+    "O.pbe-n-kjpaw_psl.0.1.UPF"
+  ],
+  "mesh": [
+    6,
+    6,
+    6
+  ],
+  "namelists": {
+    "control": {
+      "calculation": "scf",
+      "prefix": "dft_agent",
+      "outdir": "./scratch",
+      "pseudo_dir": "./pseudo",
+      "tprnfor": true,
+      "tstress": true,
+      "verbosity": "high"
+    },
+    "system": {
+      "ibrav": 0,
+      "nat": 4,
+      "ntyp": 3,
+      "ecutwfc": 60.0,
+      "ecutrho": 480.0,
+      "input_dft": "PBE",
+      "nspin": 2,
+      "starting_magnetization(1)": 0.5,
+      "starting_magnetization(2)": -0.5,
+      "occupations": "smearing",
+      "smearing": "gaussian",
+      "degauss": 0.001
+    },
+    "electrons": {
+      "conv_thr": 1e-08,
+      "electron_maxstep": 200,
+      "mixing_beta": 0.3,
+      "diago_full_acc": true
+    }
+  },
+  "site_labels": [
+    "Ni1",
+    "Ni2",
+    "O",
+    "O"
+  ],
+  "species": {
+    "Ni1": "Ni",
+    "Ni2": "Ni",
+    "O": "O"
+  },
+  "energy_input_unit": "Ry",
+  "force_input_unit": "Ry/bohr",
+  "hubbard_unit": "eV",
+  "executable": "pw.x",
+  "input_file": "pw.in",
+  "output_file": "pw.out",
+  "input_files": [
+    "pw.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pw.out"
+  ],
+  "input_sha256": {
+    "pw.in": "48869110b6518d70410bcfb47fc3b53dfbe18ef970a4cc5d004e1734dd980527",
+    "structure.cif": "e2dca2674049de45fc504cd11dcfe4af560877760ecd38cb357391bafe3b1ea2"
+  }
+}

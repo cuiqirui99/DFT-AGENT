@@ -1,0 +1,6 @@
+&DOS
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  fildos = 'dos.dat',
+  deltae = 0.01,
+/

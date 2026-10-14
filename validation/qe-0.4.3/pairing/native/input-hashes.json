@@ -1,0 +1,15 @@
+{
+  "job.sh": "06b7fdd29403108b6be384519d406ab8a11e8bee30dd6cb8216792a304cddb9c",
+  "qe_pairing.py": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214",
+  "run-checks.py": "02a6e9478482129eaa32c29a66dad2610b3e0c089027c87d3064bc6bdc9dc7d2",
+  "square-32-100/hamiltonian_hr.dat": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "square-32-100/request.json": "1bf009da8446efa4ceb224c9110cd026380776db15a1cc2336c70d787a5f1d10",
+  "square-32-150/hamiltonian_hr.dat": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "square-32-150/request.json": "7b2ed564e46490170e4b0a82dd926c0f2b77405617a2b1d1643792bdb8826347",
+  "square-4-100/hamiltonian_hr.dat": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "square-4-100/request.json": "13d2c26b9da73d2e27c84d1b145204c981f90d11e703aaa3ad807bea82bc337a",
+  "square-40-150/hamiltonian_hr.dat": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "square-40-150/request.json": "5ba643e10f523d146c315f4002a29941f6415a6b5a86d768d069463b16db7295",
+  "square-direct-check/hamiltonian_hr.dat": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "square-direct-check/request.json": "55aa2ff713932db06023e205e418c6e3c806fe9d600ba741dcd4b8f2d82073d4"
+}
