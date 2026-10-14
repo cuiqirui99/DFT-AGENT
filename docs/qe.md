@@ -20,6 +20,10 @@ module load qe/7.4.1-oneAPI.2022.1
 
 The site binaries are in `/public1/soft/qe/7.4.1/bin`. Use your own cluster account and folders.
 
+Set **Launch command** to `mpirun -np 8 pw.x` and **MPI tasks** to `8`.
+If you change the task count, change both values together. This launcher was
+tested on Paracloud; `srun pw.x` failed there because of the site's PMI2 setup.
+
 ## Install
 
 The managed installer builds QE 7.4.1 in your cluster storage. It downloads the official source and pinned dependencies, checks their hashes, then submits a Slurm build job. Compute nodes do not need Internet access. Existing installations are kept. Select **Include EPW** to also build EPW 5.9 and Wannier90.

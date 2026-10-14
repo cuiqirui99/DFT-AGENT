@@ -168,15 +168,14 @@ The sidebar shows a note when a newer release exists. Upgrade with
 For a cloned install, activate its environment and run:
 
 ```bash
-git pull --ff-only
+git fetch --tags
+git switch --detach v0.4.2
 python -m pip install '.[agent]'
 ```
 
-This updates the checked-out branch. New features reach `main` after review;
-a new release then provides versioned installation files on
-[GitHub](https://github.com/cuiqirui99/dft-agent/releases).
-`main` is the maintained version; temporary development branches are removed
-after merging. Release tags identify earlier versions without extra branches.
+Replace `v0.4.2` with the published version you want from
+[GitHub Releases](https://github.com/cuiqirui99/dft-agent/releases).
+These commands also work when the original installation used a release tag.
 If you installed a release wheel, download the new wheel and install it in the
 same environment with `python -m pip install --upgrade 'PATH_TO_WHEEL[agent]'`.
 Updating does not restart saved calculations.

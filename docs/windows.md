@@ -9,13 +9,14 @@ installation are not required.
 1. Download and open the Windows installer from [v0.4.2](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.2).
 2. Launch **DFT Agent** from the Start menu.
 3. Under **Cluster setup**, enter the cluster's full login hostname, username
-   and SSH port, then the Slurm and VASP settings supplied by your institution.
+   and SSH port, then the Slurm settings and solver paths supplied by your institution.
 4. Use your SSH key/agent, or enter the SSH password in the app. Click **Check
    cluster connection** before submitting a calculation.
 
-Your cluster still needs Linux, Slurm, Python 3, VASP, your licensed POTCAR
-files, and an enabled SFTP subsystem. The Windows app connects directly to
-that cluster. Local file paths use Windows locations; cluster paths continue
+Your cluster needs Linux, Slurm, Python 3 and an enabled SFTP subsystem.
+VASP also needs a license and your own POTCAR library. For Quantum ESPRESSO,
+use the [0.4.3 preview setup](qe.md); it does not require a VASP license.
+The Windows app connects directly to that cluster. Local file paths use Windows locations; cluster paths continue
 to use absolute Linux paths, such as `/scratch/your-user/dft-agent`.
 
 ## Authentication and host keys

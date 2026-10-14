@@ -376,12 +376,14 @@ def test_native_multismearing_spectrum_integrals(tmp_path):
     with pytest.raises(ValueError,match='integrals'):epw.read_spectrum(path)
 
 
-def wannier_spectrum_fixture(tmp_path, source):
+def wannier_spectrum_fixture(tmp_path, source, **settings_updates):
     """Flat synthetic spectrum evidence, deliberately without a g-matrix checkpoint."""
     from vasp_slurm_agent import qe_wannier
     from test_qe_wannier import settings
     folder = tmp_path / 'wannier-spectrum'
-    qe_wannier.prepare_inputs(source / 'Al.cif', folder, 'epw_interpolate', settings(spectral_points=10))
+    recipe = settings(spectral_points=10)
+    recipe.update(settings_updates)
+    qe_wannier.prepare_inputs(source / 'Al.cif', folder, 'epw_interpolate', recipe)
     schema = (source / 'schema.xml').read_text().replace('<input>', '<input><control_variables><calculation>nscf</calculation></control_variables>')
     schema = schema.replace('<convergence_achieved>true', '<convergence_achieved>false')
     (folder / 'data-file-schema.xml').write_text(schema)
@@ -399,6 +401,25 @@ def wannier_spectrum_fixture(tmp_path, source):
     wout += ''.join(f'WF centre and spread {i} ( 0.0, 0.0, 0.0 ) 1.0\n' for i in range(1, 5))
     (folder / 'dft_agent.wout').write_text(wout + 'All done: wannier90 exiting\n')
     return folder
+
+
+@pytest.mark.parametrize('functional', ['LDA', 'PBE'])
+def test_anisotropic_handoff_keeps_verified_source_functional(tmp_path, source, functional):
+    from vasp_slurm_agent import qe_wannier
+    evidence = wannier_spectrum_fixture(tmp_path, source, functional=functional,
+        wannier_mesh=[1, 1, 1], qmesh=[1, 1, 1], fine_kmesh=[1, 1, 1], fine_qmesh=[1, 1, 1])
+    checkpoint_fixture(evidence)
+    accepted = qe_wannier.analyze_outputs(evidence, 'epw_interpolate')
+    assert accepted['success'], accepted
+    p = parameters(temperatures=[15])
+    p.pop('broadening_index')
+    meta = epw.prepare_inputs(source / 'Al.cif', tmp_path / 'gap', 'epw_aniso', p, evidence_dir=evidence)
+    assert meta['namelists']['system']['input_dft'] == functional
+    effective = {**p, 'namelists': meta['namelists']}
+    qe.validate_compatibility('epw_aniso', effective, {'Al': {'functional': functional}}, verified=True)
+    other = 'PBE' if functional == 'LDA' else 'LDA'
+    with pytest.raises(ValueError, match='compatible'):
+        qe.validate_compatibility('epw_aniso', effective, {'Al': {'functional': other}}, verified=True)
 
 
 @pytest.mark.parametrize('task', ['epw_iso', 'epw_tc'])

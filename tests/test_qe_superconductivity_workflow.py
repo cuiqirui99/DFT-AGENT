@@ -95,3 +95,23 @@ def test_fresh_wannier_chain_freezes_both_checkpoint_dependencies(tmp_path, setu
     assert all(stage['job_id'] is None for stage in state['stages'])
     nscf = (root / '03_wannier_nscf/inputs/pw.in').read_text()
     assert 'K_POINTS crystal\n27\n' in nscf
+
+
+@pytest.mark.parametrize('submitted', [False, True])
+def test_resume_refreshes_only_unsubmitted_unstaged_inputs(tmp_path, setup, submitted):
+    from copy import deepcopy
+    source, config = setup
+    root = tmp_path / 'resume'
+    state = workflow.prepare_plan(source, root, config, ['scf'])
+    stage = state['stages'][0]
+    before = deepcopy(stage['metadata'])
+    frozen_plan = (root / 'plan.json').read_bytes()
+    stage.update(status='submitting', staged=submitted, job_id='8001' if submitted else None)
+    state.update(status='needs_attention', last_error='Preparation failed')
+    workflow._save(root, state)
+    resumed = workflow.resume(root)
+    assert resumed['status'] == ('queued' if submitted else 'planned')
+    assert resumed['stages'][0]['materialized'] is submitted
+    assert resumed['stages'][0]['metadata'] == before
+    assert resumed['stages'][0]['job_id'] == ('8001' if submitted else None)
+    assert (root / 'plan.json').read_bytes() == frozen_plan

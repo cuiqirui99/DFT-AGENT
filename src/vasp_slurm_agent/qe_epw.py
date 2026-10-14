@@ -452,6 +452,8 @@ def _prepare_aniso(structure_path, destination, parameters, *, evidence_dir=None
             shutil.copyfile(evidence / original, folder / name)
             meta["input_files"].append(name)
         settings = source["parameters"]
+        # The inherited UPFs belong to the verified electronic calculation.
+        meta["namelists"] = {"system": {"input_dft": settings["functional"]}}
         native_options = {"prefix": qe.PREFIX, "outdir": "./scratch", "ep_coupling": False, "elph": False, "epwread": True, "wannierize": False, "eliashberg": True, "laniso": True, "liso": False, "limag": True, "lpade": False, "lacon": False, "lreal": False, "fbw": False, "gridsamp": 0, "mp_mesh_k": True, "positive_matsu": True, "nqstep": settings["spectral_points"], "degaussq": settings["ph_smearing_mev"], "eps_acoustic": settings["acoustic_cutoff_cm1"], "muc": p["mu_star"], "wscut": p["frequency_cutoff_ev"], "nsiter": p["iterations"], "conv_thr_iaxis": p["convergence"], "broyden_beta": p["mixing"], "nstemp": len(p["temperatures"])}
         native_options.update({f"temps({i})": t for i, t in enumerate(p["temperatures"], 1)})
         for kind, key in (("nkf", "fine_kmesh"), ("nqf", "fine_qmesh")):

@@ -948,6 +948,8 @@ def resume(run_dir, transport=None):
                     raise ValueError("Invalid reconciled job identity.")
                 stage["job_id"] = str(receipt["job_id"])
             status = "queued" if stage.get("job_id") else "cancelled" if state.get("cancel_requested") else "planned"
+            if status == "planned" and not stage.get("staged"):
+                stage["materialized"] = False
             stage["status"] = state["status"] = status
             state.update(last_error=None, remote_failures=0)
             return _save(root, state, "Resumed the original QE run.")
