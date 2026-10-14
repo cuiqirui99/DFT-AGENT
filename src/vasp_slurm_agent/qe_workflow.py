@@ -791,23 +791,59 @@ def _remote_files(transport, remote):
 def _collect(root, state, transport, stage):
     remote = state["remote_root"] + "/" + stage["folder"]
     output = root / stage["folder"] / "outputs"
-    output.mkdir(exist_ok=True)
     allowed = {*RECEIPTS, *stage["metadata"]["input_sha256"],
                stage["metadata"]["output_file"], *stage["metadata"].get("output_files", [])}
     names = [name for name in _remote_files(transport, remote) if name in allowed or _RESULT_NAME.fullmatch(name) or _EPW_RESULT_NAME.fullmatch(name)]
-    manifest = transport.download_many(remote, output, names, permitted_names=frozenset(names))
-    _write(output / "artifact_manifest.json", manifest)
-    shutil.copyfile(root / stage["folder"] / "inputs" / "metadata.json", output / "metadata.json")
+    with tempfile.TemporaryDirectory(prefix=".qe-collect-", dir=output.parent) as directory:
+        collected = Path(directory) / "outputs"
+        collected.mkdir()
+        manifest = transport.download_many(remote, collected, names, permitted_names=frozenset(names))
+        if not isinstance(manifest, dict) or set(manifest) != set(names):
+            raise ValueError("The collection receipt does not match the downloaded files.")
+        for name, receipt in manifest.items():
+            path = collected / name
+            if (not _artifact_name(name) or path.is_symlink()
+                    or not path.resolve().is_relative_to(collected.resolve()) or not path.is_file()
+                    or not isinstance(receipt, dict) or type(receipt.get("size")) is not int
+                    or path.stat().st_size != receipt["size"] or _digest(path) != receipt.get("sha256")):
+                raise ValueError("A downloaded file does not match its collection receipt.")
+        _write(collected / "artifact_manifest.json", manifest)
+        shutil.copyfile(root / stage["folder"] / "inputs" / "metadata.json", collected / "metadata.json")
+        result = _analyze_collection(root, stage, collected, manifest)
+        _write(collected / "result.json", result)
+        previous = Path(directory) / "previous"
+        if output.exists():
+            os.replace(output, previous)
+        try:
+            os.replace(collected, output)
+        except OSError:
+            if previous.exists():
+                os.replace(previous, output)
+            raise
+    stage.update(result=result, status="succeeded" if result["success"] else "needs_attention")
+    if result["success"] and not state["cancel_requested"] and state["current_stage"] + 1 < len(state["stages"]):
+        state["current_stage"] += 1
+        state["status"] = "planned"
+    else:
+        state["status"] = "cancelled" if state["cancel_requested"] else stage["status"]
+    return _save(root, state, f"Collected QE {stage['name']}: {stage['status']}")
+
+
+def _analyze_collection(root, stage, output, manifest):
     result = _science(stage["name"]).analyze_outputs(output, stage["name"], root / stage["folder"] / "inputs" / "structure.cif")
     reasons = [] if result.get("success") else [result.get("reason") or "QE output was not accepted."]
+    expected = stage["metadata"]["input_sha256"]
+    required = {*expected, "input_hashes.sha256", "execution.json", "runtime.json",
+                "pseudo_manifest.json", stage["metadata"]["output_file"]}
+    if not required <= set(manifest):
+        reasons.append("Required collection files are missing: " + ", ".join(sorted(required - set(manifest))) + ".")
     recorded = {}
     if (output / "input_hashes.sha256").is_file():
         for line in (output / "input_hashes.sha256").read_text().splitlines():
             fields = line.split()
             if len(fields) == 2:
                 recorded[fields[1]] = fields[0]
-    expected = stage["metadata"]["input_sha256"]
-    identity = recorded == expected and all((output / name).is_file() and _digest(output / name) == digest for name, digest in expected.items())
+    identity = recorded == expected and set(expected) <= set(manifest) and all((output / name).is_file() and _digest(output / name) == digest for name, digest in expected.items())
     result["input_identity_verified"] = identity
     if not identity:
         reasons.append("Input checksums do not match the approved inputs.")
@@ -815,6 +851,8 @@ def _collect(root, state, transport, stage):
     receipt_ok = (execution.get("job_id") == stage["job_id"]
                   and type(execution.get("exit_code")) is int
                   and execution.get("runtime_sha256") == stage.get("runtime_sha256")
+                  and "runtime.json" in manifest
+                  and _digest(output / "runtime.json") == stage.get("runtime_sha256")
                   and bool(execution.get("finished_at")))
     executed = receipt_ok and execution["exit_code"] == 0
     result["execution_verified"] = executed
@@ -838,14 +876,7 @@ def _collect(root, state, transport, stage):
             result["final_structure_sha256"] = _digest(output / "final.cif")
         if (output / "CONTCAR").is_file():
             result["final_native_structure_sha256"] = _digest(output / "CONTCAR")
-    _write(output / "result.json", result)
-    stage.update(result=result, status="succeeded" if result["success"] else "needs_attention")
-    if result["success"] and not state["cancel_requested"] and state["current_stage"] + 1 < len(state["stages"]):
-        state["current_stage"] += 1
-        state["status"] = "planned"
-    else:
-        state["status"] = "cancelled" if state["cancel_requested"] else stage["status"]
-    return _save(root, state, f"Collected QE {stage['name']}: {stage['status']}")
+    return result
 
 
 def advance(run_dir, transport=None):

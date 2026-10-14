@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import uuid
 
 from .config import ClusterConfig
 from . import qe_context, qe_workflow
@@ -518,6 +519,72 @@ def _longer_walltime(value):
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
+def _repair_frozen_epw(root, prepared, state, index, config):
+    """Retry frozen EPW stages without rebuilding their source calculations."""
+    original = _read(root / "plan.json")
+    specs = deepcopy(original["stages"][index:])
+    if any(spec["name"] not in {"epw_iso", "epw_tc", "epw_aniso"}
+           or not spec.get("source_evidence")
+           or any(spec.get(key) is not None for key in ("restart_from", "structure_from", "evidence_from", "auxiliary_from"))
+           for spec in specs):
+        raise ValueError("This repair requires independent EPW stages with frozen source evidence.")
+    prepared.mkdir()
+    for name, digest in original["sources"].items():
+        source, destination = root / name, prepared / name
+        if (source.is_symlink() or not source.resolve().is_relative_to(root)
+                or not destination.resolve().is_relative_to(prepared) or not source.is_file()
+                or qe_workflow._digest(source) != digest):
+            raise ValueError("The frozen EPW source changed or is missing.")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, destination)
+    run_id = "qe-" + uuid.uuid4().hex[:16]
+    stages = []
+    for position, spec in enumerate(specs):
+        spec["request_index"] = position
+        stages.append({**deepcopy(spec), "job_name": f"{run_id}-{position + 1:02d}-{spec['name']}",
+            "job_id": None, "status": "planned", "metadata": {}, "staged": False,
+            "materialized": False, "result": None})
+    tasks = [spec["name"] for spec in specs]
+    plan = {**deepcopy(original), "tasks": tasks, "stages": specs,
+            "stage_parameters": [deepcopy(spec["parameters"]) for spec in specs]}
+    qe_workflow._write(prepared / "plan.json", plan)
+    config.save(prepared / "config.json")
+    new_state = {"schema_version": 2, "engine": "qe", "run_id": run_id,
+        "task": tasks[0] if len(tasks) == 1 else "pipeline", "tasks": tasks,
+        "parameters": deepcopy(plan["parameters"]), "formula": state["formula"],
+        "status": "planned", "current_stage": 0, "stages": stages, "history": [],
+        "created_at": qe_workflow.utc_now(), "last_error": None, "cancel_requested": False,
+        "plan_sha256": qe_workflow._digest(prepared / "plan.json"),
+        "config_sha256": qe_workflow._digest(prepared / "config.json"),
+        "remote_root": config.remote_root.rstrip("/") + "/" + run_id}
+    for old_stage, stage in zip(state["stages"][index:], stages):
+        qe_workflow._materialize(prepared, new_state, config, stage)
+        if stage["metadata"]["input_sha256"] != old_stage["metadata"]["input_sha256"]:
+            raise ValueError("Repaired EPW inputs differ from the frozen calculation.")
+        external = stage.get("external_checkpoint")
+        if stage["name"] == "epw_aniso" and not external:
+            raise ValueError("The anisotropic EPW source checkpoint is missing.")
+        if external:
+            proof_path = prepared / external["receipt"]
+            if (not proof_path.resolve().is_relative_to(prepared)
+                    or qe_workflow._digest(proof_path) != external["receipt_sha256"]):
+                raise ValueError("The frozen EPW checkpoint receipt changed.")
+            proof = _read(proof_path)
+            if proof["cluster"] != {key: getattr(config, key) for key in _CLUSTER_KEYS}:
+                raise ValueError("The EPW checkpoint must use its original cluster and executable.")
+            qe_workflow._validate_checkpoint(proof["checkpoint"], stage["name"])
+            evidence = prepared / stage["source_evidence"]
+            hashes = {**stage["metadata"]["checkpoint_sha256"],
+                      "dft_agent.a2f": qe_workflow._digest(evidence / "dft_agent.a2f")}
+            if any(proof["checkpoint"].get(name) != {"sha256": digest, "size": (evidence / name).stat().st_size}
+                   for name, digest in hashes.items()):
+                raise ValueError("The EPW checkpoint differs from its frozen native evidence.")
+    qe_workflow._write(prepared / "parent.json", {
+        "schema_version": 1, "engine": "qe", "source_run_id": state["run_id"],
+        "source_stage": state["stages"][index]["folder"], "frozen_epw_source_reused": True})
+    return qe_workflow._save(prepared, new_state, "Frozen EPW inputs prepared with a longer time limit.")
+
+
 def prepare_repair(source_run, run_dir, action, expected_snapshot_sha256):
     """Apply one reviewed numerical repair; preserve the original job."""
     options = repair_options(source_run)
@@ -570,7 +637,9 @@ def prepare_repair(source_run, run_dir, action, expected_snapshot_sha256):
         prepared = Path(directory) / "run"
         seed = next((position for position in range(index - 1, -1, -1)
                      if state["stages"][position]["name"] in {"scf", "relax", "vc-relax"}), None)
-        if seed is not None:
+        if action == "increase_walltime" and failed.get("source_evidence") and failed["name"].startswith("epw_"):
+            new_state = _repair_frozen_epw(root, prepared, state, index, config)
+        elif seed is not None:
             new_state = prepare_continuation(root, seed, prepared, config, tasks, parameters=recipes[0], stage_parameters=recipes)
         else:
             new_state = qe_workflow.prepare_plan(root / failed["source_path"], prepared, config, tasks, recipes[0], stage_parameters=recipes)
