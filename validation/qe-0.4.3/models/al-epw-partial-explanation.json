@@ -1,0 +1,37 @@
+{
+  "limits": [
+    "This coarse q-sum model bracket is not a converged material Tc; convergence with respect to grids and frequency cutoff remains unestablished."
+  ],
+  "evidence": [
+    "stage_1.accepted",
+    "stage_1.pairing_model",
+    "stage_1.tc_bracket_kelvin",
+    "stage_1.tc_bracketed",
+    "stage_2.accepted",
+    "stage_2.failure_reason"
+  ],
+  "answer": "The accepted epw_tc calculation gives a linearized Tc bracket of 3–4 K for the isotropic Migdal–Eliashberg model. The epw_iso calculation failed or remained unconverged, so no accepted nonlinear gap is available.",
+  "next_steps": [],
+  "context_sha256": "7bc3bcf19afd091cc77a3168b893de5579bba0a8c22444fb4373fe076010b20e",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 15469,
+    "output_tokens": 160,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 0,
+    "total_tokens": 15629,
+    "token_counts_source": "provider",
+    "call_id": "f3db60c3006147fd90f104d3938e5ef0",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 10.539523,
+    "input_characters": 9228,
+    "instruction_characters": 1499,
+    "schema_characters": 305,
+    "output_characters": 1147,
+    "max_output_tokens": null
+  }
+}

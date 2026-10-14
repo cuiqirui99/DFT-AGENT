@@ -1,0 +1,105 @@
+{
+  "job_id": "7495154",
+  "failed_cases_native": 0,
+  "records": [
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "task": "epw_aniso",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "eliashberg_anisotropic_states.csv",
+        "eliashberg_gap.csv",
+        "MgB2.imag_aniso_015.00"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "anisotropic phonon Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "temperature_results": [
+        {
+          "temperature_kelvin": 15.0,
+          "gap_iw0_mev": 8.091098992048117,
+          "gap_min_iw0_mev": 2.4438421139,
+          "gap_max_iw0_mev": 14.625732608,
+          "renormalization_iw0": 1.8210571825060835,
+          "residual": 8.115269e-07,
+          "iterations": 82,
+          "states": 140,
+          "file": "MgB2.imag_aniso_015.00"
+        }
+      ],
+      "source_provenance": {
+        "kind": "pinned_native_regression_continuation",
+        "source_job": "7495057",
+        "scientific_accuracy_validated": false
+      },
+      "fine_kmesh": [
+        6,
+        6,
+        6
+      ],
+      "fine_qmesh": [
+        6,
+        6,
+        6
+      ],
+      "case": "cutoff-0.5",
+      "native_exit_code": 0
+    },
+    {
+      "schema_version": 1,
+      "engine": "qe",
+      "task": "epw_aniso",
+      "success": true,
+      "artifacts": [
+        "epw.out",
+        "eliashberg_anisotropic_states.csv",
+        "eliashberg_gap.csv",
+        "MgB2.imag_aniso_015.00"
+      ],
+      "warnings": [],
+      "scientific_accuracy_validated": false,
+      "superconductivity_established": false,
+      "pairing_model": "anisotropic phonon Migdal-Eliashberg with constant Coulomb pseudopotential",
+      "temperature_results": [
+        {
+          "temperature_kelvin": 15.0,
+          "gap_iw0_mev": 8.246033487778814,
+          "gap_min_iw0_mev": 2.6337974999,
+          "gap_max_iw0_mev": 14.777519459,
+          "renormalization_iw0": 1.832573420163293,
+          "residual": 4.993106e-07,
+          "iterations": 90,
+          "states": 140,
+          "file": "MgB2.imag_aniso_015.00"
+        }
+      ],
+      "source_provenance": {
+        "kind": "pinned_native_regression_continuation",
+        "source_job": "7495057",
+        "scientific_accuracy_validated": false
+      },
+      "fine_kmesh": [
+        6,
+        6,
+        6
+      ],
+      "fine_qmesh": [
+        6,
+        6,
+        6
+      ],
+      "case": "cutoff-1",
+      "native_exit_code": 0
+    }
+  ],
+  "slurm_accounting": [
+    "7495154|COMPLETED|0:0|00:14:45|64",
+    "7495154.batch|COMPLETED|0:0|00:14:45|64",
+    "7495154.extern|COMPLETED|0:0|00:14:45|64",
+    "7495154.0|COMPLETED|0:0|00:03:56|64",
+    "7495154.1|COMPLETED|0:0|00:10:49|64"
+  ]
+}

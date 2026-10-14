@@ -1,0 +1,57 @@
+{
+  "scope": "Exact-source native EPW execution parity with application job 7495351; not material convergence or upstream-recipe agreement.",
+  "frozen_at": "2026-10-14T15:43:06Z",
+  "application_job": "7495351",
+  "application_context_sha256": "71399f7084d08f99aaaed4b6a7ef2c623727a2401aa143cf79b37a24c71f086e",
+  "remote_source": "[private location omitted]",
+  "remote_control": "[private location omitted]",
+  "binary": "[private location omitted]",
+  "binary_sha256": "b79af121ba0c9a4bacc859b0b09d83f2464bd1b261d4ad0204f97913cd8323f9",
+  "mpi_ranks": 1,
+  "pools": 1,
+  "parameters": {
+    "temperatures": [
+      15.0
+    ],
+    "mu_star": 0.16,
+    "frequency_cutoff_ev": 0.5,
+    "iterations": 1000,
+    "convergence": 1e-06,
+    "mixing": 0.3
+  },
+  "input_sha256": {
+    "epw.in": "099b26a9f53b4fec5499065c0b2afc07576d5069a163894752e93f99644fc407",
+    "structure.cif": "c35a36005bd9af4bdf4616f56dc522eb7c040a4c91280c919737edf1c42a8d12",
+    "source-schema.xml": "6ea8eb69a26b5266f63bf49f228305df34af9570ec5f6c08a483b7ca1c4d90d8",
+    "source-epw.in": "25fa47f8aeaa8843b64d1ae0bdc1e10f8bc7534ab1f1ef6e1d5359ee10faf945",
+    "source-epw.out": "435fff3d38af7d865bdbebe6b005ec1298ab10e8caef84c72d588283e434cd16",
+    "scratch/dft_agent.ephmat/freq": "ad9db8445748ec0ec674721fa7b8c3063a999207b10017f5f55e44762b170604",
+    "scratch/dft_agent.ephmat/egnv": "b8d8c70333ed223da7ec50f49803f59cffe204d7685dacf660373c86af9534cf",
+    "scratch/dft_agent.ephmat/ikmap": "181be876984d6dad1940290d187debe42bc46eeea4ab210b06e53d9efabc58ed",
+    "scratch/dft_agent.ephmat/npool": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+    "crystal.fmt": "8c541c58413744d979515de9b0e686c83347eb618a47e35ebcfd8cbe74c42a29",
+    "selecq.fmt": "0a1f57f001e9537172544ff33489cb2b1a48df3296cb5b0dd59920975bed8bd5",
+    "scratch/dft_agent.ephmat/ephmat1": "7e8ef25c2b7b010b533f012650dc5c87f8463820d09f02b46f7cb191af9e9a21",
+    "qe-input.json": "4b24239dbc26f5c63d35161b86483596276109ec79d10785c4dfd567dba29abe",
+    "dft_agent.a2f": "706fbd4bb9d46ec62c06bb2ad15ed1a8355c32afbd0053f9b0e1d119d58694ac"
+  },
+  "application_output_sha256": {
+    "epw.out": "18171b30d182a862abaf05be776d6e31c93ab25f5e4ed792c825218e5ed1e021",
+    "dft_agent.imag_aniso_015.00": "c4b2478f3b79b49d7a5ebb7feaa5d0e9c67eb8cc52a135565e75af4d0bf9068a",
+    "eliashberg_anisotropic_states.csv": "8ce0877b269b3b4456ec697eeb371af2c8d5bb7e7f116cf6feb22f12c1b0bb81",
+    "eliashberg_gap.csv": "36394ca3726d8ef4eae5c4dbbdaaa186236d1eac0050f9b5db9d694bca6f9829",
+    "result.json": "6b78c5fd4f08d2de42a8eb5dfacf4050811882784bf181cabd3a644a40fa90d8",
+    "execution.json": "06189db7e7c0706e967929055424c848574d14075472a4cf7eb1b507f4f81c41",
+    "artifact_manifest.json": "dc777a94b27a61f76d1aba69c656332fa3969701c1df14f1896d3a95095d50e6"
+  },
+  "table_rtol": 1e-08,
+  "table_atol": 1e-10,
+  "aggregate_rtol": 1e-08,
+  "aggregate_atol": 1e-08,
+  "require_exact_state_weights": true,
+  "require_exact_iterations_and_printed_residual": true,
+  "require_native_success_and_completed_zero_exit": true,
+  "script_sha256": "81578eebc0d0b34d2016b83d6ce5a81b3ccc19e7f3e1a2101a1266f9ceb0b214",
+  "material_prediction_accepted": false,
+  "original_cross_recipe_comparison_retained": "mgb2-scientific-acceptance.json"
+}

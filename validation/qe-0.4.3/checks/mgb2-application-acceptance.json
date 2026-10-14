@@ -1,0 +1,27 @@
+{
+  "accepted": true,
+  "native_jobs": [
+    "7495161",
+    "7495256",
+    "7495293",
+    "7495295",
+    "7495351",
+    "7495363",
+    "7495376"
+  ],
+  "bundles": [
+    {
+      "run": "mgb2-agent-01",
+      "bytes": 19169909,
+      "sha256": "3b957405e3f453509095e6a92bfb2e8e8c24a79f622ff3ffa12842acd53a8ab1",
+      "files": 148
+    },
+    {
+      "run": "mgb2-scalar-agent-01",
+      "bytes": 468225,
+      "sha256": "87f04fdda4a5faf4a22a10cc58257897e146afa18a7702eb20f17a331fe2bc50",
+      "files": 84
+    }
+  ],
+  "scope": "Fresh LDA MgB2 reference chain and scalar/anisotropic Eliashberg models; material convergence is not established."
+}

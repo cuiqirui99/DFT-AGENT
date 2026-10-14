@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "formula": "Al",
+  "number_of_atoms": 1,
+  "source_sha256": "e89b47101a8f7bda5cecde6defd9ecfa8af21c6064e0a7d8d8723ad37609be8b",
+  "pseudo_files": [],
+  "phonon_grid": [
+    6,
+    6,
+    6
+  ],
+  "task": "eph_ph",
+  "canonical_task": "eph_ph",
+  "parameters": {
+    "mesh": [
+      12,
+      12,
+      12
+    ],
+    "dense_mesh": [
+      24,
+      24,
+      24
+    ],
+    "qmesh": [
+      6,
+      6,
+      6
+    ],
+    "phonon_dos_mesh": [
+      30,
+      30,
+      30
+    ],
+    "mu_star": 0.1,
+    "electronic_type": "metal",
+    "degauss": 0.02,
+    "conv_thr": 1e-10,
+    "tr2_ph": 1e-14,
+    "el_ph_sigma": 0.005,
+    "el_ph_nsigma": 10,
+    "phonon_smearing_thz": 0.12,
+    "asr": "simple",
+    "phonon_dos_points": 2001,
+    "namelists": {
+      "control": {},
+      "system": {},
+      "electrons": {}
+    }
+  },
+  "executable": "ph.x",
+  "input_file": "ph.in",
+  "output_file": "ph.out",
+  "input_files": [
+    "ph.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "ph.out"
+  ],
+  "requires_restart": true,
+  "scientific_accuracy_validated": false,
+  "sources": [
+    "https://github.com/QEF/q-e/blob/qe-7.4.1/PHonon/PH/lambda.f90",
+    "https://github.com/QEF/q-e/tree/qe-7.4.1/PHonon/examples/example03"
+  ],
+  "input_sha256": {
+    "ph.in": "1f36d0107cb23debfacc1c151de5cd7d294a1509c2ceb42be2c790dc704a0560",
+    "structure.cif": "0a53bbc520f38eb87a27a5096adff7f484978730409aac4834b5a71578bd99b0"
+  }
+}

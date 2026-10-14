@@ -1,0 +1,70 @@
+{
+  "status": "ready",
+  "kind": "qe_next_action",
+  "action": "continue",
+  "summary": "Create a separate epw_iso continuation from the accepted spectrum to obtain the requested four imaginary-axis gap tables, preserving the previous failed run.",
+  "questions": [],
+  "limits": [
+    "Accept each gap table only after verifying nonlinear convergence and finite values; no new gap results are available yet.",
+    "Preserve the reported previous failure and exclude 4/5 K gap values. The reported independent epw_tc bracket and previous nonlinear outcomes are not independently documented in context.facts.",
+    "This model test does not establish material-converged Tc or convergence with respect to meshes, spectral broadening or Matsubara cutoff. Execution requires EPW installed on the cluster."
+  ],
+  "continuation": {
+    "source_stage": 0,
+    "intent": {
+      "requested_tasks": [
+        "epw_iso"
+      ],
+      "forbidden_tasks": [
+        "scf",
+        "phonon",
+        "electron_phonon"
+      ],
+      "unsupported": []
+    },
+    "stages": [
+      {
+        "task": "epw_iso",
+        "parameters_json": "{\"temperatures\":[0.5,1,2,3],\"mu_star\":0.1,\"frequency_cutoff_ev\":0.2,\"broadening_index\":2,\"convergence\":1e-6,\"iterations\":500,\"mixing\":0.2}",
+        "requirements": {
+          "spin": null,
+          "soc": null,
+          "functional": null,
+          "hubbard_u": null,
+          "cell_relax": null
+        }
+      }
+    ]
+  },
+  "evidence": [
+    "stage_1.accepted",
+    "stage_1.task",
+    "stage_1.alpha2F.dat",
+    "stage_1.electron_phonon.2.degauss_ry",
+    "stage_1.integration_method"
+  ],
+  "context_sha256": "ebdf658b90c9436c0698fbd28bade34fa1eed747cc4a236751a57e1e8a2d9355",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 23429,
+    "output_tokens": 334,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 0,
+    "total_tokens": 23763,
+    "token_counts_source": "provider",
+    "call_id": "0237535e922243c9bddbc0fbe524b421",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 13.971714,
+    "input_characters": 22377,
+    "instruction_characters": 8852,
+    "schema_characters": 5679,
+    "output_characters": 1323,
+    "max_output_tokens": null
+  },
+  "requires_review": true,
+  "submits_jobs": false
+}

@@ -1,0 +1,18 @@
+{
+  "Mg.pz-n-vbc.UPF": {
+    "sha256": "5357982ec1f8139c2cde411073103f9b33d5482a45e2401bcf1b8aea228db076",
+    "size": 30214,
+    "element": "Mg",
+    "fully_relativistic": false,
+    "functional": "SLA  PZ   NOGX NOGC   PZ   Exchange-Correlation functional",
+    "pseudo_type": "NC"
+  },
+  "B.pz-vbc.UPF": {
+    "sha256": "eb7aa71704ded328f1c78b2e16b630d14fc97d688b0b23b51a56d541c97e1f31",
+    "size": 22160,
+    "element": "B",
+    "fully_relativistic": false,
+    "functional": "SLA  PZ   NOGX NOGC   PZ   Exchange-Correlation functional",
+    "pseudo_type": "NC"
+  }
+}

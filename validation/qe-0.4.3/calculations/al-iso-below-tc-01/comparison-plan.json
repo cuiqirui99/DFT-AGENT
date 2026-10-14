@@ -1,0 +1,19 @@
+{
+  "source_job": "7495214",
+  "target_job": "7495299",
+  "comparison": "Previously converged four temperatures against the newly requested four-temperature run. The complete earlier six-temperature stage remains failed.",
+  "input_difference": "Only nstemp=6 -> 4 and removal of temps(5)=4K / temps(6)=5K.",
+  "source_input_sha256": "4093bb1da576421e704642bda1f64588d652a47fe1251d30cd5d413e616fbbb1",
+  "target_input_sha256": "3fc0da2b168662a0b8478e39865aa4f1f96333190612fb86870f05ac2a936e14",
+  "source_table_sha256": {
+    "dft_agent.imag_iso_000.50": "d3221c358df288ce8e558eb7bcf59024ff1e052c640751cb8d68c710306b49d6",
+    "dft_agent.imag_iso_001.00": "87c9c4b60e8d69a7abc84e9aecb70e9fd9bc1bd31526a88e4a403d8385db68d5",
+    "dft_agent.imag_iso_002.00": "48c68f3c6d36fc7009a4a25a1443c21715264a98aa7c2ca7144fa5631e21e57d",
+    "dft_agent.imag_iso_003.00": "a308018d466570ac1ef7c71e8dfeb8c5df322536dc4738eb5e5c0a91bf9d2858"
+  },
+  "tolerance": {
+    "rtol": 1e-05,
+    "atol": 1e-08
+  },
+  "must_pass_independent_nonlinear_residual": 1e-05
+}

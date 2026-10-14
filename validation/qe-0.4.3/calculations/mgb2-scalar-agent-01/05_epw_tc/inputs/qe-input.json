@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "canonical_task": "epw_tc",
+  "task": "epw_tc",
+  "executable": "epw.x",
+  "input_file": "epw.in",
+  "output_file": "epw.out",
+  "input_files": [
+    "epw.in",
+    "alpha2f.dat",
+    "source.a2f",
+    "source-schema.xml",
+    "crystal.fmt",
+    "source-epw.in",
+    "source-epw.out",
+    "source-wannier.wout",
+    "structure.cif"
+  ],
+  "output_files": [
+    "epw.out"
+  ],
+  "parameters": {
+    "temperatures": [
+      15.0,
+      30.0,
+      45.0,
+      60.0
+    ],
+    "mu_star": 0.16,
+    "frequency_cutoff_ev": 0.5,
+    "broadening_index": 1,
+    "iterations": 1000,
+    "convergence": 1e-06,
+    "mixing": 0.3
+  },
+  "input_sha256": {
+    "epw.in": "34e20025680adee7543e4a947037a2c624c1ebb68a87f42b53f3bd693febf056",
+    "alpha2f.dat": "0f5456ab5fa8d45be66385036b4020934f23bae2cf663afbe7820a32f8624f25",
+    "source.a2f": "706fbd4bb9d46ec62c06bb2ad15ed1a8355c32afbd0053f9b0e1d119d58694ac",
+    "source-schema.xml": "6ea8eb69a26b5266f63bf49f228305df34af9570ec5f6c08a483b7ca1c4d90d8",
+    "crystal.fmt": "b93ff87b04f845afb621e86f4599720b043af1fa4091726b28c4fba9b0a41f48",
+    "source-epw.in": "25fa47f8aeaa8843b64d1ae0bdc1e10f8bc7534ab1f1ef6e1d5359ee10faf945",
+    "source-epw.out": "435fff3d38af7d865bdbebe6b005ec1298ab10e8caef84c72d588283e434cd16",
+    "source-wannier.wout": "f912321f32f00a09f005acc9d71994aa79e665328b73f8b8bb9c18dd09e7cb31",
+    "structure.cif": "c35a36005bd9af4bdf4616f56dc522eb7c040a4c91280c919737edf1c42a8d12"
+  },
+  "spectrum": {
+    "lambda": 0.8260300188441894,
+    "omega_log_mev": 61.22767946138349,
+    "points": 500,
+    "source_unit": "meV",
+    "source_column": 1,
+    "frequency_rounding_correction": 7.80000135591763e-08,
+    "frequency_precision": 1e-07
+  },
+  "source_provenance": {
+    "kind": "verified_wannier_spectrum",
+    "broadening_index": 1,
+    "phonon_broadening_mev": 0.5,
+    "available_phonon_broadenings_mev": [
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      0.95
+    ],
+    "electronic_broadening_ev": 0.1,
+    "fermi_window_ev": 20.0,
+    "source_input_sha256": "fd38934d58a3786799eb1f592f6e7c6deadd7799c88b84ab15341e3db58775d9",
+    "scientific_accuracy_validated": false
+  },
+  "sources": [
+    "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src"
+  ],
+  "epw_version": "5.9",
+  "no_mpi": false,
+  "requires_restart": false,
+  "pseudo_files": [],
+  "number_of_atoms": 3,
+  "formula": "MgB2",
+  "qe_schema_sha256": "6ea8eb69a26b5266f63bf49f228305df34af9570ec5f6c08a483b7ca1c4d90d8",
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        3.0829997780459,
+        0.0,
+        0.0
+      ],
+      [
+        -1.541499889023,
+        2.6699561276497,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        3.5209997465129996
+      ]
+    ],
+    "elements": [
+      "Mg",
+      "B",
+      "B"
+    ],
+    "fractional_positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.3333333330000001,
+        0.6666666670000002,
+        0.5000000000000001
+      ],
+      [
+        0.6666666670000001,
+        0.33333333300000006,
+        0.5000000000000001
+      ]
+    ]
+  }
+}

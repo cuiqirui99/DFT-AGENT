@@ -1,0 +1,134 @@
+{
+  "qe_version": "7.4.1",
+  "epw_version": "5.9",
+  "installation_job_id": "7494959",
+  "installation_status": "installed",
+  "elapsed_seconds": 371.6373212337494,
+  "doctor_ok": true,
+  "programs": [
+    "pw.x",
+    "bands.x",
+    "dos.x",
+    "projwfc.x",
+    "pp.x",
+    "ph.x",
+    "q2r.x",
+    "matdyn.x",
+    "dynmat.x",
+    "neb.x",
+    "lambda.x",
+    "epw.x",
+    "wannier90.x"
+  ],
+  "executable_sha256": {
+    "pw.x": "e0cc7b188f2bcab8e1c191bdf0ccc4ee422ae11cc9e48bd93aae6cbde8ba22c1",
+    "bands.x": "8e9092b3fcc823a41a95ece7ada4e53df73b03f380a94596f75a3f3bd5773a5f",
+    "dos.x": "3ec2cd34509d09afc5535c807665699f6a267fff47b2ec63a86d2d61e906fee8",
+    "projwfc.x": "d3384a261ecb68bda9b900dafae7528c1b52c1bb9b7fb91ac896d86790a21cd4",
+    "pp.x": "21f225b00a7b670d15aa78cd8b1fe4a797c5dc989e57d87a0d7714ade4161ee5",
+    "ph.x": "f67fa90b1253928434138f76930d77fe33d2bfc2baadb501a918bff0c449014d",
+    "q2r.x": "4170ce07840f1dc07763d1e2f46f9b96dc86f1ef9de54ef0ecdb7c5ca878311c",
+    "matdyn.x": "1ce30e4bc18ee08f6f12981fd4da3a5dcd3fd2d8709f0d992de095e805ad1c62",
+    "dynmat.x": "fe62d9a28ed9c8004b71e9f894835bc2864311e47855254d3315b54f1b466c2d",
+    "neb.x": "03f9bacb004e7ff975f270762dcdb6aeb5458415b187d7d4c21de89090a6ccb8",
+    "lambda.x": "45330b0a9a34a5b49cc4cc1a17b140b458a2da9e59208179aef22319ab575391",
+    "epw.x": "b79af121ba0c9a4bacc859b0b09d83f2464bd1b261d4ad0204f97913cd8323f9",
+    "wannier90.x": "31843a81b971cac06e7a8d5f58899a42c95685c3a91ba914edceba7c51ff4138"
+  },
+  "source_archives": {
+    "qe-7.4.1.tar.gz": {
+      "url": "https://gitlab.com/QEF/q-e/-/archive/qe-7.4.1/q-e-qe-7.4.1.tar.gz",
+      "sha256": "6ef9c53dbf0add2a5bf5ad2a372c0bff935ad56c4472baa001003e4f932cab97"
+    },
+    "devxlib.tar.gz": {
+      "url": "https://gitlab.com/max-centre/components/devicexlib/-/archive/a6b89ef77b1ceda48e967921f1f5488d2df9226d/devicexlib-a6b89ef77b1ceda48e967921f1f5488d2df9226d.tar.gz",
+      "sha256": "39d55ae63168f9692ab649e7cededb3bc181580f450d30d5d4deeb008ea4a29c"
+    },
+    "fox.tar.gz": {
+      "url": "https://codeload.github.com/pietrodelugas/fox/tar.gz/3453648e6837658b747b895bb7bef4b1ed2eac40",
+      "sha256": "107b1d58eb6a0a730c98520a8f99a6459b2a0e06b06f4b037abf358b29d50df1"
+    },
+    "lapack.tar.gz": {
+      "url": "https://codeload.github.com/Reference-LAPACK/lapack/tar.gz/12d825396fcef1e0a1b27be9f119f9e554621e55",
+      "sha256": "2ae8b6eb09e9c1d3b5d66bb778a5a5119af13575bb7fd8016f5cabb319253257"
+    },
+    "mbd.tar.gz": {
+      "url": "https://codeload.github.com/libmbd/libmbd/tar.gz/89a3cc199c0a200c9f0f688c3229ef6b9a8d63bd",
+      "sha256": "956eaa8659a24e59573a64e78372cee9f299b4bf0a89a82f6bf98685034c7736"
+    },
+    "wannier90.tar.gz": {
+      "url": "https://codeload.github.com/wannier-developers/wannier90/tar.gz/1d6b187374a2d50b509e5e79e2cab01a79ff7ce1",
+      "sha256": "bc93ba6774ecc41aa766303747ef355849d63f469c2a437d03acda4e98515725",
+      "source_archive_sha256": "e5936d20c4e19f458335a53a1ec94ac993e54b09ee0e44b3184ac13c0f2758ad",
+      "include_paths": [
+        "src",
+        "config",
+        "Makefile",
+        "LICENSE",
+        "README.rst",
+        "README.install",
+        "CHANGELOG.md"
+      ]
+    }
+  },
+  "build_steps": [
+    [
+      "pw",
+      "ph",
+      "pp",
+      "neb"
+    ],
+    [
+      "epw"
+    ]
+  ],
+  "previous_failed_attempt": {
+    "job_id": "7494940",
+    "reason": "Parallel core ph and EPW recursive ph raced while linking matdyn.x; core and EPW now build sequentially.",
+    "evidence_folder": "attempt-02-parallel-make"
+  },
+  "orientation_regression": {
+    "status": "succeeded",
+    "job_id": "7495054",
+    "symmetry_operations": [
+      48
+    ],
+    "expected_symmetry_operations": 48,
+    "native_structure": {
+      "lattice_angstrom": [
+        [
+          0.0,
+          2.0249999973090924,
+          2.0249999973090924
+        ],
+        [
+          2.0249999973090924,
+          0.0,
+          2.0249999973090924
+        ],
+        [
+          2.0249999973090924,
+          2.0249999973090924,
+          0.0
+        ]
+      ],
+      "elements": [
+        "Al"
+      ],
+      "fractional_positions": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "stdout_sha256": "5adc2e537427fca0b9532e325ac5de022198c8a5dad065e1c4e39f18b465c42e",
+    "native_parser_accepted": true,
+    "input_identity_verified": true,
+    "execution_verified": true,
+    "purpose": "End-to-end POSCAR orientation and QE symmetry regression; not a convergence study.",
+    "accepted": true
+  },
+  "scope": "Verified CPU/MPI installation and native POSCAR SCF collection. EPW superconductivity outputs are accepted separately by the solver workflow."
+}

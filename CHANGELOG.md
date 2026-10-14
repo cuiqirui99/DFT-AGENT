@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.3 — 2026-10-14
+
+- Add Quantum ESPRESSO installation, public UPFs and a VASP/QE switch.
+- Plan and run QE calculations through conversation, including phonons, NEB and electron–phonon coupling.
+- Add Wannier/EPW spectra, isotropic Eliashberg gaps and Tc brackets, and anisotropic gaps.
+- Add a bounded single-band Hubbard RPA pairing workflow with explicit model inputs.
+- Continue from accepted stages, preserve frozen inputs during repair, and verify collected files before analysis.
+- Include raw outputs, numerical tables and execution receipts in downloads. See [QE validation](validation/qe-0.4.3/README.md) for tested scope and limits.
+
 ## 0.4.2 — 2026-10-10
 
 - Add desktop packaging for Apple Silicon Macs (`.dmg`) and Windows x64 (`.exe`), including Python and model SDKs. Installation and platform acceptance are tracked separately from publication.

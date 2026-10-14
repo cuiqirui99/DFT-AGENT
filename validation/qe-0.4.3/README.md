@@ -1,6 +1,6 @@
 # QE acceptance
 
-Development version: `0.4.3.dev0`. **Release approval is pending.**
+Version `0.4.3`. The evidence below records the tested scope.
 
 [report.json](report.json) records actual Paracloud CPU jobs, accepted and failed stages, pending work, model usage and file hashes. These checks use QE 7.4.1 and EPW 5.9. A completed scheduler job alone does not pass a test.
 
@@ -15,8 +15,8 @@ The exported inputs and selected native outputs are in `calculations`, `native` 
 | SOC and hybrid functionals | Fully relativistic Si calculations and separate PBE/HSE06 stages |
 | Phonons and NEB | Al phonon dispersion; H₃ paths with separate endpoint checks |
 | Electron–phonon coupling | Al DFPT and an accepted direct q-point integration; failed Fourier interpolation retained |
-| Isotropic Eliashberg | Eight native EPW cases across two broadenings and two frequency cutoffs, checked against independent linear and nonlinear equations |
-| Anisotropic Eliashberg | A complete pinned upstream MgB₂ regression; the stricter continuation and generic app workflow remain separate acceptance gates |
+| Isotropic Eliashberg | Al and MgB₂ application runs plus eight native EPW cases; checked against independent linear and nonlinear equations |
+| Anisotropic Eliashberg | Pinned upstream MgB₂ regression, strict solver continuation, exact 1-rank/8-rank control and an exact-input native/application comparison; the separate coarse-grid comparison is retained |
 | Model pairing | Single-band Hubbard RPA checked against TRIQS/TPRF, an independent matrix, and Paracloud results |
 | Installation | Managed Slurm compilation and an independent Si comparison with the site installation |
 
@@ -30,8 +30,10 @@ The single-band benchmark uses an explicit model Hamiltonian. It does not valida
 
 Only Codex was called in this campaign. Mock tests for other providers are not live API acceptance.
 
-## Failures and remaining checks
+## Failures and limits
 
 The archive retains unconverged Si bands, an incompatible no-SOC pseudopotential attempt, the initial H₃ endpoint limitation, negative Al spectral weights, and failed EPW execution attempts. Subsequent runs have separate IDs; they do not replace those records.
 
-Al grid refinement, the application EPW sequence, and the application MgB₂ sequence are tracked stage by stage in the report. Native EPW regression results do not automatically accept those workflows. QE GPU execution and new macOS/Windows installers require separate validation.
+The MgB₂ weighted gap differed by 16.8% from the separate upstream recipe, failing the predeclared 10% tolerance. The exact-input native control checks execution and does not resolve that coarse-grid sensitivity.
+
+Al grid refinement and the application EPW and MgB₂ sequences are recorded separately in the report, including failures. These coarse calculations do not establish material convergence. QE GPU execution is not supported. Desktop installation checks are separate from these scientific results; see [Desktop builds](../../docs/desktop.md).

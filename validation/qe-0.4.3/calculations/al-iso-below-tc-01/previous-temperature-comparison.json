@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "comparison_plan_sha256": "fbe01c491daf330f905327db31aca3bb80b0d8b8db86709846889d84c8fd8387",
+  "tables": [
+    {
+      "file": "dft_agent.imag_iso_000.50",
+      "shape": [
+        739,
+        3
+      ],
+      "max_absolute_difference": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true,
+      "new_sha256": "d3221c358df288ce8e558eb7bcf59024ff1e052c640751cb8d68c710306b49d6"
+    },
+    {
+      "file": "dft_agent.imag_iso_001.00",
+      "shape": [
+        369,
+        3
+      ],
+      "max_absolute_difference": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true,
+      "new_sha256": "87c9c4b60e8d69a7abc84e9aecb70e9fd9bc1bd31526a88e4a403d8385db68d5"
+    },
+    {
+      "file": "dft_agent.imag_iso_002.00",
+      "shape": [
+        185,
+        3
+      ],
+      "max_absolute_difference": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true,
+      "new_sha256": "48c68f3c6d36fc7009a4a25a1443c21715264a98aa7c2ca7144fa5631e21e57d"
+    },
+    {
+      "file": "dft_agent.imag_iso_003.00",
+      "shape": [
+        123,
+        3
+      ],
+      "max_absolute_difference": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "passed": true,
+      "new_sha256": "a308018d466570ac1ef7c71e8dfeb8c5df322536dc4738eb5e5c0a91bf9d2858"
+    }
+  ],
+  "failed_source_output_unchanged": true,
+  "failed_source_stage_status": "needs_attention",
+  "target_job": "7495299",
+  "source_job": "7495214"
+}

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "shape": [
+    8680,
+    4
+  ],
+  "maximum_absolute_difference_by_column": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "columns": [
+    "frequency_eV",
+    "energy_minus_fermi_eV",
+    "Z",
+    "delta_eV"
+  ],
+  "plan": {
+    "scope": "MPI rank/pool equivalence on a frozen native anisotropic checkpoint, not material convergence",
+    "serial_job": "7495154",
+    "parallel_job": "7495168",
+    "input_sha256": "536de8d2503597b75c212370c409d2673101463747f4234b2ee90d220fa9f893",
+    "native_table": "MgB2.imag_aniso_015.00",
+    "relative_tolerance": 1e-05,
+    "absolute_tolerance": 1e-06,
+    "require_same_shape": true,
+    "require_both_native_parsers_accept": true
+  },
+  "serial_temperature_results": [
+    {
+      "temperature_kelvin": 15.0,
+      "gap_iw0_mev": 8.091098992048117,
+      "gap_min_iw0_mev": 2.4438421139,
+      "gap_max_iw0_mev": 14.625732608,
+      "renormalization_iw0": 1.8210571825060835,
+      "residual": 8.115269e-07,
+      "iterations": 82,
+      "states": 140,
+      "file": "MgB2.imag_aniso_015.00"
+    }
+  ],
+  "parallel_temperature_results": [
+    {
+      "temperature_kelvin": 15.0,
+      "gap_iw0_mev": 8.091098992048117,
+      "gap_min_iw0_mev": 2.4438421139,
+      "gap_max_iw0_mev": 14.625732608,
+      "renormalization_iw0": 1.8210571825060835,
+      "residual": 8.115269e-07,
+      "iterations": 82,
+      "states": 140,
+      "file": "MgB2.imag_aniso_015.00"
+    }
+  ]
+}

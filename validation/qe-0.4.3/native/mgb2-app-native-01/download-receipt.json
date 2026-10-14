@@ -1,0 +1,30 @@
+{
+  "epw.out": {
+    "sha256": "5d1b6f68f76de2d0e8d41ac149a29c9bd740d49e290b3f9e35ffc5fccb78118d",
+    "size": 14755
+  },
+  "slurm.out": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  "slurm.err": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  "exit-code": {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "size": 2
+  },
+  "inputs-before.json": {
+    "sha256": "431ff3267379da020e100e7fcbe37c3ce6ad0162c1059d6823dccadc5ecfed6b",
+    "size": 1393
+  },
+  "inputs-after.json": {
+    "sha256": "431ff3267379da020e100e7fcbe37c3ce6ad0162c1059d6823dccadc5ecfed6b",
+    "size": 1393
+  },
+  "dft_agent.imag_aniso_015.00": {
+    "sha256": "c4b2478f3b79b49d7a5ebb7feaa5d0e9c67eb8cc52a135565e75af4d0bf9068a",
+    "size": 703161
+  }
+}

@@ -1,0 +1,296 @@
+                                                                                      
+                                       ``:oss/                                        
+                           `.+s+.     .+ys--yh+     `./ss+.                           
+                          -sh//yy+`   +yy   +yy    -+h+-oyy                           
+                          -yh- .oyy/.-sh.   .syo-.:sy-  /yh                           
+                 `.-.`    `yh+   -oyyyo.     `/syys:    oys      `.`                  
+               `/+ssys+-` `sh+      `                   oys`   .:osyo`                
+               -yh- ./syyooyo`                          .sys+/oyo--yh/                
+               `yy+    .-:-.                             `-/+/:`  -sh-                
+                /yh.                                              oys                 
+          ``..---hho---------`   .---------..`      `.-----.`    -hd+---.             
+       `./osmNMMMMMMMMMMMMMMMs. +NNMMMMMMMMNNmh+.   yNMMMMMNm-  oNMMMMMNmo++:`        
+       +sy--/sdMMMhyyyyyyyNMMh- .oyNMMmyyyyyhNMMm+` -yMMMdyyo:` .oyyNMMNhs+syy`       
+       -yy/   /MMM+.`-+/``mMMy-   `mMMh:`````.dMMN:` `MMMy-`-dhhy```mMMy:``+hs        
+        -yy+` /MMMo:-mMM+`-oo/.    mMMh:     `dMMN/`  dMMm:`dMMMMy..MMMo-.+yo`        
+         .sys`/MMMMNNMMMs-         mMMmyooooymMMNo:   oMMM/sMMMMMM++MMN//oh:          
+          `sh+/MMMhyyMMMs- `-`     mMMMMMMMMMNmy+-`   -MMMhMMMsmMMmdMMd/yy+           
+    `-/+++oyy-/MMM+.`/hh/.`mNm:`   mMMd+/////:-.`      NMMMMMd/:NMMMMMy:/yyo/:.`      
+   +os+//:-..-oMMMo:--:::-/MMMo. .-mMMd+---`           hMMMMN+. oMMMMMo. `-+osyso:`   
+   syo     `mNMMMMMNNNNNNNNMMMo.oNNMMMMMNNNN:`         +MMMMs:`  dMMMN/`     ``:syo   
+   /yh`     :syyyyyyyyyyyyyyyy+.`+syyyyyyyyo:`         .oyys:`   .oyys:`        +yh   
+   -yh-        ````````````````    `````````              ``        ``          oys   
+   -+h/------------------------::::::::://////++++++++++++++++++++++///////::::/yd:   
+   shdddddddddddddddddddddddddddddhhhhhhhhyyyyyssssssssssssssssyyyyyyyhhhhhhhddddh`   
+                                                                                      
+ Lee, H., Poncé, S., Bushick, K., Hajinazar, S., Lafuente-Bartolome, J.,Leveillee, J.,
+    Lian, C., Lihm, J., Macheda, F., Mori, H., Paudyal, H., Sio, W., Tiwari, S.,      
+ Zacharias, M., Zhang, X., Bonini, N., Kioupakis, E., Margine, E.R., and Giustino F., 
+                                                     npj Comput Mater 9, 156 (2023)   
+                                                                                      
+
+     Program EPW v.5.9 starts on 14Oct2026 at 23:32:35 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     1 processors
+
+     MPI processes distributed on     1 nodes
+     234252 MiB available memory on the printing compute node when the environment starts
+ 
+     Reading input from epw.in
+
+     Reading supplied temperature list.
+                      
+     ------------------------------------------------------------------------ 
+                   RESTART - RESTART - RESTART - RESTART                         
+     Restart is done without reading PWSCF save file.                  
+     Be aware that some consistency checks are therefore not done.                  
+     ------------------------------------------------------------------------ 
+                      
+
+     DFT Agent                                                                  
+
+     bravais-lattice index     =            0
+     lattice parameter (a_0)   =       0.0000  a.u.
+     unit-cell volume          =       0.0000 (a.u.)^3
+     number of atoms/cell      =            0
+     number of atomic types    =            0
+     kinetic-energy cut-off    =       0.0000  Ry
+     charge density cut-off    =       0.0000  Ry
+     Exchange-correlation= not set
+                           (  -1  -1  -1  -1  -1  -1  -1)
+
+
+     celldm(1)=    0.00000  celldm(2)=    0.00000  celldm(3)=    0.00000
+     celldm(4)=    0.00000  celldm(5)=    0.00000  celldm(6)=    0.00000
+
+     crystal axes: (cart. coord. in units of a_0)
+               a(1) = (  0.0000  0.0000  0.0000 )  
+               a(2) = (  0.0000  0.0000  0.0000 )  
+               a(3) = (  0.0000  0.0000  0.0000 )  
+
+     reciprocal axes: (cart. coord. in units 2 pi/a_0)
+               b(1) = (  0.0000  0.0000  0.0000 )  
+               b(2) = (  0.0000  0.0000  0.0000 )  
+               b(3) = (  0.0000  0.0000  0.0000 )  
+
+
+     Atoms inside the unit cell: 
+
+   Cartesian axes
+
+     site n.  atom      mass           positions (a_0 units)
+
+ 
+     No symmetry!
+
+     G cutoff =    0.0000  (      0 G-vectors)     FFT grid: (  0,  0,  0)
+     number of k points=    0
+                       cart. coord. in units 2pi/a_0
+
+     ===================================================================
+     Solve anisotropic Eliashberg equations
+     ===================================================================
+
+
+     Finish reading freq file
+
+                  Fermi level (eV) =     7.6249553491E+00
+     DOS(states/spin/eV/Unit Cell) =     8.2929303676E-01
+            Electron smearing (eV) =     1.0000000000E-01
+                 Fermi window (eV) =     2.0000000000E+01
+     Nr irreducible k-points within the Fermi shell =        28 out of        28
+
+           5 bands within the Fermi window
+
+
+     Finish reading egnv file 
+
+
+     Max nr of q-points =       216
+
+
+     Finish reading ikmap files
+
+
+     Start reading .ephmat files
+
+
+     Finish reading .ephmat files
+
+     a2f file is found and will be used to estimate initial gap
+ 
+
+     Finish reading a2f file
+
+     Electron-phonon coupling strength =    0.8260300
+ 
+     Estimated Allen-Dynes Tc =    22.927271 K for muc =    0.16000
+  
+     Estimated w_log in Allen-Dynes Tc =    61.227679 meV
+  
+     Estimated BCS superconducting gap =     3.477266 meV
+  
+     Estimated Tc from machine learning model =    26.174712 K
+  
+     Actual number of frequency points (     1) =     62 for uniform       sampling
+    
+     temp(  1) =     15.00000 K
+    
+     Solve anisotropic Eliashberg equations on imaginary-axis
+    
+     Total number of frequency points nsiw(     1) =     62
+     Cutoff frequency wscut =     0.5000 eV
+     Maximum frequency =         0.4995 eV
+     broyden mixing factor =      0.30000
+    
+
+     Size of allocated memory per pool: ~=    0.1512 Gb
+        iter      ethr          znormi      deltai [meV]
+          1   2.739472E+00   1.801044E+00   4.119419E+00
+          2   4.896409E-02   1.800016E+00   4.339689E+00
+          3   1.427736E-01   1.796156E+00   5.070179E+00
+          4   1.903067E-01   1.789057E+00   6.191133E+00
+          5   1.395981E-02   1.788398E+00   6.231149E+00
+          6   5.268869E-02   1.790681E+00   5.955676E+00
+          7   4.588639E-02   1.788890E+00   6.214600E+00
+          8   3.195221E-02   1.787557E+00   6.400069E+00
+          9   2.177820E-02   1.788492E+00   6.282110E+00
+         10   1.278987E-03   1.788444E+00   6.289894E+00
+         11   2.021952E-02   1.787610E+00   6.408123E+00
+         12   8.145540E-03   1.787275E+00   6.455404E+00
+         13   5.262081E-03   1.787507E+00   6.424585E+00
+         14   5.187390E-04   1.787486E+00   6.427363E+00
+         15   2.786973E-03   1.787367E+00   6.443716E+00
+         16   2.983125E-03   1.787250E+00   6.462166E+00
+         17   1.183590E-03   1.787201E+00   6.469644E+00
+         18   2.449405E-03   1.787104E+00   6.484651E+00
+         19   6.332191E-04   1.787078E+00   6.488312E+00
+         20   3.375845E-03   1.786940E+00   6.507781E+00
+         21   4.059211E-03   1.787108E+00   6.484857E+00
+         22   3.797669E-03   1.786953E+00   6.506583E+00
+         23   4.728800E-03   1.787146E+00   6.479589E+00
+         24   5.952596E-03   1.786906E+00   6.515035E+00
+         25   5.745475E-03   1.786666E+00   6.548487E+00
+         26   4.851033E-03   1.786871E+00   6.519978E+00
+         27   2.516384E-02   1.785791E+00   6.667623E+00
+         28   1.605284E-02   1.786471E+00   6.575446E+00
+         29   5.145142E-03   1.786686E+00   6.545786E+00
+         30   1.307928E-04   1.786692E+00   6.545030E+00
+         31   1.682025E-03   1.786621E+00   6.554798E+00
+         32   1.876359E-03   1.786701E+00   6.543735E+00
+         33   1.622657E-02   1.785994E+00   6.640179E+00
+         34   7.765294E-04   1.785961E+00   6.644736E+00
+         35   3.253578E-03   1.785816E+00   6.664239E+00
+         36   7.346620E-04   1.785783E+00   6.668622E+00
+         37   4.169396E-04   1.785764E+00   6.671248E+00
+         38   4.340558E-04   1.785745E+00   6.673867E+00
+         39   3.387050E-03   1.785587E+00   6.694798E+00
+         40   5.760879E-04   1.785562E+00   6.698204E+00
+         41   2.036645E-03   1.785658E+00   6.685583E+00
+         42   2.836636E-04   1.785672E+00   6.683830E+00
+         43   1.850311E-04   1.785664E+00   6.684916E+00
+         44   7.680210E-04   1.785631E+00   6.689646E+00
+         45   2.222966E-04   1.785623E+00   6.690912E+00
+         46   1.371232E-03   1.785562E+00   6.699236E+00
+         47   2.163371E-04   1.785553E+00   6.700555E+00
+         48   1.699369E-06   1.785553E+00   6.700548E+00
+         49   6.677617E-05   1.785550E+00   6.700941E+00
+         50   5.054329E-04   1.785573E+00   6.697929E+00
+         51   3.638216E-04   1.785557E+00   6.700105E+00
+         52   1.307294E-04   1.785563E+00   6.699304E+00
+         53   3.022782E-04   1.785549E+00   6.701116E+00
+         54   1.904269E-03   1.785634E+00   6.689721E+00
+         55   2.593138E-03   1.785518E+00   6.705259E+00
+         56   1.692455E-03   1.785443E+00   6.715394E+00
+         57   8.826927E-04   1.785404E+00   6.720686E+00
+         58   2.172321E-04   1.785414E+00   6.719353E+00
+         59   1.851219E-04   1.785406E+00   6.720446E+00
+         60   1.108737E-04   1.785401E+00   6.721098E+00
+         61   7.376702E-05   1.785404E+00   6.720661E+00
+         62   3.524904E-05   1.785403E+00   6.720874E+00
+         63   3.316475E-05   1.785404E+00   6.720683E+00
+         64   2.971254E-05   1.785405E+00   6.720510E+00
+         65   1.733074E-05   1.785404E+00   6.720612E+00
+         66   1.063828E-04   1.785399E+00   6.721273E+00
+         67   1.468962E-04   1.785393E+00   6.722171E+00
+         68   2.566169E-04   1.785381E+00   6.723761E+00
+         69   1.800596E-04   1.785373E+00   6.724856E+00
+         70   5.330996E-05   1.785371E+00   6.725179E+00
+         71   1.572301E-05   1.785370E+00   6.725270E+00
+         72   5.079768E-06   1.785370E+00   6.725244E+00
+         73   1.253381E-04   1.785365E+00   6.725999E+00
+         74   8.057695E-05   1.785361E+00   6.726478E+00
+         75   1.495991E-04   1.785355E+00   6.727372E+00
+         76   1.384244E-04   1.785348E+00   6.728214E+00
+         77   1.165632E-04   1.785343E+00   6.728920E+00
+         78   2.109633E-05   1.785344E+00   6.728798E+00
+         79   6.567005E-06   1.785344E+00   6.728834E+00
+         80   2.425722E-06   1.785344E+00   6.728848E+00
+         81   4.069749E-05   1.785342E+00   6.729093E+00
+         82   1.011852E-05   1.785341E+00   6.729154E+00
+         83   9.146863E-06   1.785341E+00   6.729210E+00
+         84   2.761572E-05   1.785340E+00   6.729376E+00
+         85   3.220843E-06   1.785340E+00   6.729395E+00
+         86   7.895488E-06   1.785339E+00   6.729441E+00
+         87   2.273679E-05   1.785338E+00   6.729578E+00
+         88   3.142444E-06   1.785338E+00   6.729595E+00
+         89   2.324782E-05   1.785339E+00   6.729457E+00
+         90   3.508371E-06   1.785339E+00   6.729477E+00
+         91   6.459489E-06   1.785339E+00   6.729438E+00
+         92   2.989027E-06   1.785340E+00   6.729420E+00
+         93   8.661370E-07   1.785340E+00   6.729414E+00
+     Convergence was reached in nsiter =     93
+ 
+     Temp (itemp =   1) =   15.000 K  Free energy =    -0.027258 meV
+ 
+     Min. / Max. values of superconducting gap =     2.200531   11.697343 meV
+     iaxis_imag   :    153.07s CPU    153.18s WALL (       1 calls)
+ 
+     itemp =   1   total cpu time :            153.18 secs
+ 
+
+     Unfolding on the coarse grid
+
+     INITIALIZATION: 
+
+
+
+
+     Electron-Phonon interpolation
+
+
+     ELIASHBERG   :    153.29s CPU    153.40s WALL (       1 calls)
+
+     Total program execution
+     EPW          :   2m33.29s CPU   2m33.40s WALL
+
+     % Copyright (C) 2016-2023 EPW-Collaboration                                    
+                                                                                    
+     ===============================================================================
+     Please consider citing the following papers.                                   
+                                                                                                 
+     % Paper describing the method on which EPW relies                                           
+       F. Giustino and M. L. Cohen and S. G. Louie, Phys. Rev. B 76, 165108 (2007)               
+                                                                                                 
+     % Papers describing the EPW software                                                        
+       H. Lee et al., npj Comput. Mater. 9, 156 (2023)                                           
+       S. Ponc\'e, E.R. Margine, C. Verdi and F. Giustino, Comput. Phys. Commun. 209, 116 (2016) 
+       J. Noffsinger et al., Comput. Phys. Commun. 181, 2140 (2010)                              
+                                                                                                 
+                                                                                             
+     % Since you used the [eliashberg] input,     please consider also citing                    
+       E. R. Margine and F. Giustino, Phys. Rev. B 87, 024505 (2013)                         
+                                                                                    
+     For your convenience, this information is also reported in the                 
+     functionality-dependent EPW.bib file.                                          
+     ===============================================================================
+                                                                                    

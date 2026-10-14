@@ -1,0 +1,567 @@
+{
+  "run": "al-eph-03",
+  "ph_job": "7495294",
+  "q2r_job": "7495337",
+  "matdyn_job": "7495344",
+  "qmesh": [
+    6,
+    6,
+    6
+  ],
+  "dense_phonon_mesh": [
+    30,
+    30,
+    30
+  ],
+  "native_q_weights_sum": 216,
+  "native_ph_imaginary_modes": 0,
+  "source_input_files_sha256": {
+    "03_eph_ph/outputs/ph.in": "1f36d0107cb23debfacc1c151de5cd7d294a1509c2ceb42be2c790dc704a0560",
+    "04_eph_q2r/outputs/q2r.in": "8e3f622a0a3d75892ec33b335d0257ad345dd7641b16258140a155b1306203ba",
+    "05_eph_matdyn/outputs/matdyn.in": "dad3eecf0229f6ab6eb0d8bc07de45c7515b3ded6a635f132338f1f2573a72ef"
+  },
+  "records": [
+    {
+      "broadening_ry": 0.005,
+      "coarse_matrix_min_eigenvalue": 3.57e-06,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 1.481315070606115e-13,
+      "asr_shift_matrix": [
+        [
+          3.5700000639293794e-06,
+          -1.214306433183765e-17,
+          9.540979117872439e-18
+        ],
+        [
+          -1.214306433183765e-17,
+          3.5700000639085627e-06,
+          2.6020852139652106e-18
+        ],
+        [
+          9.540979117872439e-18,
+          2.6020852139652106e-18,
+          3.5700000638625926e-06
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": -0.057303521551350524,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.057307091551414446,
+      "dense_negative_eigenvalue_count": 4392,
+      "dense_worst_q_fractional": [
+        0.06666666666666667,
+        0.06666666666666667,
+        0.13333333333333333
+      ],
+      "native_alpha2f_min": -0.00662183,
+      "native_alpha2f_negative_rows": 364,
+      "native_mode_weight_min": -0.00463582,
+      "source_matrix_hashes": {
+        "a2Fq2r.51.1": "3d153bdbdf59f2c85de78fcc98863688838b0ee56f343d0b2115b6e1e0f60371",
+        "a2Fq2r.51.10": "184512be9ee842cc4996c4e1659c9865418aa6e16fafb892d70f4502a6a751e3",
+        "a2Fq2r.51.11": "8ab185bcce80ffc3725e6345d2f267acc4015d378c7698398636a6dc3d57ca70",
+        "a2Fq2r.51.12": "726a9c761e1a771e794856d0895005c90122e5e41e0d59cf4ba99e9cfd2b73d4",
+        "a2Fq2r.51.13": "85077ee3d351068f69f93d24216598ac003057a7a3104fec6f3ca35e2d2ae63c",
+        "a2Fq2r.51.14": "9eadabba2d84044199bf05fedaac1485e438e4da13fcecb428fef34f63864b6c",
+        "a2Fq2r.51.15": "a8935b14313da3b4ff407c7313d6e8967e8cea61448327530f3fbc78e80930c3",
+        "a2Fq2r.51.16": "edcc2e819240bfd3108580d8013189325381298e94ac5012faae5c3427144ece",
+        "a2Fq2r.51.2": "cab380e0d6a726f863f52f31a54c376f45c2f24d416a87e3bd5ebb0c64fe3244",
+        "a2Fq2r.51.3": "21f99d7f7648e4d4bd550238fb20d7a937626e58253b975690439ad53001b072",
+        "a2Fq2r.51.4": "9ec02e42ba8296c9f2eb17e130f0f08f6ea342fed87a352e13dd6d639718d892",
+        "a2Fq2r.51.5": "d2bf80b7ab81733f877ace1053e7b009087527eaca248a925a124b63b5b9ef9d",
+        "a2Fq2r.51.6": "d21d0ee36a23dbf9fbf38ca6595a30eee0467c8f285f4c91318c2fde65012626",
+        "a2Fq2r.51.7": "dd93e8bafbdd473f7ac655685ca1600d5477fba69674ff63335f980fff5f1b6b",
+        "a2Fq2r.51.8": "b67e41b374680afa0e6a0a6348e5af1623c32efccb53310b12461b8e01be3bf3",
+        "a2Fq2r.51.9": "b85cf4089c19f6cd5a0c4549db13445b72533b48be3cfa1b0333917eb685f6cc"
+      },
+      "real_space_matrix_sha256": "42b4a13f3932638e81ca47cabb54b1655046144dea36bd749f0a06477863723f",
+      "spectrum_sha256": "d47bf1be477c6d43bce7541a5c32d64f2ef3f7f30def5b23822f105de6f8c205"
+    },
+    {
+      "broadening_ry": 0.01,
+      "coarse_matrix_min_eigenvalue": 0.00055274,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 2.2221113837872508e-13,
+      "asr_shift_matrix": [
+        [
+          0.000552739999504775,
+          -7.806255641895632e-18,
+          -4.336808689942018e-18
+        ],
+        [
+          -7.806255641895632e-18,
+          0.0005527399995047923,
+          -8.673617379884035e-19
+        ],
+        [
+          -4.336808689942018e-18,
+          -8.673617379884035e-19,
+          0.0005527399995048227
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": -0.02853514160025369,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.0290878815997585,
+      "dense_negative_eigenvalue_count": 1464,
+      "dense_worst_q_fractional": [
+        0.9333333333333333,
+        0.9333333333333333,
+        0.8666666666666667
+      ],
+      "native_alpha2f_min": -0.00497079,
+      "native_alpha2f_negative_rows": 373,
+      "native_mode_weight_min": -0.00322532,
+      "source_matrix_hashes": {
+        "a2Fq2r.52.1": "571e5fc03454ba5e9cdbb4a79fec9a362bad7f0f02788b14f9f23490c0c1a651",
+        "a2Fq2r.52.10": "7e0884881af9ab84b77343bca7685bbb34e14c732b3774fbb8a4f4075370a123",
+        "a2Fq2r.52.11": "8a9160ca1e31a7afbf30b85dc576103cc64295bd0cc173d9cd134955b2e5b441",
+        "a2Fq2r.52.12": "62dc01ccfd7311720fe1e3e3c15164c147f8b39b78c304fc56f5bed8b8558140",
+        "a2Fq2r.52.13": "a66d22e3c19f5ae8a24e3800a54ff649fe7dc652d600668bbd2c5fad27657d2b",
+        "a2Fq2r.52.14": "6682afea4b779a615d9c4e60b535711ae5005651456010c6b50b96170f02d753",
+        "a2Fq2r.52.15": "14ab1220fd9de47b8fef5e99d2bdac7270ee4aeae6454460a9fc07286ec394f6",
+        "a2Fq2r.52.16": "871e9cd0e10fde2214ae3f230a97fadcc1e8debb02126d20aea035c32db3c411",
+        "a2Fq2r.52.2": "2fd01d54205718944509e3c3c30242ef0fb21fa2efeed29f785b38348641d088",
+        "a2Fq2r.52.3": "d044841775107ce88d2d48a7405374a5d1f32be640122abe24e2bb83fe452c42",
+        "a2Fq2r.52.4": "d7967eca8f6e1a28bb45306045c6faa8e0b22f735f322f96f4aadb527aea7ddc",
+        "a2Fq2r.52.5": "8f9f2dad83d4b936b8963e226095eb9a79a0eac52de9d38a774921c9dbf6032c",
+        "a2Fq2r.52.6": "3bde858dae30f957faccadc6c84318ad8b6edcbc6824ff22b126edc38a3cb9ae",
+        "a2Fq2r.52.7": "4ebbab1182257d9f6620ec89619a672160d56bb4fb234165911b82e5432ffb9e",
+        "a2Fq2r.52.8": "2a9643b5b454fca4ac586034fed9afc501d05009c9abaee3e79b076641fc0afd",
+        "a2Fq2r.52.9": "8693b462084144d538720e79bf2bc75be4e10f661ad888e5448e1d179c823c38"
+      },
+      "real_space_matrix_sha256": "ff0adc3e1bb955de4029c24ce6bf262a3281bd1f1142fb77fc959cfc5189b45f",
+      "spectrum_sha256": "cf885cc7e87971a6158b62f2ce24a78deabf39314d7348965dc92b115e076fb8"
+    },
+    {
+      "broadening_ry": 0.015,
+      "coarse_matrix_min_eigenvalue": 0.00111471,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 4.815037257799304e-13,
+      "asr_shift_matrix": [
+        [
+          0.0011147100008639722,
+          3.686287386450715e-18,
+          -1.5178830414797062e-17
+        ],
+        [
+          3.686287386450715e-18,
+          0.0011147100008639626,
+          -2.3852447794681098e-18
+        ],
+        [
+          -1.5178830414797062e-17,
+          -2.3852447794681098e-18,
+          0.001114710000863987
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": -0.011017564212020563,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.012132274212884538,
+      "dense_negative_eigenvalue_count": 984,
+      "dense_worst_q_fractional": [
+        0.9333333333333333,
+        0.9333333333333333,
+        0.8666666666666667
+      ],
+      "native_alpha2f_min": -0.00248849,
+      "native_alpha2f_negative_rows": 350,
+      "native_mode_weight_min": -0.00149571,
+      "source_matrix_hashes": {
+        "a2Fq2r.53.1": "5a35e3c34f7f5e7f4982630691cf2f29475365f9e637dd8d0a403db9d2717f30",
+        "a2Fq2r.53.10": "72aee1d1e416c9cd3c041c388c034a0c370be6ad77de01d4fb4c4ad89979420c",
+        "a2Fq2r.53.11": "7288551002a9fc7ae428ef84a5484b222f262b288340e1e6642d1cacad9dbf1f",
+        "a2Fq2r.53.12": "ede9d3ff93a4aa9c6bc87805d9878f8d8e69e8db2e473d6bc2831a8ee90a6d98",
+        "a2Fq2r.53.13": "756b7a1318dfe45997e2625bc4cfdad05af3386be40dd67d07a80947ecec2e2e",
+        "a2Fq2r.53.14": "921a75d6f71b2a70fabafe7fd91155fa5dadf5150c4f2fb13f830bddf3c37598",
+        "a2Fq2r.53.15": "d075a3b87caf1404db94818180a76d76d877fe5d1265427cd2006c906c7a8bf1",
+        "a2Fq2r.53.16": "131a37b2e07052474cb519bcb351cc457343ddfd801c394e4f20d47e293aa5e1",
+        "a2Fq2r.53.2": "e72d68b7a410356b743ea102c1ec7b64facf5aed391a0ff0e785f377f061593c",
+        "a2Fq2r.53.3": "2c37091e8cf2beab437f10b9a80e3a2e1d134032d73bf5b93d43c9327ba699cf",
+        "a2Fq2r.53.4": "56d5a4ec3d5f9a610a3cc8fe144f5492eaa129aec6f6016a6731d78f11ffbe80",
+        "a2Fq2r.53.5": "bb2194c37cc2d9460631fb39b1053cd3441f35ef4a16c0c3c3aa61bcef76ad74",
+        "a2Fq2r.53.6": "eb29aa0af1d766eed912adf15da3432e5fff45607fc2bbb663e74d0273865827",
+        "a2Fq2r.53.7": "6d02a7a4e5bb89a22a6ed34d915ea877cb7b2b805c6a9d03cc5e8b3352e1f5b6",
+        "a2Fq2r.53.8": "22301b4aadab78d044f251cde2224bfc498aa7dd49cae3d4f6ee434417a59812",
+        "a2Fq2r.53.9": "dc6fe566875bdb387ac06ea328f23b3091855b44dc44557d5911f4a517cf2590"
+      },
+      "real_space_matrix_sha256": "340f128ba955cba476b49a8622d5c47d6347f44fb01ee88fd3bbbe393a6af92d",
+      "spectrum_sha256": "4fd2a8e63e095a39906f7e11f56c70db1d0fa937ccfd5cd1bc2f37964ed32568"
+    },
+    {
+      "broadening_ry": 0.02,
+      "coarse_matrix_min_eigenvalue": 0.00129055,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 4.8150719522688235e-14,
+      "asr_shift_matrix": [
+        [
+          0.0012905500000399968,
+          1.929879867024198e-17,
+          -1.8648277366750676e-17
+        ],
+        [
+          1.929879867024198e-17,
+          0.0012905500000399838,
+          -3.469446951953614e-18
+        ],
+        [
+          -1.8648277366750676e-17,
+          -3.469446951953614e-18,
+          0.0012905500000400302
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": -0.005391631044881899,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.006682181044921943,
+      "dense_negative_eigenvalue_count": 660,
+      "dense_worst_q_fractional": [
+        0.9333333333333333,
+        0.9333333333333333,
+        0.8666666666666667
+      ],
+      "native_alpha2f_min": -0.00144256,
+      "native_alpha2f_negative_rows": 330,
+      "native_mode_weight_min": -0.000902645,
+      "source_matrix_hashes": {
+        "a2Fq2r.54.1": "e0740bda952f0f7f686df187fd44612c3a7d5108a840eded04d9b018f796285a",
+        "a2Fq2r.54.10": "41b3e8be223340c8f9a3b044901643f4c1db766815486af893a4b3e79c7deac4",
+        "a2Fq2r.54.11": "ada2636848264a502941d8a98910e9a337e5b5675d79e0fcc7b4e9c5db956bd1",
+        "a2Fq2r.54.12": "ee7d3988c3fd9bada91e15b495bbd53eafd4e14a8810f6819093a913c1fcd56e",
+        "a2Fq2r.54.13": "cccf2ef225941bb0420be23efb943923dc4981fb7e602ae0d58f641600579e9a",
+        "a2Fq2r.54.14": "362b41f1bce08ec41e602b79b3634bf2f30f9f2a9b6bdf4a88821f72934f3a1c",
+        "a2Fq2r.54.15": "e85abf460cdbbce35dbb801233757a24cd3567dd399ebc30caa88235b852be23",
+        "a2Fq2r.54.16": "406ce133cb0026ee3476e6968e119baa084cd65e8ce9c3d528d9a9355fe76526",
+        "a2Fq2r.54.2": "bc6f651b5f22f3337d9a4bc7feeb0e8b3deada8f6341c2eb13a3e7ab7fcccd48",
+        "a2Fq2r.54.3": "2ffb02ea852b99571be5925625f458cd092f5da7b6d05e9d2c6ef6a1e7045897",
+        "a2Fq2r.54.4": "acc0b44d94e0c22dde986e28dc8364bffc05508177f5defd55714210ea462783",
+        "a2Fq2r.54.5": "47e75bdf7f272b43d2ab2d0c83537333d0e5584c70da898562b90480b545a4e6",
+        "a2Fq2r.54.6": "099e4d6bc7d3f039dd0e35b077a1881cf02cdfad71dd2d0bf03de5993d860754",
+        "a2Fq2r.54.7": "feee797781760c1ba0d5892f21ea9cead5ee68ce915fcce7085352f0e4830de2",
+        "a2Fq2r.54.8": "021ead29a8da4aee22f50d4187d3685c05ce88328702c8a28149392b4b0dc41c",
+        "a2Fq2r.54.9": "f993abede722666a5c4abd717993bc786f2a8e8f259d7ad77542dfd6b661b106"
+      },
+      "real_space_matrix_sha256": "407bc355780f8c9e530a9e06dd2ee8719882485ea39f9967a19f39d3233506a7",
+      "spectrum_sha256": "8b2d2d519fa66ad579e3b8f2f2a1919157cecda604fd6ac28ecea7e2c605b75d"
+    },
+    {
+      "broadening_ry": 0.025,
+      "coarse_matrix_min_eigenvalue": 0.00132877,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 4.815245424616421e-14,
+      "asr_shift_matrix": [
+        [
+          0.0013287699999260459,
+          -1.6263032587282567e-17,
+          -2.168404344971009e-19
+        ],
+        [
+          -1.6263032587282567e-17,
+          0.001328769999926025,
+          5.204170427930421e-18
+        ],
+        [
+          -2.168404344971009e-19,
+          5.204170427930421e-18,
+          0.0013287699999260738
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": -0.003500511220828598,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.004829281220754657,
+      "dense_negative_eigenvalue_count": 464,
+      "dense_worst_q_fractional": [
+        0.06666666666666667,
+        0.03333333333333333,
+        0.1
+      ],
+      "native_alpha2f_min": -0.000872958,
+      "native_alpha2f_negative_rows": 309,
+      "native_mode_weight_min": -0.000597119,
+      "source_matrix_hashes": {
+        "a2Fq2r.55.1": "42f47207b692ac883c9eef71dbf51561fcb38891a40fd7c859c03c672c95c6e5",
+        "a2Fq2r.55.10": "caeab3e17a991cae94d6d6b51f9d77bf0812c16896e85dc2df5af3cdfda4902f",
+        "a2Fq2r.55.11": "a06aa63a59410d40209d9365ce537c5419ca7d4109237b670580e3347000455e",
+        "a2Fq2r.55.12": "38a94fa7c1b99a682def62ba2fc3014c0fd070357a791f7e18f0440cfc21725a",
+        "a2Fq2r.55.13": "ca34b80fb7a107709b4eebd1f637abd20934b84c69b4b58094d94ea34e638e5d",
+        "a2Fq2r.55.14": "52c33688abc827be2100ccec9053e0dabb6c4609b913b2d2b7e697f49a7ea7a7",
+        "a2Fq2r.55.15": "984d426ab5fec96d85a6c1b363245fc423c78213972b6ecd57423927e9e0779c",
+        "a2Fq2r.55.16": "17944945c4e85cb5729706f26bb6ac3f0a251edd5f0978f4c9bbf5198f22c144",
+        "a2Fq2r.55.2": "400fdedeff70f6a72faf928b49e63663c592ab245b2d25e165322eb35919ac19",
+        "a2Fq2r.55.3": "1b938f72f008610d46842b63930d0347c5e97ad33171812b3c75fdcf07310fe7",
+        "a2Fq2r.55.4": "36ee2bc69bb284fac367a795474e2c1b6c8d21a82a49b0d445c0904519beeea8",
+        "a2Fq2r.55.5": "9b53e6f88656a696e44087775923295dc8e51d2e984e1a4343161000b9a2f1aa",
+        "a2Fq2r.55.6": "c77b75fe319a09b24cf5dc468d0e1320977faf1630f405f52e97f4691c72a969",
+        "a2Fq2r.55.7": "876eb1c7156db68016c2a85617c65324985febaf2dbc815ecbadbcb9eccab8b1",
+        "a2Fq2r.55.8": "b6e689dbb2ac4a4ec2edac98d15dbf509712e7d6030d22865decceee64487f03",
+        "a2Fq2r.55.9": "271fc6008f1d4d1065d99862325bbb1154a6547462f6014da88cbfe152fb8ad7"
+      },
+      "real_space_matrix_sha256": "d12ffe77d56809dd4b9567bef24b6563460a4ac4d4e7f59a4966822e31c9edf3",
+      "spectrum_sha256": "6263637131de2c9a1afd8d727e147a40be3869d062dd4e575abdb1f28c531ee3"
+    },
+    {
+      "broadening_ry": 0.03,
+      "coarse_matrix_min_eigenvalue": 0.00136263,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 4.8128168117500536e-14,
+      "asr_shift_matrix": [
+        [
+          0.0013626299997847083,
+          -1.7564075194265172e-17,
+          5.204170427930421e-18
+        ],
+        [
+          -1.7564075194265172e-17,
+          0.00136262999978471,
+          1.1709383462843448e-17
+        ],
+        [
+          5.204170427930421e-18,
+          1.1709383462843448e-17,
+          0.0013626299997847608
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": -0.0020168014062027593,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.003379431405987522,
+      "dense_negative_eigenvalue_count": 416,
+      "dense_worst_q_fractional": [
+        0.9333333333333333,
+        0.9666666666666667,
+        0.9
+      ],
+      "native_alpha2f_min": -0.000456258,
+      "native_alpha2f_negative_rows": 283,
+      "native_mode_weight_min": -0.000350604,
+      "source_matrix_hashes": {
+        "a2Fq2r.56.1": "c32a8edb43d5b8745d6377f8635585100b1ed4c4d3573ecfd11b03589b93e533",
+        "a2Fq2r.56.10": "daca448b92ea7c39504945e848837f0262edf8ce627d8a7fbf27838090500f28",
+        "a2Fq2r.56.11": "3637bd39aad1e385e65d151b06795520dd1b4f5cb7fc04c9c07278172cee3a30",
+        "a2Fq2r.56.12": "8416d106356f29cfb4b71cb28297bfc9b1487245206f4361d430fa2078d0ffe2",
+        "a2Fq2r.56.13": "e10dcd72652b6427014eefb42226272f9e9e1f656d2c8944b5c90346dee1912a",
+        "a2Fq2r.56.14": "2b7c4a3711361440b8527f2823d90222523bcb67b8226358f47c24f2f3dab759",
+        "a2Fq2r.56.15": "3df2ee6cd767b720e9e7c09addc22dbd411fda9df193ee1afda81d1e0d7a754f",
+        "a2Fq2r.56.16": "ec4c1adbcbe7ee42e31ea6fa0fdf999467bed01b5de4f412592636616dbbece9",
+        "a2Fq2r.56.2": "1c9adf58977b526e0002d3164aace79e1b3534efe49ee9eb6404f4d0f2208e1f",
+        "a2Fq2r.56.3": "d7656ba7fba95ef3dcb3351ef37cff5bf79135397b5e449382004299cf478635",
+        "a2Fq2r.56.4": "bbea89eb162fb6446a745183a6116e72dac8030a73ee8d1c42c8c2ecad499c76",
+        "a2Fq2r.56.5": "e0dff6781e7d4d8ba898fb300753df8d8405728a1f22d57195c4c945ee5faa0a",
+        "a2Fq2r.56.6": "d50a816be52d37c86f4443ef75908fb01f05b8f6d7dc84651e648fe19fb9310c",
+        "a2Fq2r.56.7": "d2deaaefea721f3fe637d899998d07aafddce0f83e155de4db208d7ba6a39ea4",
+        "a2Fq2r.56.8": "83bf8795da720750872370da793ee3b806621d1d05d28e1a885ba48f5bd82acf",
+        "a2Fq2r.56.9": "141d941fa5d3e17bc43be7ec9838d5516ec2b1c131c3502b4288754ddf9be17f"
+      },
+      "real_space_matrix_sha256": "1e43d91a99d158eab812988acfef8fa02799006f64a6069b5b6184cb4dd433d7",
+      "spectrum_sha256": "23184021ea3cb5f5becb8c2e2733df36fd7d0295d55d7c515c9f29c9e9377e92"
+    },
+    {
+      "broadening_ry": 0.035,
+      "coarse_matrix_min_eigenvalue": 0.00148531,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 4.8128168117500536e-14,
+      "asr_shift_matrix": [
+        [
+          0.001485309999749157,
+          3.0357660829594124e-18,
+          9.540979117872439e-18
+        ],
+        [
+          3.0357660829594124e-18,
+          0.001485309999749189,
+          -1.3877787807814457e-17
+        ],
+        [
+          9.540979117872439e-18,
+          -1.3877787807814457e-17,
+          0.0014853099997492133
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": -0.00044383746891184304,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.0019291474686610587,
+      "dense_negative_eigenvalue_count": 208,
+      "dense_worst_q_fractional": [
+        0.9666666666666667,
+        0.06666666666666667,
+        0.03333333333333333
+      ],
+      "native_alpha2f_min": -0.000248322,
+      "native_alpha2f_negative_rows": 247,
+      "native_mode_weight_min": -0.000219014,
+      "source_matrix_hashes": {
+        "a2Fq2r.57.1": "01d82d558eda933d5af19cc0169295eed5b5dcbd3a96682c455700e8829f9ead",
+        "a2Fq2r.57.10": "2e7b32f4552d44e62596bb416e8017d2088b030ca01ff184cb590eb791785dd5",
+        "a2Fq2r.57.11": "a67998bf96bccee3fee4786a787afb8c8fce7bff2f7064f401fcc6304e4904e0",
+        "a2Fq2r.57.12": "66b22cdbe4d34a6f9201e235ea54017c42467005ca4897c0d69f6ac7b1ff2bf5",
+        "a2Fq2r.57.13": "4c219f0d9cdc4e300694e41210666a7e85498810118ecb87f0ffe81b9a9e2103",
+        "a2Fq2r.57.14": "aba2dfb7f640fc825c9ac5bcab07a521bbb06a8a1c2267b503f97d2ff32444f2",
+        "a2Fq2r.57.15": "88cd34a5c1656913b1c0959577a054e8c9a0df8482fc1c841cdbb801affabe52",
+        "a2Fq2r.57.16": "ec81afcf130de223e5d12f922c9a8ea73886e1b84f6e2c8979eef4661be24381",
+        "a2Fq2r.57.2": "a01323971e9b046f217c74d20495cb30324a6c50d6caa5fd423e965a2122314a",
+        "a2Fq2r.57.3": "b3bfaa0a47927e471aa825d9bb13df170012b9feddc07f2e76c3da5ed6521f2d",
+        "a2Fq2r.57.4": "0ec5dfe21334438259678e0c9115662b723b784e55bc9c395f561de3532abc01",
+        "a2Fq2r.57.5": "4757218a212a94f0412693f0c2198dea4c6d9c27eb1ba2aa4908b3af8e428186",
+        "a2Fq2r.57.6": "7f0ada5bca7c9a8fb4c84b3ecdb0cec7e2021ff9061e4bcade96dcde114a3835",
+        "a2Fq2r.57.7": "1c0832e1df7739c80ee252c62876c7ed41849afceb92a1bc934a936d44281db4",
+        "a2Fq2r.57.8": "7bf492ef7161cd389decf547fc440fc89e3b38d43917dfee2a20afb91b1616e2",
+        "a2Fq2r.57.9": "64c57237ca197740ba220de68af3dbd2b3f8f3573c724c3479b13df0d3cf7459"
+      },
+      "real_space_matrix_sha256": "608c14c7fe5fb2273218ee07531586cb8e536c796e57a3e742f1ed80e4ac4f1b",
+      "spectrum_sha256": "bce0235ae7d925484e264b80b9ba1d457e0e9caae4dc015d70a8f8c3f4490d1b"
+    },
+    {
+      "broadening_ry": 0.04,
+      "coarse_matrix_min_eigenvalue": 0.00174057,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 3.703808093558081e-14,
+      "asr_shift_matrix": [
+        [
+          0.0017405699997528102,
+          -2.7538735181131813e-17,
+          -1.5829351718288365e-17
+        ],
+        [
+          -2.7538735181131813e-17,
+          0.0017405699997528224,
+          1.3227266504323154e-17
+        ],
+        [
+          -1.5829351718288365e-17,
+          1.3227266504323154e-17,
+          0.0017405699997528393
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": 0.0007038864002071685,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.0010366835995456428,
+      "dense_negative_eigenvalue_count": 148,
+      "dense_worst_q_fractional": [
+        0.9666666666666667,
+        0.9666666666666667,
+        0.9333333333333333
+      ],
+      "native_alpha2f_min": -0.000109855,
+      "native_alpha2f_negative_rows": 191,
+      "native_mode_weight_min": -0.000103627,
+      "source_matrix_hashes": {
+        "a2Fq2r.58.1": "aaee444d2c8967e20ca5a2b1dd604bbaa02f7322b98df9ca0afdff9691e17323",
+        "a2Fq2r.58.10": "926e039eba9f1b939744b1efae60cc48ab21234ffe1fc97efaae6d233e814e8a",
+        "a2Fq2r.58.11": "ad4082d450c22af2e5a0c68257c672001fe997779d68da25097b1f514815cce3",
+        "a2Fq2r.58.12": "885975eaa30bd864b591d4341a302ccf857418fb2965c70f603c259a607fc8ae",
+        "a2Fq2r.58.13": "621aeb535ba5e574e2c0abd501c9377bb48af1a43261a7b782aad9199d60f137",
+        "a2Fq2r.58.14": "452ce2d05ab01fd0ad672313946d9e8a13d857da63582c505ed7cc6b83234764",
+        "a2Fq2r.58.15": "a6c37009963109a2f92f6c3c518b9796961a7b4bfc0bbd59d141140fca406aab",
+        "a2Fq2r.58.16": "a3e254594d67e331ad6b488bd793150f9bd75d494735a86078bcf05afe64d7be",
+        "a2Fq2r.58.2": "b19fd2aeb345e32d95bc113df338d4b061c520ec68530d7a8ed42f2f179244b6",
+        "a2Fq2r.58.3": "7ee4136ef6d90c6edc59e926ad874763b4a3896beacb099c93f2f5ae99917d7f",
+        "a2Fq2r.58.4": "c12f8caf9c9e5b79eabbb8cbca1039bf9c40832bd9b94a4857850dca93296b84",
+        "a2Fq2r.58.5": "a5a13d5acd07def5a9224298d16128287b9852fded0f014396b32b022aa3bdeb",
+        "a2Fq2r.58.6": "bb7baf8cc8929982db4d4e20d59271f07fbb9f5e31427d30adb52b78a8ebdc57",
+        "a2Fq2r.58.7": "b0683797b287800680085e55a026903a593121e32b9ea887488a0610b31396f5",
+        "a2Fq2r.58.8": "5c0cf57954a0cfde7606116e6f5b7f06cf23da5584a540c315c398846c8437ce",
+        "a2Fq2r.58.9": "bb4dc8f976344a28b29f4e5cd33ed553790c4c3186db802ffd9d875fa0822941"
+      },
+      "real_space_matrix_sha256": "f728cf73ef58a2bba4b1946dca2fb7fa9a1c6b210b9a3580e1bc616f021cf01b",
+      "spectrum_sha256": "e9cbaed82475c6fedf7b2a76dcc607696bbd4371b394ea03f34c048f19b658e0"
+    },
+    {
+      "broadening_ry": 0.045,
+      "coarse_matrix_min_eigenvalue": 0.00212892,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 1.852164255300437e-14,
+      "asr_shift_matrix": [
+        [
+          0.002128920000104051,
+          6.288372600415926e-18,
+          1.485356976305141e-17
+        ],
+        [
+          6.288372600415926e-18,
+          0.002128920000104018,
+          -8.348356728138384e-18
+        ],
+        [
+          1.485356976305141e-17,
+          -8.348356728138384e-18,
+          0.0021289200001038946
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": 0.0017018680520694772,
+      "dense_matrix_min_eigenvalue_with_native_asr": -0.00042705194803447093,
+      "dense_negative_eigenvalue_count": 24,
+      "dense_worst_q_fractional": [
+        0.03333333333333333,
+        0.06666666666666667,
+        0.03333333333333333
+      ],
+      "native_alpha2f_min": -3.73672e-05,
+      "native_alpha2f_negative_rows": 19,
+      "native_mode_weight_min": -2.4564e-05,
+      "source_matrix_hashes": {
+        "a2Fq2r.59.1": "cd86fb5b417161e7ead9e2aa0d040444ec9b259fdeee0d96554f9834f7c17faa",
+        "a2Fq2r.59.10": "48c28920b95a4feaf23c8bc34a804caa089d98ec9fb8bd151623fada42234551",
+        "a2Fq2r.59.11": "d5238c9b2d8ba2e6504d1531f23fe33b76a26939d7f0ee16771ec342d8c86006",
+        "a2Fq2r.59.12": "600c76d9f9ea3793426bdbcc2a07d3e49e910b92d5d8612d2c3016866b4cf2e0",
+        "a2Fq2r.59.13": "7e6552cf8d622e96f23e0074db953c26758915ce8fc227baecf7d6163ac2e2c6",
+        "a2Fq2r.59.14": "b6aeefdd70d46e76f113c4b9ddfd1e555d6dfd1b3a4f7c9c2ca43795ed098ab2",
+        "a2Fq2r.59.15": "a33e1949cd860ab82fdce7cad1478f207b4870fc876fa5edacd11d642b41b146",
+        "a2Fq2r.59.16": "aafbe2f1696d2db37a8745b1b66889b8f60da07408081e931b87de9e18446fdb",
+        "a2Fq2r.59.2": "b179422e7d9982f4664095d76065ad824508ec74d1d58f1ac2d53dd5a13e2485",
+        "a2Fq2r.59.3": "ffd2235a8fb4edfcd9d2e8f098030f3958e2d645b5ad1406f0697ff66dc4d574",
+        "a2Fq2r.59.4": "fe37ddd7e69417d5502901af4e0a3b14532098911ff93c810b71bc9120c61a15",
+        "a2Fq2r.59.5": "c610c5012f416ab9ce9ae4d86f7439d737987ba7a60526405d506a85cc2e9bc6",
+        "a2Fq2r.59.6": "7a1ae5955600f69ee30fc0f95e95b5938a32e8d81a402f8609e3fe765df2d903",
+        "a2Fq2r.59.7": "f76a1761a017105815c2627d518cbf68f8061f293a8c8fabac2c36646d662fd2",
+        "a2Fq2r.59.8": "a28a5dc586a05bf31ddf9fc329e2fcf4c279a00b14db06c5ce804a5f21c861c0",
+        "a2Fq2r.59.9": "6579e81478fc821056799ccc0ab6f000a7d61a85e888988c34b52f2ae8f5c514"
+      },
+      "real_space_matrix_sha256": "6d804bd2e6fae7c3fc44e8af87102d31d74c3b61d944d2a011af11028cfceaac",
+      "spectrum_sha256": "b8401f703d7733344d1bfbf25d3190f752250c14e46017142bc8a0cd9428d308"
+    },
+    {
+      "broadening_ry": 0.05,
+      "coarse_matrix_min_eigenvalue": 0.00262925,
+      "coarse_hermiticity_error": 0.0,
+      "independent_q2r_fft_max_error": 2.963601586358777e-14,
+      "asr_shift_matrix": [
+        [
+          0.0026292499997323765,
+          -2.7538735181131813e-17,
+          -2.6020852139652106e-18
+        ],
+        [
+          -2.7538735181131813e-17,
+          0.0026292499997323886,
+          3.469446951953614e-18
+        ],
+        [
+          -2.6020852139652106e-18,
+          3.469446951953614e-18,
+          0.002629249999732431
+        ]
+      ],
+      "dense_matrix_min_eigenvalue_without_asr": 0.002564279135229598,
+      "dense_matrix_min_eigenvalue_with_native_asr": -6.49708645028399e-05,
+      "dense_negative_eigenvalue_count": 36,
+      "dense_worst_q_fractional": [
+        0.9666666666666667,
+        0.0,
+        0.9666666666666667
+      ],
+      "native_alpha2f_min": 0.0,
+      "native_alpha2f_negative_rows": 0,
+      "native_mode_weight_min": 0.0,
+      "source_matrix_hashes": {
+        "a2Fq2r.60.1": "aa73acb416e0889bd0d7ef8f74d75e2335a708e56781cc64d6b3e071684964eb",
+        "a2Fq2r.60.10": "749411a3261afea04345c00f94dd65a0a6ef84309f37039a282f45ce2b27fe85",
+        "a2Fq2r.60.11": "29fec7dc913874b6cc15037267adddec45ae3d72aba247b452487c9ce1c42435",
+        "a2Fq2r.60.12": "026e7f63f492036ba234cd62cecbb98b1cae4308b4cb61537969a79b9ac170a9",
+        "a2Fq2r.60.13": "012d89c867b66cba2576f57bd9e22fe2ee32bf77a817db1e2ee3f089def7ece2",
+        "a2Fq2r.60.14": "65ca97124ff8cc83fd74bc2e95178da3bda7455fc828ec77cc85e1da731b4179",
+        "a2Fq2r.60.15": "54bdad88887cb78a11b62a8c2fd94998cf7879b41ae32e9dada61466ea171e7f",
+        "a2Fq2r.60.16": "963893a2f54c01be2fb99616b7fb2e3ee0eb18bf1c48e2dda557f0a0838bd20e",
+        "a2Fq2r.60.2": "e7443fc3e59a1f3df1d696b637c0daf83f9084e1b51e35385603a65b1990cc4b",
+        "a2Fq2r.60.3": "6ca0a96a24d4929fa8babc32737491e2567a3ab6659768135dcb300746cc3a20",
+        "a2Fq2r.60.4": "81ba5302c19eccd26e57150b80b7a10a10e37c1385bd430d3b5abd8641d4b87d",
+        "a2Fq2r.60.5": "b4d5ac3e66365f388e1b000b236a2c9f80ae699f75ad3cab6ec217b71ddd30c4",
+        "a2Fq2r.60.6": "5eb7dedb72fa1b5cb019108cc9269cdd7527bf4b27f4c2149e732fd0d6fcd693",
+        "a2Fq2r.60.7": "3720ffd7d238929523746790ca250bbf0d84257c51a9f08cb08d2261df8540db",
+        "a2Fq2r.60.8": "3ee76a6bfd155ff6136b7b5bcfcfa279aedf6387dfcd7c9322ff7cbe62b15ae1",
+        "a2Fq2r.60.9": "4939eeebaeb35f07f8ee564485c96198b8fed17e1ceccb31a06b64ee2f83e753"
+      },
+      "real_space_matrix_sha256": "c262dbb55355436e167faa8ab09630dd0f6185ba08d94bd5936e2663f1e2f4ff",
+      "spectrum_sha256": "c018db4ceca1ad6cfbed9a34280de5843957626dde1d80e88a9cd4075ccafaae"
+    }
+  ],
+  "conclusion": "Native positive coarse-q coupling matrices become indefinite under their finite-grid Fourier interpolation. Native matrix transport is independently verified by inverse FFT; negative spectra are retained and this interpolation is not accepted for a Tc estimate.",
+  "scope": "One-atom Al, original frozen PBE protocols. Not a new native calculation or a material precision benchmark."
+}

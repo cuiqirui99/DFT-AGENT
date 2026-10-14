@@ -1,0 +1,39 @@
+&CONTROL
+  calculation = 'scf',
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  pseudo_dir = './pseudo',
+  tprnfor = .true.,
+  tstress = .true.,
+  verbosity = 'high',
+  disk_io = 'low',
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 3,
+  ntyp = 2,
+  ecutwfc = 40.0,
+  ecutrho = 160.0,
+  input_dft = 'LDA',
+  occupations = 'smearing',
+  smearing = 'mp',
+  degauss = 0.02,
+  nbnd = 8,
+/
+&ELECTRONS
+  conv_thr = 1e-09,
+  electron_maxstep = 120,
+/
+ATOMIC_SPECIES
+Mg 24.305 Mg.pz-n-vbc.UPF
+B 10.811 B.pz-vbc.UPF
+CELL_PARAMETERS angstrom
+3.0829997780459 0 0
+-1.541499889023 2.6699561276497 0
+0 0 3.520999746513
+ATOMIC_POSITIONS crystal
+Mg 0 0 0
+B 0.333333333 0.666666667 0.5
+B 0.666666667 0.333333333 0.5
+K_POINTS automatic
+6 6 6 0 0 0

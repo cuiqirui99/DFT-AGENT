@@ -1,0 +1,46 @@
+{
+  "limits": [
+    "The solver met its stated tolerance, but this coarse reference calculation does not establish numerical convergence, a material Tc, or a measured superconducting gap.",
+    "The phonon results include one sampled imaginary mode at −14.88 cm⁻¹, so dynamical stability is not established."
+  ],
+  "evidence": [
+    "stage_4.accepted",
+    "stage_4.lambda_integral",
+    "stage_4.omega_log_mev",
+    "stage_5.accepted",
+    "stage_5.pairing_model",
+    "stage_5.temperature_1.temperature_kelvin",
+    "stage_5.temperature_1.gap_iw0_mev",
+    "stage_5.temperature_1.gap_min_iw0_mev",
+    "stage_5.temperature_1.gap_max_iw0_mev",
+    "stage_5.temperature_1.residual",
+    "stage_5.parameter.convergence",
+    "stage_2.accepted",
+    "stage_2.imaginary_mode_count",
+    "stage_2.minimum_phonon_frequency"
+  ],
+  "answer": "The accepted electron–phonon spectrum gives integrated coupling λ = 0.826 and logarithmic phonon energy 61.23 meV. At 15 K, the accepted anisotropic Eliashberg result reports a lowest-Matsubara-frequency gap of 6.73 meV, spanning 2.20–11.70 meV across sampled states.",
+  "next_steps": [],
+  "context_sha256": "71399f7084d08f99aaaed4b6a7ef2c623727a2401aa143cf79b37a24c71f086e",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 21428,
+    "output_tokens": 284,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 0,
+    "total_tokens": 21712,
+    "token_counts_source": "provider",
+    "call_id": "fd3244246d18486c86fac614555ffb62",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 11.186853,
+    "input_characters": 27669,
+    "instruction_characters": 1499,
+    "schema_characters": 305,
+    "output_characters": 1025,
+    "max_output_tokens": null
+  }
+}

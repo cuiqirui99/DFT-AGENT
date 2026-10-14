@@ -1,9 +1,9 @@
 # Desktop builds
 
-Version `0.4.2` provides installers for Apple Silicon Macs running macOS 14
+Version `0.4.3` provides installers for Apple Silicon Macs running macOS 14
 or later and Windows x64. Python and the scientific/model SDKs are
 bundled; VASP, POTCAR files, cluster time, API credentials and model credits
-are not. Download the installers from [v0.4.2](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.2).
+are not. Download the installers from [v0.4.3](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.3).
 
 ## Build from a checkout
 
@@ -21,7 +21,7 @@ app has passed its checks:
 mkdir -p dist/dmg
 cp -R 'dist/DFT Agent.app' dist/dmg/
 ln -s /Applications dist/dmg/Applications
-hdiutil create -volname 'DFT Agent' -srcfolder dist/dmg -ov -format UDZO dist/DFT-Agent-0.4.2-macOS-arm64.dmg
+hdiutil create -volname 'DFT Agent' -srcfolder dist/dmg -ov -format UDZO dist/DFT-Agent-0.4.3-macOS-arm64.dmg
 ```
 
 On Windows, the app folder is `dist/DFT Agent`. The
@@ -51,7 +51,7 @@ file selection and downloads. Keep the installer hash, commands, reports
 and screenshots with the acceptance record. Passing unit tests or the
 local-server check alone does not verify the native window or every user action.
 
-Live SSH/VASP calculations and live model calls require separate evidence.
+Live SSH/solver calculations and live model calls require separate evidence.
 The [recorded Claude checks](validation-0.4.1.md) used the actual SDK with
 simulated HTTP responses; no live Claude API request was made. Code signing,
 notarization, Windows installer execution and interactive checks should only

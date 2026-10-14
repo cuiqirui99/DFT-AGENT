@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "number_of_atoms": 3,
+  "formula": "MgB2",
+  "pseudo_files": [],
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        3.0829997780459064,
+        0.0,
+        0.0
+      ],
+      [
+        -1.5414998890229532,
+        2.66995612764973,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        3.520999746513007
+      ]
+    ],
+    "elements": [
+      "Mg",
+      "B",
+      "B"
+    ],
+    "fractional_positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.333333333,
+        0.666666667,
+        0.5
+      ],
+      [
+        0.666666667,
+        0.333333333,
+        0.5
+      ]
+    ]
+  },
+  "phonon_grid": [
+    3,
+    3,
+    3
+  ],
+  "canonical_task": "wannier_ph",
+  "task": "wannier_ph",
+  "parameters": {
+    "mesh": [
+      6,
+      6,
+      6
+    ],
+    "wannier_mesh": [
+      3,
+      3,
+      3
+    ],
+    "qmesh": [
+      3,
+      3,
+      3
+    ],
+    "fine_kmesh": [
+      6,
+      6,
+      6
+    ],
+    "fine_qmesh": [
+      6,
+      6,
+      6
+    ],
+    "nbnd": 8,
+    "num_wann": 5,
+    "projections": [
+      "B:pz",
+      "f=0.5,1.0,0.5:s",
+      "f=0.0,0.5,0.5:s",
+      "f=0.5,0.5,0.5:s"
+    ],
+    "dis_win_min": -5.0,
+    "dis_win_max": 18.4,
+    "dis_froz_min": -5.0,
+    "dis_froz_max": 8.8,
+    "wannier_iterations": 500,
+    "fsthick_ev": 20.0,
+    "el_smearing_ev": 0.1,
+    "ph_smearing_mev": 0.5,
+    "spectral_points": 500,
+    "acoustic_cutoff_cm1": 5.0,
+    "ecutwfc": 40.0,
+    "ecutrho": 160.0,
+    "conv_thr": 1e-09,
+    "tr2_ph": 1e-12,
+    "degauss": 0.02,
+    "smearing": "mp",
+    "functional": "LDA"
+  },
+  "executable": "ph.x",
+  "input_file": "ph.in",
+  "output_file": "ph.out",
+  "input_files": [
+    "ph.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "ph.out"
+  ],
+  "requires_restart": true,
+  "scientific_accuracy_validated": false,
+  "sources": [
+    "https://github.com/QEF/q-e/tree/qe-7.4.1/test-suite/epw_super"
+  ],
+  "input_sha256": {
+    "ph.in": "10a713b22e405dee3bed72d2309ba0bb10c58cda380f2d53d233ef5aacab5cce",
+    "structure.cif": "c35a36005bd9af4bdf4616f56dc522eb7c040a4c91280c919737edf1c42a8d12"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "scope": "MPI rank/pool equivalence on a frozen native anisotropic checkpoint, not material convergence",
+  "serial_job": "7495154",
+  "parallel_job": "7495168",
+  "input_sha256": "536de8d2503597b75c212370c409d2673101463747f4234b2ee90d220fa9f893",
+  "native_table": "MgB2.imag_aniso_015.00",
+  "relative_tolerance": 1e-05,
+  "absolute_tolerance": 1e-06,
+  "require_same_shape": true,
+  "require_both_native_parsers_accept": true
+}

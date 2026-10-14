@@ -1,0 +1,7 @@
+&INPUT
+  fildyn = 'dft_agent.dyn',
+  flfrc = 'force_constants',
+  zasr = 'simple',
+  la2f = .true.,
+  el_ph_nsigma = 10,
+/

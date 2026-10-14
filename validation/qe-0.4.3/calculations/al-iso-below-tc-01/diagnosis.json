@@ -1,0 +1,10 @@
+{
+  "prior_run": "al-epw-agent-03",
+  "prior_failed_job": "7495214",
+  "accepted_linear_job": "7495136",
+  "prior_output_sha256": "a0b70c048049a75bc62eb765e7959bed8ffc4fff784dbaa43e84194b6c13cf72",
+  "linear_table_sha256": "3d21d518cac3bab063660561747179a88e106e2d3ef57529f132330dbeadf6c6",
+  "diagnosis": "Native zero-gap relative convergence becomes singular above the accepted model Tc bracket; new explicitly restricted nonlinear task preserves previous failure.",
+  "source": "QEF/q-e qe-7.4.1 EPW/src/supercond_iso.f90:470",
+  "criterion": "All four requested temperatures must converge, pass native table checks and independent nonlinear equations; no material precision claim."
+}

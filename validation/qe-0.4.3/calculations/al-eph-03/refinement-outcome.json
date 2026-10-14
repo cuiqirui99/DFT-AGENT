@@ -1,0 +1,240 @@
+{
+  "status": "needs_attention",
+  "reason": "Negative interpolated electron-phonon weights prevent a Tc estimate; refine the electronic and phonon grids.",
+  "parameters": {
+    "mesh": [
+      12,
+      12,
+      12
+    ],
+    "dense_mesh": [
+      24,
+      24,
+      24
+    ],
+    "qmesh": [
+      6,
+      6,
+      6
+    ],
+    "phonon_dos_mesh": [
+      30,
+      30,
+      30
+    ],
+    "mu_star": 0.1,
+    "electronic_type": "metal",
+    "degauss": 0.02,
+    "conv_thr": 1e-10,
+    "tr2_ph": 1e-14,
+    "el_ph_sigma": 0.005,
+    "el_ph_nsigma": 10
+  },
+  "stage_jobs": [
+    {
+      "name": "eph_dense_scf",
+      "status": "succeeded",
+      "job_id": "7495222"
+    },
+    {
+      "name": "eph_scf",
+      "status": "succeeded",
+      "job_id": "7495257"
+    },
+    {
+      "name": "eph_ph",
+      "status": "succeeded",
+      "job_id": "7495294"
+    },
+    {
+      "name": "eph_q2r",
+      "status": "succeeded",
+      "job_id": "7495337"
+    },
+    {
+      "name": "eph_matdyn",
+      "status": "needs_attention",
+      "job_id": "7495344"
+    },
+    {
+      "name": "eph_lambda",
+      "status": "planned",
+      "job_id": null
+    }
+  ],
+  "native_completed": true,
+  "input_runtime_upf_verified": true,
+  "negative_tolerance_unchanged": 1e-10,
+  "broadening_series": [
+    {
+      "broadening_index": 1,
+      "electronic_broadening_ry": 0.005,
+      "native_mode_sum_lambda_not_accepted": 0.7366,
+      "native_spectral_integral_not_accepted": 0.736800776300482,
+      "diagnostic_signed_integral_not_accepted": 0.7368007432213541,
+      "minimum_total_weight": -0.00662183,
+      "minimum_mode_weight": -0.00463582,
+      "negative_total_bins": 364,
+      "negative_weight_entries": 1163,
+      "native_file_sha256": "d47bf1be477c6d43bce7541a5c32d64f2ef3f7f30def5b23822f105de6f8c205",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 2,
+      "electronic_broadening_ry": 0.01,
+      "native_mode_sum_lambda_not_accepted": 0.5459,
+      "native_spectral_integral_not_accepted": 0.546224313441386,
+      "diagnostic_signed_integral_not_accepted": 0.5462242480482681,
+      "minimum_total_weight": -0.00497079,
+      "minimum_mode_weight": -0.00322532,
+      "negative_total_bins": 373,
+      "negative_weight_entries": 1162,
+      "native_file_sha256": "cf885cc7e87971a6158b62f2ce24a78deabf39314d7348965dc92b115e076fb8",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 3,
+      "electronic_broadening_ry": 0.015,
+      "native_mode_sum_lambda_not_accepted": 0.489,
+      "native_spectral_integral_not_accepted": 0.489269386669857,
+      "diagnostic_signed_integral_not_accepted": 0.4892693914164285,
+      "minimum_total_weight": -0.00248849,
+      "minimum_mode_weight": -0.00149571,
+      "negative_total_bins": 350,
+      "negative_weight_entries": 1083,
+      "native_file_sha256": "4fd2a8e63e095a39906f7e11f56c70db1d0fa937ccfd5cd1bc2f37964ed32568",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 4,
+      "electronic_broadening_ry": 0.02,
+      "native_mode_sum_lambda_not_accepted": 0.4627,
+      "native_spectral_integral_not_accepted": 0.462939929773899,
+      "diagnostic_signed_integral_not_accepted": 0.4629399068196898,
+      "minimum_total_weight": -0.00144256,
+      "minimum_mode_weight": -0.000902645,
+      "negative_total_bins": 330,
+      "negative_weight_entries": 1024,
+      "native_file_sha256": "8b2d2d519fa66ad579e3b8f2f2a1919157cecda604fd6ac28ecea7e2c605b75d",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 5,
+      "electronic_broadening_ry": 0.025,
+      "native_mode_sum_lambda_not_accepted": 0.4476,
+      "native_spectral_integral_not_accepted": 0.447788237967289,
+      "diagnostic_signed_integral_not_accepted": 0.4477881794652845,
+      "minimum_total_weight": -0.000872958,
+      "minimum_mode_weight": -0.000597119,
+      "negative_total_bins": 309,
+      "negative_weight_entries": 968,
+      "native_file_sha256": "6263637131de2c9a1afd8d727e147a40be3869d062dd4e575abdb1f28c531ee3",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 6,
+      "electronic_broadening_ry": 0.03,
+      "native_mode_sum_lambda_not_accepted": 0.4387,
+      "native_spectral_integral_not_accepted": 0.438855261178187,
+      "diagnostic_signed_integral_not_accepted": 0.43885529518330146,
+      "minimum_total_weight": -0.000456258,
+      "minimum_mode_weight": -0.000350604,
+      "negative_total_bins": 283,
+      "negative_weight_entries": 895,
+      "native_file_sha256": "23184021ea3cb5f5becb8c2e2733df36fd7d0295d55d7c515c9f29c9e9377e92",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 7,
+      "electronic_broadening_ry": 0.035,
+      "native_mode_sum_lambda_not_accepted": 0.4329,
+      "native_spectral_integral_not_accepted": 0.433049361460256,
+      "diagnostic_signed_integral_not_accepted": 0.43304936578531705,
+      "minimum_total_weight": -0.000248322,
+      "minimum_mode_weight": -0.000219014,
+      "negative_total_bins": 247,
+      "negative_weight_entries": 790,
+      "native_file_sha256": "bce0235ae7d925484e264b80b9ba1d457e0e9caae4dc015d70a8f8c3f4490d1b",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 8,
+      "electronic_broadening_ry": 0.04,
+      "native_mode_sum_lambda_not_accepted": 0.4284,
+      "native_spectral_integral_not_accepted": 0.428526750151195,
+      "diagnostic_signed_integral_not_accepted": 0.42852673203961594,
+      "minimum_total_weight": -0.000109855,
+      "minimum_mode_weight": -0.000103627,
+      "negative_total_bins": 191,
+      "negative_weight_entries": 622,
+      "native_file_sha256": "e9cbaed82475c6fedf7b2a76dcc607696bbd4371b394ea03f34c048f19b658e0",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 9,
+      "electronic_broadening_ry": 0.045,
+      "native_mode_sum_lambda_not_accepted": 0.4243,
+      "native_spectral_integral_not_accepted": 0.424331189890166,
+      "diagnostic_signed_integral_not_accepted": 0.4243311969659624,
+      "minimum_total_weight": -3.73672e-05,
+      "minimum_mode_weight": -2.4564e-05,
+      "negative_total_bins": 19,
+      "negative_weight_entries": 223,
+      "native_file_sha256": "b8401f703d7733344d1bfbf25d3190f752250c14e46017142bc8a0cd9428d308",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": false,
+      "selected": false
+    },
+    {
+      "broadening_index": 10,
+      "electronic_broadening_ry": 0.05,
+      "native_mode_sum_lambda_not_accepted": 0.4199,
+      "native_spectral_integral_not_accepted": 0.419982583071025,
+      "diagnostic_signed_integral_not_accepted": 0.4199825678900415,
+      "minimum_total_weight": 0.0,
+      "minimum_mode_weight": 0.0,
+      "negative_total_bins": 0,
+      "negative_weight_entries": 0,
+      "native_file_sha256": "c018db4ceca1ad6cfbed9a34280de5843957626dde1d80e88a9cd4075ccafaae",
+      "native_file_bytes": 168288,
+      "weights_unmodified": true,
+      "individual_positivity_check_passed": true,
+      "selected": false
+    }
+  ],
+  "no_clipping_or_selected_broadening": true,
+  "no_tc_estimate": true,
+  "lambda_stage_submitted": false,
+  "source_native_orientation_symmetry": [
+    48,
+    48
+  ],
+  "phonon_irreducible_qpoints": 16,
+  "native_files_preserved": true,
+  "context_sha256": "5cb3b14c15737cbd185df3bcda11ae082f7900680aff5f6c5ec4d2f3a0300d23"
+}

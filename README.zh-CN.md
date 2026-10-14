@@ -2,26 +2,25 @@
 
 ![DFT Agent](docs/assets/dft-agent-logo.png)
 
-版本 `0.4.3` 开发预览；稳定版为 `0.4.2`。[English](README.md)
+版本 `0.4.3`。[English](README.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH 皇家理工学院 · [ORCID](https://orcid.org/0009-0005-6165-3237)
 
 DFT Agent 根据自然语言目标或手动参数，准备并在你的 HPC 集群上执行第一性原理计算。
 
-描述任务，检查计划，然后在你的 Slurm 集群上运行 VASP 或 Quantum ESPRESSO。支持结构编辑、弛豫、SCF、能带、态密度、磁性、SOC、DFT+U 和杂化泛函。[QE 预览版](docs/qe.md)还提供开源程序安装、声子、NEB 和电子–声子流程。
+描述任务，检查计划，然后在你的 Slurm 集群上运行 VASP 或 Quantum ESPRESSO。支持结构编辑、弛豫、SCF、能带、态密度、磁性、SOC、DFT+U 和杂化泛函。[QE](docs/qe.md)还提供开源程序安装、声子、NEB 和电子–声子流程。
 
 桌面安装包面向 Apple Silicon Mac 和 Windows x64，内置 Python 和模型 SDK，无需另装 Python。Windows 原生运行，WSL 为可选方案；Linux 可使用 Python 安装方式。
 计算需要你自己的 Slurm 账号。VASP 还需要已授权的程序和 POTCAR；QE 可使用公开赝势。模型功能使用你自己的账号和账单，DFT Agent 不包含计算时间或模型额度。
 
 ## 安装并打开
 
-从 [v0.4.2](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.2) 下载对应安装包：
+从 [v0.4.3](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.3) 下载对应安装包：
 
 - **Apple Silicon Mac，macOS 14+：**打开 `.dmg`，把 **DFT Agent** 拖入“应用程序”，再打开应用。
 - **Windows x64：**运行 `.exe` 安装程序，然后从开始菜单打开 **DFT Agent**。
 
 源码安装见[安装指南](docs/install.md)，打包与验收范围见[桌面版说明](docs/desktop.md)。
-QE 需要使用 [0.4.3 开发预览版](docs/install.md#development-preview)，v0.4.2 不包含 QE。
 
 ## 没有集群也能试用
 
@@ -67,8 +66,8 @@ QE 需要使用 [0.4.3 开发预览版](docs/install.md#development-preview)，v
 
 ## 引用
 
-Cui, Q. (2026). *DFT Agent* (v0.4.2). [源码](https://github.com/cuiqirui99/DFT-AGENT).
+Cui, Q. (2026). *DFT Agent* (v0.4.3). [源码](https://github.com/cuiqirui99/DFT-AGENT).
 
 [v0.3.0 存档](https://doi.org/10.5281/zenodo.23260917)。
 
-[快速开始](docs/quickstart.md) · [安装](docs/install.md) · [Windows](docs/windows.md) · [方法](docs/methods.md) · [输入默认值](docs/input-defaults.md) · [命令行示例](docs/examples.md) · [验证](docs/validation-0.4.1.md) · [MIT 许可证](LICENSE) · [声明](NOTICE.md) · [引用](CITATION.cff)
+[快速开始](docs/quickstart.md) · [安装](docs/install.md) · [Windows](docs/windows.md) · [方法](docs/methods.md) · [输入默认值](docs/input-defaults.md) · [命令行示例](docs/examples.md) · [VASP 验证](docs/validation-0.4.1.md) · [QE 验证](validation/qe-0.4.3/README.md) · [MIT 许可证](LICENSE) · [声明](NOTICE.md) · [引用](CITATION.cff)

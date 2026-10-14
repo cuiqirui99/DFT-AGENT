@@ -1,0 +1,112 @@
+{
+  "accepted": true,
+  "job_id": "7495299",
+  "result": {
+    "schema_version": 1,
+    "engine": "qe",
+    "success": true,
+    "artifacts": [
+      "epw.out",
+      "alpha2f.dat",
+      "source.a2f",
+      "source-schema.xml",
+      "crystal.fmt",
+      "epw.in",
+      "dft_agent.imag_iso_000.50",
+      "dft_agent.imag_iso_001.00",
+      "dft_agent.imag_iso_002.00",
+      "dft_agent.imag_iso_003.00",
+      "eliashberg_gap.csv"
+    ],
+    "warnings": [],
+    "scientific_accuracy_validated": false,
+    "superconductivity_established": false,
+    "pairing_model": "isotropic Migdal-Eliashberg with constant Coulomb pseudopotential",
+    "task": "epw_iso",
+    "mu_star": 0.1,
+    "lambda_integral": 0.4388157,
+    "omega_log_mev": 28.990296,
+    "allen_dynes_estimate_kelvin": 2.30243,
+    "source_provenance": {
+      "kind": "verified_lambda",
+      "broadening_index": 2,
+      "electronic_broadening_ry": 0.01,
+      "source_input_sha256": "d803a071077130b28875b14abb38921ebaa0dd959b2eaa2657a80254b88172d1",
+      "scientific_accuracy_validated": false
+    },
+    "temperature_results": [
+      {
+        "temperature_kelvin": 0.5,
+        "gap_iw0_mev": 0.4714904009,
+        "renormalization_iw0": 1.4284017244,
+        "residual": 4.480478e-07,
+        "iterations": 13,
+        "file": "dft_agent.imag_iso_000.50"
+      },
+      {
+        "temperature_kelvin": 1.0,
+        "gap_iw0_mev": 0.46929740282,
+        "renormalization_iw0": 1.4283692946,
+        "residual": 1.39082e-07,
+        "iterations": 12,
+        "file": "dft_agent.imag_iso_001.00"
+      },
+      {
+        "temperature_kelvin": 2.0,
+        "gap_iw0_mev": 0.41241674823999996,
+        "renormalization_iw0": 1.4285040345,
+        "residual": 4.927279e-07,
+        "iterations": 13,
+        "file": "dft_agent.imag_iso_002.00"
+      },
+      {
+        "temperature_kelvin": 3.0,
+        "gap_iw0_mev": 0.13826053527,
+        "renormalization_iw0": 1.4287763233,
+        "residual": 2.433702e-08,
+        "iterations": 26,
+        "file": "dft_agent.imag_iso_003.00"
+      }
+    ]
+  },
+  "independent": {
+    "passed": true,
+    "tolerance": 1e-05,
+    "checks": [
+      {
+        "temperature_kelvin": 0.5,
+        "max_z_residual": 5.594280594323209e-11,
+        "relative_gap_residual": 9.163027847204066e-09,
+        "passed": true
+      },
+      {
+        "temperature_kelvin": 1.0,
+        "max_z_residual": 5.175748718500017e-11,
+        "relative_gap_residual": 3.778333876649597e-09,
+        "passed": true
+      },
+      {
+        "temperature_kelvin": 2.0,
+        "max_z_residual": 6.048983536288688e-11,
+        "relative_gap_residual": 2.2103012623431956e-08,
+        "passed": true
+      },
+      {
+        "temperature_kelvin": 3.0,
+        "max_z_residual": 5.606337616370638e-11,
+        "relative_gap_residual": 2.3592504245326515e-10,
+        "passed": true
+      }
+    ],
+    "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+  },
+  "context_sha256": "2b7d6829c6b42b4bf72504c6bf04a430f016ee4eb5d7029edd3d0fc930a21104",
+  "bundle": {
+    "bytes": 460524,
+    "files": 313,
+    "sha256": "3c25062f844f388198ebcc3efd8b2ae6599541f896653d434e770c127ac881fc"
+  },
+  "prior_failed_job": "7495214",
+  "prior_failure_preserved": true,
+  "scope": "Verified nonlinear phonon pairing model below its accepted linearized Tc bracket; not material-converged Tc."
+}

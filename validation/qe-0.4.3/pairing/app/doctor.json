@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "environment": {
+    "python": "3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:45:41) [GCC 13.3.0]",
+    "numpy": "1.26.4",
+    "scipy": "1.15.2",
+    "python_sha256": "a9bb63708d77d18ac04e9e0b52f14c5389b6ddbc84df29e46614ef3643a24b23"
+  }
+}

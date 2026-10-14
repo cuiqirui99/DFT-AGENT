@@ -2,13 +2,13 @@
 
 ![DFT Agent](docs/assets/dft-agent-logo.png)
 
-Version `0.4.3` preview. Stable release: `0.4.2`. [中文说明](README.zh-CN.md)
+Version `0.4.3`. [中文说明](README.zh-CN.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology
 
 DFT Agent prepares and runs first-principles calculations on your HPC cluster from a natural-language goal or manual settings.
 
-Describe a task, review the plan, and run VASP or Quantum ESPRESSO on your Slurm cluster. Combine structure edits, relaxation, SCF, bands and DOS with magnetism, SOC, DFT+U or hybrid functionals. The [QE preview](docs/qe.md) adds open-source installation, phonons, NEB and electron–phonon workflows.
+Describe a task, review the plan, and run VASP or Quantum ESPRESSO on your Slurm cluster. Combine structure edits, relaxation, SCF, bands and DOS with magnetism, SOC, DFT+U or hybrid functionals. [QE](docs/qe.md) adds open-source installation, phonons, NEB and electron–phonon workflows.
 
 ![SrTiO3 crystal](docs/assets/crystal.png)
 
@@ -17,14 +17,13 @@ Calculations require your own Slurm account. VASP also requires licensed VASP/PO
 
 ## Install and open
 
-Download the installer for your computer from [v0.4.2](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.2):
+Download the installer for your computer from [v0.4.3](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.3):
 
 - **Mac, Apple Silicon, macOS 14+:** open the `.dmg`, copy **DFT Agent** to Applications, then open it.
 - **Windows x64:** run the `.exe` installer, then open **DFT Agent** from the Start menu.
 
 No separate Python installation is needed. See [Install](docs/install.md) for source installation and
 [Desktop builds](docs/desktop.md) for the current verification scope.
-QE requires the [0.4.3 development preview](docs/install.md#development-preview); it is not included in v0.4.2.
 
 ## Try it without a cluster
 
@@ -97,8 +96,8 @@ Use ordered periodic structures. Check the starting parameters for your material
 
 ## Citation
 
-Cui, Q. (2026). *DFT Agent* (v0.4.2). [Source](https://github.com/cuiqirui99/DFT-AGENT).
+Cui, Q. (2026). *DFT Agent* (v0.4.3). [Source](https://github.com/cuiqirui99/DFT-AGENT).
 
 [Archived v0.3.0](https://doi.org/10.5281/zenodo.23260917).
 
-[Quickstart](docs/quickstart.md) · [Install](docs/install.md) · [Windows](docs/windows.md) · [Methods](docs/methods.md) · [Input defaults](docs/input-defaults.md) · [CLI examples](docs/examples.md) · [Validation](docs/validation-0.4.1.md) · [MIT license](LICENSE) · [Notices](NOTICE.md) · [Citation](CITATION.cff)
+[Quickstart](docs/quickstart.md) · [Install](docs/install.md) · [Windows](docs/windows.md) · [Methods](docs/methods.md) · [Input defaults](docs/input-defaults.md) · [CLI examples](docs/examples.md) · [VASP validation](docs/validation-0.4.1.md) · [QE validation](validation/qe-0.4.3/README.md) · [MIT license](LICENSE) · [Notices](NOTICE.md) · [Citation](CITATION.cff)

@@ -1,0 +1,12 @@
+{
+  "job_id": "7494961",
+  "action": "native_ph_checkpoint_stop_requested",
+  "time": "2026-10-14T14:46:13.649703+00:00",
+  "mechanism": "dft_agent.EXIT",
+  "reason": "Sequence short end-to-end acceptance jobs before the longer optional mesh-refinement run under the one-node allocation limit. Original inputs and checkpoints are retained.",
+  "resume": "Use recover=.true. in a separately recorded continuation; do not overwrite original inputs or outputs.",
+  "source": "https://www.quantum-espresso.org/Doc/ph_user_guide/node7.html",
+  "complete": false,
+  "native_stop_completed": true,
+  "native_job_done_is_not_full_grid_acceptance": true
+}

@@ -1,0 +1,343 @@
+{
+  "commit": "913761b43b36b19276d4ddfacfa62b53fb519107",
+  "version": "0.4.3",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "architecture": "arm64",
+  "source_archive_sha256": "8495db1d0409a03e24b4482e4d99e5c102f3fb5ca064be72eb2af98f0035ed0f",
+  "source_manifest_sha256": "1e74e176f5cb78001cea5e05d1aaa15cc23f49cf73e56a1d1acaff7973f6255e",
+  "production_code_sha256": {
+    "src/vasp_slurm_agent/__init__.py": "eed76c765cfeb084e9190e4cae8962ea401024bbce6a3fd59721dd998e1aef81",
+    "src/vasp_slurm_agent/agent.py": "a2f2b5f5b37c5db0e046858eac4dd40c73893ff07c9f38c7ea9124a959f68c6d",
+    "src/vasp_slurm_agent/app.py": "f44a20a20890d87abbee804e84b38382c6f01355d35cefd0caa189489901b77b",
+    "src/vasp_slurm_agent/batch.py": "ce8cbfb9c66031f490d20b1984747e1daa766e9094b66e48c4a8c30ba3e3eb24",
+    "src/vasp_slurm_agent/cli.py": "3015727f3fd0bc3253d1f6f3341dd72fac83c7fedbe3f570945e877dec2e1b78",
+    "src/vasp_slurm_agent/config.py": "66b27df2e15936452ba6574a5a87ffa40e8a6d9c7a66837978e18feee75140b7",
+    "src/vasp_slurm_agent/continuation.py": "46f222f8f7a0e6be5a2f12af3d9f5d61f6d245c87a0dbad1719a98e103a07379",
+    "src/vasp_slurm_agent/credentials.py": "3426aaf52105bf025b825db1227386b341cb3188de7741ac66ca7abca3d2fd48",
+    "src/vasp_slurm_agent/desktop.py": "fdfe8f35a60d53ac0089580f91bf4c9074fd498cac325ec3ab7b96dd049f97e6",
+    "src/vasp_slurm_agent/discovery.py": "7d30c6ad4ce812f01caf6d2d49d866e8dd0627350f54b9b206012c274ea102b4",
+    "src/vasp_slurm_agent/dispatch.py": "9c9a5a98b26a2fc8846b2ed2ab804a9a44e28383bfb3c2ea455bbadc47830aba",
+    "src/vasp_slurm_agent/experience.py": "2ebb72b20e8ec5986def27d9ed0fcae4616a2976bf401efe51272fc6bdf13e16",
+    "src/vasp_slurm_agent/explanation.py": "48b915e851efce80fc57b97660e24870069363bf9bd2dc6ba893e733b1e2d96b",
+    "src/vasp_slurm_agent/gpu.py": "b496e7da68ccc9c1a65c402f2d0b41cc9ed8c1fb22ee63cfcb9e6fd858a16c64",
+    "src/vasp_slurm_agent/guidance.py": "4fa5567c535c1f9a606ee855c886f94ec34347980a25dade6743555854fa7914",
+    "src/vasp_slurm_agent/i18n.py": "8938cda3097054f6acf3b1d02806481e11dcf486853b4080cc1eb8d0bd1bb6ec",
+    "src/vasp_slurm_agent/knowledge.py": "31fd57380d71a40efaebad7634d928af0c56c0df0b1008d5198730aa8d8479b3",
+    "src/vasp_slurm_agent/legacy_inputs.py": "40b2983f7ac9ccc4ec207bae8a751ed5a0d7698b7625a551b4f3e609050dad3d",
+    "src/vasp_slurm_agent/magnetic.py": "f44d748f5e50bd7ba27317236cb48f64dd9dc7a902812fd54d1ae499423477b8",
+    "src/vasp_slurm_agent/methods.py": "020955acae99762d4ab239f73b842e3e5af9b19503bbea83e4aab8e6174e75e5",
+    "src/vasp_slurm_agent/model_usage.py": "f71be49d35ad4c0da7e031169257c3b780bbc5d9597c306d560ea7730e573c11",
+    "src/vasp_slurm_agent/notify.py": "27ddf35ea5a1999dc04a989422733b23977bf4b16080cd07a87b3e2353664d08",
+    "src/vasp_slurm_agent/numerical_defaults.py": "383677b5f3f52869847ea0873881e45afedce817911beb12e63e08f3d3b9cc91",
+    "src/vasp_slurm_agent/paths.py": "44c6eeaea3b6c0a1e807966b21636c5a40691682b3509a6912a0cd66cd27ba8d",
+    "src/vasp_slurm_agent/postprocessing.py": "6ca8c199dba153c6d28b84fb93f59422f775a656d8421bffe3f2c048af281c6c",
+    "src/vasp_slurm_agent/prompt_context.py": "0c33906b56dd724bd38069849dd0ae5a8144f1503bff26ff037eb45d410786e2",
+    "src/vasp_slurm_agent/providers.py": "1aed5a2accbacaee2eb611d6890beae3bfaab0d19ae4a5e40778e6a9d4de85a4",
+    "src/vasp_slurm_agent/qe.py": "9b5b8c7de9f3d89c269f5f0d5571cbd5bc99a9ea1be5bf0f7c02d1d1fa878682",
+    "src/vasp_slurm_agent/qe_agent.py": "890eff6b362504effa7cb6085fc1742e5de1adc3fa6d2014f14c8824905c2ec7",
+    "src/vasp_slurm_agent/qe_app.py": "5b7e98f6942ba7c97522c68c4bcba805b95e908af815a9bbfcaeafda7971a769",
+    "src/vasp_slurm_agent/qe_context.py": "22cb7f255f4f17cc9c0811464a276833181b8f05feeaf1beb03d6f2b0897d51a",
+    "src/vasp_slurm_agent/qe_continuation.py": "ba3ac2cb25007abf6e2231b25d37ebd8705ec68f67bfb0cc352017a04e5c0b67",
+    "src/vasp_slurm_agent/qe_eph.py": "1914af67570b3f76eb568d09eb5f79824386ab9d21ab04663cd76b282c92255f",
+    "src/vasp_slurm_agent/qe_epw.py": "cff8b265cae7b3c45ec52c214500ee8d5e80178302fdf64be9c3f57b0f992a5d",
+    "src/vasp_slurm_agent/qe_guidance.py": "ee6b485f468d12afb6dec079cbcab0a89a3cb9b0daabbde7b618d53156419308",
+    "src/vasp_slurm_agent/qe_pairing.py": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214",
+    "src/vasp_slurm_agent/qe_pairing_agent.py": "61bed6089b7a63f7c8edfd2a1ae056505ddb581b5b61f0437c3346348df08a13",
+    "src/vasp_slurm_agent/qe_pairing_app.py": "7dd78078e5a5431ba966d3127e6cc62f4dd8c100c9e452e96a6643c3c715f936",
+    "src/vasp_slurm_agent/qe_pairing_workflow.py": "ec2da115f080ef1e843508fba628db16bdee7a37a8373af3e718a98f0370e68a",
+    "src/vasp_slurm_agent/qe_reasoning.py": "c6bbc77c253d082438b672fc68b9382c49302e3fa273a4d1ca02a002cb74eba3",
+    "src/vasp_slurm_agent/qe_setup.py": "df4f2835c7277f683c8d73e1daad47ab24facf3d20dd9d696fa596aa7846a87e",
+    "src/vasp_slurm_agent/qe_wannier.py": "a175af452af3b0061813aa78dd9de0b8ac68287607bb164b2b00d263a2252f49",
+    "src/vasp_slurm_agent/qe_workflow.py": "037ac06611d8ff0b43ae101265919c5f2b6d00da57887fbdf98dab29ca0ba5b9",
+    "src/vasp_slurm_agent/recovery.py": "ec843cda531874b654095ff9f11ddae22c2db4ea3b25e9b3c5743f099196e9b5",
+    "src/vasp_slurm_agent/restart.py": "dc897e28e875709b87c8df8d116a0b3d592aebfed211e33d51e41910e6a1848a",
+    "src/vasp_slurm_agent/runtime.py": "822981d919893d60c437dea54071323bffab1355889ddd09dd121b4c3c4f270b",
+    "src/vasp_slurm_agent/samples.py": "6c5f0d11c102181cd7754fd858f810145d846e3be8a994f70ac3f80db3955aeb",
+    "src/vasp_slurm_agent/settings.py": "0629af69a5ff006810392fb91a950a59544f426e892481bfc668bdeb2a2d1cc1",
+    "src/vasp_slurm_agent/structure_agent.py": "931ea253d4d88813773ac64416dfc6b7519d38b7066e384fa482fda715e8e87a",
+    "src/vasp_slurm_agent/structure_view.py": "195be196caa9de36ea084cb8d4ef115d92836862e41f538ad47cbd4391286aaf",
+    "src/vasp_slurm_agent/structures.py": "66cf3315982b39fd5705116ce7c71298690312e862f25ac97aa3c7ffcf53c73b",
+    "src/vasp_slurm_agent/task_agent.py": "0f699f5fe7acc095f7a90b68bd968b651176cb731eb78fe8c645fe468cadc931",
+    "src/vasp_slurm_agent/transport.py": "c7e3941541ef00ca87ed160cd03880f5d13700929298678ee9df191552f76283",
+    "src/vasp_slurm_agent/ui_style.py": "d7c00cd86e3087fc192fcbc734fe7654ddb79c05ec9b55a42f879f7165cce374",
+    "src/vasp_slurm_agent/updates.py": "f06ffb3c9e31a04c358865c11ec1d9370a2f3e1a18c93d8c0afb0f4b80911de3",
+    "src/vasp_slurm_agent/vasp.py": "0e464b1922c5140f40552e0e1f5adfa0b2c5b4f08dbb50ff5317663555a7079b",
+    "src/vasp_slurm_agent/vaspkit.py": "4a9b827a6fc94b7d67e4c8dadbff22774a33f8145de4c63b3cdf0d53fcf70b16",
+    "src/vasp_slurm_agent/windows_ssh.py": "6c0795f9611274fa5004a6a57a8225cb47e9f042a7599148ac67b71736ed4079",
+    "src/vasp_slurm_agent/workflow.py": "1b8a2d8db9c262b46c3aa2b8b344ddb293e05a63a72dc0c589d13d58e37e9365"
+  },
+  "analyzed_modules": {
+    "vasp_slurm_agent.workflow": {
+      "path": "src/vasp_slurm_agent/workflow.py",
+      "sha256": "1b8a2d8db9c262b46c3aa2b8b344ddb293e05a63a72dc0c589d13d58e37e9365"
+    },
+    "vasp_slurm_agent.windows_ssh": {
+      "path": "src/vasp_slurm_agent/windows_ssh.py",
+      "sha256": "6c0795f9611274fa5004a6a57a8225cb47e9f042a7599148ac67b71736ed4079"
+    },
+    "vasp_slurm_agent.vaspkit": {
+      "path": "src/vasp_slurm_agent/vaspkit.py",
+      "sha256": "4a9b827a6fc94b7d67e4c8dadbff22774a33f8145de4c63b3cdf0d53fcf70b16"
+    },
+    "vasp_slurm_agent.vasp": {
+      "path": "src/vasp_slurm_agent/vasp.py",
+      "sha256": "0e464b1922c5140f40552e0e1f5adfa0b2c5b4f08dbb50ff5317663555a7079b"
+    },
+    "vasp_slurm_agent.updates": {
+      "path": "src/vasp_slurm_agent/updates.py",
+      "sha256": "f06ffb3c9e31a04c358865c11ec1d9370a2f3e1a18c93d8c0afb0f4b80911de3"
+    },
+    "vasp_slurm_agent.ui_style": {
+      "path": "src/vasp_slurm_agent/ui_style.py",
+      "sha256": "d7c00cd86e3087fc192fcbc734fe7654ddb79c05ec9b55a42f879f7165cce374"
+    },
+    "vasp_slurm_agent.transport": {
+      "path": "src/vasp_slurm_agent/transport.py",
+      "sha256": "c7e3941541ef00ca87ed160cd03880f5d13700929298678ee9df191552f76283"
+    },
+    "vasp_slurm_agent.task_agent": {
+      "path": "src/vasp_slurm_agent/task_agent.py",
+      "sha256": "0f699f5fe7acc095f7a90b68bd968b651176cb731eb78fe8c645fe468cadc931"
+    },
+    "vasp_slurm_agent.structures": {
+      "path": "src/vasp_slurm_agent/structures.py",
+      "sha256": "66cf3315982b39fd5705116ce7c71298690312e862f25ac97aa3c7ffcf53c73b"
+    },
+    "vasp_slurm_agent.structure_view": {
+      "path": "src/vasp_slurm_agent/structure_view.py",
+      "sha256": "195be196caa9de36ea084cb8d4ef115d92836862e41f538ad47cbd4391286aaf"
+    },
+    "vasp_slurm_agent.structure_agent": {
+      "path": "src/vasp_slurm_agent/structure_agent.py",
+      "sha256": "931ea253d4d88813773ac64416dfc6b7519d38b7066e384fa482fda715e8e87a"
+    },
+    "vasp_slurm_agent.settings": {
+      "path": "src/vasp_slurm_agent/settings.py",
+      "sha256": "0629af69a5ff006810392fb91a950a59544f426e892481bfc668bdeb2a2d1cc1"
+    },
+    "vasp_slurm_agent.samples": {
+      "path": "src/vasp_slurm_agent/samples.py",
+      "sha256": "6c5f0d11c102181cd7754fd858f810145d846e3be8a994f70ac3f80db3955aeb"
+    },
+    "vasp_slurm_agent.runtime": {
+      "path": "src/vasp_slurm_agent/runtime.py",
+      "sha256": "822981d919893d60c437dea54071323bffab1355889ddd09dd121b4c3c4f270b"
+    },
+    "vasp_slurm_agent.restart": {
+      "path": "src/vasp_slurm_agent/restart.py",
+      "sha256": "dc897e28e875709b87c8df8d116a0b3d592aebfed211e33d51e41910e6a1848a"
+    },
+    "vasp_slurm_agent.recovery": {
+      "path": "src/vasp_slurm_agent/recovery.py",
+      "sha256": "ec843cda531874b654095ff9f11ddae22c2db4ea3b25e9b3c5743f099196e9b5"
+    },
+    "vasp_slurm_agent.qe_workflow": {
+      "path": "src/vasp_slurm_agent/qe_workflow.py",
+      "sha256": "037ac06611d8ff0b43ae101265919c5f2b6d00da57887fbdf98dab29ca0ba5b9"
+    },
+    "vasp_slurm_agent.qe_wannier": {
+      "path": "src/vasp_slurm_agent/qe_wannier.py",
+      "sha256": "a175af452af3b0061813aa78dd9de0b8ac68287607bb164b2b00d263a2252f49"
+    },
+    "vasp_slurm_agent.qe_setup": {
+      "path": "src/vasp_slurm_agent/qe_setup.py",
+      "sha256": "df4f2835c7277f683c8d73e1daad47ab24facf3d20dd9d696fa596aa7846a87e"
+    },
+    "vasp_slurm_agent.qe_reasoning": {
+      "path": "src/vasp_slurm_agent/qe_reasoning.py",
+      "sha256": "c6bbc77c253d082438b672fc68b9382c49302e3fa273a4d1ca02a002cb74eba3"
+    },
+    "vasp_slurm_agent.qe_pairing_workflow": {
+      "path": "src/vasp_slurm_agent/qe_pairing_workflow.py",
+      "sha256": "ec2da115f080ef1e843508fba628db16bdee7a37a8373af3e718a98f0370e68a"
+    },
+    "vasp_slurm_agent.qe_pairing_app": {
+      "path": "src/vasp_slurm_agent/qe_pairing_app.py",
+      "sha256": "7dd78078e5a5431ba966d3127e6cc62f4dd8c100c9e452e96a6643c3c715f936"
+    },
+    "vasp_slurm_agent.qe_pairing_agent": {
+      "path": "src/vasp_slurm_agent/qe_pairing_agent.py",
+      "sha256": "61bed6089b7a63f7c8edfd2a1ae056505ddb581b5b61f0437c3346348df08a13"
+    },
+    "vasp_slurm_agent.qe_pairing": {
+      "path": "src/vasp_slurm_agent/qe_pairing.py",
+      "sha256": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214"
+    },
+    "vasp_slurm_agent.qe_guidance": {
+      "path": "src/vasp_slurm_agent/qe_guidance.py",
+      "sha256": "ee6b485f468d12afb6dec079cbcab0a89a3cb9b0daabbde7b618d53156419308"
+    },
+    "vasp_slurm_agent.qe_epw": {
+      "path": "src/vasp_slurm_agent/qe_epw.py",
+      "sha256": "cff8b265cae7b3c45ec52c214500ee8d5e80178302fdf64be9c3f57b0f992a5d"
+    },
+    "vasp_slurm_agent.qe_eph": {
+      "path": "src/vasp_slurm_agent/qe_eph.py",
+      "sha256": "1914af67570b3f76eb568d09eb5f79824386ab9d21ab04663cd76b282c92255f"
+    },
+    "vasp_slurm_agent.qe_continuation": {
+      "path": "src/vasp_slurm_agent/qe_continuation.py",
+      "sha256": "ba3ac2cb25007abf6e2231b25d37ebd8705ec68f67bfb0cc352017a04e5c0b67"
+    },
+    "vasp_slurm_agent.qe_context": {
+      "path": "src/vasp_slurm_agent/qe_context.py",
+      "sha256": "22cb7f255f4f17cc9c0811464a276833181b8f05feeaf1beb03d6f2b0897d51a"
+    },
+    "vasp_slurm_agent.qe_app": {
+      "path": "src/vasp_slurm_agent/qe_app.py",
+      "sha256": "5b7e98f6942ba7c97522c68c4bcba805b95e908af815a9bbfcaeafda7971a769"
+    },
+    "vasp_slurm_agent.qe_agent": {
+      "path": "src/vasp_slurm_agent/qe_agent.py",
+      "sha256": "890eff6b362504effa7cb6085fc1742e5de1adc3fa6d2014f14c8824905c2ec7"
+    },
+    "vasp_slurm_agent.qe": {
+      "path": "src/vasp_slurm_agent/qe.py",
+      "sha256": "9b5b8c7de9f3d89c269f5f0d5571cbd5bc99a9ea1be5bf0f7c02d1d1fa878682"
+    },
+    "vasp_slurm_agent.providers": {
+      "path": "src/vasp_slurm_agent/providers.py",
+      "sha256": "1aed5a2accbacaee2eb611d6890beae3bfaab0d19ae4a5e40778e6a9d4de85a4"
+    },
+    "vasp_slurm_agent.prompt_context": {
+      "path": "src/vasp_slurm_agent/prompt_context.py",
+      "sha256": "0c33906b56dd724bd38069849dd0ae5a8144f1503bff26ff037eb45d410786e2"
+    },
+    "vasp_slurm_agent.postprocessing": {
+      "path": "src/vasp_slurm_agent/postprocessing.py",
+      "sha256": "6ca8c199dba153c6d28b84fb93f59422f775a656d8421bffe3f2c048af281c6c"
+    },
+    "vasp_slurm_agent.paths": {
+      "path": "src/vasp_slurm_agent/paths.py",
+      "sha256": "44c6eeaea3b6c0a1e807966b21636c5a40691682b3509a6912a0cd66cd27ba8d"
+    },
+    "vasp_slurm_agent.numerical_defaults": {
+      "path": "src/vasp_slurm_agent/numerical_defaults.py",
+      "sha256": "383677b5f3f52869847ea0873881e45afedce817911beb12e63e08f3d3b9cc91"
+    },
+    "vasp_slurm_agent.notify": {
+      "path": "src/vasp_slurm_agent/notify.py",
+      "sha256": "27ddf35ea5a1999dc04a989422733b23977bf4b16080cd07a87b3e2353664d08"
+    },
+    "vasp_slurm_agent.model_usage": {
+      "path": "src/vasp_slurm_agent/model_usage.py",
+      "sha256": "f71be49d35ad4c0da7e031169257c3b780bbc5d9597c306d560ea7730e573c11"
+    },
+    "vasp_slurm_agent.methods": {
+      "path": "src/vasp_slurm_agent/methods.py",
+      "sha256": "020955acae99762d4ab239f73b842e3e5af9b19503bbea83e4aab8e6174e75e5"
+    },
+    "vasp_slurm_agent.magnetic": {
+      "path": "src/vasp_slurm_agent/magnetic.py",
+      "sha256": "f44d748f5e50bd7ba27317236cb48f64dd9dc7a902812fd54d1ae499423477b8"
+    },
+    "vasp_slurm_agent.legacy_inputs": {
+      "path": "src/vasp_slurm_agent/legacy_inputs.py",
+      "sha256": "40b2983f7ac9ccc4ec207bae8a751ed5a0d7698b7625a551b4f3e609050dad3d"
+    },
+    "vasp_slurm_agent.knowledge": {
+      "path": "src/vasp_slurm_agent/knowledge.py",
+      "sha256": "31fd57380d71a40efaebad7634d928af0c56c0df0b1008d5198730aa8d8479b3"
+    },
+    "vasp_slurm_agent.i18n": {
+      "path": "src/vasp_slurm_agent/i18n.py",
+      "sha256": "8938cda3097054f6acf3b1d02806481e11dcf486853b4080cc1eb8d0bd1bb6ec"
+    },
+    "vasp_slurm_agent.guidance": {
+      "path": "src/vasp_slurm_agent/guidance.py",
+      "sha256": "4fa5567c535c1f9a606ee855c886f94ec34347980a25dade6743555854fa7914"
+    },
+    "vasp_slurm_agent.gpu": {
+      "path": "src/vasp_slurm_agent/gpu.py",
+      "sha256": "b496e7da68ccc9c1a65c402f2d0b41cc9ed8c1fb22ee63cfcb9e6fd858a16c64"
+    },
+    "vasp_slurm_agent.explanation": {
+      "path": "src/vasp_slurm_agent/explanation.py",
+      "sha256": "48b915e851efce80fc57b97660e24870069363bf9bd2dc6ba893e733b1e2d96b"
+    },
+    "vasp_slurm_agent.experience": {
+      "path": "src/vasp_slurm_agent/experience.py",
+      "sha256": "2ebb72b20e8ec5986def27d9ed0fcae4616a2976bf401efe51272fc6bdf13e16"
+    },
+    "vasp_slurm_agent.dispatch": {
+      "path": "src/vasp_slurm_agent/dispatch.py",
+      "sha256": "9c9a5a98b26a2fc8846b2ed2ab804a9a44e28383bfb3c2ea455bbadc47830aba"
+    },
+    "vasp_slurm_agent.discovery": {
+      "path": "src/vasp_slurm_agent/discovery.py",
+      "sha256": "7d30c6ad4ce812f01caf6d2d49d866e8dd0627350f54b9b206012c274ea102b4"
+    },
+    "vasp_slurm_agent.credentials": {
+      "path": "src/vasp_slurm_agent/credentials.py",
+      "sha256": "3426aaf52105bf025b825db1227386b341cb3188de7741ac66ca7abca3d2fd48"
+    },
+    "vasp_slurm_agent.continuation": {
+      "path": "src/vasp_slurm_agent/continuation.py",
+      "sha256": "46f222f8f7a0e6be5a2f12af3d9f5d61f6d245c87a0dbad1719a98e103a07379"
+    },
+    "vasp_slurm_agent.config": {
+      "path": "src/vasp_slurm_agent/config.py",
+      "sha256": "66b27df2e15936452ba6574a5a87ffa40e8a6d9c7a66837978e18feee75140b7"
+    },
+    "vasp_slurm_agent.cli": {
+      "path": "src/vasp_slurm_agent/cli.py",
+      "sha256": "3015727f3fd0bc3253d1f6f3341dd72fac83c7fedbe3f570945e877dec2e1b78"
+    },
+    "vasp_slurm_agent.batch": {
+      "path": "src/vasp_slurm_agent/batch.py",
+      "sha256": "ce8cbfb9c66031f490d20b1984747e1daa766e9094b66e48c4a8c30ba3e3eb24"
+    },
+    "vasp_slurm_agent.app": {
+      "path": "src/vasp_slurm_agent/app.py",
+      "sha256": "f44a20a20890d87abbee804e84b38382c6f01355d35cefd0caa189489901b77b"
+    },
+    "vasp_slurm_agent.agent": {
+      "path": "src/vasp_slurm_agent/agent.py",
+      "sha256": "a2f2b5f5b37c5db0e046858eac4dd40c73893ff07c9f38c7ea9124a959f68c6d"
+    },
+    "vasp_slurm_agent": {
+      "path": "src/vasp_slurm_agent/__init__.py",
+      "sha256": "eed76c765cfeb084e9190e4cae8962ea401024bbce6a3fd59721dd998e1aef81"
+    },
+    "vasp_slurm_agent.desktop": {
+      "path": "src/vasp_slurm_agent/desktop.py",
+      "sha256": "fdfe8f35a60d53ac0089580f91bf4c9074fd498cac325ec3ab7b96dd049f97e6"
+    }
+  },
+  "dmg": {
+    "path": "[private location omitted]",
+    "bytes": 182106355,
+    "sha256": "84c3fad03e21d101b068c644a833d478a19c7127c9218e772ed24426ce7ea3f2"
+  },
+  "installed_application": "[private location omitted]",
+  "executable_sha256": "8d9a7d5af4aabcdf4e6e1444b4c4d7065ccb562ea3b101d0f820a08fd651605c",
+  "codesign_verified": true,
+  "signing": "ad-hoc; no Developer ID or notarization",
+  "installed_from_read_only_dmg": true,
+  "bundle_check": {
+    "version": "0.4.3",
+    "platform": "darwin",
+    "frozen": true,
+    "input_preparation": true,
+    "cluster_attach": true,
+    "samples": 4,
+    "resources": true,
+    "provider_sdks": true,
+    "first_run_ui": true,
+    "plot_exports": true,
+    "qe_catalogues": true,
+    "qe_input_preparation": true,
+    "qe_install_plan": true,
+    "installed_server": true
+  },
+  "window_check": {
+    "version": "0.4.3",
+    "platform": "darwin",
+    "native_window": true,
+    "app_rendered": true
+  },
+  "source_files_unchanged": true,
+  "build_python": "Python 3.13.3",
+  "scientific_acceptance": "Separate; this report verifies the exact candidate installation and UI only.",
+  "release_published": false
+}

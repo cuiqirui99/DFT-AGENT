@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "wannier_nscf",
+  "canonical_task": "wannier_nscf",
+  "formula": "MgB2",
+  "number_of_atoms": 3,
+  "nat": 3,
+  "parameters": {
+    "mesh": [
+      6,
+      6,
+      6
+    ],
+    "wannier_mesh": [
+      3,
+      3,
+      3
+    ],
+    "qmesh": [
+      3,
+      3,
+      3
+    ],
+    "fine_kmesh": [
+      6,
+      6,
+      6
+    ],
+    "fine_qmesh": [
+      6,
+      6,
+      6
+    ],
+    "nbnd": 8,
+    "num_wann": 5,
+    "projections": [
+      "B:pz",
+      "f=0.5,1.0,0.5:s",
+      "f=0.0,0.5,0.5:s",
+      "f=0.5,0.5,0.5:s"
+    ],
+    "dis_win_min": -5.0,
+    "dis_win_max": 18.4,
+    "dis_froz_min": -5.0,
+    "dis_froz_max": 8.8,
+    "wannier_iterations": 500,
+    "fsthick_ev": 20.0,
+    "el_smearing_ev": 0.1,
+    "ph_smearing_mev": 0.5,
+    "spectral_points": 500,
+    "acoustic_cutoff_cm1": 5.0,
+    "ecutwfc": 40.0,
+    "ecutrho": 160.0,
+    "conv_thr": 1e-09,
+    "tr2_ph": 1e-12,
+    "degauss": 0.02,
+    "smearing": "mp",
+    "functional": "LDA"
+  },
+  "source_sha256": "2f97fa892fa8e3e785c9605752e2bfd527120eba3c113bd234e8819a77e17385",
+  "requires_restart": true,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        3.0829997780459064,
+        0.0,
+        0.0
+      ],
+      [
+        -1.5414998890229532,
+        2.66995612764973,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        3.520999746513007
+      ]
+    ],
+    "elements": [
+      "Mg",
+      "B",
+      "B"
+    ],
+    "fractional_positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.333333333,
+        0.666666667,
+        0.5
+      ],
+      [
+        0.666666667,
+        0.333333333,
+        0.5
+      ]
+    ]
+  },
+  "pseudopotentials": {
+    "Mg": {
+      "filename": "Mg.pz-n-vbc.UPF",
+      "element": "Mg",
+      "fully_relativistic": false,
+      "sha256": "5357982ec1f8139c2cde411073103f9b33d5482a45e2401bcf1b8aea228db076",
+      "functional": "SLA  PZ   NOGX NOGC   PZ   Exchange-Correlation functional",
+      "pseudo_type": "NC",
+      "ecutwfc": 40,
+      "ecutrho": 160
+    },
+    "B": {
+      "filename": "B.pz-vbc.UPF",
+      "element": "B",
+      "fully_relativistic": false,
+      "sha256": "eb7aa71704ded328f1c78b2e16b630d14fc97d688b0b23b51a56d541c97e1f31",
+      "functional": "SLA  PZ   NOGX NOGC   PZ   Exchange-Correlation functional",
+      "pseudo_type": "NC",
+      "ecutwfc": 40,
+      "ecutrho": 160
+    }
+  },
+  "pseudo_files": [
+    "Mg.pz-n-vbc.UPF",
+    "B.pz-vbc.UPF"
+  ],
+  "mesh": [
+    3,
+    3,
+    3
+  ],
+  "namelists": {
+    "control": {
+      "calculation": "nscf",
+      "prefix": "dft_agent",
+      "outdir": "./scratch",
+      "pseudo_dir": "./pseudo",
+      "tprnfor": true,
+      "tstress": true,
+      "verbosity": "high",
+      "disk_io": "low"
+    },
+    "system": {
+      "ibrav": 0,
+      "nat": 3,
+      "ntyp": 2,
+      "ecutwfc": 40.0,
+      "ecutrho": 160.0,
+      "input_dft": "LDA",
+      "occupations": "smearing",
+      "smearing": "mp",
+      "degauss": 0.02,
+      "nbnd": 8
+    },
+    "electrons": {
+      "conv_thr": 1e-09,
+      "electron_maxstep": 120,
+      "startingpot": "file"
+    }
+  },
+  "site_labels": [
+    "Mg",
+    "B",
+    "B"
+  ],
+  "species": {
+    "Mg": "Mg",
+    "B": "B"
+  },
+  "energy_input_unit": "Ry",
+  "force_input_unit": "Ry/bohr",
+  "hubbard_unit": "eV",
+  "executable": "pw.x",
+  "input_file": "pw.in",
+  "output_file": "pw.out",
+  "input_files": [
+    "pw.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pw.out"
+  ],
+  "input_sha256": {
+    "pw.in": "375e082e665648bc02aac253f1efe8f58dcc8c46e11bbc16a5e113a65ecbf56f",
+    "structure.cif": "c35a36005bd9af4bdf4616f56dc522eb7c040a4c91280c919737edf1c42a8d12"
+  },
+  "explicit_kpoints": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.3333333333333333
+    ],
+    [
+      0.0,
+      0.0,
+      0.6666666666666666
+    ],
+    [
+      0.0,
+      0.3333333333333333,
+      0.0
+    ],
+    [
+      0.0,
+      0.3333333333333333,
+      0.3333333333333333
+    ],
+    [
+      0.0,
+      0.3333333333333333,
+      0.6666666666666666
+    ],
+    [
+      0.0,
+      0.6666666666666666,
+      0.0
+    ],
+    [
+      0.0,
+      0.6666666666666666,
+      0.3333333333333333
+    ],
+    [
+      0.0,
+      0.6666666666666666,
+      0.6666666666666666
+    ],
+    [
+      0.3333333333333333,
+      0.0,
+      0.0
+    ],
+    [
+      0.3333333333333333,
+      0.0,
+      0.3333333333333333
+    ],
+    [
+      0.3333333333333333,
+      0.0,
+      0.6666666666666666
+    ],
+    [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.0
+    ],
+    [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+    ],
+    [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.6666666666666666
+    ],
+    [
+      0.3333333333333333,
+      0.6666666666666666,
+      0.0
+    ],
+    [
+      0.3333333333333333,
+      0.6666666666666666,
+      0.3333333333333333
+    ],
+    [
+      0.3333333333333333,
+      0.6666666666666666,
+      0.6666666666666666
+    ],
+    [
+      0.6666666666666666,
+      0.0,
+      0.0
+    ],
+    [
+      0.6666666666666666,
+      0.0,
+      0.3333333333333333
+    ],
+    [
+      0.6666666666666666,
+      0.0,
+      0.6666666666666666
+    ],
+    [
+      0.6666666666666666,
+      0.3333333333333333,
+      0.0
+    ],
+    [
+      0.6666666666666666,
+      0.3333333333333333,
+      0.3333333333333333
+    ],
+    [
+      0.6666666666666666,
+      0.3333333333333333,
+      0.6666666666666666
+    ],
+    [
+      0.6666666666666666,
+      0.6666666666666666,
+      0.0
+    ],
+    [
+      0.6666666666666666,
+      0.6666666666666666,
+      0.3333333333333333
+    ],
+    [
+      0.6666666666666666,
+      0.6666666666666666,
+      0.6666666666666666
+    ]
+  ],
+  "sources": [
+    "https://github.com/QEF/q-e/tree/qe-7.4.1/test-suite/epw_super"
+  ]
+}

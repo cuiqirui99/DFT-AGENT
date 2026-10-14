@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "source_job": "7495295",
+  "target_job": null,
+  "source_functional": "LDA",
+  "native_epw_input_unchanged": true,
+  "checkpoint_hashes_unchanged": true,
+  "actual_remote_upfs_verified": true,
+  "pseudopotentials": {
+    "Mg.pz-n-vbc.UPF": {
+      "sha256": "5357982ec1f8139c2cde411073103f9b33d5482a45e2401bcf1b8aea228db076",
+      "size": 30214,
+      "element": "Mg",
+      "fully_relativistic": false,
+      "functional": "SLA  PZ   NOGX NOGC   PZ   Exchange-Correlation functional",
+      "pseudo_type": "NC"
+    },
+    "B.pz-vbc.UPF": {
+      "sha256": "eb7aa71704ded328f1c78b2e16b630d14fc97d688b0b23b51a56d541c97e1f31",
+      "size": 22160,
+      "element": "B",
+      "fully_relativistic": false,
+      "functional": "SLA  PZ   NOGX NOGC   PZ   Exchange-Correlation functional",
+      "pseudo_type": "NC"
+    }
+  },
+  "source_metadata_sha256": "fd38934d58a3786799eb1f592f6e7c6deadd7799c88b84ab15341e3db58775d9",
+  "new_metadata_sha256": "4b24239dbc26f5c63d35161b86483596276109ec79d10785c4dfd567dba29abe",
+  "new_epw_input_sha256": "099b26a9f53b4fec5499065c0b2afc07576d5069a163894752e93f99644fc407",
+  "scope": "Pre-submission compatibility regression using the accepted native application source; no new scientific result or submission."
+}

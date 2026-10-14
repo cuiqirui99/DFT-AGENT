@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "task": "eph_dense_scf",
+  "canonical_task": "eph_dense_scf",
+  "formula": "Al",
+  "number_of_atoms": 1,
+  "nat": 1,
+  "parameters": {
+    "mesh": [
+      12,
+      12,
+      12
+    ],
+    "dense_mesh": [
+      24,
+      24,
+      24
+    ],
+    "qmesh": [
+      6,
+      6,
+      6
+    ],
+    "phonon_dos_mesh": [
+      30,
+      30,
+      30
+    ],
+    "mu_star": 0.1,
+    "electronic_type": "metal",
+    "degauss": 0.02,
+    "conv_thr": 1e-10,
+    "tr2_ph": 1e-14,
+    "el_ph_sigma": 0.005,
+    "el_ph_nsigma": 10,
+    "phonon_smearing_thz": 0.12,
+    "asr": "simple",
+    "phonon_dos_points": 2001,
+    "namelists": {
+      "control": {},
+      "system": {},
+      "electrons": {}
+    }
+  },
+  "source_sha256": "e89b47101a8f7bda5cecde6defd9ecfa8af21c6064e0a7d8d8723ad37609be8b",
+  "requires_restart": false,
+  "prefix": "dft_agent",
+  "outdir": "scratch",
+  "scientific_accuracy_validated": false,
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        0.0,
+        2.0249999973090924,
+        2.0249999973090924
+      ],
+      [
+        2.0249999973090924,
+        0.0,
+        2.0249999973090924
+      ],
+      [
+        2.0249999973090924,
+        2.0249999973090924,
+        0.0
+      ]
+    ],
+    "elements": [
+      "Al"
+    ],
+    "fractional_positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  },
+  "pseudopotentials": {
+    "Al": {
+      "filename": "Al.pbe-n-kjpaw_psl.1.0.0.UPF",
+      "sha256": "fd7b78921e6d0939095b681c328732668eaefd1dee6882fdbc03be463550cc97",
+      "ecutwfc": 30.0,
+      "ecutrho": 240.0,
+      "element": "Al",
+      "functional": "SLA  PW   PBX  PBC",
+      "relativistic": "scalar",
+      "fully_relativistic": false
+    }
+  },
+  "pseudo_files": [
+    "Al.pbe-n-kjpaw_psl.1.0.0.UPF"
+  ],
+  "mesh": [
+    24,
+    24,
+    24
+  ],
+  "namelists": {
+    "control": {
+      "calculation": "scf",
+      "prefix": "dft_agent",
+      "outdir": "./scratch",
+      "pseudo_dir": "./pseudo",
+      "tprnfor": true,
+      "tstress": true,
+      "verbosity": "high"
+    },
+    "system": {
+      "ibrav": 0,
+      "nat": 1,
+      "ntyp": 1,
+      "ecutwfc": 60.0,
+      "ecutrho": 480.0,
+      "input_dft": "PBE",
+      "occupations": "smearing",
+      "smearing": "mv",
+      "degauss": 0.02,
+      "la2f": true
+    },
+    "electrons": {
+      "conv_thr": 1e-10,
+      "electron_maxstep": 120
+    }
+  },
+  "site_labels": [
+    "Al"
+  ],
+  "species": {
+    "Al": "Al"
+  },
+  "energy_input_unit": "Ry",
+  "force_input_unit": "Ry/bohr",
+  "hubbard_unit": "eV",
+  "executable": "pw.x",
+  "input_file": "pw.in",
+  "output_file": "pw.out",
+  "input_files": [
+    "pw.in",
+    "structure.cif"
+  ],
+  "output_files": [
+    "pw.out"
+  ],
+  "input_sha256": {
+    "pw.in": "1d57cc5312e496243595747ebb9d8abaaf5551712dd8558ac37980e43d0945c6",
+    "structure.cif": "0a53bbc520f38eb87a27a5096adff7f484978730409aac4834b5a71578bd99b0"
+  },
+  "sources": [
+    "https://github.com/QEF/q-e/blob/qe-7.4.1/PHonon/PH/lambda.f90",
+    "https://github.com/QEF/q-e/tree/qe-7.4.1/PHonon/examples/example03"
+  ]
+}

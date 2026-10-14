@@ -1,0 +1,35 @@
+&CONTROL
+  calculation = 'scf',
+  prefix = 'dft_agent',
+  outdir = './scratch',
+  pseudo_dir = './pseudo',
+  tprnfor = .true.,
+  tstress = .true.,
+  verbosity = 'high',
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 1,
+  ntyp = 1,
+  ecutwfc = 60.0,
+  ecutrho = 480.0,
+  input_dft = 'PBE',
+  occupations = 'smearing',
+  smearing = 'mv',
+  degauss = 0.02,
+  la2f = .true.,
+/
+&ELECTRONS
+  conv_thr = 1e-10,
+  electron_maxstep = 120,
+/
+ATOMIC_SPECIES
+Al 26.9815386 Al.pbe-n-kjpaw_psl.1.0.0.UPF
+CELL_PARAMETERS angstrom
+0 2.0249999973091 2.0249999973091
+2.0249999973091 0 2.0249999973091
+2.0249999973091 2.0249999973091 0
+ATOMIC_POSITIONS crystal
+Al 0 0 0
+K_POINTS automatic
+24 24 24 0 0 0

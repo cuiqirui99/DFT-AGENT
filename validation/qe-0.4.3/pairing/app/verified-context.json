@@ -1,0 +1,174 @@
+{
+  "engine": "qe",
+  "goal": "Analyze the stated single-band pairing model.",
+  "dialogue": [],
+  "status": "succeeded",
+  "outcome": "1 of 1 stages have accepted model results.",
+  "final_plan": {
+    "tasks": [
+      "pairing"
+    ],
+    "parameters": {
+      "u_ev": 1.0,
+      "mu_ev": 0.0,
+      "temperature_k": 1160.4518121550323,
+      "kmesh": [
+        40,
+        40,
+        1
+      ],
+      "matsubara_points": 150,
+      "channels": [
+        "singlet",
+        "triplet"
+      ]
+    }
+  },
+  "facts": {
+    "run.status": {
+      "label": "Current result status",
+      "value": "succeeded",
+      "source": "run.json",
+      "unit": ""
+    },
+    "run.accepted_stages": {
+      "label": "Stages with accepted results",
+      "value": 1,
+      "source": "run.json",
+      "unit": "stages"
+    },
+    "stage_1.accepted": {
+      "label": "Pairing model accepted",
+      "value": true,
+      "source": "01_pairing/outputs/execution.json",
+      "unit": ""
+    },
+    "stage_1.temperature_k": {
+      "label": "Temperature",
+      "value": 1160.4518121550323,
+      "source": "01_pairing/outputs/result.json",
+      "unit": "K"
+    },
+    "stage_1.filling_per_cell": {
+      "label": "Model filling",
+      "value": 0.9999999999999999,
+      "source": "01_pairing/outputs/result.json",
+      "unit": "electrons/cell"
+    },
+    "stage_1.stoner_factor": {
+      "label": "RPA Stoner factor",
+      "value": 0.6772141238304116,
+      "source": "01_pairing/outputs/result.json",
+      "unit": ""
+    },
+    "stage_1.u_ev": {
+      "label": "u_ev",
+      "value": 1.0,
+      "source": "01_pairing/outputs/request.json",
+      "unit": "eV"
+    },
+    "stage_1.mu_ev": {
+      "label": "mu_ev",
+      "value": 0.0,
+      "source": "01_pairing/outputs/request.json",
+      "unit": "eV"
+    },
+    "stage_1.kmesh": {
+      "label": "kmesh",
+      "value": [
+        40,
+        40,
+        1
+      ],
+      "source": "01_pairing/outputs/request.json",
+      "unit": ""
+    },
+    "stage_1.matsubara_points": {
+      "label": "matsubara_points",
+      "value": 150,
+      "source": "01_pairing/outputs/request.json",
+      "unit": ""
+    },
+    "stage_1.singlet.eigenvalue": {
+      "label": "singlet pairing eigenvalue",
+      "value": 0.05518270833852677,
+      "source": "01_pairing/outputs/pairing.npz",
+      "unit": ""
+    },
+    "stage_1.singlet.relative_residual": {
+      "label": "Verified eigenpair residual",
+      "value": 2.773146863802281e-14,
+      "source": "01_pairing/outputs/pairing.npz",
+      "unit": ""
+    },
+    "stage_1.triplet.eigenvalue": {
+      "label": "triplet pairing eigenvalue",
+      "value": 0.007482736781241365,
+      "source": "01_pairing/outputs/pairing.npz",
+      "unit": ""
+    },
+    "stage_1.triplet.relative_residual": {
+      "label": "Verified eigenpair residual",
+      "value": 1.950813488672509e-15,
+      "source": "01_pairing/outputs/pairing.npz",
+      "unit": ""
+    },
+    "stage_1.material_prediction_accepted": {
+      "label": "Material prediction accepted",
+      "value": false,
+      "source": "01_pairing/outputs/request.json",
+      "unit": ""
+    }
+  },
+  "artifacts": [
+    {
+      "id": "stage_1.result.json",
+      "label": "result.json",
+      "path": "01_pairing/outputs/result.json",
+      "sha256": "190dc0834e477773f3bfd4ac2297f6d69de5c85af747b13a5feffc6410198f1b",
+      "status": "verified"
+    },
+    {
+      "id": "stage_1.pairing.npz",
+      "label": "pairing.npz",
+      "path": "01_pairing/outputs/pairing.npz",
+      "sha256": "4b43134b48b5113d62f1876a4ed320ac943a8a7333bbae1ed90f3d090a45c0b9",
+      "status": "verified"
+    },
+    {
+      "id": "stage_1.execution.json",
+      "label": "execution.json",
+      "path": "01_pairing/outputs/execution.json",
+      "sha256": "f0445476c6dcaa08039d0149b3e1fc9170c0989575edf3f3753ae5dac7f5da07",
+      "status": "verified"
+    },
+    {
+      "id": "stage_1.pairing.out",
+      "label": "pairing.out",
+      "path": "01_pairing/outputs/pairing.out",
+      "sha256": "190dc0834e477773f3bfd4ac2297f6d69de5c85af747b13a5feffc6410198f1b",
+      "status": "verified"
+    },
+    {
+      "id": "stage_1.pairing.err",
+      "label": "pairing.err",
+      "path": "01_pairing/outputs/pairing.err",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "verified"
+    },
+    {
+      "id": "stage_1.scheduler.txt",
+      "label": "scheduler.txt",
+      "path": "01_pairing/outputs/scheduler.txt",
+      "sha256": "c61de98d56d4ef9a2bcdc090d195da0f5347b6ffeca89b62e400eaca8e2d1537",
+      "status": "verified"
+    }
+  ],
+  "limits": [
+    "This is a single-orbital paramagnetic Hubbard RPA model without SOC or self-energy feedback.",
+    "The uploaded Hamiltonian and chosen interaction need separate material validation.",
+    "One temperature is not Tc. Momentum and Matsubara convergence are required.",
+    "Pairing eigenvalues are model results, not evidence of material superconductivity."
+  ],
+  "context_sha256": "be8b951dfcc4e7c3e146f469403bd1d12af96849ab3ee0076bcbf1973a68f5b5"
+}

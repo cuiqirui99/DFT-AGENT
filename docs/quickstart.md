@@ -2,11 +2,10 @@
 
 ## 1. Install
 
-Download the stable [v0.4.2](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.2)
+Download the stable [v0.4.3](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.3)
 Apple Silicon Mac `.dmg` or Windows x64 `.exe`. Copy the Mac app to Applications, or run the
 Windows installer, then open **DFT Agent**. Python and model SDKs are included;
-Windows runs natively and does not require WSL. QE needs the
-[0.4.3 development preview](install.md#development-preview).
+Windows runs natively and does not require WSL.
 [Install](install.md) also covers source installation for Linux and developers.
 
 Settings live in `~/.dft-agent/`, runs in `~/dft-agent-runs/`. Settings from
@@ -169,11 +168,11 @@ For a cloned install, activate its environment and run:
 
 ```bash
 git fetch --tags
-git switch --detach v0.4.2
+git switch --detach v0.4.3
 python -m pip install '.[agent]'
 ```
 
-Replace `v0.4.2` with the published version you want from
+Replace `v0.4.3` with the published version you want from
 [GitHub Releases](https://github.com/cuiqirui99/dft-agent/releases).
 These commands also work when the original installation used a release tag.
 If you installed a release wheel, download the new wheel and install it in the
@@ -189,7 +188,7 @@ format and local output checks; an account's available models and limits vary.
 The VASP route accepts ordered, fully occupied periodic structures, with PBE, magnetism, SOC,
 Dudarev DFT+U, HSE06 and PBE0. See [Methods](methods.md) for settings and limits.
 The structure editor can prepare substitutions, vacancies and slabs from an input
-crystal. The [QE preview](qe.md) adds phonons, NEB and electron–phonon workflows;
+crystal. The [QE route](qe.md) adds phonons, NEB and electron–phonon workflows;
 molecular dynamics is not integrated.
 Failed or unconverged calculations stop without automatic parameter changes.
 

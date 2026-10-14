@@ -1,0 +1,14 @@
+begin projections
+ B:pz
+ f=0.5,1.0,0.5:s
+ f=0.0,0.5,0.5:s
+ f=0.5,0.5,0.5:s
+end projections
+num_wann =   5
+iprint =   2
+dis_win_max =    18.400000000000
+dis_froz_min =    -5.000000000000
+dis_froz_max =     8.800000000000
+num_iter =     500
+write_bvec = .true.
+ write_hr = .true.

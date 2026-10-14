@@ -1,0 +1,13 @@
+&INPUT
+  flfrc = 'force_constants',
+  flfrq = 'phonon.freq',
+  fldos = 'phonon.dos',
+  asr = 'simple',
+  la2f = .true.,
+  dos = .true.,
+  el_ph_nsigma = 10,
+  ndos = 2001,
+  nk1 = 30,
+  nk2 = 30,
+  nk3 = 30,
+/

@@ -1,0 +1,39 @@
+{
+  "limits": [
+    "These scalar results do not describe the momentum-dependent anisotropic gap.",
+    "Solver convergence does not establish numerical convergence or a material transition temperature."
+  ],
+  "evidence": [
+    "stage_2.accepted",
+    "stage_2.pairing_model",
+    "stage_2.temperature_1.temperature_kelvin",
+    "stage_2.temperature_1.gap_iw0_mev",
+    "stage_1.accepted",
+    "stage_1.tc_bracketed",
+    "stage_1.tc_bracket_kelvin"
+  ],
+  "answer": "The accepted isotropic Eliashberg result gives a lowest-Matsubara-frequency gap of 4.74 meV at 15 K. The accepted linearized calculation found a crossing and brackets the scalar model’s transition temperature between 30 and 45 K.",
+  "next_steps": [],
+  "context_sha256": "3d1c068e0d2c82fabbf1db337b3e075a38a4ebb12340385c9a9a29685a49d765",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 17388,
+    "output_tokens": 165,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 0,
+    "total_tokens": 17553,
+    "token_counts_source": "provider",
+    "call_id": "96ff1084e17244c187c8e5d703b7aeec",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 8.419371,
+    "input_characters": 15464,
+    "instruction_characters": 1499,
+    "schema_characters": 305,
+    "output_characters": 654,
+    "max_output_tokens": null
+  }
+}

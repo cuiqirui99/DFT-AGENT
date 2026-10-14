@@ -1,0 +1,55 @@
+{
+  "diagnosis_verified": true,
+  "production_bug_found": false,
+  "new_jobs_submitted": false,
+  "original_failures_retained": [
+    "7494791",
+    "7495344"
+  ],
+  "native_source_version": "qe-7.4.1",
+  "source_references": [
+    {
+      "file": "PHonon/PH/do_q2r.f90",
+      "lines": "440-537",
+      "purpose": "Read a2Fq2r.51-60 and output normalized Fourier coefficients a2Fmatdyn.61-70"
+    },
+    {
+      "file": "PHonon/PH/matdyn.f90",
+      "lines": "1121-1219",
+      "purpose": "Wigner-Seitz weighted Fourier interpolation"
+    },
+    {
+      "file": "PHonon/PH/matdyn.f90",
+      "lines": "1380-1403",
+      "purpose": "Simple acoustic sum rule on real-space matrices"
+    },
+    {
+      "file": "PHonon/PH/matdyn.f90",
+      "lines": "2486-2613",
+      "purpose": "Read coupling matrices, apply ASR, project modes, write original spectra"
+    }
+  ],
+  "native_source_sha256": {
+    "do_q2r.f90": "16da171cb0532872fa561024863b86a78d05235971e8fa7cdb30815bb6b818e3",
+    "matdyn.f90": "828d3cd388ea5b450b2c6fffd66d8d32546b244b0057e1c3dfe270236e62f54b",
+    "elphon.f90": "57737831e652a6e603a6f70b50fe2c8bf4e66f81ea05034865c9828b0bd05887"
+  },
+  "checks": {
+    "all_q4_coarse_coupling_matrices_positive_semidefinite": true,
+    "all_q6_coarse_coupling_matrices_positive_semidefinite": true,
+    "q4_max_inverse_fft_error": 5.000687364198342e-14,
+    "q6_max_inverse_fft_error": 4.815037257799304e-13,
+    "q6_negative_spectrum_broadenings": 9,
+    "q6_no_imaginary_phonons": true
+  },
+  "conclusion": "The adapter transports the complete native coarse-q matrices and q2r coefficients correctly. The finite-grid native Fourier interpolation creates negative coupling eigenvalues before mode integration; at narrow broadening they already occur without ASR. q6 refinement reduces negative spectral weight but does not establish convergence. Keep the Fourier route rejected for this protocol.",
+  "accepted_q_sum_comparison": {
+    "run": "al-qsum-01",
+    "job": "7494952",
+    "source_ph_job": "7494558",
+    "integration": "Explicit q-point mode sum from the same q4 PH results; skips real-space Fourier interpolation by user-selected method, not a silent repair.",
+    "all_broadenings_retained": true,
+    "scientific_accuracy_validated": false
+  },
+  "claim_boundary": "Verified q-sum and Wannier routes can be described as tested workflows. This Al Fourier route has not passed its positivity/convergence gate and must not support a Tc claim. No threshold clipping, broadening selection or automatic route change."
+}

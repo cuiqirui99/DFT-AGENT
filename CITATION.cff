@@ -8,9 +8,9 @@ authors:
     affiliation: "KTH Royal Institute of Technology"
     orcid: "https://orcid.org/0009-0005-6165-3237"
     website: "https://www.kth.se/profile/qiruic?l=en"
-version: "0.4.2"
-date-released: "2026-10-10"
+version: "0.4.3"
+date-released: "2026-10-14"
 license: MIT
 repository-code: "https://github.com/cuiqirui99/DFT-AGENT"
-url: "https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.2"
-abstract: "Run VASP on Slurm."
+url: "https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.3"
+abstract: "Run VASP and Quantum ESPRESSO on Slurm."

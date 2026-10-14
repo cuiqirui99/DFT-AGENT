@@ -1,6 +1,6 @@
 # Install
 
-Download the macOS or Windows installer from [v0.4.2](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.2).
+Download the macOS or Windows installer from [v0.4.3](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.3).
 
 ## Desktop app
 
@@ -27,7 +27,7 @@ your IT team. [Microsoft's guidance](https://learn.microsoft.com/en-us/windows/a
    **Prepare inputs**. This needs neither a cluster nor a model account.
 3. To submit a calculation, save your own **Cluster setup**: SSH access to a
    Linux Slurm cluster with Python 3 and the selected solver. VASP requires
-   licensed VASP and POTCAR files. The [QE preview](qe.md) can install QE and public UPFs.
+   licensed VASP and POTCAR files. The [QE route](qe.md) can install QE and public UPFs.
 4. For **Plan**, **Explain results** or model-assisted edits, configure your
    own model account under **Model**. Network access and the provider's billing
    apply. Bundled SDKs include no API keys or credits; Codex CLI is optional
@@ -41,7 +41,8 @@ can also be turned off there.
 
 You do not need to create `cluster.json` yourself. Leave **Configuration
 file** at its default, fill **Cluster setup**, then click **Save cluster
-settings**. Ask your institution's cluster support for a working VASP job
+settings**. For QE, follow [QE setup](qe.md). The settings below are for VASP.
+Ask your institution's cluster support for a working VASP job
 example and the following details:
 
 | App field | Where to get the value |
@@ -80,7 +81,7 @@ Local folder and archive import is not supported yet.
 For Linux users and developers, use Python 3.11 or newer. On macOS/Linux:
 
 ```bash
-git clone --branch v0.4.2 https://github.com/cuiqirui99/DFT-AGENT.git dft-agent
+git clone --branch v0.4.3 https://github.com/cuiqirui99/DFT-AGENT.git dft-agent
 cd dft-agent
 python3 -m venv .venv
 source .venv/bin/activate
@@ -88,20 +89,13 @@ python -m pip install '.[agent]'
 dft-agent ui
 ```
 
-These commands install version `0.4.2`.
+These commands install version `0.4.3`.
 The Python interface opens in a local browser at
 `http://127.0.0.1:8501`; `--no-browser` skips opening it and `--port` selects
 another port. OpenSSH is required for macOS/Linux cluster connections.
 
 `[agent]` adds model SDKs and keychain support; omitting it still allows
 manual preparation and calculation. `[dev]` adds test and build tools.
-
-### Development preview
-
-To try the `0.4.3` candidate, replace `--branch v0.4.2` in the clone command above
-with `--branch desktop-0.4.3`, then follow the same installation steps.
-This branch is under validation; v0.4.2 remains the stable release.
-Start with the [QE setup guide](qe.md).
 
 ## Files and updates
 

@@ -1,0 +1,43 @@
+{
+  "commit": "913761b43b36b19276d4ddfacfa62b53fb519107",
+  "version": "0.4.3",
+  "platform": "win32",
+  "architecture": "x86_64",
+  "candidate_only": true,
+  "rebuild_required": false,
+  "workflow_run": 38590042123,
+  "workflow_url": "https://github.com/cuiqirui99/DFT-AGENT/actions/runs/38590042123",
+  "workflow_conclusion": "success",
+  "tests": "1599 passed, 43 skipped, 108 warnings in 467.93s (0:07:47)",
+  "installer": {
+    "path": "[private location omitted]",
+    "bytes": 131797647,
+    "sha256": "d807a2abb006b5f8125383ea108c9f1edbe5c5df5cc956fd3f38e21458b96395"
+  },
+  "artifact_zip_sha256": "abb74b70e1619405170a971344c1a7d03dc1c5eda683e0bbe3274afbc312fe33",
+  "artifact_digest_verified": true,
+  "fresh_install_checked_by": "GitHub Actions Windows runner; installed executable tested after Inno Setup installation into a fresh directory",
+  "bundle_check": {
+    "version": "0.4.3",
+    "platform": "win32",
+    "frozen": true,
+    "input_preparation": true,
+    "cluster_attach": true,
+    "samples": 4,
+    "resources": true,
+    "provider_sdks": true,
+    "first_run_ui": true,
+    "plot_exports": true,
+    "qe_catalogues": true,
+    "qe_input_preparation": true,
+    "qe_install_plan": true,
+    "installed_server": true
+  },
+  "window_check": {
+    "version": "0.4.3",
+    "platform": "win32",
+    "native_window": true,
+    "app_rendered": true
+  },
+  "release_published": false
+}

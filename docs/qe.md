@@ -2,9 +2,6 @@
 
 DFT Agent can prepare and run Quantum ESPRESSO on a Slurm cluster. You need an SSH account and compute allocation. A VASP license is not required.
 
-Version 0.4.3 is in development. Installation and calculation support must pass cluster acceptance before release.
-Use the [development preview](install.md#development-preview); the stable v0.4.2 installers do not contain QE.
-
 ## Connect
 
 Choose **Quantum ESPRESSO** at the top of the app, then open **Cluster setup**. Enter your SSH address, remote run folder, partition and account. Add the environment commands provided by your cluster. VASP and QE settings are saved separately; switching engines leaves existing runs unchanged.
@@ -50,7 +47,7 @@ Review `qe-install-plan.json` before installation. Keep `qe-install-receipt.json
 
 For EPW, add `--include-epw` to `install-plan` before running `install`. The core and EPW builds have both passed installation checks on Paracloud. A calculation with the installed binaries is recorded in [QE acceptance](../validation/qe-0.4.3/README.md).
 
-This QE preview uses CPU and MPI. QE GPU execution is not supported yet.
+The QE integration uses CPU and MPI. QE GPU execution is not supported yet.
 
 ## Pseudopotentials
 
@@ -84,7 +81,7 @@ After a stage finishes, open **Continue this task**, enter **What next?** and cl
 
 The current integration targets relaxation, SCF, bands, DOS, projected DOS, charge density, magnetism, SOC, DFT+U, hybrid functionals, phonons and NEB. Acceptance is tracked per workflow; installing the full QE suite does not mean every QE package is available through the agent.
 
-The preview accepts PBE, LDA, PBEsol, HSE06 and PBE0. It checks method and UPF compatibility before submission. Hybrid forces require norm-conserving UPFs.
+The QE integration accepts PBE, LDA, PBEsol, HSE06 and PBE0. It checks method and UPF compatibility before submission. Hybrid forces require norm-conserving UPFs.
 
 For NEB, provide endpoints with the same cell, elements and atom order. For phonon dispersions, use a consistent SCF calculation and regular q-point grid before real-space interpolation.
 

@@ -1,6 +1,6 @@
 # Superconductivity
 
-This is the implementation and acceptance scope for DFT Agent. The workflows below are not yet release-accepted. Each needs a saved test report and downloadable evidence before being marked available.
+Version 0.4.3 supports the workflows below. [Saved tests and native outputs](../validation/qe-0.4.3/README.md) record their acceptance scope.
 
 QE supplies the normal-state electronic structure and lattice response. A superconducting result also requires a pairing model. The agent must name that model, its inputs and its limits.
 
@@ -8,8 +8,8 @@ QE supplies the normal-state electronic structure and lattice response. A superc
 
 | Route | Calculation | Results | Acceptance |
 | --- | --- | --- | --- |
-| Conventional, isotropic | QE → DFPT/`lambda.x` or Wannier interpolation → EPW | α²F, λ, ωlog, Allen–Dynes estimate, Eliashberg gaps and a linearized Tc bracket | Native Al tests and independent kernel checks pass; application acceptance is in progress |
-| Conventional, anisotropic | QE → Wannier90 → EPW | Momentum-dependent gaps at supplied temperatures | Native MgB₂ reference passes; stricter solver and fresh application acceptance are pending |
+| Conventional, isotropic | QE → DFPT/`lambda.x` or Wannier interpolation → EPW | α²F, λ, ωlog, Allen–Dynes estimate, Eliashberg gaps and a linearized Tc bracket | Al and MgB₂ application runs, native Al tests and independent kernel checks |
+| Conventional, anisotropic | QE → Wannier90 → EPW | Momentum-dependent gaps at supplied temperatures | Native and application MgB₂ runs, strict solver checks and a 1-rank/8-rank control |
 | Unconventional, model based | Supplied one-band `hr` → explicit Hubbard model → RPA pairing | Singlet/triplet eigenvalues, gap functions and susceptibility | Numerical benchmarks and an LLM → Slurm model run pass; no automatic material-model construction |
 
 The anisotropic phonon route remains a conventional pairing calculation. It does not establish a spin-fluctuation mechanism or arbitrary unconventional pairing. EPW's [theory description](https://docs.epw-code.org/Theory.html#superconductivity) defines its electron–phonon and Coulomb treatment.
@@ -55,7 +55,7 @@ Use [EPW's MgB₂ reference](https://docs.epw-code.org/tutorials/archived/MgB2.h
 
 ### MgB2 example
 
-This coarse example follows the [QE 7.4.1 reference](https://github.com/QEF/q-e/tree/500de340b820e1cb8c05f2d8bb8fced102f377c1/test-suite/epw_super), with a stricter gap-solver tolerance. It tests the workflow at 15 K; it is not a converged material prediction or a Tc calculation. Local preparation passes; acceptance of the fresh application run is pending.
+This coarse example uses the [QE 7.4.1 reference](https://github.com/QEF/q-e/tree/500de340b820e1cb8c05f2d8bb8fced102f377c1/test-suite/epw_super) to test the workflow at 15 K. It passed an exact-input native comparison. A separate upstream recipe, with different SCF densities and Wannier windows, gave a 16.8% gap difference and failed the predeclared 10% tolerance. Material convergence and Tc are not established.
 
 1. Install QE with **Include EPW**.
 2. In your cluster terminal, enter the **UPF folder on cluster** saved in Cluster setup. Download these exact LDA NC files and verify their hashes:

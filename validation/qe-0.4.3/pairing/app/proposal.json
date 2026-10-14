@@ -1,0 +1,84 @@
+{
+  "status": "ready",
+  "summary": "Compute the model’s bare and RPA susceptibilities, then compare leading singlet and triplet pairing eigenvalues and gap functions at the specified temperature.",
+  "questions": [],
+  "limits": [
+    "Origin remains model; no material validation or material Tc is implied.",
+    "Before calculation, verify the Hamiltonian is real, Hermitian, single-orbital, spin-independent and SOC-free; assume a paramagnetic state.",
+    "Use the supplied chemical potential directly, not as a target filling.",
+    "Construct the noninteracting Green function and bare susceptibility, then Hubbard RPA spin/charge susceptibilities and linearized singlet/triplet pairing kernels following the cited TPRF formulation.",
+    "Stop the paramagnetic RPA route if a magnetic instability is reached.",
+    "An eigenvalue below one is a valid negative result at this temperature.",
+    "Use the specified mesh and 150 positive Matsubara frequencies; numerical convergence remains unverified.",
+    "This is a plan only; no calculation or numerical result is reported."
+  ],
+  "unsupported": [],
+  "parameters": {
+    "lattice_angstrom": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "orbital": "model s",
+    "spin_convention": "spin_degenerate_no_soc",
+    "u_ev": 1.0,
+    "mu_ev": 0.0,
+    "temperature_k": 1160.4518121550323,
+    "kmesh": [
+      40,
+      40,
+      1
+    ],
+    "matsubara_points": 150,
+    "channels": [
+      "singlet",
+      "triplet"
+    ],
+    "double_counting": "No DFT baseline: explicit Hubbard model."
+  },
+  "kind": "qe_pairing",
+  "schema_version": 1,
+  "engine": "qe",
+  "goal": "Use this supplied model Hamiltonian to compare single-band Hubbard RPA singlet and triplet channels. Explicit settings: {\"lattice_angstrom\": [[1, 0, 0], [0, 1, 0], [0, 0, 1]], \"orbital\": \"model s\", \"spin_convention\": \"spin_degenerate_no_soc\", \"u_ev\": 1.0, \"mu_ev\": 0.0, \"temperature_k\": 1160.4518121550323, \"kmesh\": [40, 40, 1], \"matsubara_points\": 150, \"channels\": [\"singlet\", \"triplet\"], \"double_counting\": \"No DFT baseline: explicit Hubbard model.\"}. Compute this fixed-temperature model only; do not claim a material Tc.",
+  "source_sha256": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+  "origin": "model",
+  "model_usage": {
+    "input_tokens": 13383,
+    "output_tokens": 503,
+    "cached_input_tokens": 0,
+    "reasoning_tokens": 108,
+    "total_tokens": 13886,
+    "token_counts_source": "provider",
+    "call_id": "148f98f3bd8148e4b16356899cf00aaa",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 21.611358,
+    "input_characters": 732,
+    "instruction_characters": 1874,
+    "schema_characters": 1323,
+    "output_characters": 1505,
+    "max_output_tokens": null
+  },
+  "dialogue": [
+    {
+      "role": "user",
+      "content": "Use this supplied model Hamiltonian to compare single-band Hubbard RPA singlet and triplet channels. Explicit settings: {\"lattice_angstrom\": [[1, 0, 0], [0, 1, 0], [0, 0, 1]], \"orbital\": \"model s\", \"spin_convention\": \"spin_degenerate_no_soc\", \"u_ev\": 1.0, \"mu_ev\": 0.0, \"temperature_k\": 1160.4518121550323, \"kmesh\": [40, 40, 1], \"matsubara_points\": 150, \"channels\": [\"singlet\", \"triplet\"], \"double_counting\": \"No DFT baseline: explicit Hubbard model.\"}. Compute this fixed-temperature model only; do not claim a material Tc."
+    },
+    {
+      "role": "assistant",
+      "content": "{\"status\": \"ready\", \"summary\": \"Compute the model\\u2019s bare and RPA susceptibilities, then compare leading singlet and triplet pairing eigenvalues and gap functions at the specified temperature.\", \"questions\": [], \"limits\": [\"Origin remains model; no material validation or material Tc is implied.\", \"Before calculation, verify the Hamiltonian is real, Hermitian, single-orbital, spin-independent and SOC-free; assume a paramagnetic state.\", \"Use the supplied chemical potential directly, not as a target filling.\", \"Construct the noninteracting Green function and bare susceptibility, then Hubbard RPA spin/charge susceptibilities and linearized singlet/triplet pairing kernels following the cited TPRF formulation.\", \"Stop the paramagnetic RPA route if a magnetic instability is reached.\", \"An eigenvalue below one is a valid negative result at this temperature.\", \"Use the specified mesh and 150 positive Matsubara frequencies; numerical convergence remains unverified.\", \"This is a plan only; no calculation or numerical result is reported.\"], \"unsupported\": [], \"parameters\": {\"lattice_angstrom\": [[1, 0, 0], [0, 1, 0], [0, 0, 1]], \"orbital\": \"model s\", \"spin_convention\": \"spin_degenerate_no_soc\", \"u_ev\": 1.0, \"mu_ev\": 0.0, \"temperature_k\": 1160.4518121550323, \"kmesh\": [40, 40, 1], \"matsubara_points\": 150, \"channels\": [\"singlet\", \"triplet\"], \"double_counting\": \"No DFT baseline: explicit Hubbard model.\"}}"
+    }
+  ]
+}

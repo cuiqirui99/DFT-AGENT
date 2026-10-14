@@ -1,0 +1,154 @@
+{
+  "accepted": true,
+  "job_id": "7495383",
+  "application_job": "7495351",
+  "scope": "Exact-source native EPW execution parity with application job 7495351; not material convergence or upstream-recipe agreement.",
+  "comparison_plan_sha256": "68c7b583662948096e7b3921036b135a2e397ffef8da58fafc713901dc2b480c",
+  "material_prediction_accepted": false,
+  "release_accepted": false,
+  "scheduler": [
+    "7495383",
+    "COMPLETED",
+    "0:0",
+    "00:02:35",
+    ""
+  ],
+  "native_result": {
+    "schema_version": 1,
+    "engine": "qe",
+    "task": "epw_aniso",
+    "success": true,
+    "artifacts": [
+      "epw.out",
+      "eliashberg_anisotropic_states.csv",
+      "eliashberg_gap.csv",
+      "dft_agent.imag_aniso_015.00"
+    ],
+    "warnings": [],
+    "scientific_accuracy_validated": false,
+    "superconductivity_established": false,
+    "pairing_model": "anisotropic phonon Migdal-Eliashberg with constant Coulomb pseudopotential",
+    "temperature_results": [
+      {
+        "temperature_kelvin": 15.0,
+        "gap_iw0_mev": 6.729414488315308,
+        "gap_min_iw0_mev": 2.2005305793999996,
+        "gap_max_iw0_mev": 11.697343133999999,
+        "renormalization_iw0": 1.785339574691009,
+        "residual": 8.66137e-07,
+        "iterations": 93,
+        "states": 140,
+        "file": "dft_agent.imag_aniso_015.00"
+      }
+    ],
+    "source_provenance": {
+      "kind": "verified_wannier_interpolation",
+      "source_input_sha256": "fd38934d58a3786799eb1f592f6e7c6deadd7799c88b84ab15341e3db58775d9",
+      "scientific_accuracy_validated": false
+    },
+    "fine_kmesh": [
+      6,
+      6,
+      6
+    ],
+    "fine_qmesh": [
+      6,
+      6,
+      6
+    ]
+  },
+  "table_comparison": {
+    "shape": [
+      8680,
+      4
+    ],
+    "columns": [
+      "omega_eV",
+      "energy_minus_fermi_eV",
+      "Z",
+      "Delta_eV"
+    ],
+    "maximum_absolute_column_differences": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "all_printed_values_exact": true,
+    "passed": true,
+    "state_weights_exact": true,
+    "application_sha256": "c4b2478f3b79b49d7a5ebb7feaa5d0e9c67eb8cc52a135565e75af4d0bf9068a",
+    "native_sha256": "c4b2478f3b79b49d7a5ebb7feaa5d0e9c67eb8cc52a135565e75af4d0bf9068a"
+  },
+  "aggregate_comparison": {
+    "gap_iw0_mev": {
+      "application": 6.729414488315308,
+      "native": 6.729414488315308,
+      "passed": true
+    },
+    "gap_min_iw0_mev": {
+      "application": 2.2005305793999996,
+      "native": 2.2005305793999996,
+      "passed": true
+    },
+    "gap_max_iw0_mev": {
+      "application": 11.697343133999999,
+      "native": 11.697343133999999,
+      "passed": true
+    },
+    "renormalization_iw0": {
+      "application": 1.785339574691009,
+      "native": 1.785339574691009,
+      "passed": true
+    }
+  },
+  "solver_controls_and_convergence_exact": true,
+  "source_preserved": true,
+  "checked_at": "2026-10-14T15:46:19Z",
+  "phonon_stability_evidence": {
+    "raw_gamma_minimum_cm1": -14.877006,
+    "raw_ph_line": 369,
+    "native_asr_evidence": [
+      {
+        "line": 291,
+        "text": "Imposing acoustic sum rule on the dynamical matrix"
+      }
+    ],
+    "post_asr_checkpoint_minimum_cm1": 2.30768690464824e-06,
+    "negative_frequency_rejection_threshold_cm1": -5.0,
+    "fine_qmesh": [
+      6,
+      6,
+      6
+    ],
+    "modes": 9,
+    "scope": "Native ASR and sampled-checkpoint stability. Raw pre-ASR imaginary mode is retained; no material-convergence or full-Brillouin-zone stability claim.",
+    "source_sha256": {
+      "mgb2-agent-01/02_wannier_ph/outputs/ph.out": "2c6c915446c90165b3dae109ec43cfe600a23cbfb7ed51da17d6ad3cc2782aab",
+      "mgb2-agent-01/04_epw_interpolate/outputs/epw.out": "435fff3d38af7d865bdbebe6b005ec1298ab10e8caef84c72d588283e434cd16"
+    },
+    "checkpoint_sha256": {
+      "scratch/dft_agent.ephmat/freq": "ad9db8445748ec0ec674721fa7b8c3063a999207b10017f5f55e44762b170604",
+      "scratch/dft_agent.ephmat/egnv": "b8d8c70333ed223da7ec50f49803f59cffe204d7685dacf660373c86af9534cf",
+      "scratch/dft_agent.ephmat/ikmap": "181be876984d6dad1940290d187debe42bc46eeea4ab210b06e53d9efabc58ed",
+      "scratch/dft_agent.ephmat/npool": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+      "crystal.fmt": "8c541c58413744d979515de9b0e686c83347eb618a47e35ebcfd8cbe74c42a29",
+      "selecq.fmt": "0a1f57f001e9537172544ff33489cb2b1a48df3296cb5b0dd59920975bed8bd5",
+      "scratch/dft_agent.ephmat/ephmat1": "7e8ef25c2b7b010b533f012650dc5c87f8463820d09f02b46f7cb191af9e9a21"
+    }
+  },
+  "additional_evidence_provenance": {
+    "native_control_only_result_sha256": "4a970954715cd22a744bd55f801420b78dccebe8c97e87456b29c08c003d7f47",
+    "phonon_asr_evidence_sha256": "a9066354188519a0f3863a756249ae233abc5942488ecf853b26df3adb8396ef",
+    "attached_at": "2026-10-14T15:46:39Z",
+    "note": "ASR evidence attached after the frozen native comparison; acceptance and comparison criteria unchanged."
+  },
+  "cross_recipe_limit": {
+    "report": "mgb2-scientific-acceptance.json",
+    "sha256": "029260fe247093fa4a55d841cc4eee929bfa84459fcdcb12e431d1cbb102bbaa",
+    "accepted": false,
+    "weighted_gap_relative_difference": 0.16829413471162125,
+    "frozen_relative_tolerance": 0.1,
+    "note": "The upstream reference uses separate electronic and phonon SCF densities and different Wannier windows. This failed comparison is preserved; exact-source native parity does not accept it."
+  }
+}

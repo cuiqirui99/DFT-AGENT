@@ -1,0 +1,91 @@
+{
+  "status": "ready",
+  "kind": "qe_next_action",
+  "action": "continue",
+  "summary": "Reuse the accepted LDA spectrum for scalar Eliashberg comparisons, preserving its electronic broadening and the completed anisotropic result.",
+  "questions": [],
+  "limits": [
+    "Run the linearized temperature scan first; report a Tc bracket only if the largest eigenvalue crosses one. Check the nonlinear gap residual independently and preserve any solver failure without changing the requested temperatures.",
+    "Broadening column 1 selects the source phonon broadening; the source electronic broadening remains fixed.",
+    "The source contains a sampled imaginary phonon mode. Dynamical stability and interpolation, mesh, broadening and frequency-cutoff convergence remain unestablished.",
+    "These calculations compare scalar and anisotropic phonon pairing models; they do not establish a converged material Tc or superconductivity."
+  ],
+  "continuation": {
+    "source_stage": 3,
+    "intent": {
+      "requested_tasks": [
+        "epw_iso",
+        "epw_tc"
+      ],
+      "forbidden_tasks": [
+        "relax",
+        "vc-relax",
+        "scf",
+        "nscf",
+        "phonon",
+        "phonon_bands",
+        "wannier_electron_phonon",
+        "epw_aniso"
+      ],
+      "unsupported": []
+    },
+    "stages": [
+      {
+        "task": "epw_tc",
+        "parameters_json": "{\"temperatures\":[15,30,45,60],\"mu_star\":0.16,\"frequency_cutoff_ev\":0.5,\"broadening_index\":1,\"iterations\":1000,\"convergence\":1e-6,\"mixing\":0.3}",
+        "requirements": {
+          "spin": "none",
+          "soc": false,
+          "functional": "LDA",
+          "hubbard_u": false,
+          "cell_relax": false
+        }
+      },
+      {
+        "task": "epw_iso",
+        "parameters_json": "{\"temperatures\":[15],\"mu_star\":0.16,\"frequency_cutoff_ev\":0.5,\"broadening_index\":1,\"iterations\":1000,\"convergence\":1e-6,\"mixing\":0.3}",
+        "requirements": {
+          "spin": "none",
+          "soc": false,
+          "functional": "LDA",
+          "hubbard_u": false,
+          "cell_relax": false
+        }
+      }
+    ]
+  },
+  "evidence": [
+    "stage_4.task",
+    "stage_4.accepted",
+    "stage_4.dft_agent.a2f",
+    "stage_4.parameter.functional",
+    "stage_4.parameter.el_smearing_ev",
+    "stage_4.parameter.ph_smearing_mev",
+    "stage_5.accepted",
+    "stage_2.imaginary_mode_count"
+  ],
+  "context_sha256": "71399f7084d08f99aaaed4b6a7ef2c623727a2401aa143cf79b37a24c71f086e",
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6-astra"
+  },
+  "model_usage": {
+    "input_tokens": 27508,
+    "output_tokens": 624,
+    "cached_input_tokens": 27264,
+    "reasoning_tokens": 0,
+    "total_tokens": 28132,
+    "token_counts_source": "provider",
+    "call_id": "f93df2bceb9b497c9445bb233bfad023",
+    "provider": "codex",
+    "model": "gpt-6-astra",
+    "latency_seconds": 27.759427,
+    "input_characters": 35632,
+    "instruction_characters": 8852,
+    "schema_characters": 7976,
+    "output_characters": 2381,
+    "max_output_tokens": null
+  },
+  "requires_review": true,
+  "submits_jobs": false
+}

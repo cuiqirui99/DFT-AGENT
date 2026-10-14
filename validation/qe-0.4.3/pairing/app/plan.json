@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "engine": "qe",
+  "workflow": "pairing",
+  "stages": [
+    {
+      "name": "pairing",
+      "folder": "01_pairing",
+      "job_name": "qe-pairing-ef71f3244140",
+      "python_executable": "[private location omitted]",
+      "parameters": {
+        "lattice_angstrom": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "orbital": "model s",
+        "spin_convention": "spin_degenerate_no_soc",
+        "u_ev": 1.0,
+        "mu_ev": 0.0,
+        "temperature_k": 1160.4518121550323,
+        "kmesh": [
+          40,
+          40,
+          1
+        ],
+        "matsubara_points": 150,
+        "channels": [
+          "singlet",
+          "triplet"
+        ],
+        "double_counting": "No DFT baseline: explicit Hubbard model."
+      },
+      "metadata": {
+        "input_sha256": {
+          "request.json": "5ba643e10f523d146c315f4002a29941f6415a6b5a86d768d069463b16db7295",
+          "qe_pairing.py": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214",
+          "dispatch.py": "9c9a5a98b26a2fc8846b2ed2ab804a9a44e28383bfb3c2ea455bbadc47830aba",
+          "execute.py": "3222fd177076465a2e32465f870b394e08dfcafae3b3ff8e4c7c9b292c5a2e34",
+          "hamiltonian_hr.dat": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+          "submit.sh": "84682ec1f92e099967f8f3fe284432de0e81c93e1fe2f1d7f087451840a93db4",
+          "runtime.json": "94a749e349aff4f715e27b82adcaf515ba350ce6a8dec55775d4be23b4927d7f"
+        }
+      }
+    }
+  ],
+  "sources": {
+    "01_pairing/inputs/request.json": "5ba643e10f523d146c315f4002a29941f6415a6b5a86d768d069463b16db7295",
+    "01_pairing/inputs/qe_pairing.py": "2bd68fb0c8aa8d42fd292b5b3437d628e0177676a3f6a28e99caacc5a0785214",
+    "01_pairing/inputs/dispatch.py": "9c9a5a98b26a2fc8846b2ed2ab804a9a44e28383bfb3c2ea455bbadc47830aba",
+    "01_pairing/inputs/execute.py": "3222fd177076465a2e32465f870b394e08dfcafae3b3ff8e4c7c9b292c5a2e34",
+    "01_pairing/inputs/hamiltonian_hr.dat": "ae2f79447f0f3b16f6d251615c58c00be22536f81c5aae4f026a87792f399e75",
+    "01_pairing/inputs/submit.sh": "84682ec1f92e099967f8f3fe284432de0e81c93e1fe2f1d7f087451840a93db4",
+    "01_pairing/inputs/runtime.json": "94a749e349aff4f715e27b82adcaf515ba350ce6a8dec55775d4be23b4927d7f"
+  }
+}

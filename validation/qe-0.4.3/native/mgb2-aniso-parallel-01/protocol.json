@@ -1,0 +1,60 @@
+{
+  "scope": "Eight-rank/pool control against the identical one-rank anisotropic continuation; no material convergence claim.",
+  "source_job": "7495057",
+  "source_directory": "[private location omitted]",
+  "source_files": {
+    "MgB2.ephmat/freq": {
+      "size": 20756,
+      "sha256": "499c3d86371f3dff7f5b23ba0279868af3a667670d6802aefd41d194ddbf10a5"
+    },
+    "MgB2.ephmat/egnv": {
+      "size": 2304,
+      "sha256": "7ad0776b370f33a5d2592937f7468fb211d23df391f84f475757937a94e3498c"
+    },
+    "MgB2.ephmat/ikmap": {
+      "size": 1728,
+      "sha256": "181be876984d6dad1940290d187debe42bc46eeea4ab210b06e53d9efabc58ed"
+    },
+    "MgB2.ephmat/npool": {
+      "size": 4,
+      "sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+    },
+    "crystal.fmt": {
+      "size": 1447,
+      "sha256": "cd5e44486eaaead4dfdbc30ac4915b0a124b1975480fac519894d2837f032dc5"
+    },
+    "selecq.fmt": {
+      "size": 2654,
+      "sha256": "0a1f57f001e9537172544ff33489cb2b1a48df3296cb5b0dd59920975bed8bd5"
+    },
+    "MgB2.ephmat/ephmat1": {
+      "size": 10886408,
+      "sha256": "3013da5c972cee47230d40357b36a25fb029e225c0b338c17ea667c5146f9b5d"
+    }
+  },
+  "binary": "[private location omitted]",
+  "cases": [
+    {
+      "name": "cutoff-0.5",
+      "parameters": {
+        "temperatures": [
+          15.0
+        ],
+        "mu_star": 0.16,
+        "frequency_cutoff_ev": 0.5,
+        "convergence": 1e-06,
+        "iterations": 1000,
+        "mixing": 0.2
+      },
+      "input_sha256": {
+        "epw.in": "536de8d2503597b75c212370c409d2673101463747f4234b2ee90d220fa9f893",
+        "source-schema.xml": "e01d6aae0b866bf700ddd9ff5840d71d2070c4391c1812d52c22621563bca33a",
+        "source-epw.in": "d1a8680064e7396f5c521738394210cf5163b907b39735ae1d7cfee24fa03d5a",
+        "source-epw.out": "cfeca1a1dbaabbcc8e7b50907237238c901e39c5336db5b66a1e84f681cc3cac",
+        "structure.cif": "c35a36005bd9af4bdf4616f56dc522eb7c040a4c91280c919737edf1c42a8d12"
+      }
+    }
+  ],
+  "job_id": "7495168",
+  "archive_sha256": "96e6905c903cd21735b253a57afc90b711e26aba5d9d0ba19a336bf65c787704"
+}

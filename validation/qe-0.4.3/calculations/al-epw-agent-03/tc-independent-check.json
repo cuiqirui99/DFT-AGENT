@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "tolerance": 2e-06,
+  "checks": [
+    {
+      "temperature_kelvin": 0.5,
+      "native_eigenvalue": 1.6062528,
+      "independent_eigenvalue": 1.6062527837446032,
+      "absolute_difference": 1.6255396806386102e-08,
+      "eigenpair_residual": 1.006981981871682e-15,
+      "passed": true
+    },
+    {
+      "temperature_kelvin": 1.0,
+      "native_eigenvalue": 1.374592,
+      "independent_eigenvalue": 1.3745919589268178,
+      "absolute_difference": 4.1073182188711144e-08,
+      "eigenpair_residual": 2.0003682089532255e-15,
+      "passed": true
+    },
+    {
+      "temperature_kelvin": 2.0,
+      "native_eigenvalue": 1.1440104,
+      "independent_eigenvalue": 1.1440104116684136,
+      "absolute_difference": 1.166841356869952e-08,
+      "eigenpair_residual": 5.293800674108438e-16,
+      "passed": true
+    },
+    {
+      "temperature_kelvin": 3.0,
+      "native_eigenvalue": 1.0097326,
+      "independent_eigenvalue": 1.0097326388679193,
+      "absolute_difference": 3.8867919327501e-08,
+      "eigenpair_residual": 3.5569716053558623e-16,
+      "passed": true
+    },
+    {
+      "temperature_kelvin": 4.0,
+      "native_eigenvalue": 0.9148285,
+      "independent_eigenvalue": 0.9148285413514885,
+      "absolute_difference": 4.135148845563208e-08,
+      "eigenpair_residual": 4.826206838631704e-16,
+      "passed": true
+    },
+    {
+      "temperature_kelvin": 5.0,
+      "native_eigenvalue": 0.8415934,
+      "independent_eigenvalue": 0.8415933601320116,
+      "absolute_difference": 3.98679884661135e-08,
+      "eigenpair_residual": 2.1548633416940095e-16,
+      "passed": true
+    }
+  ],
+  "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+}

@@ -1,0 +1,215 @@
+{
+  "accepted": false,
+  "protocol_sha256": "4c1a44ffed14dcefff3a71d3af146039c115865fab12d381c94d2010c5a1fa44",
+  "script_sha256": "3ce49758de3027d6c06a51a2f0388ea3142d9e5cb6d321d38812fa76412da05e",
+  "scope": "Independent scalar equations and bounded coarse native/app MgB2 agreement; not exact equivalence or material convergence.",
+  "material_prediction_accepted": false,
+  "release_accepted": false,
+  "context_sha256": {
+    "mgb2-agent-01": "71399f7084d08f99aaaed4b6a7ef2c623727a2401aa143cf79b37a24c71f086e",
+    "mgb2-scalar-agent-01": "3d1c068e0d2c82fabbf1db337b3e075a38a4ebb12340385c9a9a29685a49d765"
+  },
+  "verified_settings": {
+    "ecutwfc_ry": 40.0,
+    "ecutrho_ry": 160.0,
+    "degauss_ry": 0.02,
+    "smearing": "mp",
+    "masses": {
+      "Mg": 24.305,
+      "B": 10.811
+    },
+    "spin": {
+      "lsda": "false",
+      "noncolin": "false",
+      "spinorbit": "false"
+    },
+    "functional": "LDA/PZ",
+    "geometry_matches": true,
+    "pseudopotential_sha256": {
+      "Mg.pz-n-vbc.UPF": "5357982ec1f8139c2cde411073103f9b33d5482a45e2401bcf1b8aea228db076",
+      "B.pz-vbc.UPF": "eb7aa71704ded328f1c78b2e16b630d14fc97d688b0b23b51a56d541c97e1f31"
+    },
+    "interpolation_options": {
+      "amass(1)": 24.305,
+      "amass(2)": 10.811,
+      "nbndsub": 5.0,
+      "num_iter": 500.0,
+      "dis_froz_max": 8.8,
+      "proj(1)": "B:pz",
+      "proj(2)": "f=0.5,1.0,0.5:s",
+      "proj(3)": "f=0.0,0.5,0.5:s",
+      "proj(4)": "f=0.5,0.5,0.5:s",
+      "fsthick": 20.0,
+      "degaussw": 0.1,
+      "degaussq": 0.5,
+      "nqstep": 500.0,
+      "nk1": 3.0,
+      "nk2": 3.0,
+      "nk3": 3.0,
+      "nq1": 3.0,
+      "nq2": 3.0,
+      "nq3": 3.0,
+      "nkf1": 6.0,
+      "nkf2": 6.0,
+      "nkf3": 6.0,
+      "nqf1": 6.0,
+      "nqf2": 6.0,
+      "nqf3": 6.0
+    }
+  },
+  "declared_recipe_differences": {
+    "scf_mesh": {
+      "application": [
+        6,
+        6,
+        6
+      ],
+      "native_electronic_source": [
+        3,
+        3,
+        3
+      ]
+    },
+    "wannier_outer_window_ev": {
+      "application": [
+        -5,
+        18.4
+      ],
+      "native": [
+        -4.86219,
+        18.29355
+      ]
+    },
+    "wannier_frozen_window_ev": {
+      "application": [
+        -5,
+        8.8
+      ],
+      "native": [
+        -4.86219,
+        8.8
+      ]
+    },
+    "aniso_mixing": {
+      "application": 0.3,
+      "native": 0.2
+    },
+    "label_equivalence": {
+      "application": "LDA",
+      "native": "PZ"
+    }
+  },
+  "independent_scalar_checks": [
+    {
+      "stage": "epw_tc",
+      "job_id": "7495363",
+      "passed": true,
+      "tolerance": 2e-06,
+      "checks": [
+        {
+          "temperature_kelvin": 15.0,
+          "native_eigenvalue": 1.4515528,
+          "independent_eigenvalue": 1.451552843804381,
+          "absolute_difference": 4.380438101136974e-08,
+          "eigenpair_residual": 6.394283224286485e-16,
+          "passed": true
+        },
+        {
+          "temperature_kelvin": 30.0,
+          "native_eigenvalue": 1.0142756,
+          "independent_eigenvalue": 1.0142756489324583,
+          "absolute_difference": 4.893245830750459e-08,
+          "eigenpair_residual": 2.6895417610956905e-16,
+          "passed": true
+        },
+        {
+          "temperature_kelvin": 45.0,
+          "native_eigenvalue": 0.7644506,
+          "independent_eigenvalue": 0.7644506486968884,
+          "absolute_difference": 4.869688841058206e-08,
+          "eigenpair_residual": 4.63583955532871e-16,
+          "passed": true
+        },
+        {
+          "temperature_kelvin": 60.0,
+          "native_eigenvalue": 0.5897255,
+          "independent_eigenvalue": 0.5897254875501311,
+          "absolute_difference": 1.2449868913577689e-08,
+          "eigenpair_residual": 2.6278197925139624e-16,
+          "passed": true
+        }
+      ],
+      "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+    },
+    {
+      "stage": "epw_iso",
+      "job_id": "7495376",
+      "passed": true,
+      "tolerance": 1e-05,
+      "checks": [
+        {
+          "temperature_kelvin": 15.0,
+          "max_z_residual": 4.40807856882941e-09,
+          "relative_gap_residual": 1.5605339808643555e-07,
+          "passed": true
+        }
+      ],
+      "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+    }
+  ],
+  "anisotropic_tables": {
+    "shape": [
+      8680,
+      4
+    ],
+    "columns": [
+      "omega_eV",
+      "E_minus_Ef_eV",
+      "Z",
+      "Delta_eV"
+    ],
+    "application_sha256": "c4b2478f3b79b49d7a5ebb7feaa5d0e9c67eb8cc52a135565e75af4d0bf9068a",
+    "reference_sha256": "3bd63aa624e92885850376a32211181939da8245f1dff1b006c039cbb13f2ea0",
+    "maximum_absolute_column_differences": [
+      0.0,
+      0.0465368125000003,
+      0.5924808842,
+      0.0029283894740000007
+    ],
+    "pointwise_equivalence_claimed": false,
+    "reason": "Separate SCF densities and Wannier windows; aggregate coarse-reference tests follow the frozen protocol."
+  },
+  "coarse_reference_checks": {
+    "lambda": {
+      "application": 0.8260300188441894,
+      "native_reference": 0.8710667943681971,
+      "absolute_difference": 0.045036775524007755,
+      "relative_difference": 0.05170301039505686,
+      "allowed_absolute_difference": 0.08710767943681971,
+      "passed": true
+    },
+    "omega_log_mev": {
+      "application": 61.22767946138349,
+      "native_reference": 61.49901742163178,
+      "absolute_difference": 0.2713379602482888,
+      "relative_difference": 0.004412069844758982,
+      "allowed_absolute_difference": 6.150001742163178,
+      "passed": true
+    },
+    "weighted_gap_mev": {
+      "application": 6.729414488315308,
+      "native_reference": 8.091098992048117,
+      "absolute_difference": 1.3616845037328087,
+      "relative_difference": 0.16829413471162125,
+      "allowed_absolute_difference": 0.8092098992048118,
+      "passed": false
+    }
+  },
+  "application_acceptance_sha256": "29232f6039606456e4f2d0c783d801f7cc3283cadc98527003e71a9b5000c2f2",
+  "source_sha256": {
+    "qe_epw.py": "cff8b265cae7b3c45ec52c214500ee8d5e80178302fdf64be9c3f57b0f992a5d",
+    "qe_wannier.py": "a175af452af3b0061813aa78dd9de0b8ac68287607bb164b2b00d263a2252f49",
+    "qe_context.py": "22cb7f255f4f17cc9c0811464a276833181b8f05feeaf1beb03d6f2b0897d51a"
+  },
+  "checked_at": "2026-10-14T15:41:00Z"
+}

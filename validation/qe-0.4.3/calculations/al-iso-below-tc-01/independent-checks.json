@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "tolerance": 1e-05,
+  "checks": [
+    {
+      "temperature_kelvin": 0.5,
+      "max_z_residual": 5.594280594323209e-11,
+      "relative_gap_residual": 9.163027847204066e-09,
+      "passed": true
+    },
+    {
+      "temperature_kelvin": 1.0,
+      "max_z_residual": 5.175748718500017e-11,
+      "relative_gap_residual": 3.778333876649597e-09,
+      "passed": true
+    },
+    {
+      "temperature_kelvin": 2.0,
+      "max_z_residual": 6.048983536288688e-11,
+      "relative_gap_residual": 2.2103012623431956e-08,
+      "passed": true
+    },
+    {
+      "temperature_kelvin": 3.0,
+      "max_z_residual": 5.606337616370638e-11,
+      "relative_gap_residual": 2.3592504245326515e-10,
+      "passed": true
+    }
+  ],
+  "source": "https://github.com/QEF/q-e/tree/qe-7.4.1/EPW/src/supercond_iso.f90"
+}
