@@ -1,8 +1,6 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -29,7 +27,7 @@ jobs:
       - name: Download the release files
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+          TAG: ${{ inputs.tag }}
         run: |
           mkdir dist
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir dist \
