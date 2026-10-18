@@ -10,6 +10,10 @@ DFT Agent prepares and runs first-principles calculations on your HPC cluster fr
 
 Describe a task, review the plan, and run VASP or Quantum ESPRESSO on your Slurm cluster. Combine structure edits, relaxation, SCF, bands and DOS with magnetism, SOC, DFT+U or hybrid functionals. [QE](docs/qe.md) adds open-source installation, phonons, NEB and electron–phonon workflows.
 
+![DFT Agent workflow](docs/assets/workflow.png)
+
+Conceptual overview. Current engines: VASP and Quantum ESPRESSO.
+
 ![SrTiO3 crystal](docs/assets/crystal.png)
 
 Desktop packages target Apple Silicon Macs and Windows x64, with Python and the model SDKs included. Windows runs natively; WSL is optional. Linux users can use the Python installation.
