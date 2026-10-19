@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import stat
+import sys
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -41,6 +42,16 @@ def keychain(monkeypatch):
     store = Keychain()
     monkeypatch.setattr(credentials, "_keyring", lambda: store)
     return store
+
+
+@pytest.fixture(autouse=True)
+def _unix_backend_temp_paths_on_windows(monkeypatch):
+    # The Unix-backend unit cases still use real files on the host test system.
+    if os.name == "nt":
+        original = connections.tempfile.mkdtemp
+        def temporary(suffix=None, prefix=None, dir=None):
+            return original(suffix=suffix, prefix=prefix, dir=None if dir == "/tmp" else dir)
+        monkeypatch.setattr(connections.tempfile, "mkdtemp", temporary)
 
 
 @pytest.fixture
@@ -148,7 +159,10 @@ def test_master_mode_recreates_a_swept_socket_folder(config, tmp_path, monkeypat
     with SSHTransport(config, password="pw", code="1", master=True) as remote:
         remote.verify()
     folder = tmp_path / "swept"
-    assert folder.is_dir() and folder.stat().st_mode & 0o777 == 0o700
+    assert folder.is_dir()
+    assert folder.stat().st_mode & stat.S_IWRITE
+    if os.name != "nt":
+        assert folder.stat().st_mode & 0o777 == 0o700
 
 
 def test_unanswered_prompt_becomes_verification_error(config, tmp_path, monkeypatch):
@@ -177,7 +191,9 @@ def test_askpass_helper_script_forwards_prompt(config, monkeypatch):
         helper = remote._askpass_path.read_text()
         assert helper.startswith("#!/bin/sh\nexec ") and helper.rstrip().endswith('"$@"')
         assert "askpass_main" in helper and "pw" not in helper
-        assert remote._askpass_path.stat().st_mode & 0o777 == 0o700
+        assert remote._askpass_path.stat().st_mode & stat.S_IWRITE
+        if os.name != "nt":
+            assert remote._askpass_path.stat().st_mode & 0o777 == 0o700
 
 
 # --- registry: detection, sign-in and code mode -----------------------------
@@ -210,6 +226,8 @@ class FakeTransport:
 
 @pytest.fixture
 def fake_transport(monkeypatch):
+    # These cases test the Unix multiplexing flow; native Windows MFA is tested below.
+    monkeypatch.setattr(connections.platform, "system", lambda: "Darwin")
     FakeTransport.opened = []
     FakeTransport.plan = {}
     monkeypatch.setattr(transport, "SSHTransport", FakeTransport)
@@ -271,6 +289,7 @@ def test_probe_reports_what_the_cluster_needs(registry, keychain, fake_transport
 
 
 def test_revocation_closes_login_socket_and_settings_patch_is_bounded(registry, keychain, tmp_path, monkeypatch):
+    monkeypatch.setattr(connections.platform, "system", lambda: "Darwin")
     cid = registry.create("hpc", "Cluster", {"host": "hpc.invalid", "user": "researcher", "auth_mode": "code",
                                               "ssh_control_path": str(tmp_path / "login.sock")})["id"]
     (tmp_path / "login.sock").write_text("")
@@ -327,12 +346,26 @@ def test_discovery_creates_default_environments_from_cluster_answers(registry, k
 # --- CLI discovery -----------------------------------------------------------
 
 def fake_cli(folder, name, version, *, login="Logged in using ChatGPT", status=0):
-    path = folder / name
-    path.write_text("#!/bin/sh\n"
-                    f"case \"$1\" in --version) echo 'codex-cli {version}';; "
-                    f"login) echo '{login}'; exit {status};; "
-                    f"auth) echo '{login}'; exit {status};; esac\n")
-    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    folder.mkdir(parents=True, exist_ok=True)
+    if sys.platform == "win32":
+        # Match npm's Windows layout; production discovery launches its entrypoint.
+        package = "@openai/codex" if name == "codex" else "@anthropic-ai/claude-code"
+        root = folder / "node_modules" / package
+        root.mkdir(parents=True)
+        (root / "package.json").write_text(json.dumps({"name": package, "bin": {name: "cli.js"}}))
+        (root / "cli.js").write_text(
+            "if(process.argv[2] === '--version') { console.log(" + json.dumps("codex-cli " + version) + "); } "
+            "else { console.log(" + json.dumps(login) + "); process.exit(" + str(status) + "); }",
+            encoding="utf-8")
+        path = folder / (name + ".cmd")
+        path.write_text('@echo off\r\nnode "%~dp0node_modules\\' + package.replace('/', '\\') + '\\cli.js" %*\r\n')
+    else:
+        path = folder / name
+        path.write_text("#!/bin/sh\n"
+                        f"case \"$1\" in --version) echo 'codex-cli {version}';; "
+                        f"login) echo '{login}'; exit {status};; "
+                        f"auth) echo '{login}'; exit {status};; esac\n")
+        path.chmod(path.stat().st_mode | stat.S_IXUSR)
     return path
 
 
@@ -366,7 +399,7 @@ def test_login_status_and_detection_summary(tmp_path, monkeypatch):
     unsigned = fake_cli(tmp_path, "claude", "2.1.0", login="not logged in", status=1)
     assert cli_tools.login_status("codex", str(signed)) == {"logged_in": True, "detail": "ChatGPT"}
     assert cli_tools.login_status("claude_cli", str(unsigned))["logged_in"] is False
-    json_cli = fake_cli(tmp_path, "claude2", "2.1.0", login='{"loggedIn": true, "authMethod": "claude.ai"}')
+    json_cli = fake_cli(tmp_path / "json-cli", "claude", "2.1.0", login='{"loggedIn": true, "authMethod": "claude.ai"}')
     assert cli_tools.login_status("claude_cli", str(json_cli)) == {"logged_in": True, "detail": "claude.ai"}
     monkeypatch.setattr(cli_tools, "_known_locations", lambda provider: [])
     found = cli_tools.detect(which=lambda name: {"codex": str(signed), "claude": str(unsigned)}.get(name))

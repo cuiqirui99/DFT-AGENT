@@ -378,6 +378,20 @@ def test_delete_refuses_busy_worker_even_before_first_state_update(store, lockna
     assert store.delete_project(p["id"], confirmation=p["name"])["deleted"]
 
 
+@pytest.mark.parametrize("content", [b"", b"existing lock metadata"])
+def test_idle_guard_does_not_write_windows_lock_bytes(tmp_path, monkeypatch, content):
+    class WindowsOS:
+        name = "nt"
+        def __getattr__(self, name):
+            return getattr(os, name)
+    monkeypatch.setattr(module, "os", WindowsOS())
+    path = tmp_path / ".worker.lock"
+    path.write_bytes(content)
+    with Workspace._idle_lock(tmp_path, path.name):
+        assert path.stat().st_size == len(content)
+    assert path.read_bytes() == content
+
+
 def test_events_are_append_only_and_scoped(store):
     a, b = [store.create_project(name)["id"] for name in ("A", "B")]
     event = store.record_event(a, "file.saved", {"path": "files/notes.txt"})

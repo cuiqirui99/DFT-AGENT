@@ -5,7 +5,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 import hashlib
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import tempfile
 
@@ -27,14 +27,15 @@ def _hash(data):
 
 
 def _checked(workspace, project_id, relative, *, draft=False, must_exist=False):
-    path = Path(relative)
+    value = os.fspath(relative)
+    path = PurePosixPath(value)
     allowed = {"files"} if draft else {"files", "runs", "artifacts"}
     if path.is_absolute() or not path.parts or path.parts[0] not in allowed:
         raise ValueError("Choose a file inside this project's files, runs or artifacts folder.")
     if any(part.startswith(".") or part.lower() in _PRIVATE_NAMES
            or part.lower().startswith("potcar.") for part in path.parts):
         raise ValueError("Use the secure setup tools for credentials and private potential libraries.")
-    return workspace.resolve_path(project_id, str(path), must_exist=must_exist)
+    return workspace.resolve_path(project_id, value, must_exist=must_exist)
 
 
 def _safe_content(data):
@@ -118,7 +119,7 @@ def write_file(workspace, project_id, relative, data, *, expected_sha256=None):
                 _atomic(destination, data)
                 written = True
                 record_event("file.saved", {
-                    "path": str(Path(relative)), "sha256": digest,
+                    "path": PurePosixPath(relative).as_posix(), "sha256": digest,
                     "previous_sha256": _hash(previous) if previous is not None else None,
                     "size": len(data),
                 })
@@ -129,7 +130,7 @@ def write_file(workspace, project_id, relative, data, *, expected_sha256=None):
                 else:
                     _atomic(destination, previous)
             raise
-        return {"path": str(Path(relative)), "sha256": digest, "size": len(data)}
+        return {"path": PurePosixPath(relative).as_posix(), "sha256": digest, "size": len(data)}
 
 
 def import_file(workspace, project_id, source, *, name=None):
@@ -140,7 +141,7 @@ def import_file(workspace, project_id, source, *, name=None):
     name = name or source.name
     if Path(name).name != name or name in {"", ".", ".."} or "\\" in name:
         raise ValueError("Enter a file name, without folders.")
-    return write_file(workspace, project_id, str(Path("files") / name), source.read_bytes())
+    return write_file(workspace, project_id, (PurePosixPath("files") / name).as_posix(), source.read_bytes())
 
 
 def read_file(workspace, project_id, relative):
@@ -154,8 +155,8 @@ def read_file(workspace, project_id, relative):
         content = data.decode("utf-8")
     except UnicodeDecodeError:
         raise ValueError("This is a binary file. Download it to view locally.") from None
-    return {"path": str(Path(relative)), "content": content, "sha256": _hash(data),
-            "size": len(data), "editable": Path(relative).parts[0] == "files"}
+    return {"path": PurePosixPath(relative).as_posix(), "content": content, "sha256": _hash(data),
+            "size": len(data), "editable": PurePosixPath(relative).parts[0] == "files"}
 
 
 def list_files(workspace, project_id, *, limit=500):
@@ -172,13 +173,13 @@ def list_files(workspace, project_id, *, limit=500):
                 path = Path(directory) / name
                 relative = path.relative_to(roots["root"])
                 try:
-                    checked = _checked(workspace, project_id, relative, must_exist=True)
+                    checked = _checked(workspace, project_id, relative.as_posix(), must_exist=True)
                     if not checked.is_file():
                         continue
                     stat = checked.stat()
                 except (ValueError, OSError):
                     continue
-                result.append({"path": str(relative), "size": stat.st_size,
+                result.append({"path": relative.as_posix(), "size": stat.st_size,
                                "modified_ns": stat.st_mtime_ns,
                                "editable": relative.parts[0] == "files"})
                 if len(result) >= limit:

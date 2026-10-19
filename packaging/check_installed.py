@@ -52,6 +52,8 @@ def main():
                 assert b"<html" in response.read().lower()
             result = json.loads(report.read_text())
             assert result["frozen"] is True
+            if os.name == "nt":
+                assert result["windows_npm_cli"] == "checked", "Windows acceptance needs Node.js on PATH"
             result["installed_server"] = True
             report.write_text(json.dumps(result, indent=2) + "\n")
         finally:

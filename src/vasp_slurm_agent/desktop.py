@@ -257,6 +257,31 @@ def _check_broker_bundle(root):
             backend.delete_password(ssh_broker._SERVICE, name)
 
 
+def _check_npm_cli_bundle(root):
+    """Exercise external Node from the installed app without an account."""
+    import shutil
+    from .cli_tools import command
+
+    if not shutil.which("node"):
+        return "skipped"
+    prefix = root / "CLI tools 中文"
+    package = prefix / "node_modules" / "@anthropic-ai" / "claude-code"
+    package.mkdir(parents=True)
+    (package / "package.json").write_text(json.dumps({"name": "@anthropic-ai/claude-code",
+        "bin": {"claude": "cli.js"}}), encoding="utf-8")
+    (package / "cli.js").write_text("const fs=require('fs');process.stdout.write(JSON.stringify({"
+        "args:process.argv.slice(2),input:fs.readFileSync(0,'utf8')}));", encoding="utf-8")
+    launcher = prefix / "claude.cmd"
+    launcher.write_text("@echo off\r\nexit /b 9\r\n", encoding="utf-8")
+    arguments = ['{"path":"C:\\\\Users\\\\研究者","items":[]}', "", '%PATH% & !x! | < > ^',
+                 'first line\nsecond line', 'approval_policy="never"', "x" * 10000]
+    prompt = '计算含 SOC 的能带。 Keep "quotes", %PATH% and C:\\Users\\研究者.'
+    result = subprocess.run(command([str(launcher), *arguments], windows=True), input=prompt,
+                            capture_output=True, text=True, encoding="utf-8", check=True, timeout=30)
+    assert json.loads(result.stdout) == {"args": arguments, "input": prompt}
+    return "checked"
+
+
 def check_bundle(output):
     """Exercise packaged resources and input preparation without network access."""
     import tempfile
@@ -298,6 +323,7 @@ def check_bundle(output):
         _check_project_bundle(root)
         if sys.platform in {"darwin", "win32"}:
             _check_broker_bundle(root)
+        npm_cli = _check_npm_cli_bundle(root) if sys.platform == "win32" else "not_applicable"
         _check_plot_exports(Path(output).resolve().parent / "plot-exports")
         from streamlit.testing.v1 import AppTest
         original = dict(os.environ)
@@ -326,6 +352,7 @@ def check_bundle(output):
                   "resources": True, "provider_sdks": True, "first_run_ui": True,
                   "native_keychain": sys.platform in {"darwin", "win32"},
                   "ssh_broker_lifecycle": sys.platform in {"darwin", "win32"},
+                  "windows_npm_cli": npm_cli,
                   "project_ui": True, "project_persistence": True, "mcp_subprocess": True,
                   "plot_exports": True, "qe_catalogues": True, "qe_input_preparation": True,
                   "qe_install_plan": True}

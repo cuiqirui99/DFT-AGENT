@@ -1,6 +1,7 @@
 """Native terminal launches are mocked; these tests never initiate SSH login."""
 
 import json
+import os
 from pathlib import Path
 import shlex
 from types import SimpleNamespace
@@ -15,10 +16,11 @@ from vasp_slurm_agent.connections import ConnectionRegistry
 @pytest.fixture
 def connection(tmp_path):
     registry = ConnectionRegistry(tmp_path / "home")
+    local = Path(tmp_path.anchor) / "tmp"
     record = registry.create("hpc", "HPC", {"host": "hpc.invalid", "user": "user@group", "port": 2222,
                                            "auth_mode": "interactive", "remote_base": "/scratch/user",
-                                           "ssh_control_path": '/tmp/dft "socket".sock',
-                                           "identity_file": "/tmp/key's file $(unused)",
+                                           "ssh_control_path": (local / 'dft "socket".sock').as_posix(),
+                                           "identity_file": (local / "key's file $(unused)").as_posix(),
                                            "jump_host": "jump@gateway.invalid:2200"})
     return registry, record
 
@@ -43,9 +45,10 @@ def test_macos_command_quotes_paths_and_keeps_prompts_in_terminal(connection, mo
     visible = shlex.split(json.loads(literal))
     assert visible[:5] == ["/usr/bin/env", "-u", "SSH_ASKPASS", "-u", "SSH_ASKPASS_REQUIRE"]
     assert visible[15:] == ssh_auth.command(registry, record["id"], system="Darwin")
-    assert "/tmp/key's file $(unused)" in visible
+    assert record["settings"]["identity_file"] in visible
     assert "jump@gateway.invalid:2200" in visible
-    assert 'ControlPath="/tmp/dft \\"socket\\".sock"' in visible
+    control = record["settings"]["ssh_control_path"].replace('"', '\\"')
+    assert f'ControlPath="{control}"' in visible
     assert "SSH_ASKPASS" not in launched.call_args.kwargs["env"]
     assert "DFT_AGENT_SSH_PASSWORD" not in launched.call_args.kwargs["env"]
     assert "_DFT_AGENT_ASKPASS_CODE" not in launched.call_args.kwargs["env"]
@@ -64,11 +67,12 @@ def test_windows_terminal_is_visible_and_does_not_claim_session_reuse(connection
     assert result["status"] == "launched" and not result["reusable"]
     argv, = launched.call_args.args
     assert argv[:5] == ["/mock/powershell", "-NoLogo", "-NoProfile", "-NoExit", "-Command"]
-    assert "'/tmp/key''s file $(unused)'" in argv[-1]
+    identity = record["settings"]["identity_file"].replace("'", "''")
+    assert f"'{identity}'" in argv[-1]
     assert "ControlPath" not in argv[-1]
     assert launched.call_args.kwargs["creationflags"]
     assert not {"stdin", "stdout", "stderr"} & launched.call_args.kwargs.keys()
-    assert "cannot reuse" in result["message"]
+    assert "Connections" in result["message"]
 
 
 def test_linux_terminal_receives_argv_without_shell(connection, monkeypatch):
@@ -107,13 +111,19 @@ def test_denied_macos_terminal_permission_returns_manual_fallback(connection, mo
 
 
 def test_generated_socket_is_private_and_reused(tmp_path, monkeypatch):
+    if os.name == "nt":
+        from vasp_slurm_agent import connections
+        mkdtemp = connections.tempfile.mkdtemp
+        monkeypatch.setattr(connections.tempfile, "mkdtemp", lambda **kwargs: mkdtemp(prefix=kwargs["prefix"]))
     registry = ConnectionRegistry(tmp_path / "home")
     record = registry.create("hpc", "HPC", {"host": "hpc.invalid", "user": "user", "auth_mode": "interactive"})
     binaries(monkeypatch, {"ssh"})
     first = ssh_auth.command(registry, record["id"], system="Darwin")
     socket = Path(registry.get(record["id"])["settings"]["ssh_control_path"])
     try:
-        assert socket.parent.is_dir() and socket.parent.stat().st_mode & 0o777 == 0o700
+        assert socket.parent.is_dir()
+        if os.name != "nt":
+            assert socket.parent.stat().st_mode & 0o777 == 0o700
         assert ssh_auth.command(registry, record["id"], system="Darwin") == first
     finally:
         if socket.parent.name.startswith("dft-login-"):

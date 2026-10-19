@@ -195,6 +195,19 @@ def test_poscar_orientation_survives_cif_display_roundtrip(tmp_path):
     assert "submitted structure" in result["reason"]
 
 
+def test_nested_qe_xml_artifact_uses_portable_path(crystal, tmp_path):
+    folder = tmp_path / "stage"
+    prepare(crystal, folder)
+    xml_output(folder, crystal)
+    nested = folder / "scratch/dft_agent.save/data-file-schema.xml"
+    nested.parent.mkdir(parents=True)
+    (folder / "data-file-schema.xml").rename(nested)
+    result = analyze_outputs(folder, "scf", folder / "structure.cif")
+    assert result["success"], result["reason"]
+    assert "scratch/dft_agent.save/data-file-schema.xml" in result["artifacts"]
+    assert all("\\" not in path for path in result["artifacts"])
+
+
 @pytest.mark.parametrize("change", ["metadata", "input", "species"])
 def test_native_structure_must_match_frozen_pw_cards(crystal, tmp_path, change):
     import hashlib

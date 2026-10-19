@@ -658,10 +658,9 @@ class Workspace:
         with os.fdopen(descriptor, "r+b") as stream:
             if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
                 raise ValueError("Invalid run lock.")
-            if os.name == "nt" and stream.seek(0, os.SEEK_END) == 0:
-                stream.write(b"\0")
-                stream.flush()
             try:
+                # Windows can lock a byte beyond EOF. Writing first would touch
+                # another worker's locked byte before we know the run is idle.
                 _acquire(stream, blocking=False)
             except BlockingIOError as error:
                 raise ValueError("A run is being monitored or updated. Stop monitoring before deleting this project.") from error

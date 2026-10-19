@@ -78,7 +78,7 @@ def launch(registry, identifier):
     result = {"status": "manual", "command": manual, "reusable": reusable,
               "message": "Run this command in your terminal, then test the connection."}
     if system == "Windows":
-        result["message"] = "Sign in in the terminal. Windows cannot reuse this session; automated access needs a working SSH key or agent."
+        result["message"] = "For background tasks, sign in with your code in Connections. This terminal session is separate."
     if not shutil.which("ssh"):
         result["message"] = "Install OpenSSH, then run this command in your terminal."
         return result

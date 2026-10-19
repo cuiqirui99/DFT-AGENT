@@ -75,7 +75,7 @@ def ssh_server(tmp_path):
         lstat = stat
         def open(self, path, flags, attr):
             try:
-                descriptor = os.open(path_for(path), flags, 0o600)
+                descriptor = os.open(path_for(path), flags | getattr(os, "O_BINARY", 0), 0o600)
                 mode = "r+b" if flags & os.O_RDWR else "wb" if flags & os.O_WRONLY else "rb"
                 stream = os.fdopen(descriptor, mode)
                 handle = paramiko.SFTPHandle(flags)
@@ -474,7 +474,7 @@ def test_native_jump_chain_routes_channels_without_target_password(native_home, 
     assert len(calls) == 2
     assert calls[0]["hostname"] == "gateway.internal" and calls[0]["username"] == "gateway-user"
     assert calls[0]["password"] is None
-    assert calls[0]["key_filename"] == [str(folder / "gateway-key")]
+    assert [Path(value) for value in calls[0]["key_filename"]] == [folder / "gateway-key"]
     # Paramiko's connect() would answer every interactive prompt with the password;
     # the password is sent explicitly, to the target transport only, without fallback.
     assert calls[1]["password"] is None and calls[1]["passphrase"] == "target-secret"

@@ -457,7 +457,7 @@ def analyze_outputs(folder, task, expected_structure=None):
             if not file.is_file():
                 file = folder / "scratch" / (qe.PREFIX + ".a2Fsave")
             result["dense_grid"] = parse_dense_save(file, p, len(expected), result.get("band_count"))
-            result["artifacts"].append(str(file.relative_to(folder)))
+            result["artifacts"].append(file.relative_to(folder).as_posix())
         elif task == "eph_ph":
             qe._post_result(folder, "phonon", text, metadata, result)
             evidence = coupling_evidence(folder, p)

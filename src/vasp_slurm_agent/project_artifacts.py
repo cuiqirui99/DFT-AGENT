@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import numpy as np
 from pymatgen.io.vasp import Poscar
@@ -82,7 +82,7 @@ def inspect_run(workspace, project_id, run_id):
 
 
 def _destination(workspace, project_id, relative):
-    path = Path(relative)
+    path = PurePosixPath(relative)
     if not path.parts or path.parts[0] not in {"files", "artifacts"}:
         raise ValueError("Save transferred structures in this project's files or artifacts folder.")
     if path.name != "POSCAR" and path.suffix.lower() != ".vasp":
@@ -128,7 +128,7 @@ def _transfer_evidence(workspace, project_id, source_run_id, stage, target_engin
                "source_engine": record["engine"], "source_stage": index,
                "source_stage_folder": source_stage["folder"],
                "source_context_sha256": context["context_sha256"], "source_structure_sha256": digest,
-               "target_engine": target_engine, "path": Path(destination).as_posix(), "sha256": digest,
+               "target_engine": target_engine, "path": PurePosixPath(destination).as_posix(), "sha256": digest,
                "format": "POSCAR", "units": {"lattice": "angstrom", "positions": "fractional"},
                "species": [str(site.specie) for site in structure],
                "lattice": structure.lattice.matrix.tolist(), "fractional_positions": structure.frac_coords.tolist(),
@@ -148,7 +148,7 @@ def transfer_structure(workspace, project_id, source_run_id, stage, target_engin
         try:
             with workspace.edit_project(project_id) as event:
                 target = _destination(workspace, project_id, destination)
-                proof = _checked(workspace, project_id, str(Path(destination).with_name(target.name + ".provenance.json")))
+                proof = _checked(workspace, project_id, PurePosixPath(destination).with_name(target.name + ".provenance.json").as_posix())
                 if target.exists() or proof.exists():
                     verify_transfer(workspace, project_id, receipt)
                 else:
@@ -174,7 +174,7 @@ def verify_transfer(workspace, project_id, receipt):
     if not isinstance(receipt, dict) or receipt.get("project_id") != project_id or receipt.get("kind") != "structure_transfer":
         raise ValueError("The structure transfer does not belong to this project.")
     target = _destination(workspace, project_id, receipt.get("path", ""))
-    proof = _checked(workspace, project_id, str(Path(receipt["path"]).with_name(target.name + ".provenance.json")), must_exist=True)
+    proof = _checked(workspace, project_id, PurePosixPath(receipt["path"]).with_name(target.name + ".provenance.json").as_posix(), must_exist=True)
     try:
         saved = json.loads(proof.read_text())
         if saved != receipt or not target.is_file() or _hash(target.read_bytes()) != receipt.get("sha256"):

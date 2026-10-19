@@ -44,10 +44,46 @@ def _known_locations(provider: str) -> list[Path]:
     return [folder / item for folder in folders for item in names]
 
 
+def command(arguments, *, windows=None):
+    """Launch known npm CLIs directly, keeping JSON and paths out of cmd.exe."""
+    arguments = list(arguments)
+    if not arguments or not (sys.platform == "win32" if windows is None else windows):
+        return arguments
+    launcher = Path(arguments[0])
+    packages = {"codex": "@openai/codex", "claude": "@anthropic-ai/claude-code"}
+    name = launcher.stem.lower()
+    if launcher.suffix.lower() not in {".cmd", ".bat"} or name not in packages:
+        return arguments
+    package_name = packages[name]
+    # npm global installs and local node_modules/.bin installs use these layouts.
+    roots = [launcher.parent / "node_modules" / package_name, launcher.parent.parent / package_name]
+    for root in roots:
+        try:
+            metadata = json.loads((root / "package.json").read_text(encoding="utf-8"))
+            entry = metadata.get("bin", {})
+            entry = entry.get(name) if isinstance(entry, dict) else entry
+            if metadata.get("name") != package_name or not isinstance(entry, str):
+                continue
+            target = (root / entry).resolve()
+            if not target.is_relative_to(root.resolve()) or not target.is_file():
+                continue
+        except (OSError, ValueError, TypeError, AttributeError):
+            continue
+        if target.suffix.lower() == ".exe":
+            return [str(target), *arguments[1:]]
+        if target.suffix.lower() in {".js", ".cjs", ".mjs"}:
+            adjacent = launcher.parent / "node.exe"
+            node = str(adjacent) if adjacent.is_file() else shutil.which("node")
+            if not node:
+                raise OSError("Node.js was not found. Reinstall this CLI or use its native executable.")
+            return [node, str(target), *arguments[1:]]
+    raise OSError("The CLI's npm launcher is incomplete. Reinstall it or select its native executable.")
+
+
 def version_of(path: str | Path, timeout: float = 10, *, run=None) -> tuple[int, ...] | None:
     """Parse `<cli> --version`; None when the executable cannot report one."""
     try:
-        result = (run or subprocess.run)([str(path), "--version"], capture_output=True, text=True, timeout=timeout, check=False)
+        result = (run or subprocess.run)(command([str(path), "--version"]), capture_output=True, text=True, encoding="utf-8", timeout=timeout, check=False)
     except (OSError, subprocess.TimeoutExpired, ValueError):
         return None
     match = _VERSION.search((getattr(result, "stdout", "") or "") + " " + (getattr(result, "stderr", "") or ""))
@@ -108,7 +144,7 @@ def login_status(provider: str, path: str, timeout: float = 20, *, run=None) -> 
     """Ask the CLI whether it is signed in; never prints or stores its tokens."""
     arguments = [path, "login", "status"] if provider == "codex" else [path, "auth", "status"]
     try:
-        result = (run or subprocess.run)(arguments, capture_output=True, text=True, timeout=timeout, check=False)
+        result = (run or subprocess.run)(command(arguments), capture_output=True, text=True, encoding="utf-8", timeout=timeout, check=False)
     except (OSError, subprocess.TimeoutExpired, ValueError):
         return {"logged_in": None, "detail": "The sign-in check did not finish."}
     stdout, stderr = getattr(result, "stdout", "") or "", getattr(result, "stderr", "") or ""

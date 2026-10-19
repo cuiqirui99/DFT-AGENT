@@ -601,7 +601,7 @@ def _claude_cli_request(payload, schema, settings, *, instructions):
     environment = {key: value for key, value in os.environ.items() if key in {
         "PATH", "HOME", "CLAUDE_CONFIG_DIR", "TMPDIR", "TEMP", "TMP", "LANG", "LC_ALL",
         "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY", "SSL_CERT_FILE", "SSL_CERT_DIR",
-        "SystemRoot", "USERPROFILE", "APPDATA", "LOCALAPPDATA",
+        "SystemRoot", "SYSTEMROOT", "USERPROFILE", "APPDATA", "LOCALAPPDATA",
     }}
     environment["CLAUDE_CODE_SKIP_PROMPT_HISTORY"] = "1"
     started = time.monotonic()
@@ -617,7 +617,8 @@ def _claude_cli_request(payload, schema, settings, *, instructions):
                        "--system-prompt", instructions]
             if settings.model:
                 command.extend(["--model", settings.model])
-            result = subprocess.run(command, input=payload, text=True, capture_output=True,
+            from .cli_tools import command as cli_command
+            result = subprocess.run(cli_command(command), input=payload, text=True, encoding="utf-8", capture_output=True,
                                     timeout=120, cwd=temporary, env=environment, check=False)
             stdout = getattr(result, "stdout", "") or ""
             if result.returncode or len(stdout.encode()) > 1000000:
@@ -666,7 +667,7 @@ def _codex_plan(payload: str, schema: dict[str, Any], settings: ModelSettings,
     environment = {key: value for key, value in os.environ.items() if key in {
         "PATH", "HOME", "CODEX_HOME", "TMPDIR", "TEMP", "TMP", "LANG", "LC_ALL",
         "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY", "SSL_CERT_FILE", "SSL_CERT_DIR",
-        "SystemRoot", "USERPROFILE", "APPDATA", "LOCALAPPDATA",
+        "SystemRoot", "SYSTEMROOT", "USERPROFILE", "APPDATA", "LOCALAPPDATA",
     }}
     usage = None
     try:
@@ -686,7 +687,8 @@ def _codex_plan(payload: str, schema: dict[str, Any], settings: ModelSettings,
             if settings.model:
                 command.extend(["-m", settings.model])
             command.append("-")
-            result = subprocess.run(command, input=instructions + "\n\n" + payload, text=True,
+            from .cli_tools import command as cli_command
+            result = subprocess.run(cli_command(command), input=instructions + "\n\n" + payload, text=True, encoding="utf-8",
                                     capture_output=True, timeout=120, cwd=temporary, env=environment,
                                     check=False)
             usage = usage_record(settings.provider, settings.model,

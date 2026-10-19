@@ -39,7 +39,7 @@ TURN_TIMEOUT = 1800
 TOOL_TIMEOUT = 900
 _PASSTHROUGH = {"PATH", "HOME", "TMPDIR", "TEMP", "TMP", "LANG", "LC_ALL", "CODEX_HOME", "CLAUDE_CONFIG_DIR", "PYTHONPATH",
                 "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY", "SSL_CERT_FILE", "SSL_CERT_DIR",
-                "SystemRoot", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "DFT_AGENT_FAKE_KEYRING"}
+                "SystemRoot", "SYSTEMROOT", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "DFT_AGENT_FAKE_KEYRING"}
 
 
 def server_command():
@@ -262,7 +262,8 @@ def _run_turn(workspace, registry, project_id, session_id, message, model_connec
             command = claude_command(executable, settings, server, environment)
             stdin = prompt
         try:
-            result = subprocess.run(command, input=stdin, text=True, capture_output=True, timeout=timeout,
+            from .cli_tools import command as cli_command
+            result = subprocess.run(cli_command(command), input=stdin, text=True, encoding="utf-8", capture_output=True, timeout=timeout,
                                     cwd=temporary, env=outer, check=False)
             parsed = parse_codex(result.stdout, last_message) if settings.provider == "codex" else parse_claude(result.stdout)
             if result.returncode or parsed["terminal_failed"] or not parsed["completed"]:

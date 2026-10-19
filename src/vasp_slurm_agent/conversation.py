@@ -388,7 +388,7 @@ def open_run(run_dir, runs_root=None):
     source = originals[0] if len(originals) == 1 else root / next(iter(sources))
     if not source.resolve().is_relative_to(root) or source.is_symlink():
         raise ValueError("The original structure is unavailable.")
-    expected = proposal.get("source_sha256") if originals else sources.get(str(source.relative_to(root)))
+    expected = proposal.get("source_sha256") if originals else sources.get(source.relative_to(root).as_posix())
     if not expected or hashlib.sha256(source.read_bytes()).hexdigest() != expected:
         raise ValueError("The original structure changed. Open a new conversation with a checked structure.")
     folder = start(runs_root, engine, source)

@@ -826,7 +826,7 @@ def _pw_result(folder, task, text, metadata, expected, result):
     final.to(filename=folder / "final.cif")
     Poscar(final).write_file(folder / "CONTCAR")
     result.update(valid_structure=True, final_structure="final.cif", number_of_atoms=len(final))
-    result["artifacts"] += ["final.cif", "CONTCAR", str(xml.relative_to(folder))]
+    result["artifacts"] += ["final.cif", "CONTCAR", xml.relative_to(folder).as_posix()]
 
 
 def _table(path, min_columns=2):

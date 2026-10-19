@@ -2,7 +2,7 @@
 
 from copy import deepcopy
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import shutil
 
 import pytest
@@ -82,12 +82,25 @@ def test_foreign_run_and_paths_rejected(project, parent):
     other = workspace.create_project("Other")["id"]
     with pytest.raises(ValueError, match="not found"):
         artifacts.transfer_structure(workspace, other, record["id"], 0, "qe", "files/POSCAR")
-    for path in ("../POSCAR", "runs/POSCAR", "config/POSCAR", "files/structure.cif", str(root / "POSCAR")):
+    for path in ("../POSCAR", "runs/POSCAR", "config/POSCAR", "files/structure.cif", str(root / "POSCAR"), r"files\POSCAR", r"files/nested\POSCAR"):
         with pytest.raises(ValueError):
             artifacts.transfer_structure(workspace, project_id, record["id"], 0, "qe", path)
     (root / "redirect").symlink_to(workspace.project_paths(other)["files"], target_is_directory=True)
     with pytest.raises(ValueError, match="symbolic"):
         artifacts.inspect_run(workspace, project_id, record["id"])
+
+
+def test_structure_provenance_paths_are_portable_on_windows(project, parent, monkeypatch):
+    workspace, project_id = project
+    record, _ = register(project, parent[0])
+    def local_or_windows_path(value):
+        return PureWindowsPath(value) if isinstance(value, str) and value.startswith(("files/", "artifacts/")) else Path(value)
+    monkeypatch.setattr(artifacts, "Path", local_or_windows_path)
+    receipt = artifacts.transfer_structure(workspace, project_id, record["id"], 0, "qe", "artifacts/next/POSCAR")
+    assert receipt["path"] == "artifacts/next/POSCAR"
+    proof = workspace.resolve_path(project_id, "artifacts/next/POSCAR.provenance.json", must_exist=True)
+    assert json.loads(proof.read_text())["path"] == receipt["path"]
+    assert artifacts.verify_transfer(workspace, project_id, receipt) == receipt
 
 
 def test_source_change_during_copy_rolls_back(project, parent, monkeypatch):

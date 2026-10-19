@@ -109,7 +109,7 @@ def test_hpc_and_software_setup_keep_auth_separate(tmp_path):
     project = registry.workspace.create_project("Study")
     state = complete("hpc", {"name": "Cluster", "host": "hpc.invalid", "user": "researcher",
                               "auth_mode": "interactive", "remote_base": "/scratch/researcher", "scheduler": "slurm",
-                              "ssh_control_path": "/tmp/existing-socket"})
+                              "ssh_control_path": str(tmp_path / "existing-socket")})
     hpc = setup.save(state, registry, project["id"])
     assert not hpc["has_secret"] and hpc["settings"]["auth_mode"] == "interactive"
     software = complete("software", {"name": "QE", "connection_id": hpc["id"], "engine": "qe",

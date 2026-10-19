@@ -185,9 +185,10 @@ def test_revocation_during_probe_cannot_restore_connected_status(registry, monke
     assert registry.get(identifier)["connection_status"] == "revoked"
 
 
-def test_cli_probe_checks_selected_install_and_does_not_claim_inference_from_login(registry, monkeypatch):
+def test_cli_probe_checks_selected_install_and_does_not_claim_inference_from_login(registry, monkeypatch, tmp_path):
     identifier = registry.create("model", "Claude Code", {"provider": "claude_cli"})["id"]
-    monkeypatch.setenv("CLAUDE_CLI_PATH", "/selected/claude")
+    selected = str(tmp_path / "claude.exe")
+    monkeypatch.setenv("CLAUDE_CLI_PATH", selected)
     seen = []
     monkeypatch.setattr(connections.shutil, "which", lambda value: seen.append(value) or value)
     monkeypatch.setattr(connections.subprocess, "run", lambda *args, **kwargs:
@@ -195,7 +196,7 @@ def test_cli_probe_checks_selected_install_and_does_not_claim_inference_from_log
     monkeypatch.setattr(agent, "_request_structured", lambda *args, **kwargs: pytest.fail("Must log in first"))
     result = registry.probe(identifier)
     assert result["auth_status"] == "required" and result["connection_status"] == "untested"
-    assert seen == ["/selected/claude"]
+    assert seen == [selected]
 
 
 @pytest.mark.parametrize("remote_home,expected", [("/home/researcher", "/home/researcher/dft-agent"), ("", None), ("relative/home", None), ("/home/../other", None)])
