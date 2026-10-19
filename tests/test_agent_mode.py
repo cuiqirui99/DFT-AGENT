@@ -220,7 +220,7 @@ def test_run_turn_records_both_messages_and_keeps_secrets_out(project, monkeypat
     def run(command, **kwargs):
         seen["command"], seen["env"], seen["input"] = command, kwargs["env"], kwargs["input"]
         last = command[command.index("-o") + 1]
-        Path(last).write_text("I read the project. 工作流尚未创建。")
+        Path(last).write_text("I read the project. 工作流尚未创建。", encoding="utf-8")
         events = [{"type": "item.completed", "item": {"type": "mcp_tool_call", "server": "dft", "tool": "project_overview", "arguments": {}, "status": "completed", "result": "ok"}},
                   {"type": "turn.completed", "usage": {"input_tokens": 20, "output_tokens": 5}}]
         return SimpleNamespace(returncode=0, stdout="\n".join(json.dumps(e) for e in events), stderr="")
