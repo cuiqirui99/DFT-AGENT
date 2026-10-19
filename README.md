@@ -4,7 +4,7 @@
 
 Version `0.4.4`. [中文说明](README.zh-CN.md)
 
-[Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology
+[Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology; [Anna Delin](https://www.kth.se/profile/annadel) · KTH Royal Institute of Technology
 
 Describe a calculation, review its inputs, and run VASP or Quantum ESPRESSO on your own HPC cluster. Each project keeps its files, conversations and results together. You can revise tasks in chat, combine both engines in a workflow, and discuss the results when they return.
 
