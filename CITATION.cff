@@ -9,6 +9,7 @@ authors:
     orcid: "https://orcid.org/0009-0005-6165-3237"
     website: "https://www.kth.se/profile/qiruic?l=en"
 version: "0.4.4"
+doi: "10.5281/zenodo.23476235"
 date-released: "2026-10-19"
 license: MIT
 repository-code: "https://github.com/cuiqirui99/DFT-AGENT"

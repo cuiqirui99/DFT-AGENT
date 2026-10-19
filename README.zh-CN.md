@@ -41,6 +41,6 @@ VASP 和 QE 按工作流中的步骤选择，一个项目可以使用其中一�
 
 Cui, Q. (2026). *DFT Agent* (v0.4.4). [源码](https://github.com/cuiqirui99/DFT-AGENT).
 
-[v0.3.0 存档](https://doi.org/10.5281/zenodo.23260917)。
+[v0.4.4 存档](https://doi.org/10.5281/zenodo.23476235)。
 
 [安装](docs/install.md) · [Windows](docs/windows.md) · [方法](docs/methods.md) · [输入默认值](docs/input-defaults.md) · [命令行示例](docs/examples.md) · [VASP 验证](docs/validation-0.4.1.md) · [QE 验证](validation/qe-0.4.3/README.md) · [MIT 许可证](LICENSE) · [声明](NOTICE.md) · [引用](CITATION.cff)
