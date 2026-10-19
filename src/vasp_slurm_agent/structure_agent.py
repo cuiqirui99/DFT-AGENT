@@ -169,7 +169,7 @@ def draft_structure(goal: str, structure_path: str | Path | None, settings: Mode
             except ValueError as exc:
                 _ask(plan, str(exc))
         plan.update(schema_version=1, source_sha256=source_sha256, goal=agent._redact(goal, secrets),
-                    provenance={"provider": settings.provider, "model": settings.model or "Codex CLI default"},
+                    provenance=agent.response_provenance(raw, settings),
                     model_usage=agent.response_usage(raw, settings))
         dialogue = {key: value for key, value in plan.items() if key not in {"source_sha256", "provenance", "preview", "model_usage"}}
         content = json.dumps(dialogue, ensure_ascii=False, separators=(",", ":"))

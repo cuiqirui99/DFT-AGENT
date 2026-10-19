@@ -70,17 +70,9 @@ def _prefs():
 
 def _with_password(function, *args):
     """Pass the session password to an action and its worker."""
-    previous = os.environ.get("DFT_AGENT_SSH_PASSWORD")
-    password = st.session_state.get("ssh_password", "")
-    if password:
-        os.environ["DFT_AGENT_SSH_PASSWORD"] = password
-    try:
+    from vasp_slurm_agent.transport import password_context
+    with password_context(st.session_state.get("ssh_password", "")):
         return function(*args)
-    finally:
-        if previous is None:
-            os.environ.pop("DFT_AGENT_SSH_PASSWORD", None)
-        else:
-            os.environ["DFT_AGENT_SSH_PASSWORD"] = previous
 
 
 def _load_config(path: Path) -> ClusterConfig | None:
@@ -1260,12 +1252,15 @@ def _sample_notice(run_dir):
 
 
 @st.fragment(run_every="5s")
-def _run_panel(run_dir: Path, model_settings=None, config=None) -> None:
+def _run_panel(run_dir: Path, model_settings=None, config=None, *, read_only=False) -> None:
     from vasp_slurm_agent.explanation import load_run_context
 
     try:
         state = read_state(run_dir)
         if state.get("workflow") == "pairing":
+            if read_only:
+                st.json(state)
+                return
             from vasp_slurm_agent.qe_pairing_app import run_panel
             run_panel(run_dir, model_settings)
             return
@@ -1297,6 +1292,9 @@ def _run_panel(run_dir: Path, model_settings=None, config=None) -> None:
     attached = has_config(run_dir)
     st.subheader(f"{state.get('formula', '')} · {state.get('task', '')}")
     st.caption(str(run_dir))
+    if not read_only and st.button(t("Open chat"), key=f"open_chat_{run_dir}"):
+        from vasp_slurm_agent.conversation_app import open_run_chat
+        open_run_chat(run_dir)
     _sample_notice(run_dir)
     status_label = t("Preparing next stage") if status == "planned" and not awaiting_submission else _status(status)
     st.write(t("Status") + f": **{status_label}**")
@@ -1342,6 +1340,18 @@ def _run_panel(run_dir: Path, model_settings=None, config=None) -> None:
         folder = stage.get("folder")
         if folder and (run_dir / folder / "outputs").is_dir():
             _stage_downloads(run_dir, stage)
+
+    if read_only:
+        if st.button(t("Prepare download"), key=f"project_bundle_{run_dir}"):
+            try:
+                st.session_state[f"project_bundle_path_{run_dir}"] = str(bundle_run(run_dir))
+            except Exception as exc:
+                st.error(str(exc))
+        archive = st.session_state.get(f"project_bundle_path_{run_dir}")
+        if archive and Path(archive).is_file() and Path(archive).stat().st_size <= 100 * 1024 * 1024:
+            st.download_button(t("Download results (.zip)"), Path(archive).read_bytes(), file_name=Path(archive).name,
+                               mime="application/zip", key=f"project_download_{run_dir}")
+        return
 
     actions = st.columns(3)
     if awaiting_submission:
@@ -1483,7 +1493,7 @@ def _continue_panel(run_dir, settings, context):
                 st.error(t("Cannot prepare continuation: {error}").format(error=exc))
 
 
-def _batch_panel(batch_dir, settings, config=None):
+def _batch_panel(batch_dir, settings, config=None, *, read_only=False):
     from vasp_slurm_agent.batch import (attach_batch_config, read_batch, summarize_batch, start_batch_worker,
                                         resume_batch, cancel_batch, bundle_batch)
 
@@ -1507,6 +1517,14 @@ def _batch_panel(batch_dir, settings, config=None):
     untouched = all(read_state(batch_dir / item["folder"])["status"] == "planned"
                     and not any(stage.get("job_id") for stage in read_state(batch_dir / item["folder"])["stages"])
                     for item in state["runs"])
+    if read_only:
+        if st.button(t("Prepare download"), key=f"project_batch_bundle_{batch_dir}"):
+            bundle_batch(batch_dir)
+        if (batch_dir / "results.zip").is_file():
+            st.download_button(t("Download results (.zip)"), (batch_dir / "results.zip").read_bytes(), file_name="results.zip")
+        selected = st.selectbox(t("Calculation"), state["runs"], format_func=lambda item: item["label"], key=f"project_batch_child_{batch_dir}")
+        _run_panel(batch_dir / selected["folder"], settings, config, read_only=True)
+        return
     if untouched and not state.get("cancel_requested"):
         reviewed = st.checkbox(t("Structures, settings and resources reviewed."), key=f"batch_review_{batch_dir}")
         if not attached and config is None:
@@ -1689,7 +1707,7 @@ def _update_notice(prefs):
         st.caption(t("Version {version} is available.").format(version=info['latest']) + f" [{t('Release notes')}]({info['url']})")
 
 
-def main() -> None:
+def legacy_main() -> None:
     st.set_page_config(page_title="DFT Agent", page_icon="⚛", layout="wide")
     from vasp_slurm_agent.ui_style import apply_style
     apply_style()
@@ -1698,7 +1716,12 @@ def main() -> None:
     except OSError:
         pass
     prefs = _prefs()
+    if requested_root := st.session_state.pop("requested_chat_runs_root", None):
+        st.session_state["runs_root"] = requested_root
     with st.sidebar:
+        if st.query_params.get("view") == "legacy" and st.button("Back to projects"):
+            del st.query_params["view"]
+            st.rerun()
         st.html('<div class="dfa-eyebrow">DFT Agent</div><div class="dfa-workspace">Workspace</div>')
         set_language(st.session_state.get("language", prefs.get("language", "en")))
         model_settings = _model_editor()
@@ -1718,6 +1741,8 @@ def main() -> None:
     if st.session_state.get("engine_base_path") != base_identity:
         st.session_state["engine_base_path"] = base_identity
         st.session_state["cluster_engine"] = base_config.engine if base_config else "vasp"
+    if requested_engine := st.session_state.pop("requested_chat_engine", None):
+        st.session_state["cluster_engine"] = requested_engine
     title, version = st.columns([5, 1], vertical_alignment="center")
     with title:
         st.title("DFT Agent")
@@ -1749,7 +1774,11 @@ def main() -> None:
     _update_notice(prefs)
     if prefs.get("auto_resume"):
         _auto_resume(runs_root)
-    task_tab, history_tab, config_tab, memory_tab = st.tabs([t("New calculation"), t("Runs"), t("Cluster setup"), t("Memory")])
+    if requested_tab := st.session_state.pop("requested_workspace_tab", None):
+        st.session_state["workspace_tab"] = requested_tab
+    chat_tab, task_tab, history_tab, config_tab, memory_tab = st.tabs(
+        [t("Chat"), t("New calculation"), t("Runs"), t("Cluster setup"), t("Memory")],
+        key="workspace_tab", on_change="rerun")
     with config_tab:
         if not profile_conflict:
             _config_editor(config_path, config)
@@ -1759,6 +1788,9 @@ def main() -> None:
         _memory_panel(runs_root)
     with history_tab:
         _runs_tab(runs_root)
+    with chat_tab:
+        from vasp_slurm_agent.conversation_app import panel as chat_panel
+        chat_panel(runs_root, engine, model_settings, config)
     if st.session_state.get("active_run"):
         st.divider()
         active = Path(st.session_state["active_run"])
@@ -1766,6 +1798,14 @@ def main() -> None:
             _batch_panel(active, model_settings, config)
         else:
             _run_panel(active, model_settings, config)
+
+
+def main() -> None:
+    if st.query_params.get("view") == "legacy" or os.environ.get("DFT_AGENT_UI") == "legacy":
+        legacy_main()
+    else:
+        from vasp_slurm_agent.project_app import main as project_main
+        project_main()
 
 
 if __name__ == "__main__":

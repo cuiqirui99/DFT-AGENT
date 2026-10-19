@@ -1,4 +1,4 @@
-"""Frozen single-band pairing models submitted through the existing Slurm transport."""
+"""Frozen single-band pairing models submitted through the existing cluster transport."""
 from __future__ import annotations
 
 import json
@@ -16,13 +16,14 @@ import numpy as np
 
 from . import qe_pairing as pairing
 from .config import ClusterConfig
+from .scheduler import get_scheduler, shell_command
 from .transport import SSHTransport, TransportError
-from .workflow import (_check_config, _command, _digest, _lock, _poll, _save, _write,
+from .workflow import (_check_config, _command, _digest, _lock, _poll, _scheduler_flag, _save, _write,
                        read_state, utc_now, TERMINAL, SLURM_TERMINAL, MAX_REMOTE_FAILURES)
 
 
 INPUTS = frozenset({"hamiltonian_hr.dat", "request.json", "qe_pairing.py", "execute.py",
-                    "runtime.json", "submit.sh", "dispatch.py"})
+                    "runtime.json", "submit.sh", "dispatch.py", "scheduler.py"})
 OUTPUTS = INPUTS | {"result.json", "pairing.npz", "pairing.out", "pairing.err", "execution.json",
                    "slurm.out", "slurm.err", "job.json", "submit_intent.json"}
 
@@ -39,7 +40,7 @@ environment={"python":sys.version,"numpy":numpy.__version__,"scipy":scipy.__vers
 with open("pairing.out","w") as stdout,open("pairing.err","w") as stderr:
     code=subprocess.run([sys.executable,"qe_pairing.py","."],stdout=stdout,stderr=stderr).returncode
 outputs={name:digest(name) for name in ("result.json","pairing.npz","pairing.out","pairing.err") if Path(name).is_file()}
-receipt={"job_id":os.environ.get("SLURM_JOB_ID"),"job_name":os.environ.get("SLURM_JOB_NAME"),
+receipt={"job_id":os.environ.get("PBS_JOBID" if runtime.get("scheduler") == "pbs" else "SLURM_JOB_ID"),"job_name":os.environ.get("PBS_JOBNAME" if runtime.get("scheduler") == "pbs" else "SLURM_JOB_NAME"),
          "exit_code":code,"finished_at":datetime.now(timezone.utc).isoformat(),
          "input_sha256":actual,"runtime_sha256":digest("runtime.json"),"output_sha256":outputs,
          "environment":environment}
@@ -73,7 +74,7 @@ def doctor(config, python_executable, transport=None):
     owned = transport is None
     transport = transport or SSHTransport(config)
     try:
-        _command(transport, "command -v sbatch >/dev/null && command -v squeue >/dev/null && command -v sacct >/dev/null && command -v python3 >/dev/null")
+        _command(transport, " && ".join("command -v " + name + " >/dev/null" for name in (*get_scheduler(config).required_commands, "python3")))
         output = _command(transport, "\n".join(["set -e", *config.setup_commands,
                           shlex.quote(python_executable) + " -c " + shlex.quote(code)]), timeout=120)
         records = [line.removeprefix("PAIRING_RUNTIME ") for line in output.splitlines() if line.startswith("PAIRING_RUNTIME ")]
@@ -104,18 +105,16 @@ def prepare_run(hr_file, run_dir, config, parameters, *, python_executable, orig
         request = pairing.prepare_run(hr_file, inputs, parameters, origin=origin, backend="numpy")
         shutil.copyfile(Path(pairing.__file__), inputs / "qe_pairing.py")
         shutil.copyfile(Path(__file__).with_name("dispatch.py"), inputs / "dispatch.py")
+        shutil.copyfile(Path(__file__).with_name("scheduler.py"), inputs / "scheduler.py")
         (inputs / "execute.py").write_text(_EXECUTE)
-        lines = ["#!/bin/bash", f"#SBATCH --partition={config.partition}", "#SBATCH --nodes=1", "#SBATCH --ntasks=1",
-                 f"#SBATCH --time={config.walltime}", "#SBATCH --output=slurm.out", "#SBATCH --error=slurm.err"]
-        if config.account:
-            lines.append(f"#SBATCH --account={config.account}")
-        lines.extend(config.sbatch_resource_lines())
-        lines.extend(["set -e", *config.setup_commands,
+        adapter = get_scheduler(config)
+        lines = adapter.header(config)
+        lines.extend(["set -e", *adapter.working_directory(), *config.setup_commands,
                       f"export OMP_NUM_THREADS={config.cpus_per_task}", f"export OPENBLAS_NUM_THREADS={config.cpus_per_task}",
                       f"export MKL_NUM_THREADS={config.cpus_per_task}", shlex.quote(python_executable) + " execute.py"])
         (inputs / "submit.sh").write_text("\n".join(lines) + "\n")
         hashes = {path.name: _digest(path) for path in inputs.iterdir()}
-        _write(inputs / "runtime.json", {"input_sha256": hashes})
+        _write(inputs / "runtime.json", {"input_sha256": hashes, **({"scheduler": config.scheduler} if config.scheduler != "slurm" else {})})
         hashes["runtime.json"] = _digest(inputs / "runtime.json")
         run_id = "qe-pairing-" + uuid.uuid4().hex[:12]
         specification = {"name": "pairing", "folder": folder, "job_name": run_id,
@@ -197,6 +196,7 @@ def _accepted_model(root, state):
     reasons, model = [], None
     try:
         _check_config(root, state)
+        adapter = get_scheduler(ClusterConfig.load(root / "config.json"))
         if output.is_symlink() or output.parent.is_symlink():
             raise ValueError("Pairing evidence must stay inside its run folder.")
         for name in OUTPUTS | {"scheduler.txt", "artifact_manifest.json"}:
@@ -213,7 +213,7 @@ def _accepted_model(root, state):
         receipt = json.loads((output / "execution.json").read_text())
         runtime = json.loads((output / "runtime.json").read_text())
         job = json.loads((output / "job.json").read_text())
-        if (receipt.get("job_id") != stage["job_id"] or receipt.get("job_name") != stage["job_name"]
+        if (receipt.get("job_id") != stage["job_id"] or receipt.get("job_name") != adapter.job_name(stage["job_name"])
                 or type(receipt.get("exit_code")) is not int or receipt["exit_code"] != 0 or not receipt.get("finished_at")
                 or receipt.get("runtime_sha256") != expected["runtime.json"]
                 or receipt.get("input_sha256") != runtime["input_sha256"]
@@ -222,8 +222,10 @@ def _accepted_model(root, state):
         doctor_environment = json.loads((root/"doctor.json").read_text())["environment"]
         if any(receipt.get("environment", {}).get(key) != value for key, value in doctor_environment.items()):
             raise ValueError("The Python runtime changed after its check.")
-        if not any(line.split("|")[:3] == [stage["job_id"], "COMPLETED", "0:0"] for line in accounting.splitlines()):
-            raise ValueError("Slurm has not confirmed successful completion.")
+        completed = (adapter.parse_status(accounting, stage["job_id"]) == "COMPLETED" if adapter.name == "pbs" else
+                     any(line.split("|")[:3] == [stage["job_id"], "COMPLETED", "0:0"] for line in accounting.splitlines()))
+        if not completed:
+            raise ValueError("The scheduler has not confirmed successful completion.")
         for name in ("result.json", "pairing.npz", "pairing.out", "pairing.err"):
             if not (output/name).is_file() or _digest(output/name) != receipt.get("output_sha256", {}).get(name):
                 raise ValueError("A native output differs from the execution receipt.")
@@ -244,7 +246,10 @@ def _collect(root, state, transport):
     names = [name for name in names if name in OUTPUTS]
     manifest = transport.download_many(state["remote_root"], output, names, permitted_names=OUTPUTS)
     _write(output / "artifact_manifest.json", manifest)
-    accounting = _command(transport, f"sacct -n -X -P -j {stage['job_id']} --format=JobIDRaw,State,ExitCode")
+    adapter = get_scheduler(ClusterConfig.load(root / "config.json"))
+    query = (shell_command(adapter.status_command(stage["job_id"])) if adapter.name == "pbs" else
+             f"sacct -n -X -P -j {stage['job_id']} --format=JobIDRaw,State,ExitCode")
+    accounting = _command(transport, query)
     (output / "scheduler.txt").write_text(accounting + "\n")
     accepted = _accepted_model(root, state)
     _write(output / "acceptance.json", accepted)
@@ -255,7 +260,7 @@ def _collect(root, state, transport):
     return _save(root, state, "Pairing model outputs collected.")
 
 
-def advance(run_dir, transport=None):
+def advance(run_dir, transport=None, *, poll_only=False):
     root = Path(run_dir).expanduser().resolve()
     with _lock(root):
         state = read_state(root)
@@ -263,6 +268,8 @@ def advance(run_dir, transport=None):
             return state
         owned = transport is None
         stage = state["stages"][0]
+        if poll_only and (not stage.get("job_id") or stage["status"] in {"planned", "submitting"}):
+            return state
         try:
             if state.get("workflow") != "pairing":
                 raise ValueError("Choose a pairing-model run.")
@@ -281,23 +288,23 @@ def advance(run_dir, transport=None):
                     stage["staged"] = True
                     _save(root, state)
                 reply = _command(transport, "python3 " + shlex.quote(state["remote_root"] + "/dispatch.py") + " "
-                                 + shlex.quote(state["remote_root"]) + " " + shlex.quote(stage["job_name"]), timeout=100)
+                                 + shlex.quote(state["remote_root"]) + " " + shlex.quote(stage["job_name"]) + _scheduler_flag(config), timeout=100)
                 receipt = json.loads(reply.splitlines()[-1])
-                if receipt.get("job_name") != stage["job_name"] or not str(receipt.get("job_id", "")).isdigit():
-                    raise ValueError("Invalid Slurm submission receipt.")
+                if receipt.get("job_name") != stage["job_name"] or not get_scheduler(config).valid_job_id(str(receipt.get("job_id", ""))):
+                    raise ValueError("Invalid scheduler submission receipt.")
                 stage.update(job_id=str(receipt["job_id"]), status="queued")
                 state.update(status="queued", last_error=None, remote_failures=0)
-                return _save(root, state, "Slurm accepted the pairing model.")
-            scheduler = _poll(transport, stage)
+                return _save(root, state, "The scheduler accepted the pairing model.")
+            scheduler = _poll(transport, stage, config)
             stage["scheduler_state"] = scheduler
             if state["cancel_requested"] and scheduler not in SLURM_TERMINAL:
-                _command(transport, "scancel " + stage["job_id"])
+                _command(transport, shell_command(get_scheduler(config).cancel_command(stage["job_id"])))
             if scheduler in SLURM_TERMINAL:
                 stage["status"] = state["status"] = "collecting"
                 _save(root, state)
                 return _collect(root, state, transport)
             stage["status"] = state["status"] = "queued" if scheduler in {"PENDING", "UNKNOWN"} else "running"
-            state.update(last_error="Waiting for Slurm accounting." if scheduler == "UNKNOWN" else None, remote_failures=0)
+            state.update(last_error="Waiting for scheduler accounting." if scheduler == "UNKNOWN" else None, remote_failures=0)
             return _save(root, state)
         except TransportError as exc:
             state.update(last_error=str(exc), remote_failures=state.get("remote_failures", 0)+1)
@@ -323,11 +330,12 @@ def resume(run_dir, transport=None):
         owned = transport is None
         try:
             if not stage.get("job_id") and stage.get("staged"):
-                transport = transport or SSHTransport(ClusterConfig.load(root/"config.json"))
+                config = ClusterConfig.load(root / "config.json")
+                transport = transport or SSHTransport(config)
                 remote = state["remote_root"]
-                reply = _command(transport, f"python3 {shlex.quote(remote+'/dispatch.py')} {shlex.quote(remote)} {shlex.quote(stage['job_name'])} --reconcile-only", timeout=100)
+                reply = _command(transport, f"python3 {shlex.quote(remote+'/dispatch.py')} {shlex.quote(remote)} {shlex.quote(stage['job_name'])} --reconcile-only{_scheduler_flag(config)}", timeout=100)
                 receipt = json.loads(reply.splitlines()[-1])
-                if receipt.get("job_name") != stage["job_name"] or not str(receipt.get("job_id", "")).isdigit():
+                if receipt.get("job_name") != stage["job_name"] or not get_scheduler(config).valid_job_id(str(receipt.get("job_id", ""))):
                     raise ValueError("Invalid reconciled job identity.")
                 stage["job_id"] = str(receipt["job_id"])
             status = "queued" if stage.get("job_id") else "cancelled" if state["cancel_requested"] else "planned"

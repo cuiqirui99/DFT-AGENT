@@ -32,20 +32,25 @@ class FakeTransport:
                 return Result(0, json.dumps(list(self.files)))
             return Result(0, json.dumps({"Si.UPF": {"size": 3, "sha256": hashlib.sha256(b"upf").hexdigest(), "element": "Si", "fully_relativistic": False, "functional": "PBE"}}))
         if command.startswith("python3 ") and "/dispatch.py" in command:
-            name = words[-2] if "--reconcile-only" in words else words[-1]
+            name = words[3]
             if "--reconcile-only" in words and name not in self.jobs:
                 return Result(1, "", "No recorded submission")
-            self.jobs.setdefault(name, str(7000 + len(self.jobs)))
+            self.jobs.setdefault(name, str(7000 + len(self.jobs)) + (".pbs.example" if "--scheduler pbs" in command else ""))
             if self.lose_reply:
                 self.lose_reply = False
                 return Result(255, "", "Connection lost after submission")
             return Result(0, json.dumps({"job_id": self.jobs[name], "job_name": name}))
+        if command.startswith("qstat "):
+            phase = "R" if self.queue == "RUNNING" else "Q" if self.queue else "F"
+            data = {"job_state": phase, "Exit_status": int(self.exit_code.split(":")[0])}
+            if self.accounting == "CANCELLED": data["substate"] = 91
+            return Result(0, json.dumps({"Jobs": {words[-1]: data}}))
         if command.startswith("squeue "):
             return Result(0, self.queue)
         if command.startswith("sacct "):
             job = words[words.index("-j") + 1]
             return Result(0, f"{job}|{self.accounting}|{self.exit_code}|" if self.accounting else "")
-        if command.startswith("scancel "):
+        if command.startswith(("scancel ", "qdel ")):
             self.cancel_count += 1
             return Result(0)
         if command.startswith("command -v ") or command.startswith("mkdir -p "):
@@ -82,8 +87,8 @@ class FakeTransport:
 
 
 @pytest.fixture
-def config():
-    return ClusterConfig(engine="qe", host="cluster.invalid", user="test",
+def config(request):
+    return ClusterConfig(engine="qe", scheduler=getattr(request, "param", "slurm"), host="cluster.invalid", user="test",
                          remote_root="/scratch/test", partition="cpu", qe_pseudo_root="/pseudo",
                          qe_pseudopotentials={"Si": "Si.UPF"}, qe_command="mpirun -np 8 pw.x")
 
@@ -117,6 +122,16 @@ def prepared(tmp_path, monkeypatch, config):
         workflow.prepare_plan(source, root, config, list(tasks), parameters, stage_parameters=stage_parameters)
         return root
     return prepare
+
+
+@pytest.mark.parametrize("status", ["planned", "submitting"])
+def test_poll_only_cannot_launch_a_stage(prepared, status, monkeypatch):
+    root = prepared(["scf"])
+    state = workflow.read_state(root)
+    state["status"] = state["stages"][0]["status"] = status
+    workflow._write(root / "run.json", state)
+    monkeypatch.setattr(workflow, "SSHTransport", lambda *_: pytest.fail("Poll-only opened SSH"))
+    assert workflow.advance(root, poll_only=True) == state
 
 
 def complete(root, transport):
@@ -541,7 +556,8 @@ def test_workflow_batches_inputs_and_only_present_results(prepared):
     state = workflow.advance(root, transport)
     assert state["status"] == "queued"
     assert len(transport.bulk_uploads) == 1
-    assert len(transport.bulk_uploads[0][0]) == 8
+    assert len(transport.bulk_uploads[0][0]) == 9
+    assert any(path.name == "scheduler.py" for path in transport.bulk_uploads[0][0])
     complete(root, transport)
     transport.files["unrelated.txt"] = b"not selected"
     state = workflow.advance(root, transport)
@@ -600,3 +616,27 @@ def test_wannier_auxiliary_copy_keeps_nscf_and_checks_derivatives(tmp_path, faul
         assert (root / target).read_bytes() == b"accepted derivative"
     elif fault == "overwrite":
         assert (root / target).read_bytes() == b"existing"
+
+
+@pytest.mark.parametrize("config", ["pbs"], indirect=True)
+def test_pbs_qe_mock_pipeline_preserves_identity_and_cancels(prepared):
+    root, transport = prepared(["scf", "bands"]), FakeTransport()
+    transport.lose_reply = True
+    workflow.advance(root, transport)
+    state = workflow.advance(root, transport)
+    assert state["stages"][0]["job_id"] == "7000.pbs.example"
+    complete(root, transport)
+    record = {"sha256": "0" * 64, "size": 10}
+    transport.files["checkpoint.json"] = json.dumps({
+        "scratch/dft_agent.save/data-file-schema.xml": record,
+        "scratch/dft_agent.save/charge-density.dat": record}).encode()
+    state = workflow.advance(root, transport)
+    assert state["current_stage"] == 1 and state["stages"][0]["result"]["execution_verified"]
+    transport.queue, transport.accounting = "PENDING", ""
+    workflow.advance(root, transport)
+    assert len(transport.jobs) == 2
+    workflow.cancel(root, transport)
+    assert transport.cancel_count == 1
+    transport.queue, transport.accounting = "", "CANCELLED"
+    assert workflow.advance(root, transport)["status"] == "cancelled"
+    assert all(not command.startswith(("squeue ", "sacct ", "scancel ")) for command in transport.commands)

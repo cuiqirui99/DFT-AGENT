@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import os
@@ -75,11 +76,11 @@ def check_window(window, output, errors):
     try:
         while time.monotonic() < deadline:
             rendered = window.evaluate_js("document.body.innerText") or ""
-            if "New calculation" in rendered and "Structure source" in rendered:
-                if "Traceback" in rendered or "ModuleNotFoundError" in rendered:
-                    raise RuntimeError("The desktop page contains an exception.")
+            if "Traceback" in rendered or "ModuleNotFoundError" in rendered:
+                raise RuntimeError("The desktop page contains an exception.")
+            if "DFT Agent" in rendered and "Create your first project" in rendered:
                 Path(output).write_text(json.dumps({"version": __version__, "platform": sys.platform,
-                    "native_window": True, "app_rendered": True}, indent=2) + "\n", encoding="utf-8")
+                    "native_window": True, "app_rendered": True, "project_ui": True}, indent=2) + "\n", encoding="utf-8")
                 return
             time.sleep(0.2)
         raise RuntimeError("The native window did not render the app.")
@@ -174,6 +175,88 @@ def _check_qe_bundle(root):
     assert len(qe._expected_structure(inputs, metadata)) == 2
 
 
+def _check_project_bundle(root):
+    """Check first-run projects and the exact MCP subprocess used by the CLI agents."""
+    from importlib.resources import files
+    from streamlit.testing.v1 import AppTest
+    from .workspace import Workspace
+    from . import project_files
+    from .runtime import cli_command
+
+    for resource in ("agent_runner.py", "cli_tools.py", "mcp_server.py", "ssh_broker.py", "project_app.py",
+                     "project_execution.py", "project_analysis.py", "project_input_artifacts.py"):
+        assert files("vasp_slurm_agent").joinpath(resource).is_file()
+    original = dict(os.environ)
+    try:
+        os.environ.update(DFT_AGENT_HOME=str(root / "project-settings"), DFT_AGENT_UI="project",
+                          DFT_AGENT_NO_UPDATE_CHECK="1")
+        app = AppTest.from_file(str(Path(__file__).with_name("app.py"))).run(timeout=60)
+        assert not app.exception, str(app.exception)
+        next(item for item in app.button if item.label == "Create your first project").click().run()
+        next(item for item in app.text_input if item.label == "Name").set_value("Silicon").run()
+        next(item for item in app.button if item.label == "Create project").click().run()
+        assert not app.exception, str(app.exception)
+        assert app.chat_input[0].disabled
+        assert {"Connect a model", "Connect a cluster"} <= {item.label for item in app.button}
+        workspace = Workspace()
+        project = workspace.list_projects()[0]
+        project_files.write_file(workspace, project["id"], "files/Si.cif",
+                                 files("vasp_slurm_agent").joinpath("examples", "Si.cif").read_bytes())
+        session = workspace.list_sessions(project["id"])[0]
+        workspace.append_message(project["id"], session["id"], "user", "Keep this structure for later.")
+        reopened = AppTest.from_file(str(Path(__file__).with_name("app.py"))).run(timeout=60)
+        assert not reopened.exception, str(reopened.exception)
+        assert "Keep this structure for later." in [item.value for item in reopened.markdown]
+        env = dict(os.environ, DFT_AGENT_PROJECT=project["id"], DFT_AGENT_SESSION=session["id"])
+        requests = [
+            {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05"}},
+            {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+            {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "project_overview", "arguments": {}}},
+        ]
+        result = subprocess.run(cli_command("mcp"), input="".join(json.dumps(item) + "\n" for item in requests),
+                                capture_output=True, text=True, check=True, timeout=60, env=env)
+        responses = [json.loads(line) for line in result.stdout.splitlines()]
+        assert [item["id"] for item in responses] == [1, 2, 3]
+        assert responses[0]["result"]["serverInfo"]["version"] == __version__
+        tools = {item["name"] for item in responses[1]["result"]["tools"]}
+        assert {"create_workflow", "plan_step", "explain_results", "qe_install_plan"} <= tools
+        assert responses[2]["result"]["isError"] is False
+        overview = json.loads(responses[2]["result"]["content"][0]["text"])
+        assert overview["project"]["id"] == project["id"]
+        assert [item["path"] for item in overview["files"]] == ["files/Si.cif"]
+    finally:
+        os.environ.clear()
+        os.environ.update(original)
+
+
+def _check_broker_bundle(root):
+    """Start and stop the packaged SSH service through its normal keychain and CLI."""
+    from . import credentials, ssh_broker
+    from .runtime import cli_command
+
+    home = root / "broker-settings"
+    try:
+        assert ssh_broker.start(home)["running"]
+        result = subprocess.run(cli_command("ssh-broker", "status", "--home", home, "--connection", "missing"),
+                                capture_output=True, text=True, check=True, timeout=30)
+        assert json.loads(result.stdout) == {"connected": False}
+        result = subprocess.run(cli_command("ssh-broker", "stop", "--home", home),
+                                capture_output=True, text=True, check=True, timeout=30)
+        assert json.loads(result.stdout)["stopped"]
+        endpoint = home / "runtime" / "ssh-broker.json"
+        deadline = time.monotonic() + 10
+        while endpoint.exists() and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert not endpoint.exists(), "The local SSH service did not stop."
+    finally:
+        ssh_broker.stop(home)
+        # This smoke check owns only the fresh workspace's capability.
+        name = hashlib.sha256(str(home.resolve()).encode()).hexdigest()
+        backend = credentials._keyring()
+        if backend.get_password(ssh_broker._SERVICE, name) is not None:
+            backend.delete_password(ssh_broker._SERVICE, name)
+
+
 def check_bundle(output):
     """Exercise packaged resources and input preparation without network access."""
     import tempfile
@@ -206,15 +289,21 @@ def check_bundle(output):
             assert files("vasp_slurm_agent").joinpath(resource).is_file()
         for module in ("openai", "anthropic", "keyring", "webview"):
             __import__(module)
+        if sys.platform in {"darwin", "win32"}:
+            from .credentials import _keyring
+            _keyring()  # Load and validate the native backend without reading credentials.
         if sys.platform == "win32":
             __import__("paramiko")
         _check_qe_bundle(root)
+        _check_project_bundle(root)
+        if sys.platform in {"darwin", "win32"}:
+            _check_broker_bundle(root)
         _check_plot_exports(Path(output).resolve().parent / "plot-exports")
         from streamlit.testing.v1 import AppTest
         original = dict(os.environ)
         try:
             os.environ.update(DFT_AGENT_HOME=str(root / "settings"), DFT_AGENT_CONFIG=str(root / "cluster.json"),
-                              DFT_AGENT_RUNS=str(root / "ui-runs"), DFT_AGENT_NO_UPDATE_CHECK="1")
+                              DFT_AGENT_RUNS=str(root / "ui-runs"), DFT_AGENT_NO_UPDATE_CHECK="1", DFT_AGENT_UI="legacy")
             app = AppTest.from_file(str(Path(__file__).with_name("app.py"))).run(timeout=60)
             assert not app.exception, str(app.exception)
             def widget(elements, label):
@@ -235,6 +324,9 @@ def check_bundle(output):
         result = {"version": __version__, "platform": sys.platform, "frozen": bool(getattr(sys, "frozen", False)),
                   "input_preparation": True, "cluster_attach": True, "samples": len(installed),
                   "resources": True, "provider_sdks": True, "first_run_ui": True,
+                  "native_keychain": sys.platform in {"darwin", "win32"},
+                  "ssh_broker_lifecycle": sys.platform in {"darwin", "win32"},
+                  "project_ui": True, "project_persistence": True, "mcp_subprocess": True,
                   "plot_exports": True, "qe_catalogues": True, "qe_input_preparation": True,
                   "qe_install_plan": True}
     Path(output).write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
@@ -242,9 +334,9 @@ def check_bundle(output):
 
 
 def main():
-    if sys.argv[1:] == ["--askpass"]:
-        sys.stdout.write(os.environ.get("_DFT_AGENT_ASKPASS_PASSWORD", "") + "\n")
-        return 0
+    if sys.argv[1:2] == ["--askpass"]:
+        from .transport import askpass_main
+        return askpass_main(sys.argv[1:])
     if len(sys.argv) > 1 and sys.argv[1] == "--cli":
         from .cli import main as cli_main
         sys.argv = [sys.argv[0], *sys.argv[2:]]

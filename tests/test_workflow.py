@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shlex
 from pathlib import Path
 
 import pytest
@@ -33,7 +34,9 @@ class FakeTransport:
         if self.unavailable:
             return Result(255, "", "Connection unavailable")
         if any(script in command for script in ("dispatch.py", "reconcile.py")) and command.startswith("python3 "):
-            name = command.split()[-2] if "--reconcile-only" in command else command.split()[-1]
+            name = shlex.split(command)[3]
+            if "--scheduler pbs" in command:
+                self.job_id = "80721.pbs.example"
             if "--reconcile-only" in command and name not in self.remote_jobs:
                 return Result(1, "", "No recorded submission; reconciliation cannot submit")
             self.remote_jobs.setdefault(name, self.job_id)
@@ -41,11 +44,16 @@ class FakeTransport:
                 self.lose_submit_reply = False
                 return Result(255, "", "Connection lost after remote submission")
             return Result(0, json.dumps({"job_id": self.remote_jobs[name], "job_name": name}))
+        if command.startswith("qstat "):
+            phase = "R" if self.queue == "RUNNING" else "Q" if self.queue else "F"
+            data = {"job_state": phase, "Exit_status": int(self.exit_code.split(":")[0])}
+            if self.accounting == "CANCELLED": data["substate"] = 91
+            return Result(0, json.dumps({"Jobs": {self.job_id: data}}))
         if command.startswith("squeue "):
             return Result(0, self.queue + "\n" if self.queue else "")
         if command.startswith("sacct "):
             return Result(0, f"{self.job_id}|{self.accounting}|{self.exit_code}|\n" if self.accounting else "")
-        if command.startswith("scancel "):
+        if command.startswith(("scancel ", "qdel ")):
             self.cancel_count += 1
             if self.cancel_error:
                 return Result(1, "", "Invalid job id specified")
@@ -88,10 +96,10 @@ def test_queue_connection_error_is_not_a_completed_job():
 
 
 @pytest.fixture
-def prepared(tmp_path, monkeypatch):
+def prepared(tmp_path, monkeypatch, request):
     config = ClusterConfig(
         host="cluster.example.invalid", user="researcher", remote_root="/scratch/test",
-        vasp_command="srun vasp_std", potcar_root="/licensed/pbe", partition="cpu",
+        vasp_command="mpiexec vasp_std", potcar_root="/licensed/pbe", partition="cpu", scheduler=getattr(request, "param", "slurm"),
     )
     structure = tmp_path / "source.cif"
     structure.write_text("test structure for control semantics")
@@ -116,6 +124,15 @@ def prepared(tmp_path, monkeypatch):
     root = tmp_path / "run"
     workflow.prepare_run(structure, root, config)
     return root
+
+
+@pytest.mark.parametrize("status", ["planned", "submitting"])
+def test_poll_only_cannot_launch_a_stage(prepared, status):
+    state = workflow.read_state(prepared)
+    state["status"] = state["stages"][0]["status"] = status
+    workflow._write(prepared / "run.json", state)
+    # The fixture fails if an SSH transport is constructed.
+    assert workflow.advance(prepared, poll_only=True) == state
 
 
 def completed_files(root, transport, bad_hash=False):
@@ -286,7 +303,7 @@ def test_slurm_failure_cannot_be_overridden_by_parser_success(prepared, schedule
     state = workflow.advance(prepared, transport)
     assert state["status"] == "needs_attention"
     assert not state["stages"][0]["result"]["success"]
-    assert "Slurm ended" in state["stages"][0]["result"]["reason"]
+    assert "Scheduler ended" in state["stages"][0]["result"]["reason"]
 
 
 def test_input_checksum_mismatch_cannot_be_success(prepared):
@@ -371,7 +388,7 @@ def test_zhegv_diagnosis_keeps_parser_reason_and_never_resubmits(prepared, monke
     assert result["failure_code"] == "VASP_EDDDAV_ZHEGV"
     assert result["parser_reason"] == parser_reason
     assert parser_reason in result["reason"]
-    assert "ZHEGV" in result["reason"] and "Slurm ended in FAILED" in result["reason"]
+    assert "ZHEGV" in result["reason"] and "Scheduler ended in FAILED" in result["reason"]
     assert "fewer MPI tasks" in result["recovery_hint"]
     assert "does not establish the cause" in result["recovery_hint"]
     assert state["status"] == "needs_attention"
@@ -418,4 +435,30 @@ def test_unrecognized_failed_job_does_not_erase_original_parser_error(prepared, 
     result = workflow.advance(prepared, transport)["stages"][0]["result"]
     assert result["parser_reason"] == parser_reason
     assert parser_reason in result["reason"]
-    assert "Slurm ended in FAILED" in result["reason"]
+    assert "Scheduler ended in FAILED" in result["reason"]
+
+
+@pytest.mark.parametrize("prepared", ["pbs"], indirect=True)
+def test_pbs_lost_ack_reconnect_and_cancel(prepared):
+    transport = FakeTransport()
+    transport.lose_submit_reply = True
+    assert workflow.advance(prepared, transport)["stages"][0]["job_id"] is None
+    state = workflow.advance(prepared, transport)
+    assert state["stages"][0]["job_id"] == "80721.pbs.example"
+    assert len(transport.remote_jobs) == 1
+    transport.queue = "RUNNING"
+    assert workflow.cancel(prepared, transport)["status"] != "cancelled"
+    assert transport.cancel_count == 1
+    transport.queue, transport.accounting = "", "CANCELLED"
+    assert workflow.advance(prepared, transport)["status"] == "cancelled"
+    assert any(command.startswith("qdel 80721.pbs.example") for command in transport.commands)
+
+
+@pytest.mark.parametrize("prepared", ["pbs"], indirect=True)
+def test_pbs_mock_output_still_requires_collection_and_input_identity(prepared):
+    transport = FakeTransport()
+    workflow.advance(prepared, transport)
+    completed_files(prepared, transport, bad_hash=True)
+    result = workflow.advance(prepared, transport)
+    assert result["status"] == "needs_attention"
+    assert result["stages"][0]["result"]["input_identity_verified"] is False

@@ -19,6 +19,7 @@ def test_frozen_unix_askpass_uses_desktop_helper_mode(monkeypatch):
     with SSHTransport(config, password="fake-test-password") as transport:
         helper = transport._askpass_path
         content = helper.read_text()
-        assert shlex.split(content.splitlines()[1]) == ["exec", executable, "--askpass"]
+        # The prompt text is forwarded so passwords and login codes each answer only their own prompt.
+        assert shlex.split(content.splitlines()[1]) == ["exec", executable, "--askpass", "$@"]
         assert "fake-test-password" not in content
     assert not Path(helper).exists()

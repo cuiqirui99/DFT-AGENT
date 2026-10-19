@@ -1,6 +1,7 @@
 """Opt-in keychain storage never touches a real keyring in tests."""
 
 import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -102,3 +103,79 @@ def test_delete_verifies_backend_did_remove_key(keyring, monkeypatch):
     monkeypatch.setattr(keyring, "delete_password", lambda *args: None)
     with pytest.raises(credentials.CredentialError, match="still contains"):
         credentials.delete_key("anthropic")
+
+
+def backend_type(module, name):
+    return type(name, (FakeKeyring,), {"__module__": module})()
+
+
+def select_backend(monkeypatch, backend):
+    # No OS keychain is opened by these backend-selection tests.
+    monkeypatch.setitem(sys.modules, "keyring", SimpleNamespace(
+        get_keyring=lambda: backend, errors=SimpleNamespace()))
+
+
+@pytest.mark.parametrize("module,name", [
+    ("keyring.backends.macOS", "Keyring"),
+    ("keyring.backends.Windows", "WinVaultKeyring"),
+    ("keyring.backends.SecretService", "Keyring"),
+    ("keyring.backends.libsecret", "Keyring"),
+    ("keyring.backends.kwallet", "DBusKeyring"),
+    ("keyring.backends.kwallet", "DBusKeyringKWallet4"),
+])
+def test_native_keychains_remain_supported(monkeypatch, module, name):
+    backend = backend_type(module, name)
+    select_backend(monkeypatch, backend)
+    assert credentials._keyring() is backend
+    credentials.save_key("anthropic", "placeholder-native-key")
+    assert credentials.load_key("anthropic") == "placeholder-native-key"
+    credentials.delete_key("anthropic")
+    assert not backend.store
+
+
+@pytest.mark.parametrize("module,name", [
+    ("keyrings.alt.file", "PlaintextKeyring"),
+    ("keyrings.alt.file", "EncryptedKeyring"),
+    ("custom_file_store", "Keyring"),
+    ("keyring.backends.fail", "Keyring"),
+    ("keyring.backends.null", "Keyring"),
+])
+def test_unverified_stores_are_rejected_before_access(monkeypatch, module, name):
+    backend = backend_type(module, name)
+    backend.store[credentials.SERVICE, "anthropic"] = "must-not-read"
+    select_backend(monkeypatch, backend)
+    assert not credentials.keyring_available()
+    for operation in (lambda: credentials.save_key("anthropic", "must-not-write"),
+                      lambda: credentials.load_key("anthropic"),
+                      lambda: credentials.delete_key("anthropic")):
+        with pytest.raises(credentials.CredentialError, match="system keychain"):
+            operation()
+    assert list(backend.store.values()) == ["must-not-read"]
+
+
+def test_chain_rejects_file_fallback_and_pins_safe_backend(monkeypatch):
+    native = backend_type("keyring.backends.SecretService", "Keyring")
+    other_native = backend_type("keyring.backends.libsecret", "Keyring")
+    file_store = backend_type("keyrings.alt.file", "PlaintextKeyring")
+    chain = backend_type("keyring.backends.chainer", "ChainerBackend")
+    select_backend(monkeypatch, chain)
+    for children in ([], [native, file_store], [file_store, native]):
+        chain.backends = children
+        with pytest.raises(credentials.CredentialError):
+            credentials._keyring()
+    chain.backends = [native, other_native]
+    selected = credentials._keyring()
+    assert selected is native
+    chain.backends = [file_store]
+    selected.set_password(credentials.SERVICE, "test", "native-only")
+    assert not file_store.store
+
+
+def test_keychain_discovery_error_does_not_expose_backend_details(monkeypatch):
+    def fail():
+        raise RuntimeError("private-backend-detail")
+    monkeypatch.setitem(sys.modules, "keyring", SimpleNamespace(
+        get_keyring=fail, errors=SimpleNamespace()))
+    with pytest.raises(credentials.CredentialError, match="could not be opened") as caught:
+        credentials._keyring()
+    assert "private-backend-detail" not in str(caught.value)

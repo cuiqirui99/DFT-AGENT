@@ -9,7 +9,7 @@ import pytest
 
 from vasp_slurm_agent import agent, explanation, recovery, structure_agent
 from vasp_slurm_agent.agent import AgentError, ModelSettings
-from vasp_slurm_agent.model_usage import ModelResponse, codex_usage, normalize_usage, response_usage, usage_record
+from vasp_slurm_agent.model_usage import ModelResponse, codex_usage, normalize_usage, response_provenance, response_usage, usage_record
 from test_agent import response as calculation_response, structure
 from test_explanation import accepted_run, model_reply
 from test_recovery import failed_run, SETTINGS
@@ -137,6 +137,41 @@ def test_plain_string_mocks_remain_compatible_without_estimated_tokens():
     value = response_usage('{"answer":"ok"}', ModelSettings("codex", "test"))
     assert value["token_counts_source"] == "unavailable" and value["input_tokens"] is None
     assert value["output_characters"] == 15
+
+
+def test_response_provenance_uses_resolved_connection_and_keeps_legacy_fallback():
+    settings = ModelSettings("codex", "old-model", connection_id="saved-connection")
+    response = ModelResponse('{}', usage_record("claude_cli", "current-model"))
+    assert response_provenance(response, settings) == {"provider": "claude_cli", "model": "current-model"}
+    assert response_provenance('{}', ModelSettings("claude_cli")) == {
+        "provider": "claude_cli", "model": "Claude Code CLI default"}
+
+
+def test_saved_connection_model_change_is_recorded_in_actual_plan(monkeypatch, tmp_path, structure):
+    from vasp_slurm_agent.connections import ConnectionRegistry
+
+    registry = ConnectionRegistry(tmp_path / "workspace")
+    connection = registry.create("model", "Test", {"provider": "responses", "model": "old-model"})
+    settings = registry.model_settings(connection["id"])
+    registry.update(connection["id"], {"model": "current-model"})
+    monkeypatch.setattr(ConnectionRegistry, "_secret", lambda *args: "test-only-key")
+    called = []
+    class Client:
+        def __init__(self, **kwargs):
+            self.responses = SimpleNamespace(create=self.create)
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            pass
+        def create(self, **kwargs):
+            called.append(kwargs["model"])
+            return SimpleNamespace(output_text=json.dumps(calculation_response()), status="completed", usage=None)
+    monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=Client))
+    plan = agent.draft_plan("Relax.", structure, settings)
+    assert settings.model == "old-model" and called == ["current-model"]
+    assert plan["provenance"] == {"provider": "responses", "model": "current-model"}
+    assert plan["model_usage"]["model"] == "current-model"
+    assert json.loads(plan["dialogue"][-1]["content"])["provenance"] == plan["provenance"]
 
 
 def recorded(text):

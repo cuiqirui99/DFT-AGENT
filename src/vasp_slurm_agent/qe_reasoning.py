@@ -215,7 +215,7 @@ def draft_next_action(question, run_dir, settings: ModelSettings, history=None, 
             raise AgentError("The calculation evidence changed. Request a new next step.")
         decision.update(kind="qe_next_action", schema_version=1, question=safe_question,
             context_sha256=context["context_sha256"], repair_snapshot_sha256=(repair or {}).get("snapshot_sha256"),
-            provenance={"provider": settings.provider, "model": settings.model or "Codex CLI default"},
+            provenance=agent.response_provenance(raw, settings),
             model_usage=agent.response_usage(raw, settings), requires_review=True, submits_jobs=False)
         decision["status"] = decision["action"] if decision["action"] in {"needs_input", "unsupported"} else "ready"
         decision["notes"] = list(decision["limits"])

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dft-agent"
-version = "0.4.3"
-description = "Run electronic-structure calculations on Slurm."
+version = "0.4.4"
+description = "Run VASP and Quantum ESPRESSO calculations on your cluster."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE", "NOTICE.md"]
@@ -27,6 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Topic :: Scientific/Engineering :: Physics",
     "Natural Language :: English",
@@ -41,7 +42,7 @@ dev = ["pytest>=8,<10", "build>=1.2,<2", "streamlit>=1.65,<2"]
 [project.urls]
 Homepage = "https://github.com/cuiqirui99/DFT-AGENT"
 Repository = "https://github.com/cuiqirui99/DFT-AGENT"
-Documentation = "https://github.com/cuiqirui99/DFT-AGENT/blob/v0.4.3/README.md"
+Documentation = "https://github.com/cuiqirui99/DFT-AGENT/blob/v0.4.4/README.md"
 Issues = "https://github.com/cuiqirui99/DFT-AGENT/issues"
 
 [project.scripts]
@@ -56,7 +57,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-vasp_slurm_agent = ["examples/*.cif", "examples/*.vasp", "examples/*.json", "knowledge/**/*", "knowledge/*.json", "clusters/*.json", "samples/**/*", "qe_pseudos.json", "qe_nc_pseudos.json"]
+vasp_slurm_agent = ["examples/*.cif", "examples/*.vasp", "examples/*.json", "knowledge/**/*", "knowledge/*.json", "clusters/*.json", "samples/**/*", "migrations/*.sql", "qe_pseudos.json", "qe_nc_pseudos.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

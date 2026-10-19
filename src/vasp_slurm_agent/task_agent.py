@@ -29,6 +29,10 @@ OWN complete parameters and requirements. Supported stages are relax, scf, bands
 dos in that order, each at most once. The runner inserts matching SCF prerequisites
 for PBE spectra; hybrids use self-consistent spectra. PBE relaxation followed by
 HSE06 bands, or relaxation without SOC followed by SOC bands, are supported.
+intent.requested_tasks and forbidden_tasks contain only relax, scf, bands or dos.
+Preparing inputs, reviewing plans and submitting jobs are actions, not calculation
+stages. Method and structure constraints belong in requirements and parameters.
+Put unavailable scientific calculations in intent.unsupported.
 The structure after all edits determines the site order and number of moments.
 Supported methods: PBE, HSE06, PBE0, none/collinear/noncollinear spin, SOC, Dudarev U.
 No invented crystal structures, phonons, NEB, MD, elastic constants or transport.
@@ -85,7 +89,10 @@ def _schema():
             "stages": stages,
         })},
         "questions": strings, "notes": strings,
-        "intent": agent._object({key: strings for key in ("requested_tasks", "forbidden_tasks", "unsupported")}),
+        "intent": agent._object({
+            "requested_tasks": {"type": "array", "items": {"type": "string", "enum": ["relax", "scf", "bands", "dos"]}},
+            "forbidden_tasks": {"type": "array", "items": {"type": "string", "enum": ["relax", "scf", "bands", "dos"]}},
+            "unsupported": strings}),
     })
 
 
@@ -231,7 +238,7 @@ def draft_task(goal, structure_path, settings: ModelSettings, history=None, *, r
         if plan["status"] == "needs_input" and not plan["questions"]:
             _ask(plan, "Confirm the missing task details.")
         plan.update(schema_version=2, kind="task", goal=safe_goal, source_sha256=original["source_sha256"],
-                    provenance={"provider": settings.provider, "model": settings.model or "Codex CLI default"},
+                    provenance=agent.response_provenance(raw, settings),
                     model_usage=agent.response_usage(raw, settings))
         dialogue = {key: value for key, value in plan.items() if key not in {
             "scientific_report", "scientific_reports", "preview", "model_usage", "provenance", "stage_parameters", "parameters"}}

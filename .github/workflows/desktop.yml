@@ -21,7 +21,7 @@ jobs:
       - name: Install build dependencies
         run: python -m pip install '.[desktop,dev]' 'pyinstaller>=6.15,<7' 'ase>=3.23,<4'
       - name: Test Windows workflows
-        run: python -m pytest -q tests validation/reference/test_reference.py --ignore=tests/test_transport.py
+        run: python -m pytest -q tests validation/reference/test_reference.py --ignore=tests/test_transport.py --junitxml=evidence/windows/pytest.xml
       - name: Build desktop app
         run: python -m PyInstaller --noconfirm packaging/desktop.spec
       - name: Get Microsoft WebView2 installer

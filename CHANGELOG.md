@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.4 — 2026-10-19
+
+- Organize files, conversations and calculations in separate projects.
+- Guide model and cluster setup, with Codex CLI, Claude Code CLI and API connections.
+- Use CLI agent tools to plan, prepare, revise and analyze work in a project. Review and submit jobs in the app.
+- Connect VASP, QE, Wannier90 and Python steps through checked file transfers.
+- Detect QE build tools, review installation settings and follow the build from Connections.
+- Preserve calculation attempts, QE installation progress and earlier runs when reconnecting or repairing.
+- Reuse Windows password/key + verification-code sessions across background jobs; ask for fresh sign-in after disconnection.
+- Update the desktop interface and installation checks for macOS and Windows.
+
 ## 0.4.3 — 2026-10-14
 
 - Add Quantum ESPRESSO installation, public UPFs and a VASP/QE switch.

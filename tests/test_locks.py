@@ -73,7 +73,7 @@ def test_attachment_snapshot_never_copies_lock_files(prepared, tmp_path, monkeyp
     assert checked == [True]
 
 
-@pytest.mark.parametrize("kind", ["run", "batch"])
+@pytest.mark.parametrize("kind", ["run", "batch", "script"])
 @pytest.mark.parametrize("failure_at", ["start", "close"])
 def test_worker_unlocks_even_if_transport_start_or_close_fails(prepared, tmp_path, monkeypatch, kind, failure_at):
     source, config = prepared
@@ -81,9 +81,16 @@ def test_worker_unlocks_even_if_transport_start_or_close_fails(prepared, tmp_pat
     if kind == "run":
         workflow.prepare_plan(source, root, config, ["scf"])
         module, watch, advance, bundle = workflow, workflow.watch, "advance", "bundle_run"
-    else:
+    elif kind == "batch":
         batch.prepare_batch(source, root, config, ["scf"], [{"label": "A"}])
         module, watch, advance, bundle = batch, batch.watch_batch, "advance_batch", "bundle_batch"
+    else:
+        from vasp_slurm_agent import script_workflow
+        source = tmp_path / "analysis.py"
+        source.write_text("print('ok')\n")
+        script_workflow.prepare_run(root, config, engine="python", files={source.name: source},
+                                    entrypoint=source.name, command="python3")
+        module, watch, advance, bundle = script_workflow, script_workflow.watch, "advance", "bundle_run"
     release = workflow._release
     released = []
 
@@ -91,11 +98,13 @@ def test_worker_unlocks_even_if_transport_start_or_close_fails(prepared, tmp_pat
         released.append(Path(stream.name).name)
         release(stream)
 
-    def fail(*args):
+    def fail(*args, **kwargs):
         raise RuntimeError("transport failed")
 
     monkeypatch.setattr(workflow, "_release", record_release)
-    monkeypatch.setattr(module, "SSHTransport", fail if failure_at == "start" else lambda *args: SimpleNamespace(close=fail))
+    if kind == "script":
+        monkeypatch.setattr(module, "_release", record_release)
+    monkeypatch.setattr(module, "SSHTransport", fail if failure_at == "start" else lambda *args, **kwargs: SimpleNamespace(close=fail))
     monkeypatch.setattr(module, advance, lambda *args: {"status": "cancelled"})
     monkeypatch.setattr(module, bundle, lambda *args: None)
     monkeypatch.setattr(workflow, "_announce", lambda *args: None)

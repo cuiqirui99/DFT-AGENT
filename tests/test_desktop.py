@@ -61,7 +61,7 @@ def test_backend_stays_on_loopback(monkeypatch):
 
 def test_window_check_requires_the_app_not_just_an_empty_browser(tmp_path):
     window = Mock()
-    window.evaluate_js.side_effect = ["", "DFT Agent New calculation Structure source"]
+    window.evaluate_js.side_effect = ["", "DFT Agent Create your first project"]
     errors = []
     report = tmp_path / "window.json"
     desktop.check_window(window, report, errors)
@@ -77,6 +77,19 @@ def test_window_check_reports_render_errors(tmp_path):
     desktop.check_window(window, tmp_path / "window.json", errors)
     assert errors == ["webview failed"]
     window.destroy.assert_called_once()
+
+
+def test_window_check_rejects_rendered_traceback(tmp_path):
+    window = Mock()
+    window.evaluate_js.return_value = "DFT Agent Create your first project Traceback"
+    errors = []
+    desktop.check_window(window, tmp_path / "window.json", errors)
+    assert errors == ["The desktop page contains an exception."]
+    assert not (tmp_path / "window.json").exists()
+
+
+def test_project_bundle_persists_project_and_serves_mcp_without_credentials(tmp_path):
+    desktop._check_project_bundle(tmp_path)
 
 
 def test_bundle_check_renders_plot_exports(tmp_path):

@@ -24,15 +24,17 @@ def test_translation_fallback_and_placeholders():
 def test_language_switch_translates_the_app(tmp_path, monkeypatch):
     monkeypatch.setenv("VASP_AGENT_CONFIG", str(tmp_path / "missing.json"))
     app = AppTest.from_file(str(files("vasp_slurm_agent").joinpath("app.py")), default_timeout=20).run()
-    assert [tab.label for tab in app.tabs] == ["New calculation", "Runs", "Cluster setup", "Memory"]
+    assert [tab.label for tab in app.tabs] == ["Chat", "New calculation", "Runs", "Cluster setup", "Memory"]
     next(box for box in app.selectbox if box.label == "Language / 语言").select("zh").run()
     assert not app.exception
-    assert [tab.label for tab in app.tabs] == ["新建计算", "计算记录", "集群设置", "记忆"]
+    assert [tab.label for tab in app.tabs] == ["对话", "新建计算", "计算记录", "集群设置", "记忆"]
     assert any(button.label == "保存集群设置" for button in app.button)
+    assert any(button.label == "新建对话" for button in app.button)
+    assert any(box.label == "对话记录" for box in app.selectbox)
     reopened = AppTest.from_file(str(files("vasp_slurm_agent").joinpath("app.py")), default_timeout=20).run()
-    assert [tab.label for tab in reopened.tabs][0] == "新建计算"
+    assert [tab.label for tab in reopened.tabs][0] == "对话"
     next(box for box in reopened.selectbox if box.label == "Language / 语言").select("en").run()
-    assert [tab.label for tab in reopened.tabs][0] == "New calculation"
+    assert [tab.label for tab in reopened.tabs][0] == "Chat"
 
 
 def test_language_switch_preserves_model_structure_and_manual_inputs(tmp_path, monkeypatch):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 import math
 import os
@@ -12,7 +13,7 @@ import subprocess
 import tempfile
 import time
 import tomllib
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
@@ -20,9 +21,9 @@ from urllib.parse import urlsplit
 from pymatgen.core import Structure
 
 from .methods import normalize_method
-from .model_usage import ModelResponse, codex_usage, response_usage, usage_record
+from .model_usage import ModelResponse, codex_usage, response_provenance, response_usage, usage_record
 from .prompt_context import compact_history, compact_scientific_context, compact_structure
-from .providers import PROVIDERS, credential_envs, effective_key
+from .providers import PROVIDERS, credential_envs, effective_key, model_label
 from .vasp import DEFAULTS, TASKS, _parameters, _validate_structure
 
 
@@ -40,6 +41,11 @@ class ModelSettings:
     model: str = ""
     base_url: str | None = None
     api_key: str | None = field(default=None, repr=False)
+    connection_id: str | None = None
+    connection_home: str | None = field(default=None, repr=False)
+    allow_env: bool = True
+    # The CLI executable this connection was tested with; PATH order is not trusted.
+    cli_path: str | None = None
 
 
 _SYSTEM = """You draft VASP calculation plans for a researcher. Return only the
@@ -185,6 +191,8 @@ def _check_schema(value: Any, schema: dict[str, Any]) -> None:
 
 
 def _secrets(settings: ModelSettings) -> list[str]:
+    if settings.connection_id:
+        settings = _resolve_connection(settings)
     names = {name for provider in PROVIDERS for name in credential_envs(provider)}
     return [value for value in (settings.api_key, os.getenv("DFT_AGENT_SSH_PASSWORD"),
             *(os.getenv(name) for name in names)) if value]
@@ -212,17 +220,17 @@ def _settings(settings: ModelSettings) -> ModelSettings:
     model = settings.model.strip()
     if not model and settings.provider == "codex":
         model = _codex_default_model()
-    if not model and settings.provider in {"responses", "chat_completions"}:
+    if not model and settings.allow_env and settings.provider in {"responses", "chat_completions"}:
         model = os.getenv("DFT_AGENT_MODEL", "").strip()
-    if not model and settings.provider != "codex":
+    if not model and settings.provider not in {"codex", "claude_cli"}:
         raise AgentError("Set a model name for the selected provider.")
     if len(model) > 200 or any(character.isspace() for character in model):
         raise AgentError("The model name is invalid.")
     base_url = settings.base_url
-    if not base_url and settings.provider in {"responses", "chat_completions"}:
+    if not base_url and settings.allow_env and settings.provider in {"responses", "chat_completions"}:
         base_url = os.getenv("DFT_AGENT_BASE_URL") or None
     base_url = base_url or PROVIDERS[settings.provider]["base_url"]
-    if settings.provider == "codex":
+    if settings.provider in {"codex", "claude_cli"}:
         base_url = None
     if settings.provider == "qwen" and not base_url:
         raise AgentError("Set the Qwen API URL from your Model Studio workspace. Match its region to your key.")
@@ -230,7 +238,27 @@ def _settings(settings: ModelSettings) -> ModelSettings:
         parsed = urlsplit(base_url)
         if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
             raise AgentError("Use an HTTP(S) API base URL without credentials or query parameters.")
-    return ModelSettings(settings.provider, model, base_url, settings.api_key)
+        if settings.provider == "local":
+            try:
+                loopback = parsed.hostname == "localhost" or ipaddress.ip_address(parsed.hostname).is_loopback
+            except ValueError:
+                loopback = False
+            if not loopback:
+                raise AgentError("Local models need a loopback API URL. Use Compatible API for a remote server.")
+    return replace(settings, model=model, base_url=base_url)
+
+
+def _resolve_connection(settings: ModelSettings) -> ModelSettings:
+    from .connections import ConnectionRegistry
+
+    try:
+        return ConnectionRegistry(settings.connection_home).model_settings(settings.connection_id, resolve_secret=True)
+    except (ValueError, RuntimeError, OSError):
+        raise AgentError("The model connection is unavailable or revoked. Reconnect it in Connections.") from None
+
+
+def _key(settings: ModelSettings) -> str | None:
+    return effective_key(settings.provider, settings.api_key) if settings.allow_env else settings.api_key
 
 
 def _codex_default_model() -> str:
@@ -250,6 +278,7 @@ def _request_plan(payload: str, schema: dict[str, Any], settings: ModelSettings)
 def _request_structured(payload: str, schema: dict[str, Any], settings: ModelSettings,
                         *, instructions: str, name: str = "dft_response") -> str:
     """One provider boundary shared by planning and read-only result explanations."""
+    settings = _settings(_resolve_connection(settings) if settings.connection_id else settings)
     try:
         data = json.loads(payload)
         if not isinstance(data, dict):
@@ -261,6 +290,8 @@ def _request_structured(payload: str, schema: dict[str, Any], settings: ModelSet
         raise AgentError("The model context is too large. Use a smaller structure or start a new conversation with the required settings.")
     if settings.provider == "codex":
         return _codex_plan(payload, schema, settings, instructions=instructions)
+    if settings.provider == "claude_cli":
+        return _claude_cli_request(payload, schema, settings, instructions=instructions)
     if settings.provider == "anthropic":
         return _anthropic_request(payload, schema, settings, instructions=instructions)
     limit = _output_limit(payload)
@@ -269,12 +300,25 @@ def _request_structured(payload: str, schema: dict[str, Any], settings: ModelSet
         from openai import OpenAI
     except ImportError:
         raise AgentError('Install model support with pip install "openai>=1.99,<3".') from None
-    key = effective_key(settings.provider, settings.api_key)
+    key = _key(settings)
+    if settings.provider == "local" and not key:
+        key = "local-no-key"
     if not key:
         raise AgentError("Set an API key or choose your configured Codex CLI.")
     usage = None
     try:
-        with OpenAI(api_key=key, base_url=settings.base_url, timeout=120.0, max_retries=0) as client:
+        client_options = {}
+        if settings.provider == "local":
+            from openai import DefaultHttpxClient
+            client_options["http_client"] = DefaultHttpxClient(trust_env=False, follow_redirects=False)
+        base_url = settings.base_url or ("https://api.openai.com/v1" if not settings.allow_env else None)
+        with OpenAI(api_key=key, base_url=base_url, timeout=120.0, max_retries=0, **client_options) as client:
+            if not settings.allow_env or settings.provider == "local":
+                # The SDK separately inherits organization and custom headers
+                # from environment variables, even with an explicit API key.
+                client.organization = client.project = None
+                client.admin_api_key = client.webhook_secret = None
+                client._custom_headers = {}
             if settings.provider == "responses":
                 response = client.responses.create(
                     model=settings.model, instructions=instructions, input=payload, store=False,
@@ -449,7 +493,7 @@ def _anthropic_request(payload: str, schema: dict, settings: ModelSettings, *, i
         from anthropic import Anthropic, transform_schema
     except ImportError:
         raise AgentError('Install Claude support with pip install "anthropic>=0.86,<2".') from None
-    key = effective_key(settings.provider, settings.api_key)
+    key = _key(settings)
     if not key:
         raise AgentError("Set a Claude API key or ANTHROPIC_API_KEY.")
     limit = _output_limit(payload)
@@ -513,10 +557,108 @@ def _output_limit(payload: str) -> int:
     return min(131072, max(8192, 4096 + 24 * sites))
 
 
+def _cli_error(result, provider):
+    """Classify CLI failures without copying provider output into user messages."""
+    label = "Codex" if provider == "codex" else "Claude Code"
+    text = (getattr(result, "stderr", "") or "")[-24000:]
+    output = (getattr(result, "stdout", "") or "")[-1000000:]
+    for line in [output, *output.splitlines()]:
+        try:
+            item = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        if isinstance(item, dict) and (item.get("type") in {"error", "turn.failed"} or item.get("is_error")):
+            text += " " + json.dumps({key: item.get(key) for key in ("message", "error", "errors", "result", "subtype")})
+    if "requires a newer version of Codex" in text:
+        return "Codex CLI is too old for this model. Update it or choose another model."
+    if re.search(r"unknown option|unrecognized (?:option|argument)|unexpected argument", text, re.I):
+        return f"Update {label} CLI to use this connection. Its installed version does not support the required isolation options."
+    if re.search(r"\b429\b|rate[_ -]?limit|too many requests|usage limit", text, re.I):
+        return f"{label} rate or usage limit was reached. Wait before another request and check account limits."
+    if re.search(r"\b(?:401|403)\b|not logged in|login required|authentication[_ ]error|unauthorized|invalid.*(?:credential|token)", text, re.I):
+        return f"Sign in to {label} CLI and check your model access."
+    if re.search(r"model.*(?:not found|not available|does not exist|not supported)|\b404\b", text, re.I):
+        return f"{label} model was not found or is unavailable. Check the model name and access."
+    if re.search(r"timed? ?out|timeout|\b(?:408|504)\b", text, re.I):
+        return f"{label} request timed out. Check the connection and try again."
+    if re.search(r"\b(?:500|502|503)\b|overloaded|service unavailable", text, re.I):
+        return f"{label} is temporarily unavailable. Try again later."
+    return f"{label} could not respond. Check your CLI setup and model access."
+
+
+def _cli_executable(settings: ModelSettings, name: str, override: str) -> str | None:
+    """The connection's tested CLI first, then an explicit override, then PATH."""
+    chosen = settings.cli_path
+    if chosen and Path(chosen).is_file() and os.access(chosen, os.X_OK):
+        return chosen
+    return shutil.which(os.environ.get(override) or name)
+
+
+def _claude_cli_request(payload, schema, settings, *, instructions):
+    executable = _cli_executable(settings, "claude", "CLAUDE_CLI_PATH")
+    if not executable:
+        raise AgentError("Claude Code CLI was not found. Install it and sign in, or choose an API provider.")
+    environment = {key: value for key, value in os.environ.items() if key in {
+        "PATH", "HOME", "CLAUDE_CONFIG_DIR", "TMPDIR", "TEMP", "TMP", "LANG", "LC_ALL",
+        "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY", "SSL_CERT_FILE", "SSL_CERT_DIR",
+        "SystemRoot", "USERPROFILE", "APPDATA", "LOCALAPPDATA",
+    }}
+    environment["CLAUDE_CODE_SKIP_PROMPT_HISTORY"] = "1"
+    started = time.monotonic()
+    usage = None
+    try:
+        with tempfile.TemporaryDirectory(prefix="dft-agent-claude-") as temporary:
+            command = [executable, "-p", "--safe-mode", "--restricted", "--tools", "",
+                       "--disallowedTools", "mcp__*", "--disable-slash-commands", "--no-chrome",
+                       "--permission-mode", "plan", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
+                       "--setting-sources", "", "--settings", '{"disableAllHooks":true}',
+                       "--no-session-persistence", "--output-format", "json",
+                       "--json-schema", json.dumps(schema, separators=(",", ":")),
+                       "--system-prompt", instructions]
+            if settings.model:
+                command.extend(["--model", settings.model])
+            result = subprocess.run(command, input=payload, text=True, capture_output=True,
+                                    timeout=120, cwd=temporary, env=environment, check=False)
+            stdout = getattr(result, "stdout", "") or ""
+            if result.returncode or len(stdout.encode()) > 1000000:
+                raise AgentError(_cli_error(result, settings.provider))
+            try:
+                response = json.loads(stdout)
+            except (TypeError, ValueError):
+                raise AgentError("Claude Code returned invalid structured data. No plan was accepted.") from None
+            if not isinstance(response, dict):
+                raise AgentError("Claude Code returned invalid structured data. No plan was accepted.")
+            usage = usage_record(settings.provider, settings.model, reported=response.get("usage"),
+                                 latency_seconds=time.monotonic() - started, payload=payload,
+                                 instructions=instructions, schema=schema)
+            if response.get("is_error") or response.get("subtype") != "success":
+                raise AgentError(_cli_error(result, settings.provider))
+            if not isinstance(response.get("structured_output"), dict):
+                raise AgentError("Claude Code returned no structured result. No plan was accepted.")
+            output = json.dumps(response["structured_output"], ensure_ascii=False, allow_nan=False)
+            _validate_json(output, schema)
+            usage["output_characters"] = len(output)
+            return ModelResponse(output, usage)
+    except AgentError as error:
+        error.model_usage = usage or usage_record(settings.provider, settings.model,
+            latency_seconds=time.monotonic() - started, payload=payload, instructions=instructions, schema=schema)
+        raise
+    except subprocess.TimeoutExpired:
+        raise AgentError("Claude Code request timed out. Check the connection and try again.",
+                         model_usage=usage_record(settings.provider, settings.model,
+                             latency_seconds=time.monotonic() - started, payload=payload,
+                             instructions=instructions, schema=schema)) from None
+    except Exception:
+        raise AgentError("Claude Code could not respond. Check your CLI setup and model access.",
+                         model_usage=usage or usage_record(settings.provider, settings.model,
+                             latency_seconds=time.monotonic() - started, payload=payload,
+                             instructions=instructions, schema=schema)) from None
+
+
 def _codex_plan(payload: str, schema: dict[str, Any], settings: ModelSettings,
                 *, instructions: str = _SYSTEM) -> str:
     # The desktop app supplies its matching CLI; PATH may contain an older install.
-    executable = shutil.which(os.environ.get("CODEX_CLI_PATH") or "codex")
+    executable = _cli_executable(settings, "codex", "CODEX_CLI_PATH")
     if not executable:
         raise AgentError("Codex CLI was not found. Install and configure it, or choose an API provider.")
     started = time.monotonic()
@@ -538,7 +680,7 @@ def _codex_plan(payload: str, schema: dict[str, Any], settings: ModelSettings,
             for option in ("approval_policy=\"never\"", "project_doc_max_bytes=0", "features.shell_tool=false",
                            "features.unified_exec=false", "features.apps=false", "features.hooks=false",
                            "features.multi_agent=false", "features.memories=false", "features.remote_plugin=false",
-                           "features.goals=false", "features.code_mode.enabled=false", "tools.view_image=false",
+                           "features.goals=false", "features.code_mode.enabled=false",
                            "web_search=\"disabled\""):
                 command.extend(["-c", option])
             if settings.model:
@@ -552,9 +694,7 @@ def _codex_plan(payload: str, schema: dict[str, Any], settings: ModelSettings,
                 latency_seconds=time.monotonic() - started, payload=payload,
                 instructions=instructions, schema=schema)
             if result.returncode or not result_path.is_file() or result_path.stat().st_size > 1000000:
-                if "requires a newer version of Codex" in (getattr(result, "stderr", "") or ""):
-                    raise AgentError("Codex CLI is too old for this model. Update it or choose another model.")
-                raise AgentError("Codex could not respond. Check your CLI setup and model access.")
+                raise AgentError(_cli_error(result, settings.provider))
             output = result_path.read_text(encoding="utf-8")
             usage["output_characters"] = len(output)
             return ModelResponse(output, usage)
@@ -658,7 +798,7 @@ def _validate_plan(plan: dict[str, Any], species: list[str], settings: ModelSett
                 ask("Check the method settings before comparing magnetic states.")
     if plan["status"] == "needs_input" and not plan["questions"]:
         plan["questions"].append("Clarify the missing details in this plan before preparing inputs.")
-    plan["provenance"] = {"provider": settings.provider, "model": settings.model or "Codex CLI default"}
+    plan["provenance"] = {"provider": settings.provider, "model": model_label(settings.provider, settings.model)}
     return plan
 
 
@@ -731,6 +871,7 @@ def draft_plan(goal: str, structure_path: str | Path | None, settings: ModelSett
         report["knowledge"] = retrieve_knowledge(goal, summary, parameters=result["parameters"],
                                                  tasks=result["tasks"], runs_root=runs_root, history=history)
         result["scientific_report"] = report
+        result["provenance"] = response_provenance(raw, settings)
         result["model_usage"] = response_usage(raw, settings)
         result["source_sha256"] = source_sha256
         result["goal"] = _redact(goal, secrets)

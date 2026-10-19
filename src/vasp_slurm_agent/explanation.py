@@ -38,6 +38,9 @@ it: always say whether it is sampled-path or sampled-k-point, never a converged
 full-zone or optical gap. Partial occupations alone do not prove a metal. Never
 infer a gap from the Fermi energy or a requested method. Magnetic
 comparisons identify only the lowest tested seed, not a global ground state.
+Batch members have separate methods and settings. Compare their energies only
+when verified comparison facts establish comparability; separate energy values
+and shared batch membership do not establish an energy ranking.
 Distinguish convergence in the used settings from an unperformed convergence study.
 Use only numbers from cited facts, with modest rounding; do not estimate or derive
 new numbers. You may use {{fact_id}} to quote an exact value. Artifact names indicate
@@ -117,6 +120,9 @@ def load_run_context(run_dir: str | Path) -> dict[str, Any]:
     Current parsing runs in a temporary copy and is cached by artifact digests.
     """
     root = Path(run_dir).resolve()
+    if (root / "batch.json").is_file():
+        from .batch_context import load_batch_context
+        return load_batch_context(root)
     try:
         selected_state = json.loads((root / "run.json").read_text())
         selected_engine = selected_state.get("engine")
@@ -128,6 +134,9 @@ def load_run_context(run_dir: str | Path) -> dict[str, Any]:
     if selected_engine == "qe":
         from .qe_context import load_run_context as qe_context
         return qe_context(root)
+    if selected_engine in {"python", "wannier90"}:
+        from .script_workflow import load_run_context as script_context
+        return script_context(root)
     fingerprints: dict[str, str | None] = {}
 
     def path(relative: str) -> Path | None:
@@ -373,9 +382,26 @@ def load_run_context(run_dir: str | Path) -> dict[str, Any]:
     return context
 
 
+def _numeric_text(text):
+    """Read common scientific notation as one quantity for evidence checks."""
+    superscripts = str.maketrans("⁺⁻⁰¹²³⁴⁵⁶⁷⁸⁹", "+-0123456789")
+    exponent = r"(?:\^\s*\{?([-+]?\d+)\}?|([⁺⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+))"
+    text = text.replace("−", "-")
+    coefficient = r"(?<![\w.])([-+]?(?:\d+(?:\.\d*)?|\.\d+))\s*(?:×|x|·|\\times)\s*10\s*"
+    text = re.sub(coefficient + exponent, lambda match:
+                  match[1] + "e" + (match[2] or match[3].translate(superscripts)), text)
+    return re.sub(r"(?<![\w.])10\s*" + exponent, lambda match:
+                  "1e" + (match[1] or match[2].translate(superscripts)), text)
+
+
 def explain_run(run_dir: str | Path, settings: ModelSettings, question: str = "Explain the results.",
                 history: list[dict[str, str]] | None = None) -> dict[str, Any]:
     """Return a grounded explanation; callers may choose to save it separately."""
+    return _explain_context(lambda: load_run_context(run_dir), settings, question, history)
+
+
+def _explain_context(loader, settings, question, history=None, *, extra_instructions="", validate_answer=None):
+    """Apply one evidence/numeric gate to a freshly reloadable result context."""
     settings = agent._settings(settings)
     if not isinstance(question, str) or not question.strip() or len(question) > 10000:
         raise AgentError("Ask a result question in 1–10,000 characters.")
@@ -383,7 +409,7 @@ def explain_run(run_dir: str | Path, settings: ModelSettings, question: str = "E
     if not isinstance(history, list) or any(not isinstance(item, dict) or item.get("role") not in {"user", "assistant"}
                               or not isinstance(item.get("content"), str) or len(item["content"]) > 20000 for item in history):
         raise AgentError("The result conversation is invalid or too long.")
-    context = load_run_context(run_dir)
+    context = loader()
     strings = {"type": "array", "items": {"type": "string"}}
     schema = agent._object({"answer": {"type": "string"}, "evidence": strings, "limits": strings, "next_steps": strings})
     from .prompt_context import compact_explanation_context, compact_history
@@ -401,7 +427,7 @@ def explain_run(run_dir: str | Path, settings: ModelSettings, question: str = "E
     request = json.dumps(redact(payload), ensure_ascii=False)
     raw = None
     try:
-        raw = agent._request_structured(request, schema, settings, instructions=_INSTRUCTIONS, name="dft_explanation")
+        raw = agent._request_structured(request, schema, settings, instructions=_INSTRUCTIONS + extra_instructions, name="dft_explanation")
         answer = json.loads(raw)
         agent._check_schema(answer, schema)
         if agent._contains_secret(answer, secrets):
@@ -430,7 +456,7 @@ def explain_run(run_dir: str | Path, settings: ModelSettings, question: str = "E
                     numbers(item)
         for identifier in evidence:
             numbers(context["facts"][identifier]["value"])
-        plain = re.sub(r"\{\{[^{}]+\}\}", "", text).replace("−", "-")
+        plain = _numeric_text(re.sub(r"\{\{[^{}]+\}\}", "", text))
         for token in re.findall(r"(?<![\w.])[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?(?![\w.])", plain):
             value = float(token)
             if not any(math.isclose(value, number, rel_tol=0.005, abs_tol=1e-8) for number in allowed):
@@ -452,12 +478,14 @@ def explain_run(run_dir: str | Path, settings: ModelSettings, question: str = "E
             raise ValueError()
         if re.search(r"\bground[ -]state\s+(?:is|was|=|:)\s+(?!" + unavailable + r")", response_text, re.I):
             raise ValueError()
-        if load_run_context(run_dir)["context_sha256"] != context["context_sha256"]:
+        if validate_answer is not None:
+            validate_answer(answer, context)
+        if loader()["context_sha256"] != context["context_sha256"]:
             raise AgentError("The calculation results changed. Request a new explanation.")
-        mandatory = [limit for limit in context["limits"] if "unavailable for this stage" in limit or "checks rejected" in limit or "frozen plan or source" in limit or "do not match the verified" in limit]
+        mandatory = [*context.get("mandatory_limits", []), *[limit for limit in context["limits"] if "unavailable for this stage" in limit or "checks rejected" in limit or "frozen plan or source" in limit or "do not match the verified" in limit]]
         answer["limits"] = list(dict.fromkeys([*answer["limits"], *mandatory]))
         answer["context_sha256"] = context["context_sha256"]
-        answer["provenance"] = {"provider": settings.provider, "model": settings.model or "Codex CLI default"}
+        answer["provenance"] = agent.response_provenance(raw, settings)
         answer["model_usage"] = agent.response_usage(raw, settings)
         return answer
     except AgentError as exc:

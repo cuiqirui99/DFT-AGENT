@@ -1,198 +1,97 @@
 # Quickstart
 
-## 1. Install
+## 1. Install and create a project
 
-Download the stable [v0.4.3](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.3)
-Apple Silicon Mac `.dmg` or Windows x64 `.exe`. Copy the Mac app to Applications, or run the
-Windows installer, then open **DFT Agent**. Python and model SDKs are included;
-Windows runs natively and does not require WSL.
-[Install](install.md) also covers source installation for Linux and developers.
+Download [v0.4.4](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.4),
+install the Mac `.dmg` or Windows `.exe`, and open **DFT Agent**.
+Python and model SDKs are included. Linux and source installations are covered
+in [Install](install.md).
 
-Settings live in `~/.dft-agent/`, runs in `~/dft-agent-runs/`. Settings from
-versions before 0.4.2 are copied over on first start.
-
-The interface runs locally. The cluster needs Python 3.8+, Bash, `sha256sum`,
-and Slurm's `sbatch`, `squeue`, `sacct` and `scancel` commands. VASP requires
-licensed VASP and POTCAR files. For QE, follow [QE setup](qe.md) to install
-the solver and public pseudopotentials.
+Click **Create your first project**, enter a name, then **Create project**.
+Each project has its own conversations, files and calculations. Use
+**New project** for another study and **New conversation** for a new chat
+within the selected project.
 
 ## 2. Connect a model
 
-DFT Agent includes no model tokens. Use your own API key or Codex CLI login.
-Follow [Model setup](models.md) for account, billing and key instructions.
-An API key is your credential; tokens measure model usage.
+Open **Connections → Model**:
 
-In the sidebar, open **Model** and choose OpenAI, Claude, Qwen, Grok, GLM or
-DeepSeek. Enter your provider's API key and model name. Leave **API URL** blank
-for the preset endpoint; Qwen needs the URL for your Model Studio region.
-[Model setup](models.md) lists the account links and URLs, including BigModel
-for GLM in China. For Codex, run `codex login` first and choose **Codex CLI**.
-Other services can use **Compatible API** if they support strict JSON-schema
-output through Chat Completions.
+- **Codex CLI or Claude Code CLI:** install and sign in to the CLI on this
+  computer, then select it in the app. Use **Check again** after installation.
+- **API:** choose a provider, enter an available **Model name** and **API key**,
+  then click **Connect**. Qwen and compatible services also need an **API address**.
+- **Local model:** start a compatible local server and supply its model name
+  and loopback API address.
 
-Test before connecting a cluster: choose **VASP**, open **New calculation**, select
-**Example → Si**, choose **Agent**, and enter “Relax this structure with PBE.”
-Click **Plan**. A plan or a follow-up question confirms the connection.
-**Model usage** shows reported token counts. This uses your model account but
-submits no calculation. To work without a model, choose **Manual**.
+The connection test makes a real model request. Saved connections can be
+checked again with **Test connection**. API keys are stored in the system
+keychain. Do not enter them in chat. [Account and token guide](models.md).
 
-No cluster yet? Open **Runs** and click **Load sample runs** to explore four
-completed calculations with their plots; explanations require a model account.
-**Prepare inputs**
-also works without a cluster: the INCAR, KPOINTS and POSCAR are generated for
-review, and the cluster settings are attached when you submit.
+Codex and Claude CLI connections offer **Agent mode**, which lets the CLI use
+project tools across several steps. **Guided mode** uses checked actions one
+message at a time and is also used by API providers. Both require input review
+before a calculation is submitted.
 
-## 3. Connect to your cluster
+## 3. Connect your cluster and software
 
-For **Quantum ESPRESSO**, follow [QE setup](qe.md#connect). The instructions
-below describe the VASP connection.
+In **Connections → Cluster**, enter your SSH address, for example
+`ssh name@cluster.example.org`. If you enter only a host, the app asks for
+your username. SSH keys are tried first; a secure password field appears
+when needed. Clusters that require a login code prompt for it separately.
+The authenticated session is reused by later actions and background workers,
+including on Windows. Codes are not saved. If the session expires, return to
+**Connections → Cluster**, sign in again, then reconnect the affected task.
 
-Check SSH access and the host key first. In **Cluster setup**, pick a preset
-if your cluster is listed, enter the SSH host and user, and click
-**Detect from cluster**. One read-only SSH session lists partitions, accounts,
-VASP modules, POTCAR folders and writable folders, and fills the form.
-Review every value, then **Save cluster settings**. The form holds:
+After sign-in, review **Work folder**, **Scheduler** and the detected software.
+When detection is incomplete, use **Connections → Software** to enter the
+site's launcher, partition or queue, and resources. Ask your cluster support
+for a working job example if these are unknown.
 
-- SSH host, user and port.
-- A writable remote run directory.
-- VASP command, POTCAR directory and element mapping.
-- SOC / noncollinear command, using `vasp_ncl`, if needed.
-- Slurm partition, account, nodes, total MPI tasks and walltime.
-- **Extra Slurm options** for memory, QoS or other resources, one per line.
-- Required environment commands, one per line.
+VASP needs your licensed POTCAR folder. If QE is missing, use **Install Quantum
+ESPRESSO**: check the partition, account and module commands, click **Plan the
+build**, review it, then confirm **Start the build**. The agent can prepare
+this plan; the app's confirmation submits the build job. Compatible compilers,
+MPI and access to source downloads are required. Check progress with **Check
+the build**. [Installation details](install.md#your-first-cluster-setup).
 
-If you do not know a field, use the [field sources](install.md#your-first-cluster-setup)
-to request it from your cluster support. Saving creates the configuration file.
+## 4. Describe, review and submit
 
-Start with 8 MPI tasks for small examples, adjusting to your cluster's rules.
-Save and run the environment check; it submits no jobs.
-For example, use `--mem=16G` or `--qos=normal` in **Extra Slurm options**.
-Keep `#SBATCH` directives out of environment commands. In a configuration file,
-use `"nodes": 2` and `"extra_sbatch": ["--mem=16G", "--ntasks-per-node=8"]`
-with `"tasks": 16`. Your VASP launch command must support the requested resources.
+1. Return with **Back to chat**. Open **Context → Files → Add files**, select
+   a CIF or POSCAR, and click **Import files**.
+2. Describe the calculation, including the engine if you have a preference.
+   Answer questions and request changes in the same message box.
+3. Open **Tasks** to select a workflow and step. Check its plan and environment.
+   VASP and QE belong to individual steps, so one project can use both.
+4. Click **Prepare inputs**. Review the generated inputs and resources.
+5. Tick **I reviewed the inputs and resources.** and click **Submit**.
 
-Use SSH keys or **SSH password (optional)**. Passwords stay in memory;
-**Clear password** clears the session copy, while running monitors keep theirs
-until exit. Add `--password` to CLI `watch`, `resume`, `doctor` or `cancel`. Keep
-credentials out of saved files. Interactive MFA requires your site's setup.
+Planning and preparing inputs do not submit a calculation. Each submitted
+attempt keeps its inputs and history; revising a task does not overwrite an
+older run.
 
-For an existing authenticated SSH master, set **SSH control socket (optional)**
-to its absolute socket path. The app reuses it and leaves it open when finished.
-If that session expires, authenticate again before reconnecting.
+## 5. Follow results and continue
 
-Set **Configuration file** and **Run folder** in the sidebar. Each run saves
-its own configuration. **Check cluster connection** shows a checklist with a
-suggested fix for each failed item.
+Use **Tasks → Refresh status** and **Context → Jobs** to check progress and
+logs. **Context → Results** opens the selected run's plots, tables and retained
+outputs. Use **Prepare download** to create a results archive where offered.
+POTCAR is excluded from shared archives; large restart files remain on the cluster.
 
-## 4. Prepare and submit
+Select runs under **Attach results** and ask about them in chat. You can request
+a follow-up calculation from a completed stage; review and submit its new
+inputs before it runs. If a connection fails, read the error and use
+**Job controls → Reconnect**. **Cancel this calculation → Cancel job** requests
+cancellation of the selected attempt.
 
-In **New calculation**, upload a CIF or POSCAR, or choose **Example**.
-The [example structures](structures.md) are included in the installed package.
-Select a material to preview it; **Download input** saves its structure for
-command-line use.
+Closing the browser does not cancel submitted jobs. Keep the computer running
+and connected for local monitoring and subsequent stages. Project files and
+history are kept under `~/.dft-agent/`; see [storage and updates](install.md#files-and-updates).
 
-In **Agent** mode, describe the structure edits and calculations together in
-**Goal**, then click **Plan**. Review the edited structure, stage methods and
-any comparison points. Use **Change the plan** to answer questions or revise
-the whole task. Edits are reapplied to the original upload on each revision.
-[Workflows](workflows.md).
+## Legacy workbench
 
-In **Edit structure**, describe a change and click **Plan structure**. Answer any
-questions in **Follow-up**, then **Preview structure**. Check the cell and site
-order before clicking **Use structure**. Each revision starts from the original
-input. Applying an edit clears the calculation plan and site moments.
+Open **Settings → Legacy workbench** for the previous interface, manual
+preparation, sample runs and the Memory browser. Its **New calculation**,
+**Cluster setup** and **Runs** instructions belong to that view.
 
-For format conversion, choose **Convert to** and click **Convert**. Download the
-CIF or POSCAR, or use it for a calculation. **Plan structure** uses the model;
-applying an edit and converting formats run locally. Neither needs a cluster
-connection. Calculations use the edited POSCAR to preserve site order and the
-Cartesian frame.
-
-Later stages use the accepted relaxed structure. Each stage can have its own
-method. Planning sends the goal, structure summary and dialogue to your provider.
-
-Or choose **Manual** for `relax`, `scf`, `bands` or `dos` without a model.
-The **Method** section sets spin, SOC, U/J and the functional.
-PBE bands and DOS run SCF first. Hybrid spectra are self-consistent.
-
-Check the structure, cutoff, k mesh, smearing and convergence thresholds.
-The k mesh is automatic by default; an explicit grid overrides it.
-Choose **Electronic type** when known, or leave it at **auto** for Gaussian smearing.
-For relaxation, also set the step limit and whether to relax the cell.
-The cell stays fixed unless **Relax the cell** is selected.
-The positive force threshold becomes negative `EDIFFG` in INCAR.
-
-Click **Prepare inputs**, review the settings, tick the confirmation box,
-then click **Submit calculation**. Preparation alone submits nothing.
-
-## 5. Monitor and download
-
-Open **Runs** to follow progress; the table lists material, task, status and
-date for every run. Closing the browser leaves jobs running.
-Keep your computer awake to monitor and run later stages. A desktop notice
-appears when a run finishes; **Preferences** can add a webhook message.
-Reopening the app resumes monitoring of submitted runs. After an
-interruption you can also select the original run and use **Resume monitoring**.
-Three consecutive connection or collection failures pause monitoring as `needs_attention`;
-read the error, then use **Reconnect**. Both actions keep the same job and settings.
-
-Use **Cancel calculation** to request cancellation and check the resulting
-status. Use **Explain results** to review findings, then ask a follow-up question.
-Explanations use verified saved outputs and never submit calculations.
-For a batch, review its comparison table and open individual runs for details.
-Use **Continue** to plan a new calculation from an accepted stage. Review and
-prepare it before submission; the original run stays intact.
-For files, use **Download structure (.cif)** or **Prepare download**
-followed by **Download results (.zip)**. Check the saved status before using
-an incomplete run's files.
-
-The ZIP includes inputs, retained outputs, plots, plans and saved explanations. POTCAR is
-excluded; CHGCAR and WAVECAR stay remote. Check account names and paths before sharing.
-
-## CLI
-
-```bash
-dft-agent --help
-dft-agent prepare --help
-dft-agent watch --help
-```
-
-See the [CLI examples](examples.md). `prepare` is local; `watch` submits.
-`status` reads saved progress, and `resume` reconnects.
-
-## Updates
-
-The sidebar shows a note when a newer release exists. Download updates from
-[GitHub Releases](https://github.com/cuiqirui99/DFT-AGENT/releases/latest).
-For a cloned install, activate its environment and run:
-
-```bash
-git fetch --tags
-git switch --detach v0.4.3
-python -m pip install '.[agent]'
-```
-
-Replace `v0.4.3` with the published version you want from
-[GitHub Releases](https://github.com/cuiqirui99/dft-agent/releases).
-These commands also work when the original installation used a release tag.
-If you installed a release wheel, download the new wheel and install it in the
-same environment with `python -m pip install --upgrade 'PATH_TO_WHEEL[agent]'`.
-Updating does not restart saved calculations.
-
-The app is available to researchers with their own cluster and solver access.
-Model features also need a model account. Provider support includes request
-format and local output checks; an account's available models and limits vary.
-
-## Scope
-
-The VASP route accepts ordered, fully occupied periodic structures, with PBE, magnetism, SOC,
-Dudarev DFT+U, HSE06 and PBE0. See [Methods](methods.md) for settings and limits.
-The structure editor can prepare substitutions, vacancies and slabs from an input
-crystal. The [QE route](qe.md) adds phonons, NEB and electron–phonon workflows;
-molecular dynamics is not integrated.
-Failed or unconverged calculations stop without automatic parameter changes.
-
-## Language
-
-The sidebar switches the interface between English and Chinese. The choice is
-saved under `~/.dft-agent/settings.json`; command-line output stays in English.
+For an offline tour, use **Runs → Load sample runs** there. Result explanations
+still use your model account. [Workflows](workflows.md), [QE](qe.md) and
+[CLI examples](examples.md) cover the solver-specific controls and commands.

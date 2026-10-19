@@ -6,7 +6,7 @@ import json
 from typing import Any
 from uuid import uuid4
 
-from .providers import PROVIDERS
+from .providers import PROVIDERS, model_label
 
 
 class ModelResponse(str):
@@ -28,7 +28,7 @@ def _count(value):
 
 def normalize_usage(value, provider: str) -> dict[str, int | str | None]:
     """Cache and reasoning counts are subsets, never extra tokens."""
-    if provider == "anthropic":
+    if provider in {"anthropic", "claude_cli"}:
         fresh, outputs = _count(_field(value, "input_tokens")), _field(value, "output_tokens")
         cached, written = _field(value, "cache_read_input_tokens"), _field(value, "cache_creation_input_tokens")
         # Claude reports fresh input separately from cache reads and writes.
@@ -84,7 +84,7 @@ def usage_record(provider: str, model: str, *, reported=None, latency_seconds=No
                  schema: dict | None = None, output: str | None = None,
                  max_output_tokens: int | None = None) -> dict[str, Any]:
     return {**normalize_usage(reported, provider), "call_id": uuid4().hex,
-            "provider": provider, "model": model or "Codex CLI default",
+            "provider": provider, "model": model_label(provider, model),
             "latency_seconds": round(latency_seconds, 6) if latency_seconds is not None else None,
             "input_characters": len(payload) if payload is not None else None,
             "instruction_characters": len(instructions) if instructions is not None else None,
@@ -98,3 +98,12 @@ def response_usage(response, settings) -> dict[str, Any]:
     if isinstance(usage, dict):
         return dict(usage)
     return usage_record(settings.provider, settings.model, output=response)
+
+
+def response_provenance(response, settings) -> dict[str, str]:
+    """Use the connection resolved for this call, not an earlier settings view."""
+    usage = getattr(response, "usage", None)
+    if isinstance(usage, dict) and all(isinstance(usage.get(key), str) and usage[key]
+                                       for key in ("provider", "model")):
+        return {key: usage[key] for key in ("provider", "model")}
+    return {"provider": settings.provider, "model": model_label(settings.provider, settings.model)}

@@ -1,9 +1,11 @@
 # Desktop builds
 
-Version `0.4.3` provides installers for Apple Silicon Macs running macOS 14
+Version `0.4.4` provides installers for Apple Silicon Macs running macOS 14
 or later and Windows x64. Python and the scientific/model SDKs are
 bundled; VASP, POTCAR files, cluster time, API credentials and model credits
-are not. Download the installers from [v0.4.3](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.3).
+are not. Download the installers from [v0.4.4](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.4).
+Codex CLI and Claude Code are optional external tools; install and sign in to
+either one, or use an API connection in the app.
 
 ## Build from a checkout
 
@@ -21,7 +23,7 @@ app has passed its checks:
 mkdir -p dist/dmg
 cp -R 'dist/DFT Agent.app' dist/dmg/
 ln -s /Applications dist/dmg/Applications
-hdiutil create -volname 'DFT Agent' -srcfolder dist/dmg -ov -format UDZO dist/DFT-Agent-0.4.3-macOS-arm64.dmg
+hdiutil create -volname 'DFT Agent' -srcfolder dist/dmg -ov -format UDZO dist/DFT-Agent-0.4.4-macOS-arm64.dmg
 ```
 
 On Windows, the app folder is `dist/DFT Agent`. The
@@ -40,9 +42,11 @@ python packaging/check_installed.py '/Applications/DFT Agent.app/Contents/MacOS/
 ```
 
 The same command accepts the installed Windows `DFT Agent.exe` path. It
-creates isolated settings and runs, checks bundled resources, sample copies,
-local input preparation and cluster attachment, then starts the packaged
-local server. It records `bundle-check.json` and `server.log`. This requires
+creates isolated settings and runs, checks project creation and persistence,
+the agent's MCP subprocess, the local SSH session service and native keychain,
+bundled resources, sample copies, local input
+preparation and cluster attachment, then starts the packaged local server and
+native window. It records `bundle-check.json`, `server.log` and `window-check.json`. This requires
 no model account or cluster and does not send a job.
 
 Also open the installed app in a fresh user workspace and verify sample

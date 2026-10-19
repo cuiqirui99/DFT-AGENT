@@ -39,17 +39,21 @@ jobs:
           /tmp/dft-agent-wheel/bin/dft-agent structure-plan --help
           /tmp/dft-agent-wheel/bin/dft-agent prepare-structure --help
           /tmp/dft-agent-wheel/bin/dft-agent convert --help
+          /tmp/dft-agent-wheel/bin/dft-agent project --help
+          /tmp/dft-agent-wheel/bin/dft-agent mcp --help
           /tmp/dft-agent-wheel/bin/dft-agent memory list --query SOC
           /tmp/dft-agent-wheel/bin/vasp-agent --help
-          /tmp/dft-agent-wheel/bin/python -c "from vasp_slurm_agent import app, guidance, experience, recovery, structures, structure_agent, task_agent, batch, continuation, qe_workflow, qe_epw, qe_wannier, qe_pairing"
+          /tmp/dft-agent-wheel/bin/python -c "from vasp_slurm_agent import app, guidance, experience, recovery, structures, structure_agent, task_agent, batch, continuation, qe_workflow, qe_epw, qe_wannier, qe_pairing, project_app, project_execution, project_analysis, project_input_artifacts, agent_runner, cli_tools, mcp_server"
           /tmp/dft-agent-wheel/bin/python - <<'PY'
           from importlib.resources import files
           import json
+          import os
           from pathlib import Path
           import subprocess
           import tempfile
           from vasp_slurm_agent.config import ClusterConfig
           from vasp_slurm_agent.knowledge import load_catalog, retrieve_knowledge
+          from vasp_slurm_agent.workspace import Workspace
 
           memory = load_catalog()
           assert any(item["status"] == "rejected" for item in memory)
@@ -66,6 +70,14 @@ jobs:
           assert examples.joinpath("sources.json").is_file()
           with tempfile.TemporaryDirectory() as directory:
               root = Path(directory)
+              workspace = Workspace(root / "workspace")
+              project = workspace.create_project("Installed project")
+              assert Workspace(workspace.home).get_project(project["id"])["name"] == "Installed project"
+              request = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
+              protocol = subprocess.run(["/tmp/dft-agent-wheel/bin/dft-agent", "mcp"],
+                  input=json.dumps(request) + "\n", text=True, capture_output=True, check=True, timeout=30,
+                  env=dict(os.environ, DFT_AGENT_HOME=str(workspace.home), DFT_AGENT_PROJECT=project["id"]))
+              assert "create_workflow" in {item["name"] for item in json.loads(protocol.stdout)["result"]["tools"]}
               source = root / "Si.cif"
               source.write_bytes(files("vasp_slurm_agent").joinpath("examples", "Si.cif").read_bytes())
               config = ClusterConfig(host="cluster.example.invalid", user="researcher",

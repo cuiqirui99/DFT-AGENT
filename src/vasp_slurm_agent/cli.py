@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack
 import getpass
 import hashlib
 import json
@@ -24,6 +25,9 @@ CHECK_LABELS = {
     "squeue": "Slurm: squeue",
     "sacct": "Slurm: sacct",
     "scancel": "Slurm: scancel",
+    "qsub": "PBS: qsub",
+    "qstat": "PBS: qstat",
+    "qdel": "PBS: qdel",
     "potcar_root": "POTCAR folder",
     "remote_parent": "Parent of the remote run folder",
     "vasp": "VASP command",
@@ -53,7 +57,8 @@ def doctor(config, transport=None):
     remote = transport or SSHTransport(config)
     checks = {}
     try:
-        for executable in ("python3", "sbatch", "squeue", "sacct", "scancel"):
+        from .scheduler import get_scheduler
+        for executable in ("python3", *get_scheduler(config).required_commands):
             result = remote.run("command -v " + executable)
             checks[executable] = {"ok": result.returncode == 0, "detail": result.stdout.strip() or result.stderr.strip()}
         for name, path in (("potcar_root", config.potcar_root), ("remote_parent", str(Path(config.remote_root).parent))):
@@ -138,6 +143,11 @@ def main():
     parser = argparse.ArgumentParser(description="Run DFT calculations on Slurm.")
     parser.add_argument("--version", action="version", version=f"dft-agent {__version__}")
     commands = parser.add_subparsers(dest="command", required=True)
+    from .project_cli import add_parser as add_project_parser
+    add_project_parser(commands)
+    commands.add_parser("mcp", help="Serve the current project's tools to Codex CLI or Claude Code over stdio (set DFT_AGENT_PROJECT)")
+    broker = commands.add_parser("ssh-broker", help="Manage the local SSH session service")
+    broker.add_argument("arguments", nargs=argparse.REMAINDER)
     ui = commands.add_parser("ui", help="Open app")
     ui.add_argument("--port", type=int, default=8501)
     ui.add_argument("--no-browser", action="store_true", help="Do not open a browser window")
@@ -310,9 +320,20 @@ def main():
         migrate_legacy_config()
     except OSError:
         pass
+    credential_scope = ExitStack()
     try:
+        if args.command == "project":
+            from .project_cli import dispatch as project_dispatch
+            return project_dispatch(args)
+        if args.command == "mcp":
+            from .mcp_server import main as mcp_main
+            return mcp_main()
+        if args.command == "ssh-broker":
+            from .ssh_broker import main as broker_main
+            return broker_main(args.arguments)
         if getattr(args, "password", False):
-            os.environ["DFT_AGENT_SSH_PASSWORD"] = getpass.getpass("SSH password: ")
+            from .transport import password_context
+            credential_scope.enter_context(password_context(getpass.getpass("SSH password: ")))
         if args.command == "ui":
             if not 1024 <= args.port <= 65535:
                 parser.error("Choose a local port between 1024 and 65535")
@@ -658,6 +679,8 @@ def main():
     except (ValueError, OSError, RuntimeError) as exc:
         print(f"Error: {_describe(exc)}", file=sys.stderr)
         return 1
+    finally:
+        credential_scope.close()
 
 
 if __name__ == "__main__":

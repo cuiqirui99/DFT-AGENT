@@ -14,9 +14,10 @@ import uuid
 import zipfile
 
 from .config import ClusterConfig
+from .scheduler import get_scheduler, shell_command
 from .transport import SSHTransport, TransportError
 from . import qe
-from .workflow import (_lock, _save, _write, _digest, _command, _poll,
+from .workflow import (_lock, _save, _write, _digest, _command, _poll, _scheduler_flag,
                        _check_config, _config_attachment_lock,
                        _config_attachment_workspace, _commit_config_attachment,
                        read_state, utc_now, TERMINAL, SLURM_TERMINAL, MAX_REMOTE_FAILURES)
@@ -40,7 +41,7 @@ _EPW_RESULT_NAME = re.compile(r"(?:dft_agent\.(?:wout|win|a2f|imag_aniso_[0-9.]+
 
 _QE_UPLOAD_NAMES = frozenset({"pw.in", "ph.in", "q2r.in", "matdyn.in", "dos.in", "projwfc.in",
     "neb.in", "pp.in", "lambda.in", "structure.cif", "qe-input.json", "pseudo_manifest.json",
-    "runtime.json", "qe_runtime.py", "submit.sh", "dispatch.py",
+    "runtime.json", "qe_runtime.py", "submit.sh", "dispatch.py", "scheduler.py",
     "epw.in", "alpha2f.dat", "source.a2f", "source-schema.xml", "source-epw.in", "source-epw.out", "source-wannier.wout", "crystal.fmt"})
 
 
@@ -509,7 +510,7 @@ if sys.argv[1] == 'prepare':
         if old.stat().st_size != value['size'] or sha(old) != value['sha256']:
             raise RuntimeError('Pseudopotential changed: '+name)
         shutil.copyfile(old, root/'pseudo'/name)
-    (root/'execution.json').write_text(json.dumps(dict(job_id=os.environ.get('SLURM_JOB_ID'),
+    (root/'execution.json').write_text(json.dumps(dict(job_id=os.environ.get('PBS_JOBID' if spec.get('scheduler') == 'pbs' else 'SLURM_JOB_ID'),
         started_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
         runtime_sha256=sha(root/'runtime.json'), engine='qe')))
 else:
@@ -649,13 +650,9 @@ def _script(config, stage):
         launch = shlex.quote(next(token for token in tokens if PurePosixPath(token).name == PROGRAMS[stage["name"]]))
     launch += (" < " if stage["name"] == "eph_lambda" else " -in ") + shlex.quote(metadata["input_file"])
     launch += " > " + shlex.quote(metadata["output_file"])
-    lines = ["#!/bin/bash", f"#SBATCH --partition={config.partition}",
-             f"#SBATCH --nodes={config.nodes}", f"#SBATCH --ntasks={config.tasks}",
-             f"#SBATCH --time={config.walltime}", "#SBATCH --output=slurm.out", "#SBATCH --error=slurm.err"]
-    if config.account:
-        lines.append(f"#SBATCH --account={config.account}")
-    lines.extend(config.sbatch_resource_lines())
-    lines.extend(["set -e", *config.setup_commands, "python3 qe_runtime.py prepare", "set +e",
+    adapter = get_scheduler(config)
+    lines = adapter.header(config)
+    lines.extend(["set -e", *adapter.working_directory(), *config.setup_commands, "python3 qe_runtime.py prepare", "set +e",
                   launch,
                   "code=$?", "set -e", 'python3 qe_runtime.py finish "$code"', 'exit "$code"'])
     return "\n".join(lines) + "\n"
@@ -750,7 +747,7 @@ def _submit(root, state, config, transport):
         stage["status"] = state["status"] = "submitting"
         _save(root, state, f"Submitting QE {stage['name']}")
     if not stage["staged"]:
-        _command(transport, "command -v sbatch >/dev/null && command -v squeue >/dev/null && command -v sacct >/dev/null && command -v python3 >/dev/null")
+        _command(transport, " && ".join("command -v " + name + " >/dev/null" for name in (*get_scheduler(config).required_commands, "python3")))
         pseudos = _pseudo_snapshot(transport, config, stage, inherited_pseudos)
         if inherited_pseudos is not None:
             # Older receipts predate the derived UPF type; the file identity
@@ -763,23 +760,25 @@ def _submit(root, state, config, transport):
         _write(inputs / "pseudo_manifest.json", pseudos)
         runtime = {"input_sha256": stage["metadata"]["input_sha256"], "dependencies": dependencies,
                    "pseudo_root": config.qe_pseudo_root, "pseudos": pseudos}
+        if config.scheduler != "slurm":
+            runtime["scheduler"] = config.scheduler
         _write(inputs / "runtime.json", runtime)
         stage["runtime_sha256"] = _digest(inputs / "runtime.json")
         stage["pseudo_manifest_sha256"] = _digest(inputs / "pseudo_manifest.json")
         (inputs / "qe_runtime.py").write_text(_RUNTIME, encoding="utf-8")
         (inputs / "submit.sh").write_text(_script(config, stage), encoding="utf-8", newline="\n")
         names = [*stage["metadata"]["input_sha256"], "pseudo_manifest.json", "runtime.json", "qe_runtime.py", "submit.sh"]
-        transport.upload_many([*(inputs / name for name in names), Path(__file__).with_name("dispatch.py")],
+        transport.upload_many([*(inputs / name for name in names), Path(__file__).with_name("dispatch.py"), Path(__file__).with_name("scheduler.py")],
                               remote, permitted_names=_QE_UPLOAD_NAMES)
         stage["staged"] = True
         _save(root, state, "Uploaded QE inputs.")
-    reply = _command(transport, f"python3 {shlex.quote(remote + '/dispatch.py')} {shlex.quote(remote)} {shlex.quote(stage['job_name'])}", timeout=100)
+    reply = _command(transport, f"python3 {shlex.quote(remote + '/dispatch.py')} {shlex.quote(remote)} {shlex.quote(stage['job_name'])}{_scheduler_flag(config)}", timeout=100)
     receipt = json.loads(reply.splitlines()[-1])
-    if receipt.get("job_name") != stage["job_name"] or not str(receipt.get("job_id", "")).isdigit():
-        raise ValueError("Invalid Slurm submission receipt.")
+    if receipt.get("job_name") != stage["job_name"] or not get_scheduler(config).valid_job_id(str(receipt.get("job_id", ""))):
+        raise ValueError("Invalid scheduler submission receipt.")
     stage.update(job_id=str(receipt["job_id"]), status="queued", submitted_at=utc_now())
     state.update(status="queued", last_error=None, remote_failures=0)
-    return _save(root, state, f"Slurm accepted job {stage['job_id']}")
+    return _save(root, state, f"{config.scheduler.upper()} accepted job {stage['job_id']}")
 
 
 def _remote_files(transport, remote):
@@ -865,7 +864,7 @@ def _analyze_collection(root, stage, output, manifest):
         reasons.append("The pseudopotential receipt does not match this run.")
     result["scheduler_state"] = stage.get("scheduler_state")
     if stage.get("scheduler_state") != "COMPLETED":
-        reasons.append(f"Slurm ended in {stage.get('scheduler_state')}.")
+        reasons.append(f"Scheduler ended in {stage.get('scheduler_state')}.")
     result["success"] = not reasons
     if reasons:
         result["reason"] = " ".join(reasons)
@@ -879,7 +878,7 @@ def _analyze_collection(root, stage, output, manifest):
     return result
 
 
-def advance(run_dir, transport=None):
+def advance(run_dir, transport=None, *, poll_only=False):
     root = Path(run_dir).expanduser().resolve()
     with _lock(root):
         state = read_state(root)
@@ -887,19 +886,21 @@ def advance(run_dir, transport=None):
             return state
         owned = transport is None
         stage = state["stages"][state["current_stage"]]
+        if poll_only and (not stage.get("job_id") or stage["status"] in {"planned", "submitting"}):
+            return state
         try:
             _check_config(root, state)
             config = ClusterConfig.load(root / "config.json")
             transport = transport or SSHTransport(config)
             if stage["status"] in {"planned", "submitting"} and not state["cancel_requested"]:
                 return _submit(root, state, config, transport)
-            scheduler = _poll(transport, stage)
+            scheduler = _poll(transport, stage, config)
             stage["scheduler_state"] = scheduler
             if state["cancel_requested"] and scheduler not in SLURM_TERMINAL:
-                _command(transport, "scancel " + stage["job_id"])
+                _command(transport, shell_command(get_scheduler(config).cancel_command(stage["job_id"])))
             if scheduler == "CANCELLED":
                 stage["status"] = state["status"] = "cancelled"
-                return _save(root, state, "Slurm confirmed cancellation.")
+                return _save(root, state, "The scheduler confirmed cancellation.")
             if scheduler in SLURM_TERMINAL:
                 stage["status"] = state["status"] = "collecting"
                 _save(root, state)
@@ -908,7 +909,7 @@ def advance(run_dir, transport=None):
                 result["last_error"] = None
                 return _save(root, result)
             if scheduler == "UNKNOWN":
-                state["last_error"] = "Waiting for Slurm accounting; no resubmission performed."
+                state["last_error"] = "Waiting for scheduler accounting; no resubmission performed."
             else:
                 stage["status"] = state["status"] = "queued" if scheduler == "PENDING" else "running"
                 state["last_error"] = None
@@ -942,9 +943,9 @@ def resume(run_dir, transport=None):
                 config = ClusterConfig.load(root / "config.json")
                 transport = transport or SSHTransport(config)
                 remote = state["remote_root"] + "/" + stage["folder"]
-                reply = _command(transport, f"python3 {shlex.quote(remote + '/dispatch.py')} {shlex.quote(remote)} {shlex.quote(stage['job_name'])} --reconcile-only", timeout=100)
+                reply = _command(transport, f"python3 {shlex.quote(remote + '/dispatch.py')} {shlex.quote(remote)} {shlex.quote(stage['job_name'])} --reconcile-only{_scheduler_flag(config)}", timeout=100)
                 receipt = json.loads(reply.splitlines()[-1])
-                if receipt.get("job_name") != stage["job_name"] or not str(receipt.get("job_id", "")).isdigit():
+                if receipt.get("job_name") != stage["job_name"] or not get_scheduler(config).valid_job_id(str(receipt.get("job_id", ""))):
                     raise ValueError("Invalid reconciled job identity.")
                 stage["job_id"] = str(receipt["job_id"])
             status = "queued" if stage.get("job_id") else "cancelled" if state.get("cancel_requested") else "planned"
@@ -984,8 +985,8 @@ def bundle_run(run_dir):
     root = Path(run_dir).expanduser().resolve()
     target = root / "results.zip"
     with zipfile.ZipFile(target.with_suffix(".tmp"), "w", zipfile.ZIP_DEFLATED) as archive:
-        for name in ("run.json", "plan.json", "proposal.json", "explanations.json", "parent.json", "repair.json"):
-            if (root / name).is_file():
+        for name in ("run.json", "plan.json", "proposal.json", "explanations.json", "conversation.json", "parent.json", "repair.json"):
+            if (root / name).is_file() and not (root / name).is_symlink():
                 archive.write(root / name, name)
         state = read_state(root)
         for path in (root / "source").rglob("*") if (root / "source").is_dir() else []:

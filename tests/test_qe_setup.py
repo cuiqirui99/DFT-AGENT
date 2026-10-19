@@ -289,7 +289,7 @@ def test_start_is_idempotent_and_records_uncertain_submission(tmp_path, monkeypa
     fakebin = tmp_path / "bin"
     fakebin.mkdir()
     calls = tmp_path / "sbatch-calls"
-    for name in ("sbatch", "make", "git", "mpif90", "squeue", "sacct"):
+    for name in ("sbatch", "make", "git", "mpif90", "squeue", "sacct", "scancel"):
         path = fakebin / name
         path.write_text(f"#!/bin/sh\necho called >> '{calls}'\necho '1234;cluster'\n" if name == "sbatch" else "#!/bin/sh\nexit 0\n")
         path.chmod(0o700)
@@ -311,7 +311,7 @@ def test_start_is_idempotent_and_records_uncertain_submission(tmp_path, monkeypa
     receipt = setup.start_install(cfg, plan, transport, cache_dir=cache)
     assert receipt["job_id"] == "1234"
     assert len(transport.bulk_uploads) == 1
-    assert set(transport.bulk_uploads[0][0]) == {*expected_sources, "plan.json", "build.py", "build.sh"}
+    assert set(transport.bulk_uploads[0][0]) == {*expected_sources, "plan.json", "build.py", "build.sh", "dispatch.py", "scheduler.py"}
     assert len(transport.commands) == 4  # Receipt, prerequisites, all HTTPS sources, publish/submit.
     assert not list(Path(plan["work_dir"]).glob(".stage-*"))
     for name in expected_sources:
@@ -508,7 +508,7 @@ def test_installer_never_overwrites_a_file_changed_during_staging(tmp_path, monk
     data = b"pinned source"
     sources = {"source.tar.gz": {"url": "https://example.org/source", "sha256": hashlib.sha256(data).hexdigest()}}
     monkeypatch.setattr(setup, "SOURCES", sources)
-    monkeypatch.setattr(setup, "inspect", lambda *args: {"tools": {name: "available" for name in ("sbatch", "make", "git", "mpif90", "mpifort", "mpiifort")}})
+    monkeypatch.setattr(setup, "inspect", lambda *args: {"tools": {name: "available" for name in ("sbatch", "squeue", "sacct", "scancel", "make", "git", "mpif90", "mpifort", "mpiifort")}})
     cache = tmp_path / "cache"
     cache.mkdir()
     (cache / "source.tar.gz").write_bytes(data)
@@ -524,3 +524,65 @@ def test_installer_never_overwrites_a_file_changed_during_staging(tmp_path, monk
     assert Path(plan["work_dir"], changed_name).read_bytes() == b"keep existing content"
     assert not Path(plan["work_dir"], "submission.json").exists()
     assert not list(Path(plan["work_dir"]).glob(".stage-*"))
+
+
+def test_pbs_installer_recovers_lost_ack_without_second_build(tmp_path, monkeypatch):
+    """Offline qsub/qstat executables model server receipts; QE is not built."""
+    from vasp_slurm_agent.scheduler import get_scheduler
+    fakebin = tmp_path / "bin"
+    fakebin.mkdir()
+    calls = tmp_path / "submissions"
+    qsub = fakebin / "qsub"
+    qsub.write_text(f"#!/bin/sh\necho submitted >> '{calls}'\necho '1234.pbs.example'\n")
+    qsub.chmod(0o700)
+    monkeypatch.setenv("PATH", str(fakebin) + ":" + os.environ["PATH"])
+    source = tmp_path / "fixture.tar.gz"
+    source.write_bytes(b"source fixture")
+    monkeypatch.setattr(setup, "SOURCES", {source.name: {"url": "https://example.invalid/source", "sha256": setup._digest(source)}})
+    monkeypatch.setattr(setup, "_source_transfers", lambda *args: [source])
+    tools = {name: "available" for name in ("qsub", "qstat", "qdel", "make", "git", "mpif90", "mpifort", "mpiifort")}
+    monkeypatch.setattr(setup, "inspect", lambda *args: {"tools": tools})
+    cfg = config(tmp_path, scheduler="pbs", extra_pbs=["-l mem=4gb"])
+    plan = setup.install_plan(cfg)
+    qstat = fakebin / "qstat"
+    payload = json.dumps({"Jobs": {"1234.pbs.example": {"Job_Name": get_scheduler("pbs").job_name("qe-build-" + plan["id"]), "job_state": "F", "Exit_status": 0}}})
+    qstat.write_text("#!/bin/sh\nprintf '%s\\n' " + shlex.quote(payload) + "\n")
+    qstat.chmod(0o700)
+    wire = LocalTransport()
+    receipt = setup.start_install(cfg, plan, wire, cache_dir=tmp_path)
+    assert receipt["job_id"] == "1234.pbs.example" and receipt["scheduler"] == "pbs"
+    work = Path(plan["work_dir"])
+    (work / "job.json").unlink()
+    interrupted = {key: value for key, value in receipt.items() if key != "job_id"}
+    interrupted["status"] = "submitting"
+    (work / "submission.json").write_text(json.dumps(interrupted))
+    recovered = setup.start_install(cfg, plan, wire, cache_dir=tmp_path)
+    assert recovered["job_id"] == receipt["job_id"]
+    assert calls.read_text().splitlines() == ["submitted"]
+    assert setup.poll_install(cfg, recovered, wire)["status"] == "failed"  # No installed manifest.
+
+
+def test_toolchain_keeps_tested_module_environment_and_rejects_shell_names(tmp_path):
+    commands = []
+    def run(command, timeout=60):
+        commands.append(command)
+        if '__TC_MODULES__' in command:
+            return Result(0, '__TC_PATH__\nmake=/usr/bin/make\ngit=/usr/bin/git\n__TC_MODULES__\nopenmpi/4.1 (D)\nmpi;touch /tmp/bad\n__TC_END__\n')
+        assert command.startswith('set -e\nmodule load site\nmodule load openmpi/4.1 ')
+        assert 'module purge' not in command
+        return Result(0, 'MPI=/modules/mpi/bin/mpifort\nMAKE=yes\nGIT=yes\n')
+    cfg = config(tmp_path, setup_commands=['module load site'])
+    found = setup.detect_toolchain(cfg, SimpleNamespace(run=run))
+    assert found['ready']
+    assert found['setup_commands'] == ['module load site', 'module load openmpi/4.1']
+    assert len(commands) == 2
+    assert all('touch' not in command for command in commands)
+
+
+def test_toolchain_rejects_failed_existing_setup(tmp_path):
+    cfg = config(tmp_path, setup_commands=['module load missing'])
+    def run(command, timeout=60):
+        assert command.startswith('set -e\nmodule load missing\n')
+        return Result(1, '__TC_PATH__\nmpifort=/old/bin/mpifort\nmake=/usr/bin/make\n__TC_END__\n')
+    with pytest.raises(setup.TransportError, match='environment setup'):
+        setup.detect_toolchain(cfg, SimpleNamespace(run=run))

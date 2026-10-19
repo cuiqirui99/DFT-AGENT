@@ -303,7 +303,7 @@ def draft_task(goal, structure_path, settings: ModelSettings, history=None, *, c
         plan.update(kind="qe_task", schema_version=1, engine="qe", goal=safe_goal,
                     source_sha256=original["source_sha256"],
                     image_sha256=image_hashes,
-                    provenance={"provider": settings.provider, "model": settings.model or "Codex CLI default"},
+                    provenance=agent.response_provenance(raw, settings),
                     model_usage=agent.response_usage(raw, settings))
         plan["scientific_report"] = json.loads(agent._redact(json.dumps(scientific_context), secrets))
         dialogue = {k: v for k, v in plan.items() if k not in {"preview", "model_usage", "scientific_report"}}

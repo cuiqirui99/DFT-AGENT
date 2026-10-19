@@ -23,7 +23,7 @@ def main():
     env.pop("PYTHONHOME", None)
     env.update(DFT_AGENT_HOME=str(root / "settings"), DFT_AGENT_RUNS=str(root / "runs"),
                DFT_AGENT_CONFIG=str(root / "settings" / "cluster.json"),
-               DFT_AGENT_NO_UPDATE_CHECK="1", DFT_AGENT_NO_BROWSER="1")
+               DFT_AGENT_NO_UPDATE_CHECK="1", DFT_AGENT_NO_BROWSER="1", DFT_AGENT_UI="project")
     env.pop("VASP_AGENT_CONFIG", None)
     report = root / "bundle-check.json"
     subprocess.run([executable, "--check", str(report)], cwd=root, env=env, check=True, timeout=180)

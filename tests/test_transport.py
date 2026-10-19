@@ -159,7 +159,7 @@ def test_password_not_in_arguments_or_helper_and_diagnostics_redacted(config, mo
     monkeypatch.setattr(transport_module, "_run_process", fail)
     source = tmp_path / "source"
     source.write_text("input")
-    with SSHTransport(config) as transport:
+    with SSHTransport(config, password=password) as transport:
         result = transport.run("true")
         assert password not in repr(result)
         assert "[REDACTED]" in result.stderr
@@ -537,3 +537,109 @@ def test_nested_batch_refuses_local_destination_escape(config, local_wire, tmp_p
         with pytest.raises(TransportError, match="escapes"):
             transport.download_many(str(remote.parent), destination, ["elph_dir/data"], permitted_names=frozenset({"elph_dir/data"}))
     assert (outside / "data").read_bytes() == b"keep"
+
+
+def test_ambient_password_is_not_used_and_contexts_are_thread_local(config, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+    from vasp_slurm_agent.transport import password_context, current_password
+    monkeypatch.setenv("DFT_AGENT_SSH_PASSWORD", "other-account")
+    with SSHTransport(config) as remote:
+        assert remote._password == ""
+    barrier = Barrier(2)
+    def worker(secret):
+        with password_context(secret):
+            barrier.wait(timeout=5)
+            with SSHTransport(config) as remote:
+                return remote._password
+    with ThreadPoolExecutor(2) as pool:
+        first, second = pool.submit(worker, "first"), pool.submit(worker, "second")
+        assert first.result() == "first" and second.result() == "second"
+    assert current_password() == ""
+    with password_context("scoped"):
+        with SSHTransport(config, password="explicit") as remote:
+            assert remote._password == "explicit"
+    assert current_password() == ""
+
+
+def test_native_options_include_explicit_identity_and_jump_for_ssh_and_scp(config, monkeypatch, tmp_path):
+    config.ssh_jump_host = "gateway-user@gateway:2222"
+    config.ssh_identity_file = str(tmp_path / "folder with spaces" / "private_key")
+    seen = []
+    def capture(argv, **kwargs):
+        seen.append(argv)
+        return subprocess.CompletedProcess(argv, 0, "", "")
+    monkeypatch.setattr(transport_module, "_run_process", capture)
+    with SSHTransport(config) as remote:
+        remote.run("true")
+        remote._scp("source", "host:destination")
+    assert len(seen) == 2
+    for argv in seen:
+        assert "ProxyJump=gateway-user@gateway:2222" in argv
+        assert 'IdentityFile="' + config.ssh_identity_file + '"' in argv
+        assert "IdentitiesOnly=yes" in argv
+
+
+def test_connection_revocation_blocks_open_transport_and_file_transfer(tmp_path, monkeypatch):
+    from vasp_slurm_agent.connections import ConnectionRegistry
+    registry = ConnectionRegistry(tmp_path / "workspace")
+    item = registry.create("hpc", "Loopback fixture", {"host": "localhost", "user": "scientist", "auth_mode": "agent"})
+    config = registry._transport_config(item)
+    calls = []
+    monkeypatch.setattr(transport_module, "_run_process", lambda argv, **kw: (calls.append(argv) or subprocess.CompletedProcess(argv, 0, "ok", "")))
+    monkeypatch.setenv("DFT_AGENT_SSH_PASSWORD", "unrelated-password")
+    with SSHTransport(config, password="explicit-cannot-override-profile") as remote:
+        assert remote._password == ""
+        assert remote.run("true").returncode == 0
+        registry.revoke(item["id"])
+        with pytest.raises(TransportError, match="revoked"):
+            remote.run("true")
+        with pytest.raises(TransportError, match="revoked"):
+            remote._upload_file(tmp_path / "local", "/remote")
+        with pytest.raises(TransportError, match="revoked"):
+            remote._download_file("/remote", tmp_path / "local")
+    assert len(calls) == 1
+    with pytest.raises(TransportError, match="revoked"):
+        SSHTransport(config, password="cannot-bypass")
+
+
+def test_worker_credential_handoff_does_not_mutate_environment(config, monkeypatch):
+    from vasp_slurm_agent.transport import password_context, worker_environment
+    monkeypatch.setenv("DFT_AGENT_SSH_PASSWORD", "unrelated-password")
+    with password_context("this-task-only"):
+        child = worker_environment(config)
+        assert child["_DFT_AGENT_WORKER_PASSWORD"] == "this-task-only"
+        assert "DFT_AGENT_SSH_PASSWORD" not in child
+        config.connection_id = "registry-reference"
+        assert "_DFT_AGENT_WORKER_PASSWORD" not in worker_environment(config)
+    assert os.environ["DFT_AGENT_SSH_PASSWORD"] == "unrelated-password"
+    assert "_DFT_AGENT_WORKER_PASSWORD" not in os.environ
+
+
+def test_password_and_login_code_redacted_from_output_and_errors(config, monkeypatch):
+    monkeypatch.setattr(transport_module, '_run_process', lambda *a, **k:
+                        subprocess.CompletedProcess(a[0], 255, 'secret-password', 'code 987654'))
+    with SSHTransport(config, password='secret-password', code='987654') as transport:
+        result = transport.run('true')
+        assert result.stdout == '[REDACTED]'
+        assert result.stderr == 'code [REDACTED]'
+        def blocked(*args):
+            raise transport_module.VerificationRequired('Verify 987654', 'Code 987654:')
+        transport._native = SimpleNamespace(run=blocked, close=lambda: None)
+        with pytest.raises(transport_module.VerificationRequired) as caught:
+            transport.run('true')
+        assert caught.value.prompt == 'Code [REDACTED]:'
+        assert '987654' not in str(caught.value)
+
+
+def test_authentication_password_is_not_a_login_code():
+    assert transport_module.classify_prompt('Authentication password:') == 'password'
+    assert transport_module.classify_prompt('Authentication code:') == 'code'
+
+
+def test_detached_worker_does_not_inherit_login_code(config, monkeypatch):
+    monkeypatch.setenv('_DFT_AGENT_ASKPASS_CODE', '987654')
+    monkeypatch.setenv('_DFT_AGENT_ASKPASS_PROMPT_FILE', '/tmp/private-prompt')
+    environment = transport_module.worker_environment(config)
+    assert '_DFT_AGENT_ASKPASS_CODE' not in environment
+    assert '_DFT_AGENT_ASKPASS_PROMPT_FILE' not in environment

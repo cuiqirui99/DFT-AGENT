@@ -10,6 +10,14 @@ from .providers import PROVIDERS
 from .settings import load_settings, save_settings
 
 SERVICE = "dft-agent"
+_SYSTEM_BACKENDS = {
+    ("keyring.backends.macOS", "Keyring"),
+    ("keyring.backends.Windows", "WinVaultKeyring"),
+    ("keyring.backends.SecretService", "Keyring"),
+    ("keyring.backends.libsecret", "Keyring"),
+    ("keyring.backends.kwallet", "DBusKeyring"),
+    ("keyring.backends.kwallet", "DBusKeyringKWallet4"),
+}
 
 
 class CredentialError(RuntimeError):
@@ -22,11 +30,18 @@ def _keyring():
         from keyring import errors  # noqa: F401
     except ImportError as exc:  # pragma: no cover - depends on the installed extras
         raise CredentialError("Install the keyring package to remember API keys: pip install keyring") from exc
-    backend = keyring.get_keyring()
-    name = type(backend).__name__.lower()
-    if "fail" in name or "null" in name or "chainer" in name and not getattr(backend, "backends", None):
-        raise CredentialError("No system keychain is available on this computer.")
-    return keyring
+    try:
+        backend = keyring.get_keyring()
+        identity = lambda item: (type(item).__module__, type(item).__name__)
+        backends = list(backend.backends) if identity(backend) == (
+            "keyring.backends.chainer", "ChainerBackend") else [backend]
+    except Exception:
+        raise CredentialError("The system keychain could not be opened.") from None
+    if not backends or any(identity(item) not in _SYSTEM_BACKENDS for item in backends):
+        raise CredentialError("Use a system keychain: macOS Keychain, Windows Credential Manager, Secret Service or KWallet. File-based keyrings are not supported.")
+    # Return the checked native backend, not the module or a dynamic chain that
+    # could choose another store on a later read or write.
+    return backends[0]
 
 
 def keyring_available() -> bool:
@@ -49,7 +64,7 @@ def load_key(provider: str) -> str | None:
     except CredentialError:
         raise
     except Exception as exc:  # keyring backends raise their own error types
-        raise CredentialError(f"Cannot read the keychain: {exc}") from exc
+        raise CredentialError("Cannot read the system keychain.") from None
     return value or None
 
 
@@ -63,7 +78,7 @@ def save_key(provider: str, key: str) -> None:
     except CredentialError:
         raise
     except Exception as exc:
-        raise CredentialError(f"Cannot write to the keychain: {exc}") from exc
+        raise CredentialError("Cannot write to the system keychain.") from None
     save_settings({"keychain": True})
 
 
@@ -85,7 +100,7 @@ def delete_key(provider: str) -> None:
     except CredentialError:
         raise
     except Exception as exc:
-        raise CredentialError(f"Cannot remove the key: {exc}") from exc
+        raise CredentialError("Cannot remove the key from the system keychain.") from None
 
 
 def stored_key(provider: str) -> str | None:

@@ -18,6 +18,7 @@ from pymatgen.io.vasp import Incar
 from . import agent, explanation, workflow
 from .agent import AgentError, ModelSettings
 from .config import ClusterConfig
+from .scheduler import get_scheduler
 from .methods import METHOD_DEFAULTS
 from .vasp import DEFAULTS, _parameters
 
@@ -94,7 +95,7 @@ def _snapshot(run_dir):
     if stage.get("status") not in {"failed", "needs_attention"} or stage.get("scheduler_state") not in {"COMPLETED", "FAILED", "TIMEOUT", "OUT_OF_MEMORY"}:
         raise AgentError("The job has no confirmed terminal result. Reconnect first.")
     job = stage.get("job_id")
-    if not str(job).isdigit() or not stage.get("staged"):
+    if not get_scheduler(config).valid_job_id(str(job)) or not stage.get("staged"):
         raise AgentError("The submission acknowledgement is missing. Reconnect first.")
     folder = stage.get("folder", "")
     if not re.fullmatch(r"[0-9]+_(?:relax|scf|bands|dos)", folder):
@@ -278,7 +279,8 @@ def _method_parameters(metadata):
     return method
 
 
-def draft_repair(run_dir, settings: ModelSettings, *, max_attempts: int = MAX_ATTEMPTS) -> dict:
+def draft_repair(run_dir, settings: ModelSettings, *, max_attempts: int = MAX_ATTEMPTS,
+                 question: str = "", history: list | None = None) -> dict:
     """Ask the model to choose among evidence-supported, bounded changes."""
     snapshot = _snapshot(run_dir)
     proposal = _base(snapshot, max_attempts)
@@ -290,12 +292,19 @@ def draft_repair(run_dir, settings: ModelSettings, *, max_attempts: int = MAX_AT
         proposal.update(diagnosis=reason, questions=[reason])
         return proposal
     settings = agent._settings(settings)
+    history = history or []
+    if not isinstance(question, str) or len(question) > 10000 or any(
+        not isinstance(item, dict) or item.get("role") not in {"user", "assistant"}
+        or not isinstance(item.get("content"), str) or len(item["content"]) > 100000 for item in history
+    ):
+        raise AgentError("The repair conversation is invalid or too long.")
     actual_parameters = {**snapshot["metadata"].get("parameters", {}), **_method_parameters(snapshot["metadata"])}
     payload = {"task": snapshot["stage"]["name"], "method": snapshot["metadata"].get("method"),
                "scheduler_state": snapshot["stage"]["scheduler_state"], "failure": reason,
                "parameters": explanation._safe_parameters(actual_parameters),
                "attempt": proposal["attempt"], "max_attempts": proposal["max_attempts"],
-               "allowed_actions": [action, "none"], "proposed_changes": changes}
+               "allowed_actions": [action, "none"], "proposed_changes": changes,
+               "question": question, "history": history}
     checked = snapshot.get("checked_result", {})
     payload["current_checks"] = {
         "inputs_and_outputs_unchanged": True,

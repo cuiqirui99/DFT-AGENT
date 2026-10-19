@@ -7,7 +7,6 @@ from dataclasses import replace
 from datetime import datetime
 import hashlib
 import json
-import os
 from pathlib import Path
 import tempfile
 import uuid
@@ -24,17 +23,9 @@ LABELS.update(wannier_electron_phonon="Wannier electron–phonon coupling", epw_
 
 
 def _remote(function, *args, **kwargs):
-    previous = os.environ.get("DFT_AGENT_SSH_PASSWORD")
-    password = st.session_state.get("ssh_password", "")
-    if password:
-        os.environ["DFT_AGENT_SSH_PASSWORD"] = password
-    try:
+    from .transport import password_context
+    with password_context(st.session_state.get("ssh_password", "")):
         return function(*args, **kwargs)
-    finally:
-        if previous is None:
-            os.environ.pop("DFT_AGENT_SSH_PASSWORD", None)
-        else:
-            os.environ["DFT_AGENT_SSH_PASSWORD"] = previous
 
 
 def _save_config(config, path=None):

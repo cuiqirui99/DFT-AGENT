@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 import os
+import getpass
+from urllib.parse import urlsplit
 from pathlib import Path
 import socket
 import sys
 import tempfile
 import time
 
-from .transport import Result, TransportError
+from .transport import (AuthenticationError, HostKeyError, Result, TransportError, VerificationRequired,
+                        classify_prompt)
 
 _WINDOWS = sys.platform == "win32"
 
@@ -97,7 +100,7 @@ def _accept_new_policy(paramiko, path: Path):
 
 
 class WindowsSSH:
-    def __init__(self, config, password):
+    def __init__(self, config, password, code=""):
         try:
             import paramiko
         except ImportError:
@@ -105,47 +108,178 @@ class WindowsSSH:
         self._paramiko = paramiko
         self.config = config
         self._password = password
+        self._code = code or ""
         self._client = None
+        self._chain = []
+        self._proxy = None
         self._closed = False
+
+    def _close_clients(self):
+        if self._client is not None:
+            self._client.close()
+            self._client = None
+        for client in reversed(self._chain):
+            client.close()
+        self._chain = []
+        if self._proxy is not None:
+            self._proxy.close()
+            self._proxy = None
+
+    def _new_client(self):
+        client = self._paramiko.SSHClient()
+        known_hosts = Path.home() / ".ssh" / "known_hosts"
+        if known_hosts.exists():
+            known = _read_host_keys(self._paramiko, known_hosts)
+            for hostname, entries in known.items():
+                for kind, key in entries.items():
+                    client.get_host_keys().add(hostname, kind, key)
+        client.set_missing_host_key_policy(_accept_new_policy(self._paramiko, known_hosts))
+        return client
 
     def _connect(self):
         if self._closed:
             raise TransportError("SSH transport has been closed.")
         if self._client is not None:
             transport = self._client.get_transport()
-            if transport is not None and transport.is_active():
+            if transport is not None and transport.is_active() and transport.is_authenticated():
                 return self._client
-            self._client.close()
-            self._client = None
-        client = self._paramiko.SSHClient()
-        known_hosts = Path.home() / ".ssh" / "known_hosts"
+        self._close_clients()
+        client = None
         try:
-            if known_hosts.exists():
-                known = _read_host_keys(self._paramiko, known_hosts)
-                for hostname, entries in known.items():
-                    for kind, key in entries.items():
-                        client.get_host_keys().add(hostname, kind, key)
-            client.set_missing_host_key_policy(_accept_new_policy(self._paramiko, known_hosts))
+            path = Path.home() / ".ssh" / "config"
+            settings = self._paramiko.SSHConfig.from_path(str(path)) if path.is_file() else self._paramiko.SSHConfig()
+            target = settings.lookup(str(self.config.host))
+            hostname = target.get("hostname", str(self.config.host)).removeprefix("[").removesuffix("]")
+            port = int(self.config.port)
             timeout = max(1, int(getattr(self.config, "connect_timeout", 15)))
-            client.connect(
-                hostname=str(self.config.host).removeprefix("[").removesuffix("]"),
-                port=int(self.config.port), username=str(self.config.user),
-                password=self._password or None, allow_agent=True, look_for_keys=True,
-                timeout=timeout, banner_timeout=timeout, auth_timeout=timeout,
-                channel_timeout=timeout,
-            )
+            common = dict(timeout=timeout, banner_timeout=timeout, auth_timeout=timeout, channel_timeout=timeout)
+            jump = getattr(self.config, "ssh_jump_host", "") or target.get("proxyjump", "")
+            sock = None
+            if jump and jump.lower() != "none":
+                hops = jump.split(",")
+                if len(hops) > 8:
+                    raise ValueError("Use at most eight SSH jump hosts.")
+                for entry in hops:
+                    address = urlsplit("ssh://" + entry)
+                    if not address.hostname or address.password or address.path or address.query or address.fragment:
+                        raise ValueError("Invalid SSH jump host.")
+                    options = settings.lookup(address.hostname)
+                    if options.get("proxyjump", "none").lower() != "none":
+                        raise ValueError("List nested jump hosts explicitly in the connection.")
+                    hop_host = options.get("hostname", address.hostname)
+                    hop_port = address.port or int(options.get("port", 22))
+                    if self._chain:
+                        sock = self._chain[-1].get_transport().open_channel("direct-tcpip", (hop_host, hop_port), ("127.0.0.1", 0), timeout=timeout)
+                    hop = self._new_client()
+                    self._chain.append(hop)
+                    # A target password must never be sent to a different host.
+                    hop.connect(hostname=hop_host, port=hop_port,
+                                username=address.username or options.get("user", getpass.getuser()),
+                                key_filename=options.get("identityfile"), password=None,
+                                allow_agent=True, look_for_keys=True, sock=sock, **common)
+                    hop.get_transport().set_keepalive(30)
+                sock = self._chain[-1].get_transport().open_channel("direct-tcpip", (hostname, port), ("127.0.0.1", 0), timeout=timeout)
+            elif target.get("proxycommand"):
+                # Honor the user's existing SSH config, as OpenSSH does.
+                self._proxy = self._paramiko.ProxyCommand(target["proxycommand"])
+                sock = self._proxy
+            identity = getattr(self.config, "ssh_identity_file", "") or target.get("identityfile")
+            client = self._new_client()
+            self._authenticate(client, hostname, port, identity, sock, common)
             client.get_transport().set_keepalive(30)
         except self._paramiko.BadHostKeyException:
-            client.close()
-            raise TransportError("SSH host key has changed. Verify it with your cluster administrator before updating known_hosts.") from None
+            if client is not None: client.close()
+            self._close_clients()
+            raise HostKeyError("SSH host key has changed. Verify it with your cluster administrator before updating known_hosts.") from None
+        except TransportError:
+            if client is not None: client.close()
+            self._close_clients()
+            raise
         except self._paramiko.AuthenticationException:
-            client.close()
-            raise TransportError("SSH authentication failed. Check your username, password or SSH key.") from None
+            if client is not None: client.close()
+            self._close_clients()
+            raise AuthenticationError("SSH authentication failed. Check your username, password or SSH key.") from None
         except Exception as exc:
-            client.close()
+            if client is not None: client.close()
+            self._close_clients()
             raise TransportError(f"Cannot connect with SSH: {exc}") from None
         self._client = client
         return client
+
+    def _allowed_methods(self, transport, username):
+        try:
+            transport.auth_none(username)
+            return set()
+        except self._paramiko.BadAuthenticationType as error:
+            return set(error.allowed_types or [])
+        except self._paramiko.SSHException:
+            return set()
+
+    def _authenticate(self, client, hostname, port, identity, sock, common):
+        """Keys and agent first; then a password and, when the server asks, a login code.
+
+        Paramiko's own password fallback answers every keyboard-interactive prompt
+        with the password, which fails on clusters that also ask for a code.
+        """
+        username = str(self.config.user)
+        pinned = bool(getattr(self.config, "ssh_identity_file", ""))
+        answer_prompts = self._answer_prompts
+
+        class InteractiveTransport(self._paramiko.Transport):
+            def auth_interactive_dumb(self, username, handler=None, submethods=""):
+                # Paramiko calls this after a key succeeds as the first factor.
+                # Desktop authentication must never read a terminal or print prompts.
+                return self.auth_interactive(username, answer_prompts, submethods)
+
+        try:
+            # The password also unlocks an encrypted default key, as OpenSSH asks for it.
+            client.connect(hostname=hostname, port=port, username=username, key_filename=identity or None,
+                           password=None, passphrase=self._password or None,
+                           allow_agent=not pinned, look_for_keys=not pinned, sock=sock,
+                           transport_factory=InteractiveTransport, **common)
+            transport = client.get_transport()
+            if transport is not None and transport.is_authenticated():
+                return
+        except (self._paramiko.AuthenticationException, self._paramiko.SSHException) as error:
+            transport = client.get_transport()
+            if transport is None or not transport.is_active():
+                raise
+            if isinstance(error, self._paramiko.SSHException) and not isinstance(error, self._paramiko.AuthenticationException) \
+                    and "authentication methods" not in str(error).lower():
+                raise
+        allowed = self._allowed_methods(transport, username)
+        if not (self._password or self._code) and "keyboard-interactive" not in allowed:
+            raise AuthenticationError("SSH authentication failed. The cluster rejected the offered keys.", tuple(sorted(allowed)))
+        remaining = None
+        if "password" in allowed and self._password:
+            try:
+                remaining = transport.auth_password(username, self._password, fallback=False)
+            except self._paramiko.AuthenticationException:
+                remaining = ["keyboard-interactive"] if "keyboard-interactive" in allowed else None
+                if remaining is None:
+                    raise AuthenticationError("SSH authentication failed. The cluster rejected the password.", tuple(sorted(allowed))) from None
+            if not remaining and transport.is_authenticated():
+                return
+        if "keyboard-interactive" in allowed or (remaining and "keyboard-interactive" in remaining):
+            remaining = transport.auth_interactive(username, self._answer_prompts)
+            if not remaining and transport.is_authenticated():
+                return
+            raise AuthenticationError("SSH authentication failed. The cluster requires another sign-in method.", tuple(remaining))
+        raise AuthenticationError("SSH authentication failed. The cluster does not accept password sign-in.", tuple(sorted(allowed)))
+
+    def _answer_prompts(self, title, instructions, prompts):
+        answers = []
+        for prompt, _echo in prompts:
+            kind = classify_prompt(prompt)
+            answer = {"password": self._password, "code": self._code}.get(kind, "")
+            if not answer:
+                if kind == "password":
+                    raise AuthenticationError("The cluster asks for a password.", ("password",))
+                raise VerificationRequired("The cluster asks for a login code before it accepts the connection."
+                                           if kind == "code" else "The cluster asked a question the app could not answer.",
+                                           str(prompt)[:500])
+            answers.append(answer)
+        return answers
 
     def run(self, command: str, timeout: float) -> Result:
         channel = None
@@ -211,6 +345,5 @@ class WindowsSSH:
     def close(self):
         self._closed = True
         self._password = ""
-        if self._client is not None:
-            self._client.close()
-            self._client = None
+        self._code = ""
+        self._close_clients()

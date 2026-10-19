@@ -58,7 +58,7 @@ def ssh_server(tmp_path):
     transports = []
     workers = []
     calls = []
-    authentication = SimpleNamespace(public_key=None)
+    authentication = SimpleNamespace(public_key=None, mfa=False, password_attempts=0, code_attempts=0, accepted=0)
 
     def path_for(value):
         assert value == "/cluster" or value.startswith("/cluster/")
@@ -92,12 +92,25 @@ def ssh_server(tmp_path):
             return node
 
     def execute(channel, command):
+        # Wait until Paramiko acknowledges exec; closing before the ACK loses
+        # fast simulated scheduler replies on Windows.
+        if not channel._test_exec_ack.wait(5):
+            channel.close()
+            return
         try:
             pieces = shlex.split(command.decode())
             assert pieces[:2] == ["bash", "-lc"]
             command = pieces[2]
             calls.append(command)
-            if command == "test-large-output":
+            if command == "true":
+                status = 0
+            elif command == "sbatch --parsable submit.sh":
+                channel.sendall(b"12345\n")
+                status = 0
+            elif command == "squeue -h -j 12345 -o %T":
+                channel.sendall(b"COMPLETED\n")
+                status = 0
+            elif command == "test-large-output":
                 # Exceed the default SSH window on stderr, then on stdout.
                 channel.sendall_stderr(b"e" * 3000000)
                 channel.sendall(b"x" * 3000000)
@@ -120,27 +133,68 @@ def ssh_server(tmp_path):
         finally:
             channel.close()
 
+    class ServerTransport(paramiko.Transport):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.exec_events = {}
+        def _send_user_message(self, message):
+            super()._send_user_message(message)
+            data = message.asbytes()
+            if data[:1] == paramiko.common.cMSG_CHANNEL_SUCCESS:
+                event = self.exec_events.get(int.from_bytes(data[1:5], 'big'))
+                if event is not None:
+                    event.set()
+
     class Server(paramiko.ServerInterface):
+        def __init__(self, transport):
+            self.transport = transport
+            self.password_ok = False
         def check_auth_password(self, username, password):
-            return paramiko.AUTH_SUCCESSFUL if username == "test-user" and password == "test-password" else paramiko.AUTH_FAILED
+            authentication.password_attempts += 1
+            self.password_ok = username == "test-user" and password == "test-password"
+            if not self.password_ok:
+                return paramiko.AUTH_FAILED
+            if authentication.mfa:
+                return paramiko.AUTH_PARTIALLY_SUCCESSFUL
+            authentication.accepted += 1
+            return paramiko.AUTH_SUCCESSFUL
+        def check_auth_interactive(self, username, submethods):
+            if authentication.mfa and self.password_ok:
+                return paramiko.InteractiveQuery("Verification", "", ("Verification code:", False))
+            return paramiko.AUTH_FAILED
+        def check_auth_interactive_response(self, responses):
+            authentication.code_attempts += 1
+            if responses == ["123456"] and self.password_ok:
+                authentication.accepted += 1
+                return paramiko.AUTH_SUCCESSFUL
+            return paramiko.AUTH_FAILED
         def check_auth_publickey(self, username, key):
-            return paramiko.AUTH_SUCCESSFUL if username == "test-user" and key == authentication.public_key else paramiko.AUTH_FAILED
-        def get_allowed_auths(self, username): return "publickey,password"
+            if username != "test-user" or key != authentication.public_key:
+                return paramiko.AUTH_FAILED
+            self.password_ok = True
+            if authentication.mfa:
+                return paramiko.AUTH_PARTIALLY_SUCCESSFUL
+            authentication.accepted += 1
+            return paramiko.AUTH_SUCCESSFUL
+        def get_allowed_auths(self, username):
+            return "keyboard-interactive" if authentication.mfa and self.password_ok else "publickey,password"
         def check_channel_request(self, kind, chanid):
             return paramiko.OPEN_SUCCEEDED if kind == "session" else paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
         def check_channel_exec_request(self, channel, command):
+            channel._test_exec_ack = threading.Event()
+            self.transport.exec_events[channel.remote_chanid] = channel._test_exec_ack
             worker = threading.Thread(target=execute, args=(channel, command), daemon=True)
             workers.append(worker)
             worker.start()
             return True
 
     def serve_connection(connection):
-        transport = paramiko.Transport(connection)
+        transport = ServerTransport(connection)
         transports.append(transport)
         transport.add_server_key(key)
         transport.set_subsystem_handler("sftp", paramiko.SFTPServer, SFTP)
         try:
-            transport.start_server(server=Server())
+            transport.start_server(server=Server(transport))
             while transport.is_active() and not stopped.wait(0.05):
                 pass
         except (EOFError, OSError, paramiko.SSHException):
@@ -163,7 +217,7 @@ def ssh_server(tmp_path):
     thread = threading.Thread(target=serve, daemon=True)
     thread.start()
     config = SimpleNamespace(host="127.0.0.1", user="test-user", port=listener.getsockname()[1], connect_timeout=3)
-    yield SimpleNamespace(config=config, root=root, key=key, calls=calls, authentication=authentication)
+    yield SimpleNamespace(config=config, root=root, key=key, calls=calls, authentication=authentication, transports=transports)
     stopped.set()
     listener.close()
     for transport in transports:
@@ -367,3 +421,65 @@ def test_host_key_replace_closes_file_and_fsyncs_only_regular_file(tmp_path, mon
     windows_ssh._accept_new_policy(paramiko, target).missing_host_key(
         paramiko.SSHClient(), "test-host", paramiko.RSAKey.generate(2048))
     assert target.read_text().startswith("# Keep this comment\n")
+
+
+def test_native_explicit_identity_and_ssh_alias(native_home, ssh_server):
+    key = paramiko.RSAKey.generate(2048)
+    key_path = native_home / ".ssh" / "custom identity"
+    key_path.parent.mkdir()
+    key.write_private_key_file(str(key_path), password="test-key-passphrase")
+    (key_path.parent / "config").write_text("Host cluster-alias\n  HostName 127.0.0.1\n")
+    ssh_server.authentication.public_key = key
+    cfg = SimpleNamespace(**vars(ssh_server.config))
+    cfg.host, cfg.ssh_identity_file = "cluster-alias", str(key_path)
+    with SSHTransport(cfg, password="test-key-passphrase") as connection:
+        assert connection.run("python3 -c 'print(44)'").stdout.strip() == "44"
+
+
+def test_native_jump_chain_routes_channels_without_target_password(native_home, monkeypatch):
+    """Exercise Paramiko routing contracts without opening an external network."""
+    folder = native_home / ".ssh"
+    folder.mkdir()
+    (folder / "config").write_text("Host gateway\n  HostName gateway.internal\n  User gateway-user\n  IdentityFile ~/.ssh/gateway-key\n")
+    calls, channels, clients, passwords = [], [], [], []
+    class Client:
+        def __init__(self):
+            self.closed = False
+            clients.append(self)
+        def connect(self, **kwargs):
+            calls.append(kwargs)
+            if kwargs["hostname"] == "cluster.internal":
+                # The target refuses keys; the password must then go only to this transport.
+                raise paramiko.AuthenticationException("Authentication failed.")
+        def get_transport(self): return self
+        def get_host_keys(self): return paramiko.HostKeys()
+        def set_missing_host_key_policy(self, policy): pass
+        def set_keepalive(self, interval): pass
+        def auth_none(self, username): raise paramiko.BadAuthenticationType("Bad auth type", ["password"])
+        def auth_password(self, username, password, fallback=True):
+            passwords.append((self, username, password, fallback))
+            return []
+        def open_channel(self, kind, destination, source, **kwargs):
+            channel = object()
+            channels.append((kind, destination, channel))
+            return channel
+        def close(self): self.closed = True
+        def is_active(self): return not self.closed
+        def is_authenticated(self): return bool(passwords)
+    monkeypatch.setattr(paramiko, "SSHClient", Client)
+    cfg = SimpleNamespace(host="cluster.internal", user="target-user", port=2222,
+                          connect_timeout=3, ssh_jump_host="gateway")
+    native = windows_ssh.WindowsSSH(cfg, "target-secret")
+    native._connect()
+    assert len(calls) == 2
+    assert calls[0]["hostname"] == "gateway.internal" and calls[0]["username"] == "gateway-user"
+    assert calls[0]["password"] is None
+    assert calls[0]["key_filename"] == [str(folder / "gateway-key")]
+    # Paramiko's connect() would answer every interactive prompt with the password;
+    # the password is sent explicitly, to the target transport only, without fallback.
+    assert calls[1]["password"] is None and calls[1]["passphrase"] == "target-secret"
+    assert passwords == [(clients[-1], "target-user", "target-secret", False)]
+    assert calls[1]["sock"] is channels[0][2]
+    assert channels[0][:2] == ("direct-tcpip", ("cluster.internal", 2222))
+    native.close()
+    assert all(client.closed for client in clients)

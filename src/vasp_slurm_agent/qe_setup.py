@@ -1,4 +1,4 @@
-"""Versioned QE builds and public pseudopotentials for Slurm clusters."""
+"""Versioned QE builds and public pseudopotentials for Slurm and PBS clusters."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ import tempfile
 import urllib.request
 import uuid
 
+from .scheduler import get_scheduler
 from .transport import SSHTransport, TransportError
 
 QE_VERSION = "7.4.1"
@@ -177,7 +178,7 @@ def inspect(config, transport=None, *, include_epw=False) -> dict:
         _absolute(bindir)
     programs = REQUIRED_PROGRAMS + (EPW_PROGRAMS if include_epw else ())
     code = f'''import json, os, shutil, subprocess
-tools = {{name: shutil.which(name) for name in ["python3", "sbatch", "squeue", "sacct", "make", "git", "mpif90", "mpifort", "mpiifort", "cc", "gcc", "icc"]}}
+tools = {{name: shutil.which(name) for name in {list(("python3", *get_scheduler(config).required_commands, "make", "git", "mpif90", "mpifort", "mpiifort", "mpiifx", "cc", "gcc", "icc"))!r}}}
 programs = {{}}
 for name in {programs!r}:
     path = os.path.join({bindir!r}, name) if {bool(bindir)!r} else shutil.which(name)
@@ -200,10 +201,96 @@ def doctor(config, transport=None, *, include_epw=False) -> dict:
     except (TransportError, OSError, ValueError) as exc:
         return {"ok": False, "checks": {"connection": {"ok": False, "detail": str(exc)}}}
     checks = {name: {"ok": item["ok"], "detail": "; ".join(item["missing_libraries"]) or item["path"] or "Not found"} for name, item in state["programs"].items()}
-    for name in ("sbatch", "squeue", "sacct"):
+    for name in get_scheduler(config).required_commands:
         checks[name] = {"ok": bool(state["tools"][name]), "detail": state["tools"][name] or "Not found"}
     checks["pseudopotentials"] = {"ok": state["pseudo_root_exists"], "detail": state["pseudo_root"] or "Choose a UPF folder or install the public library."}
     return {"ok": all(check["ok"] for check in checks.values()), "checks": checks}
+
+
+_TOOLCHAIN_MODULE = re.compile(r"^(gcc|gnu|intel|oneapi|compiler|openmpi|mpich|impi|mvapich|mpi|hpcx)", re.I)
+_MPI_COMPILERS = ("mpiifort", "mpiifx", "mpifort", "mpif90")
+
+
+def detect_toolchain(config, transport=None, *, trials=8) -> dict:
+    """Find module commands that provide an MPI Fortran compiler and make.
+
+    Clusters differ in how compilers are exposed; this tries the login node's
+    PATH first, then module combinations named on the cluster, each in a fresh
+    shell. Nothing is installed or submitted. The result is a reviewable list of
+    `module load` lines for the build and run environment.
+    """
+    script = "\n".join([
+        "printf '__TC_PATH__\\n'",
+        "for n in " + " ".join(_MPI_COMPILERS) + " gfortran ifort ifx gcc icc icx make git cmake; do p=$(command -v \"$n\" 2>/dev/null) && printf '%s=%s\\n' \"$n\" \"$p\" || true; done",
+        "printf '__TC_MODULES__\\n'",
+        "module -t avail 2>&1 | grep -i -E '^(gcc|gnu|intel|oneapi|compiler|openmpi|mpich|impi|mvapich|mpi|hpcx)' | head -160",
+        "printf '__TC_END__\\n'",
+    ])
+    with _connection(config, transport) as active:
+        result = active.run("\n".join(["set -e", *config.setup_commands, script]), timeout=120)
+        if result.returncode:
+            raise TransportError("Toolchain detection failed. Check the environment setup commands.")
+        sections, current = {"path": [], "modules": []}, None
+        for line in (result.stdout or "").splitlines():
+            line = line.strip()
+            if line == "__TC_PATH__":
+                current = "path"
+            elif line == "__TC_MODULES__":
+                current = "modules"
+            elif line == "__TC_END__":
+                current = None
+            elif current and line:
+                sections[current].append(line[:300])
+        have = dict(item.split("=", 1) for item in sections["path"] if "=" in item)
+        mpi = next((have[name] for name in _MPI_COMPILERS if name in have), None)
+        notes = []
+        if mpi and "make" in have:
+            if "git" not in have:
+                notes.append("Git was not found; the installer needs it. Add a module that provides git.")
+            notes.append("An MPI Fortran compiler is already available on the login node." + (" Existing module commands are kept." if config.setup_commands else ""))
+            return {"ready": True, "setup_commands": list(config.setup_commands), "mpi_fortran": mpi, "tools": have,
+                    "modules_tried": [], "notes": notes}
+        modules = [re.sub(r"\s*\([^()]*\)$", "", item).strip() for item in sections["modules"]]
+        modules = [item for item in modules if _TOOLCHAIN_MODULE.match(item)
+                   and re.fullmatch(r"[A-Za-z0-9_./+@-]+", item) and not item.endswith("/")]
+        modules = list(dict.fromkeys(modules))
+        compilers = [item for item in modules if re.match(r"(gcc|gnu|intel|oneapi|compiler)", item, re.I)]
+        mpis = [item for item in modules if re.match(r"(openmpi|mpich|impi|mvapich|mpi|hpcx)", item, re.I)]
+        candidates = [[item] for item in mpis[:trials]]
+        for compiler in compilers[:3]:
+            for mpi_module in mpis[:3]:
+                candidates.append([compiler, mpi_module])
+        seen, unique = set(), []
+        for combo in candidates:
+            key = tuple(combo)
+            if key not in seen:
+                seen.add(key)
+                unique.append(combo)
+        tried = []
+        for combo in unique[:max(1, trials) * 2]:
+            commands = [*config.setup_commands, "module load " + shlex.join(combo)]
+            probe = "\n".join([
+                "set -e", *commands[:-1],
+                commands[-1] + " >/dev/null 2>&1 || { printf 'LOAD=failed\\n'; exit 0; }",
+                "for n in " + " ".join(_MPI_COMPILERS) + "; do p=$(command -v \"$n\" 2>/dev/null) && { printf 'MPI=%s\\n' \"$p\"; break; }; done || true",
+                "command -v make >/dev/null 2>&1 && printf 'MAKE=yes\\n'",
+                "command -v git >/dev/null 2>&1 && printf 'GIT=yes\\n' || true",
+            ])
+            result = active.run(probe, timeout=90)
+            output = result.stdout if result.returncode == 0 else ""
+            found = dict(item.split("=", 1) for item in output.splitlines() if "=" in item)
+            ok = bool(found.get("MPI")) and found.get("MAKE") == "yes"
+            tried.append({"modules": combo, "ok": ok, "mpi_fortran": found.get("MPI"), "git": found.get("GIT") == "yes"})
+            if ok:
+                if not tried[-1]["git"]:
+                    notes.append("Git was not found with these modules; add a git module if the build reports it missing.")
+                notes.append("Toolchain found by loading " + ", ".join(combo) + ". These module commands are used for the build and for running QE.")
+                return {"ready": True, "setup_commands": commands,
+                        "mpi_fortran": found["MPI"], "tools": have, "modules_tried": tried, "notes": notes}
+        notes.append("No MPI Fortran compiler was found on the login node or among the module combinations tried. "
+                     "Add the module commands your cluster documents, for example `module load gcc openmpi`.")
+        return {"ready": False, "setup_commands": list(config.setup_commands), "mpi_fortran": None, "tools": have,
+                "modules_tried": tried, "notes": notes}
 
 
 def install_plan(config, prefix=None, *, build_jobs=8, build_walltime="02:00:00", include_epw=False) -> dict:
@@ -216,6 +303,8 @@ def install_plan(config, prefix=None, *, build_jobs=8, build_walltime="02:00:00"
         raise ValueError("Choose whether to include EPW.")
     base = _absolute(config.remote_root) + "/software"
     plan = {"version": QE_VERSION, "backend": "cpu", "sources": deepcopy(SOURCES), "setup_commands": list(config.setup_commands), "partition": config.partition, "account": config.account, "build_jobs": build_jobs, "walltime": build_walltime, "programs": list(REQUIRED_PROGRAMS), "build_targets": list(BUILD_TARGETS)}
+    if get_scheduler(config).name != "slurm":
+        plan.update(scheduler=get_scheduler(config).name, extra_pbs=list(getattr(config, "extra_pbs", [])))
     if include_epw:
         plan.update(include_epw=True, sources=deepcopy(SOURCES | EPW_SOURCES),
                     programs=list(REQUIRED_PROGRAMS + EPW_PROGRAMS),
@@ -229,7 +318,7 @@ def install_plan(config, prefix=None, *, build_jobs=8, build_walltime="02:00:00"
     return plan
 
 
-# This script runs only in a Slurm allocation. Dependencies are already downloaded
+# This script runs only in a scheduler allocation. Dependencies are already downloaded
 # and pinned, so compute nodes do not need Internet access.
 _BUILD_PY = r'''
 import hashlib, json, os, pathlib, shutil, subprocess, sys, tarfile, time
@@ -273,7 +362,8 @@ started = time.time()
 prefix = pathlib.Path(plan['prefix'])
 stage = root / 'install.partial'
 try:
-    if not os.environ.get('SLURM_JOB_ID'): raise RuntimeError('Builds must run in Slurm')
+    job_id = os.environ.get('PBS_JOBID' if plan.get('scheduler') == 'pbs' else 'SLURM_JOB_ID')
+    if not job_id: raise RuntimeError('Builds must run in ' + ('PBS' if plan.get('scheduler') == 'pbs' else 'Slurm'))
     targets = plan.get('build_targets')
     include_epw = plan.get('include_epw', False)
     expected_targets = ['pw', 'ph', 'pp', 'neb'] + (['epw'] if include_epw else [])
@@ -281,7 +371,7 @@ try:
     expected_steps = [['pw', 'ph', 'pp', 'neb'], ['epw']] if include_epw else [targets]
     if plan.get('build_steps', [targets]) != expected_steps: raise RuntimeError('Unsupported QE build sequence')
     if prefix.exists() or prefix.is_symlink(): raise RuntimeError('Installation folder already exists; it was left unchanged')
-    save({'status': 'building', 'started_at': started, 'job_id': os.environ['SLURM_JOB_ID']})
+    save({'status': 'building', 'started_at': started, 'job_id': job_id})
     for name, item in plan['sources'].items():
         if digest(root / name) != item['sha256']: raise RuntimeError('Source checksum mismatch: ' + name)
     source = root / 'source'
@@ -298,7 +388,7 @@ try:
             actual = {p.relative_to(folder).as_posix(): digest(p) for p in folder.rglob('*') if p.is_file() and p.name != '.dft-agent-source.json'}
             if actual != record['files']: raise RuntimeError('Extracted source manifest mismatch: ' + name)
         (folder / '.git').touch()  # QE accepts an already staged, pinned dependency.
-    mpi = os.environ.get('MPIF90') or next((x for x in ('mpiifort', 'mpifort', 'mpif90') if shutil.which(x)), None)
+    mpi = os.environ.get('MPIF90') or next((x for x in ('mpiifort', 'mpiifx', 'mpifort', 'mpif90') if shutil.which(x)), None)
     if not mpi: raise RuntimeError('Load an MPI Fortran compiler before building QE')
     environment = os.environ.copy()
     environment['OMP_NUM_THREADS'] = '1'
@@ -320,14 +410,14 @@ try:
         programs[name] = digest(path)
     for name in ('License', 'README.md'):
         if (source / name).is_file(): shutil.copy2(source / name, stage / name)
-    manifest = dict(plan, installed_at=time.time(), job_id=os.environ['SLURM_JOB_ID'], executable_sha256=programs, compiler=mpi, make_inc=make_inc)
+    manifest = dict(plan, installed_at=time.time(), job_id=job_id, executable_sha256=programs, compiler=mpi, make_inc=make_inc)
     (stage / 'dft-agent-install.json').write_text(json.dumps(manifest, indent=2) + '\n')
     if prefix.exists() or prefix.is_symlink(): raise RuntimeError('Installation folder appeared during build; refusing replacement')
     prefix.parent.mkdir(parents=True, exist_ok=True)
     stage.rename(prefix)
-    save({'status': 'installed', 'job_id': os.environ['SLURM_JOB_ID'], 'prefix': str(prefix), 'bin_dir': str(prefix / 'bin'), 'programs': programs, 'elapsed_seconds': time.time()-started})
+    save({'status': 'installed', 'job_id': job_id, 'prefix': str(prefix), 'bin_dir': str(prefix / 'bin'), 'programs': programs, 'elapsed_seconds': time.time()-started})
 except Exception as exc:
-    save({'status': 'failed', 'job_id': os.environ.get('SLURM_JOB_ID'), 'error': str(exc), 'elapsed_seconds': time.time()-started})
+    save({'status': 'failed', 'job_id': os.environ.get('PBS_JOBID' if plan.get('scheduler') == 'pbs' else 'SLURM_JOB_ID'), 'error': str(exc), 'elapsed_seconds': time.time()-started})
     raise
 '''
 
@@ -336,6 +426,16 @@ def _build_script(plan: dict) -> str:
     lines = ["#!/bin/bash", f"#SBATCH --job-name=qe-build-{plan['id']}", f"#SBATCH --partition={plan['partition']}", "#SBATCH --nodes=1", "#SBATCH --ntasks=1", f"#SBATCH --cpus-per-task={plan['build_jobs']}", f"#SBATCH --time={plan['walltime']}", "#SBATCH --output=build.out", "#SBATCH --error=build.err"]
     if plan["account"]:
         lines.append(f"#SBATCH --account={plan['account']}")
+    if plan.get("scheduler") == "pbs":
+        from types import SimpleNamespace
+        from .config import ClusterConfig
+        resources = ClusterConfig.pbs_resource_lines(SimpleNamespace(extra_pbs=plan.get("extra_pbs", [])))
+        build = SimpleNamespace(partition=plan["partition"], account=plan["account"], nodes=1, tasks=1,
+                                cpus_per_task=plan["build_jobs"], walltime=plan["walltime"],
+                                pbs_resource_lines=lambda: resources)
+        adapter = get_scheduler("pbs")
+        lines = adapter.header(build, stdout="build.out", stderr="build.err")
+        lines.insert(1, "#PBS -N " + adapter.job_name("qe-build-" + plan["id"]))
     lines.extend(["set -euo pipefail", *plan["setup_commands"], "export OMP_NUM_THREADS=1", "cd " + shlex.quote(plan["work_dir"]), "python3 build.py"])
     return "\n".join(lines) + "\n"
 
@@ -433,10 +533,12 @@ def start_install(config, plan: dict, transport=None, *, cache_dir=None) -> dict
     with _connection(config, transport) as active:
         existing = _json_run(active, f"import json,pathlib\np=pathlib.Path({work!r})/'submission.json'\nprint({_MARKER!r}+json.dumps(json.loads(p.read_text()) if p.is_file() else {{}}))")
         if existing:
+            if existing.get("id") == plan["id"] and not existing.get("job_id"):
+                return _reconcile_install(active, plan, existing, config)
             return existing
         state = inspect(config, active)
-        if not state["tools"]["sbatch"] or not state["tools"]["make"] or not state["tools"]["git"] or not any(state["tools"][x] for x in ("mpif90", "mpifort", "mpiifort")):
-            raise ValueError("Load make, Git and an MPI Fortran compiler; Slurm must be available.")
+        if any(not state["tools"].get(name) for name in get_scheduler(config).required_commands) or not state["tools"]["make"] or not state["tools"]["git"] or not any(state["tools"].get(x) for x in _MPI_COMPILERS):
+            raise ValueError("Load make, Git and an MPI Fortran compiler; scheduler commands must be available.")
         transfers = _source_transfers(active, plan["sources"], work, cache)
         staging = work + "/.stage-" + uuid.uuid4().hex
         with tempfile.TemporaryDirectory(prefix="dft-qe-build-") as folder:
@@ -445,11 +547,12 @@ def start_install(config, plan: dict, transport=None, *, cache_dir=None) -> dict
                 path = folder / name
                 path.write_text(content, encoding="utf-8", newline="\n")
                 transfers.append(path)
+            transfers.extend(Path(__file__).with_name(name) for name in ("dispatch.py", "scheduler.py"))
             expected_files = {path.name: {"sha256": _digest(path), "size": path.stat().st_size} for path in transfers}
-            transferred = active.upload_many(transfers, staging, permitted_names=frozenset({*plan["sources"], "plan.json", "build.py", "build.sh"}))
+            transferred = active.upload_many(transfers, staging, permitted_names=frozenset({*plan["sources"], "plan.json", "build.py", "build.sh", "dispatch.py", "scheduler.py"}))
             if transferred != expected_files:
                 raise TransportError("QE source upload returned unexpected checksums. No build was submitted.")
-        code = f'''import fcntl,hashlib,json,os,pathlib,shutil,subprocess,time
+        code = f'''import fcntl,hashlib,json,os,pathlib,shutil,subprocess,time,sys
 root=pathlib.Path({work!r})
 staged=pathlib.Path({staging!r})
 def sha(path):
@@ -487,41 +590,77 @@ with (root/'submit.lock').open('a') as lock:
             source=root/name
             if source.is_symlink() or not source.is_file() or sha(source)!=item['sha256']:
                 raise RuntimeError('Source checksum changed before submission: '+name)
-        value={{'status':'submitting','work_dir':str(root),'prefix':{plan['prefix']!r},'id':{plan['id']!r},'submitted_at':time.time()}}
+        value={{'status':'submitting','work_dir':str(root),'prefix':{plan['prefix']!r},'id':{plan['id']!r},'submitted_at':time.time(),'scheduler':{get_scheduler(config).name!r}}}
         save(path,value)
-        result=subprocess.run(['sbatch','--parsable','--chdir',str(root),str(root/'build.sh')],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)
-        job_id=result.stdout.strip().split(';')[0]
-        if result.returncode == 0 and job_id.isdigit():
-            value.update(status='submitted',job_id=job_id)
-        else:
-            value.update(status='needs_attention',error=(result.stderr or result.stdout).strip()[-2000:])
+        sys.path.insert(0,str(root))
+        from dispatch import dispatch
+        try:
+            acknowledged=dispatch(root,{('qe-build-' + plan['id'])!r},scheduler={get_scheduler(config).name!r},script='build.sh')
+            value.update(status='submitted',job_id=acknowledged['job_id'])
+        except Exception as exc:
+            value.update(status='needs_attention',error=str(exc)[-2000:])
         save(path,value)
 print({_MARKER!r}+json.dumps(value))
 '''
         return _json_run(active, code, setup=config.setup_commands, timeout=90)
 
 
+def _reconcile_install(transport, plan, receipt, config):
+    """Recover an acknowledged build after a lost reply; never submit here."""
+    code = f'''import json,pathlib,sys
+root=pathlib.Path({plan['work_dir']!r})
+sys.path.insert(0,str(root))
+value={receipt!r}
+try:
+    from dispatch import dispatch
+    job=dispatch(root,{('qe-build-' + plan['id'])!r},reconcile_only=True,scheduler={get_scheduler(config).name!r},script='build.sh')
+    value.update(status='submitted',job_id=job['job_id'])
+    value.pop('error',None)
+except Exception as exc:
+    value.update(status='needs_attention',error=str(exc)[-2000:])
+temporary=root/'submission-reconciled.tmp'
+temporary.write_text(json.dumps(value)+'\\n')
+temporary.replace(root/'submission.json')
+print({_MARKER!r}+json.dumps(value))
+'''
+    return _json_run(transport, code, setup=config.setup_commands, timeout=90)
+
+
 def poll_install(config, receipt: dict, transport=None) -> dict:
     work = _absolute(receipt["work_dir"])
     job = str(receipt.get("job_id", ""))
-    if job and not job.isdigit():
-        raise ValueError("Invalid Slurm job ID.")
-    code = f'''import json,pathlib,subprocess
+    if receipt.get("scheduler", "slurm") != get_scheduler(config).name:
+        raise ValueError("The build receipt belongs to a different scheduler.")
+    if job and not get_scheduler(config).valid_job_id(job):
+        raise ValueError("Invalid scheduler job ID.")
+    code = f'''import json,pathlib,subprocess,sys
 root=pathlib.Path({work!r})
 status=root/'build-status.json'
 value=json.loads(status.read_text()) if status.is_file() else {{'status':{receipt.get('status', 'unknown')!r}}}
 if {bool(job)!r} and value.get('status') not in ('installed','failed'):
     job={job!r}
-    query=subprocess.run(['squeue','-h','-j',job,'-o','%T'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)
-    states=query.stdout.strip()
-    if states:
-        value['scheduler_state']=states
-    else:
-        accounting=subprocess.run(['sacct','-n','-X','-j',job,'--format=State','--parsable2'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)
-        states=accounting.stdout.strip()
-        value['scheduler_state']=states or 'unknown'
-        if any(x in states for x in ('FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL','COMPLETED')):
+    if {get_scheduler(config).name!r} == 'pbs':
+        sys.path.insert(0,str(root))
+        from scheduler import get_scheduler, TERMINAL_STATES
+        adapter=get_scheduler('pbs')
+        query=subprocess.run(adapter.status_command(job),stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)
+        if query.returncode and 'Unknown Job Id' not in query.stderr:
+            raise RuntimeError(query.stderr or 'PBS status query failed')
+        phase=adapter.parse_status(query.stdout,job) if query.returncode == 0 else 'UNKNOWN'
+        value['scheduler_state']=phase
+        if phase in TERMINAL_STATES:
             value.update(status='failed',error='Build ended without an installed manifest. Read build.out and build.err.')
+    else:
+        query=subprocess.run(['squeue','-h','-j',job,'-o','%T'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)
+        states=query.stdout.strip()
+        if states:
+            value['scheduler_state']=states
+        else:
+            accounting=subprocess.run(['sacct','-n','-X','-j',job,'--format=State','--parsable2'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)
+            states=accounting.stdout.strip()
+            value['scheduler_state']=states or 'unknown'
+            if any(x in states for x in ('FAILED','CANCELLED','TIMEOUT','OUT_OF_MEMORY','NODE_FAIL','COMPLETED')):
+                value.update(status='failed',error='Build ended without an installed manifest. Read build.out and build.err.')
 value['work_dir']=str(root)
 value['logs']={{name:str(root/name) for name in ('build.out','build.err')}}
 print({_MARKER!r}+json.dumps(value))

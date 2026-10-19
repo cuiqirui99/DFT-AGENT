@@ -23,13 +23,14 @@ import uuid
 import zipfile
 
 from .config import ClusterConfig
-from .transport import SSHTransport, TransportError
+from .scheduler import get_scheduler, shell_command, TERMINAL_STATES
+from .transport import SSHTransport, TransportError, worker_environment
 from .vasp import prepare_inputs, analyze_outputs
 from .restart import INPUT_FILES as RESTART_INPUTS, OUTPUT_FILES as RESTART_OUTPUTS, prepare_warm_inputs
 
 TERMINAL = {"succeeded", "needs_attention", "failed", "cancelled"}
 MAX_REMOTE_FAILURES = 3
-SLURM_TERMINAL = {"COMPLETED", "FAILED", "CANCELLED", "TIMEOUT", "OUT_OF_MEMORY", "NODE_FAIL", "PREEMPTED", "BOOT_FAIL", "DEADLINE", "REVOKED"}
+SLURM_TERMINAL = TERMINAL_STATES  # Kept as a compatibility alias.
 FILES = ("INCAR", "KPOINTS", "POSCAR", "OUTCAR", "OSZICAR", "vasprun.xml", "CONTCAR", "EIGENVAL", "DOSCAR", "PROCAR", "XDATCAR", "REPORT", "slurm.out", "slurm.err", "execution.json", "input_hashes.sha256", "potcar_hash.sha256", "potcar_titles.txt", *RESTART_INPUTS, *RESTART_OUTPUTS)
 
 
@@ -488,7 +489,6 @@ def _script(config, stage, previous):
         if not re.fullmatch(r"[A-Za-z0-9_.+-]+", label):
             raise ValueError("Unsafe POTCAR label")
         paths.append(shlex.quote(config.potcar_root.rstrip("/") + "/" + label + "/POTCAR"))
-    account = f"#SBATCH --account={config.account}\n" if config.account else ""
     dependency = ""
     needs_charge = stage["metadata"].get("requires_chgcar", stage["name"] in {"bands", "dos"})
     needs_charge = needs_charge and stage["metadata"].get("spectral_charge_mode") != "self_consistent"
@@ -497,7 +497,9 @@ def _script(config, stage, previous):
     if needs_charge:
         dependency = f"test -s {shlex.quote(previous + '/CHGCAR')}\ncp {shlex.quote(previous + '/CHGCAR')} CHGCAR\n"
     setup = "\n".join(config.setup_commands).replace("\r\n", "\n")
-    resources = "\n".join(config.sbatch_resource_lines())
+    adapter = get_scheduler(config)
+    header = "\n".join(adapter.header(config))
+    working_directory = "\n".join(adapter.working_directory())
     launch = command
     if stage["metadata"].get("warm_start"):
         launch = f'''(
@@ -516,15 +518,9 @@ cat hybrid.stdout
 cat hybrid.stderr >&2
 python3 restart.py finish "$hybrid_code"
 )'''
-    return f'''#!/bin/bash
-#SBATCH --partition={config.partition}
-#SBATCH --nodes={config.nodes}
-#SBATCH --ntasks={config.tasks}
-#SBATCH --time={config.walltime}
-#SBATCH --output=slurm.out
-#SBATCH --error=slurm.err
-{account}{resources + chr(10) if resources else ''}set -e
-{setup}
+    return f'''{header}
+set -e
+{working_directory + chr(10) if working_directory else ''}{setup}
 {dependency}cat {' '.join(paths)} > POTCAR
 test -s POTCAR
 sha256sum POSCAR INCAR KPOINTS > input_hashes.sha256
@@ -532,7 +528,7 @@ sha256sum POTCAR > potcar_hash.sha256
 grep TITEL POTCAR > potcar_titles.txt
 python3 - <<'PY'
 import json,os,datetime
-json.dump({{"job_id":os.environ.get("SLURM_JOB_ID"),"started_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"tasks":os.environ.get("SLURM_NTASKS")}},open("execution.json","w"))
+json.dump({{"job_id":os.environ.get("{adapter.job_id_environment}"),"started_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"tasks":os.environ.get("{adapter.tasks_environment}")}},open("execution.json","w"))
 PY
 set +e
 {launch}
@@ -574,7 +570,7 @@ def _submit(root, state, config, transport):
             if hashlib.sha256((inputs / name).read_bytes()).hexdigest() != stage["metadata"]["input_sha256"][name]:
                 raise ValueError(f"Prepared {name} changed. Prepare and review a new run before submitting.")
         labels = stage["metadata"]["potcar_labels"]
-        checks = ["command -v sbatch >/dev/null", "command -v squeue >/dev/null", "command -v sacct >/dev/null", "command -v python3 >/dev/null"]
+        checks = ["command -v " + name + " >/dev/null" for name in (*get_scheduler(config).required_commands, "python3")]
         checks += ["test -s " + shlex.quote(config.potcar_root.rstrip("/") + "/" + label + "/POTCAR") for label in labels]
         _command(transport, " && ".join(checks))
         _command(transport, "mkdir -p " + shlex.quote(remote))
@@ -587,7 +583,7 @@ def _submit(root, state, config, transport):
                 raise ValueError("Prepared warm-start inputs changed. Prepare a new run.")
             files.extend(inputs / name for name in RESTART_INPUTS)
             files.append(Path(__file__).with_name("restart.py"))
-        files.append(Path(__file__).with_name("dispatch.py"))
+        files.extend(Path(__file__).with_name(name) for name in ("dispatch.py", "scheduler.py"))
         if hasattr(transport, "upload_many"):
             transport.upload_many(files, remote)
         else:
@@ -597,22 +593,34 @@ def _submit(root, state, config, transport):
         _save(root, state, f"Uploaded {stage['name']} inputs")
     # Remote program owns the durable intent/receipt under a file lock. Replaying
     # this call after a lost SSH response returns/reconciles the same job.
-    result = _command(transport, f"python3 {shlex.quote(remote + '/dispatch.py')} {shlex.quote(remote)} {shlex.quote(stage['job_name'])}", timeout=100)
+    result = _command(transport, f"python3 {shlex.quote(remote + '/dispatch.py')} {shlex.quote(remote)} {shlex.quote(stage['job_name'])}{_scheduler_flag(config)}", timeout=100)
     receipt = json.loads(result.splitlines()[-1])
-    if not str(receipt["job_id"]).isdigit():
-        raise ValueError("Invalid Slurm job identity")
+    if receipt.get("job_name") != stage["job_name"] or not get_scheduler(config).valid_job_id(str(receipt["job_id"])):
+        raise ValueError("Invalid scheduler job identity")
     stage["job_id"] = str(receipt["job_id"])
     stage["status"] = state["status"] = "queued"
     state["last_error"] = None
     state["remote_failures"] = 0
     stage["submitted_at"] = utc_now()
-    return _save(root, state, f"Slurm accepted job {stage['job_id']}")
+    return _save(root, state, f"{config.scheduler.upper()} accepted job {stage['job_id']}")
 
 
-def _poll(transport, stage):
-    job = stage["job_id"]
-    if not str(job).isdigit():
+def _scheduler_flag(config):
+    return " --scheduler pbs" if config.scheduler == "pbs" else ""
+
+
+def _poll(transport, stage, config=None):
+    adapter = get_scheduler(config or "slurm")
+    job = str(stage["job_id"])
+    if not adapter.valid_job_id(job):
         raise ValueError("Invalid persisted job identity")
+    if adapter.name == "pbs":
+        result = transport.run(shell_command(adapter.status_command(job)))
+        if result.returncode:
+            if "Unknown Job Id" in result.stderr or "Unknown Job Id" in result.stdout:
+                return "UNKNOWN"
+            raise TransportError(result.stderr or result.stdout or "PBS status query failed")
+        return adapter.parse_status(result.stdout, job)
     try:
         live = _command(transport, f"squeue -h -j {job} -o '%T'")
     except TransportError as exc:
@@ -753,7 +761,7 @@ def _collect(root, state, transport, stage):
         reasons.append("Input checksums are missing or do not match the approved local inputs")
     if stage.get("scheduler_state") != "COMPLETED":
         result["success"] = False
-        reasons.append(f"Slurm ended in {stage.get('scheduler_state')}; any structure is partial")
+        reasons.append(f"Scheduler ended in {stage.get('scheduler_state')}; any structure is partial")
     if not result.get("success"):
         result["parser_reason"] = parser_reason
         diagnostic = _failure_diagnostic(output, stage.get("scheduler_state"))
@@ -791,17 +799,23 @@ def _collect(root, state, transport, stage):
     return _save(root, state, f"Collected {stage['name']}: {result.get('reason', stage['status'])}")
 
 
-def advance(run_dir, transport=None):
+def advance(run_dir, transport=None, *, poll_only=False):
+    if read_state(run_dir).get("engine") in {"python", "wannier90"}:
+        from .script_workflow import advance as advance_script
+        return advance_script(run_dir, transport=transport, poll_only=poll_only)
     if read_state(run_dir).get("workflow") == "pairing":
         from .qe_pairing_workflow import advance as advance_pairing
-        return advance_pairing(run_dir, transport=transport)
+        return advance_pairing(run_dir, transport=transport, poll_only=poll_only)
     if read_state(run_dir).get("engine") == "qe":
         from .qe_workflow import advance as advance_qe
-        return advance_qe(run_dir, transport=transport)
+        return advance_qe(run_dir, transport=transport, poll_only=poll_only)
     root = Path(run_dir).expanduser().resolve()
     with _lock(root):
         state = read_state(root)
         if state["status"] in TERMINAL:
+            return state
+        stage = state["stages"][state["current_stage"]]
+        if poll_only and (not stage.get("job_id") or stage["status"] in {"planned", "submitting"}):
             return state
         config = ClusterConfig.load(root / "config.json")
         owned = transport is None
@@ -811,11 +825,11 @@ def advance(run_dir, transport=None):
             _check_config(root, state)
             if stage["status"] in {"planned", "submitting"} and not state["cancel_requested"]:
                 return _submit(root, state, config, transport)
-            scheduler = _poll(transport, stage)
+            scheduler = _poll(transport, stage, config)
             stage["scheduler_state"] = scheduler
             state["last_error"] = None
             if state["cancel_requested"] and scheduler not in SLURM_TERMINAL:
-                cancellation = transport.run("scancel " + stage["job_id"])
+                cancellation = transport.run(shell_command(get_scheduler(config).cancel_command(stage["job_id"])))
                 if cancellation.returncode:
                     # Jobs can leave the live queue between poll and scancel.
                     # Keep the request and reconcile accounting next tick.
@@ -823,13 +837,13 @@ def advance(run_dir, transport=None):
                     state["cancel_failures"] = state.get("cancel_failures", 0) + 1
                     if state["cancel_failures"] >= MAX_REMOTE_FAILURES:
                         state["status"] = "needs_attention"
-                        return _save(root, state, "Slurm has not confirmed cancellation. The original job details have been saved.")
+                        return _save(root, state, "The scheduler has not confirmed cancellation. The original job details have been saved.")
                 else:
                     state["cancel_failures"] = 0
             if scheduler == "CANCELLED":
                 stage["status"] = state["status"] = "cancelled"
                 state["remote_failures"] = 0
-                return _save(root, state, "Slurm confirmed cancellation")
+                return _save(root, state, "The scheduler confirmed cancellation")
             if scheduler in SLURM_TERMINAL:
                 stage["status"] = state["status"] = "collecting"
                 _save(root, state)
@@ -837,7 +851,7 @@ def advance(run_dir, transport=None):
                 result["remote_failures"] = 0
                 return _save(root, result)
             if scheduler == "UNKNOWN":
-                state["last_error"] = "Waiting for Slurm/accounting to report this job; no resubmission performed"
+                state["last_error"] = "Waiting for scheduler/accounting to report this job; no resubmission performed"
             else:
                 stage["status"] = state["status"] = "queued" if scheduler == "PENDING" else "running"
             state["remote_failures"] = 0
@@ -864,6 +878,9 @@ def resume(run_dir, transport=None):
 
     Unconverged output can be recollected; changed settings require a new run.
     """
+    if read_state(run_dir).get("engine") in {"python", "wannier90"}:
+        from .script_workflow import resume as resume_script
+        return resume_script(run_dir, transport=transport)
     if read_state(run_dir).get("workflow") == "pairing":
         from .qe_pairing_workflow import resume as resume_pairing
         return resume_pairing(run_dir, transport=transport)
@@ -885,9 +902,10 @@ def resume(run_dir, transport=None):
                 remote = state["remote_root"] + "/" + stage["folder"]
                 script = remote + "/reconcile.py"
                 transport.upload(Path(__file__).with_name("dispatch.py"), script)
-                reply = _command(transport, f"python3 {shlex.quote(script)} {shlex.quote(remote)} {shlex.quote(stage['job_name'])} --reconcile-only", timeout=100)
+                transport.upload(Path(__file__).with_name("scheduler.py"), remote + "/scheduler.py")
+                reply = _command(transport, f"python3 {shlex.quote(script)} {shlex.quote(remote)} {shlex.quote(stage['job_name'])} --reconcile-only{_scheduler_flag(config)}", timeout=100)
                 receipt = json.loads(reply.splitlines()[-1])
-                if not str(receipt["job_id"]).isdigit():
+                if receipt.get("job_name") != stage["job_name"] or not get_scheduler(config).valid_job_id(str(receipt["job_id"])):
                     raise ValueError("Invalid reconciled job identity")
                 stage["job_id"] = str(receipt["job_id"])
             if stage.get("job_id"):
@@ -910,6 +928,9 @@ def resume(run_dir, transport=None):
 
 
 def cancel(run_dir, transport=None):
+    if read_state(run_dir).get("engine") in {"python", "wannier90"}:
+        from .script_workflow import cancel as cancel_script
+        return cancel_script(run_dir, transport=transport)
     if read_state(run_dir).get("workflow") == "pairing":
         from .qe_pairing_workflow import cancel as cancel_pairing
         return cancel_pairing(run_dir, transport=transport)
@@ -938,6 +959,10 @@ def cancel(run_dir, transport=None):
 
 
 def watch(run_dir, interval=20):
+    if read_state(run_dir).get("engine") in {"python", "wannier90"}:
+        from .script_workflow import watch as watch_script
+        return watch_script(run_dir, interval=interval)
+    worker_password = os.environ.pop("_DFT_AGENT_WORKER_PASSWORD", None)
     root = Path(run_dir).expanduser().resolve()
     if not has_config(root):
         raise ValueError("This run has no cluster settings yet. Save Cluster setup and attach it before submitting.")
@@ -949,7 +974,7 @@ def watch(run_dir, interval=20):
         transport = None
         try:
             _write(root / "worker.json", {"pid": os.getpid(), "started_at": utc_now()})
-            transport = SSHTransport(ClusterConfig.load(root / "config.json"))
+            transport = SSHTransport(ClusterConfig.load(root / "config.json"), password=worker_password)
             while True:
                 state = advance(root, transport)
                 if state["status"] in TERMINAL:
@@ -979,11 +1004,15 @@ def start_worker(run_dir):
     root = Path(run_dir).expanduser().resolve()
     # Worker lock, rather than an unverified PID file, owns singleton execution.
     with (root / "worker.log").open("ab") as stream:
-        child = subprocess.Popen(cli_command("watch", root), stdin=subprocess.DEVNULL, stdout=stream, stderr=stream, start_new_session=True)
+        child = subprocess.Popen(cli_command("watch", root), stdin=subprocess.DEVNULL, stdout=stream, stderr=stream,
+                                 start_new_session=True, env=worker_environment(ClusterConfig.load(root / "config.json")))
     return child.pid
 
 
 def bundle_run(run_dir):
+    if read_state(run_dir).get("engine") in {"python", "wannier90"}:
+        from .script_workflow import bundle_run as bundle_script
+        return bundle_script(run_dir)
     if read_state(run_dir).get("workflow") == "pairing":
         from .qe_pairing_workflow import bundle_run as bundle_pairing
         return bundle_pairing(run_dir)
@@ -1000,6 +1029,8 @@ def bundle_run(run_dir):
             archive.write(root / "parent.json", "parent.json")
         if (root / "explanations.json").is_file():
             archive.write(root / "explanations.json", "explanations.json")
+        if (root / "conversation.json").is_file() and not (root / "conversation.json").is_symlink():
+            archive.write(root / "conversation.json", "conversation.json")
         if (root / "repair.json").is_file():
             archive.write(root / "repair.json", "repair.json")
         if (root / "structure_edit").is_dir():

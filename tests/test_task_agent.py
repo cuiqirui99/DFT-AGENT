@@ -155,3 +155,12 @@ def test_source_guidance_reaches_task_model(setup, monkeypatch):
     assert payloads[0]["scientific_context"]["knowledge"]
     assert plan["scientific_report"]["action_checks"]
     assert any(item["id"] == "hybrid" for item in plan["scientific_report"]["evidence"])
+
+
+def test_workflow_actions_are_not_scientific_stage_identifiers():
+    from vasp_slurm_agent import agent, task_agent
+    schema = task_agent._schema()['properties']['intent']
+    agent._check_schema({'requested_tasks':['relax'], 'forbidden_tasks':['bands'], 'unsupported':[]}, schema)
+    for phrase in ('draft inputs without submission', 'submission', 'magnetism'):
+        with pytest.raises(agent.AgentError):
+            agent._check_schema({'requested_tasks':['relax',phrase], 'forbidden_tasks':[], 'unsupported':[]}, schema)

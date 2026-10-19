@@ -22,7 +22,7 @@ import zipfile
 from . import workflow
 from .config import ClusterConfig
 from .explanation import load_run_context
-from .transport import SSHTransport
+from .transport import SSHTransport, worker_environment
 
 
 def read_batch(batch_dir):
@@ -318,6 +318,7 @@ def _summarize_batch(root):
 
 
 def watch_batch(batch_dir, interval=20, transport=None):
+    worker_password = os.environ.pop("_DFT_AGENT_WORKER_PASSWORD", None)
     root = Path(batch_dir).expanduser().resolve()
     if not (root / "config.json").is_file():
         raise ValueError("This batch has no cluster settings yet. Save Cluster setup and attach it before submitting.")
@@ -329,7 +330,7 @@ def watch_batch(batch_dir, interval=20, transport=None):
         owned = transport is None
         try:
             _children(root, read_batch(root))
-            transport = transport or SSHTransport(ClusterConfig.load(root / "config.json"))
+            transport = transport or SSHTransport(ClusterConfig.load(root / "config.json"), password=worker_password)
             workflow._write(root / "worker.json", {"pid": os.getpid(), "started_at": workflow.utc_now()})
             while True:
                 state = advance_batch(root, transport)
@@ -351,7 +352,8 @@ def start_batch_worker(batch_dir):
     root = Path(batch_dir).expanduser().resolve()
     with (root / "worker.log").open("ab") as stream:
         child = subprocess.Popen(cli_command("watch-batch", root),
-                                 stdin=subprocess.DEVNULL, stdout=stream, stderr=stream, start_new_session=True)
+                                 stdin=subprocess.DEVNULL, stdout=stream, stderr=stream, start_new_session=True,
+                                 env=worker_environment(ClusterConfig.load(root / "config.json")))
     return child.pid
 
 
@@ -362,8 +364,8 @@ def bundle_batch(batch_dir):
     with zipfile.ZipFile(target.with_suffix(".tmp"), "w", zipfile.ZIP_DEFLATED) as archive:
         for name in ("batch.json", "batch-plan.json", "summary.json", "summary.csv"):
             archive.write(root / name, name)
-        for name in ("proposal.json", "parent.json"):
-            if (root / name).is_file():
+        for name in ("proposal.json", "parent.json", "conversation.json"):
+            if (root / name).is_file() and not (root / name).is_symlink():
                 archive.write(root / name, name)
         for name in ("source", "structure_edit"):
             for path in sorted((root / name).rglob("*")):

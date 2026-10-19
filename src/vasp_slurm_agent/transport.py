@@ -5,10 +5,13 @@ Uses OpenSSH on Unix and Paramiko on Windows. Passwords never enter files or arg
 
 from __future__ import annotations
 
+from contextlib import contextmanager
+from contextvars import ContextVar
 import hashlib
 import json
 import os
 import platform
+import re
 import shlex
 import signal
 import subprocess
@@ -25,16 +28,149 @@ class TransportError(RuntimeError):
     """An SSH operation or verified file transfer could not be completed."""
 
 
+class AuthenticationError(TransportError):
+    """The server rejected every offered key, agent identity or password."""
+
+    def __init__(self, message: str, methods: tuple[str, ...] = ()):
+        super().__init__(message)
+        self.methods = tuple(methods)
+
+
+class VerificationRequired(TransportError):
+    """The server asked for a login code or another answer the app did not have."""
+
+    def __init__(self, message: str, prompt: str = ""):
+        super().__init__(message)
+        self.prompt = prompt
+
+
+class HostKeyError(TransportError):
+    """The server's host key does not match the saved one."""
+
+
+class ConnectionFailed(TransportError):
+    """The host could not be reached before authentication started."""
+
+
+# How long an interactively authenticated master connection stays open after
+# its last use. Clusters that require a login code are only asked again after
+# this period of inactivity.
+LOGIN_PERSIST_SECONDS = 8 * 60 * 60
+
+_CODE_PROMPT = re.compile(r"verif|one[- ]?time|\botp\b|token|authentication[- ]code|authenticator|2fa|two[- ]factor|\bcode\b|passcode|duo|"
+                          r"验证|动态|令牌|口令卡|短信", re.I)
+_PASSWORD_PROMPT = re.compile(r"password|passphrase|passwd|密码|口令|密碼", re.I)
+_PERMISSION_DENIED = re.compile(r"Permission denied(?:, please try again)?\.?\s*(?:\(([^)]*)\))?", re.I)
+
+
+def classify_prompt(prompt: str) -> str:
+    """Name the kind of answer an SSH prompt asks for: code, password or other."""
+    text = prompt or ""
+    if _CODE_PROMPT.search(text):
+        return "code"
+    if _PASSWORD_PROMPT.search(text):
+        return "password"
+    return "other"
+
+
+def askpass_main(argv: list[str] | None = None, environ: dict | None = None, stdout=None) -> int:
+    """Answer one OpenSSH prompt from private environment variables.
+
+    A password is only given to a password prompt and a login code only to a
+    code prompt. Any other prompt is recorded for the parent process, which
+    then asks the user instead of guessing.
+    """
+    argv = sys.argv if argv is None else argv
+    environ = os.environ if environ is None else environ
+    stdout = sys.stdout if stdout is None else stdout
+    prompt = argv[1] if len(argv) > 1 else ""
+    # OpenSSH always passes the prompt; a bare call is treated as a password request.
+    kind = classify_prompt(prompt) if prompt else "password"
+    answer = {"password": environ.get("_DFT_AGENT_ASKPASS_PASSWORD", ""),
+              "code": environ.get("_DFT_AGENT_ASKPASS_CODE", "")}.get(kind, "")
+    if answer:
+        stdout.write(answer + "\n")
+        stdout.flush()
+        return 0
+    record = environ.get("_DFT_AGENT_ASKPASS_PROMPT_FILE", "")
+    if record:
+        try:
+            with open(record, "w", encoding="utf-8") as stream:
+                stream.write(json.dumps({"kind": kind, "prompt": prompt[:500]}))
+        except OSError:
+            pass
+    return 1
+
+
+def classify_failure(result: "Result") -> TransportError | None:
+    """Turn a failed SSH result into a typed error, or None for ordinary command failures."""
+    if result.returncode == 0:
+        return None
+    if result.prompt:
+        kind = classify_prompt(result.prompt)
+        if kind == "code":
+            return VerificationRequired("The cluster asks for a login code before it accepts the connection.", result.prompt)
+        if kind == "password":
+            return AuthenticationError("SSH authentication failed. The cluster asks for a password.", ("password",))
+        return VerificationRequired("The cluster asked a question the app could not answer.", result.prompt)
+    text = result.stderr or ""
+    if re.search(r"REMOTE HOST IDENTIFICATION HAS CHANGED|Host key verification failed", text):
+        return HostKeyError("The cluster's SSH host key changed. Verify it with your cluster administrator.")
+    denied = list(_PERMISSION_DENIED.finditer(text))
+    if denied:
+        # The last line names the methods the server still accepts.
+        listed = next((match.group(1) for match in reversed(denied) if match.group(1)), "")
+        methods = tuple(item.strip() for item in listed.split(",") if item.strip())
+        return AuthenticationError("SSH authentication failed. The cluster rejected the offered sign-in.", methods)
+    if re.search(r"Could not resolve hostname|Connection refused|Connection timed out|Operation timed out|"
+                 r"Network is unreachable|No route to host|Connection closed by|Connection reset|"
+                 r"Name or service not known|nodename nor servname|timed out", text, re.I):
+        return ConnectionFailed("The cluster could not be reached. Check the address, VPN and network.")
+    if result.returncode == 255:
+        return TransportError("SSH did not complete: " + text.strip()[-500:])
+    return None
+
+
+_PASSWORD = ContextVar("dft_ssh_password", default="")
+
+
+@contextmanager
+def password_context(password):
+    """Scope an explicitly supplied legacy password to this task/thread."""
+    token = _PASSWORD.set(password or "")
+    try:
+        yield
+    finally:
+        _PASSWORD.reset(token)
+
+
+def current_password():
+    return _PASSWORD.get()
+
+
+def worker_environment(config):
+    """Pass a scoped legacy credential only to its detached worker child."""
+    environment = os.environ.copy()
+    for name in ("DFT_AGENT_SSH_PASSWORD", "_DFT_AGENT_WORKER_PASSWORD", "_DFT_AGENT_ASKPASS_PASSWORD",
+                 "_DFT_AGENT_ASKPASS_CODE", "_DFT_AGENT_ASKPASS_PROMPT_FILE"):
+        environment.pop(name, None)
+    if not getattr(config, "connection_id", "") and current_password():
+        environment["_DFT_AGENT_WORKER_PASSWORD"] = current_password()
+    return environment
+
+
 @dataclass(frozen=True)
 class Result:
     returncode: int
     stdout: str = ""
     stderr: str = ""
+    # The last unanswered SSH prompt, for example a login-code request.
+    prompt: str = ""
 
 
 _META_PREFIX = "__DFT_AGENT_FILE_META__"
 _BULK_META_PREFIX = "__DFT_AGENT_BULK_META__"
-UPLOAD_ALLOWLIST = frozenset({"POSCAR", "INCAR", "KPOINTS", "submit.sh", "dispatch.py", "restart.py",
+UPLOAD_ALLOWLIST = frozenset({"POSCAR", "INCAR", "KPOINTS", "submit.sh", "dispatch.py", "scheduler.py", "restart.py",
                               "seed.INCAR", "seed.metadata.json", "warm_start.spec.json"})
 DOWNLOAD_ALLOWLIST = frozenset({
     "INCAR", "KPOINTS", "POSCAR", "OUTCAR", "OSZICAR", "vasprun.xml", "CONTCAR",
@@ -178,11 +314,19 @@ class SSHTransport:
     Close the private SSH master after use. Legacy SCP uses quoted absolute paths.
     """
 
-    def __init__(self, config: Any, password: str | None = None):
+    def __init__(self, config: Any, password: str | None = None, *, code: str = "", master: bool = False):
+        """`code` answers one login-code prompt. `master` opens or refreshes the
+        connection's own persistent multiplexing socket instead of a private one,
+        so later commands and detached workers reuse the authenticated session."""
         self.config = config
-        self._password = (
-            os.environ.get("DFT_AGENT_SSH_PASSWORD", "") if password is None else password
-        )
+        self._password = current_password() if password is None else password
+        self._code = code or ""
+        self._master = bool(master)
+        self._connection_registry = None
+        if getattr(config, "connection_id", ""):
+            from .connections import ConnectionRegistry
+            self._connection_registry = ConnectionRegistry(getattr(config, "connection_home", "") or None)
+            self._check_connection()
         self._closed = False
         self._host = str(config.host)
         self._user = str(config.user)
@@ -200,22 +344,37 @@ class SSHTransport:
         external_control = getattr(config, "ssh_control_path", "")
         if self._windows and external_control:
             raise TransportError("SSH control sockets are not used on Windows. Clear the SSH control socket setting.")
+        if self._master and not external_control and not self._windows:
+            raise TransportError("A persistent sign-in needs the connection's SSH control socket path.")
+        if self._master and not self._windows:
+            parent = Path(external_control).expanduser().parent
+            if not parent.exists():
+                parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         self._native = None
         if self._windows:
-            from .windows_ssh import WindowsSSH
-            self._native = WindowsSSH(config, self._password)
+            reusable = (self._connection_registry is not None
+                        and self._connection_registry.get(config.connection_id)["settings"]["auth_mode"] == "code")
+            if reusable:
+                from .ssh_broker import BrokerSSH
+                self._native = BrokerSSH(config, self._password, code=self._code, master=self._master)
+            else:
+                from .windows_ssh import WindowsSSH
+                self._native = WindowsSSH(config, self._password, code=self._code)
         # macOS's normal temporary directory can exceed Unix socket path limits.
         temp_parent = "/tmp" if not self._windows and Path("/tmp").is_dir() else None
         self._temporary = tempfile.TemporaryDirectory(prefix="dft-ssh-", dir=temp_parent)
-        self._external_control = bool(external_control)
+        # A master transport owns the shared socket for this sign-in; other
+        # transports only attach to it and never open or close it.
+        self._external_control = bool(external_control) and not self._master
         self._control_path = str(Path(external_control).expanduser()) if external_control else str(Path(self._temporary.name) / "socket")
         self._askpass_path = Path(self._temporary.name) / "askpass"
-        if self._password and not self._windows:
+        self._prompt_path = Path(self._temporary.name) / "prompt"
+        if not self._windows:
             # Use a shell wrapper so Python paths containing spaces also work.
-            code = "import os, sys; sys.stdout.write(os.environ['_DFT_AGENT_ASKPASS_PASSWORD'] + '\\n')"
+            code = "import sys; from vasp_slurm_agent.transport import askpass_main; sys.exit(askpass_main())"
             arguments = [sys.executable, "--askpass"] if getattr(sys, "frozen", False) else [sys.executable, "-c", code]
             self._askpass_path.write_text(
-                "#!/bin/sh\nexec " + shlex.join(arguments) + "\n",
+                "#!/bin/sh\nexec " + shlex.join(arguments) + ' "$@"\n',
                 encoding="utf-8", newline="\n",
             )
             self._askpass_path.chmod(0o700)
@@ -225,19 +384,47 @@ class SSHTransport:
         if any(character.isspace() or character in "\\\"'" for character in control_path):
             # OpenSSH parses -o values as config text, even in a single argv item.
             control_path = '"' + control_path.replace("\\", "\\\\").replace('"', '\\"') + '"'
+        if self._external_control:
+            control = ["ControlMaster=no", "ControlPersist=no"]
+        elif self._master:
+            control = ["ControlMaster=auto", f"ControlPersist={LOGIN_PERSIST_SECONDS}"]
+        else:
+            control = ["ControlMaster=auto", "ControlPersist=60"]
         options = [
             "StrictHostKeyChecking=accept-new",
             f"ConnectTimeout={max(1, int(getattr(self.config, 'connect_timeout', 15)))}",
             "ServerAliveInterval=30",
             "ServerAliveCountMax=3",
-            "ControlMaster=no" if self._external_control else "ControlMaster=auto",
-            "ControlPersist=no" if self._external_control else "ControlPersist=60",
+            *control,
             f"ControlPath={control_path}",
             "LogLevel=ERROR",
             "NumberOfPasswordPrompts=1",
-            f"BatchMode={'no' if self._password else 'yes'}",
+            f"BatchMode={'no' if self._password or self._code else 'yes'}",
         ]
+        if getattr(self.config, "ssh_jump_host", ""):
+            options.append("ProxyJump=" + self.config.ssh_jump_host)
+        if getattr(self.config, "ssh_identity_file", ""):
+            identity = self.config.ssh_identity_file.replace("\\", "\\\\").replace('"', '\\"')
+            options.extend(['IdentityFile="' + identity + '"', "IdentitiesOnly=yes"])
         return [arg for option in options for arg in ("-o", option)]
+
+    def _check_connection(self):
+        if self._connection_registry is None:
+            return
+        try:
+            identifier = self.config.connection_id
+            password = self._connection_registry.ssh_password(identifier)
+            settings = self._connection_registry.get(identifier)["settings"]
+            fields = {"host": "host", "user": "user", "port": "port", "jump_host": "ssh_jump_host",
+                      "identity_file": "ssh_identity_file", "ssh_control_path": "ssh_control_path"}
+            if any(settings.get(key, "") != getattr(self.config, field, "") for key, field in fields.items()):
+                raise ValueError("The connection settings changed. Reconnect with its current settings.")
+            self._password = password
+            if getattr(self, "_native", None) is not None:
+                self._native._password = password
+        except Exception:
+            # Do not include keychain/provider exception bodies in run logs.
+            raise TransportError("The saved HPC connection is unavailable, changed or revoked. Reconnect before continuing.") from None
 
     def _ssh(self) -> list[str]:
         # -l is necessary when the gateway user itself contains an @ character.
@@ -247,21 +434,32 @@ class SSHTransport:
         if isinstance(value, bytes):
             value = value.decode("utf-8", errors="replace")
         text = value or ""
-        return text.replace(self._password, "[REDACTED]") if self._password else text
+        for secret in sorted(filter(None, (self._password, self._code)), key=len, reverse=True):
+            text = text.replace(secret, "[REDACTED]")
+        return text
 
     def _execute(self, argv: list[str], timeout: float) -> Result:
         if self._closed:
             raise TransportError("SSH transport has been closed.")
+        if not getattr(self, "_closing", False):
+            self._check_connection()
         environment = os.environ.copy()
         # Avoid passing the public password variable on to unrelated children.
-        environment.pop("DFT_AGENT_SSH_PASSWORD", None)
-        if self._password:
+        for name in ("DFT_AGENT_SSH_PASSWORD", "_DFT_AGENT_WORKER_PASSWORD", "_DFT_AGENT_ASKPASS_PASSWORD",
+                     "_DFT_AGENT_ASKPASS_CODE", "_DFT_AGENT_ASKPASS_PROMPT_FILE"):
+            environment.pop(name, None)
+        self._prompt_path.unlink(missing_ok=True)
+        if self._password or self._code:
             environment.update(
                 SSH_ASKPASS=str(self._askpass_path),
                 SSH_ASKPASS_REQUIRE="force",
                 DISPLAY=environment.get("DISPLAY") or "dft-agent:0",
-                _DFT_AGENT_ASKPASS_PASSWORD=self._password,
+                _DFT_AGENT_ASKPASS_PROMPT_FILE=str(self._prompt_path),
             )
+            if self._password:
+                environment["_DFT_AGENT_ASKPASS_PASSWORD"] = self._password
+            if self._code:
+                environment["_DFT_AGENT_ASKPASS_CODE"] = self._code
         try:
             result = _run_process(
                 argv,
@@ -283,18 +481,47 @@ class SSHTransport:
             )
         except OSError as exc:
             raise TransportError(self._redact(str(exc))) from None
-        return Result(result.returncode, self._redact(result.stdout), self._redact(result.stderr))
+        return Result(result.returncode, self._redact(result.stdout), self._redact(result.stderr),
+                      self._unanswered_prompt() if result.returncode else "")
+
+    def _unanswered_prompt(self) -> str:
+        try:
+            record = json.loads(self._prompt_path.read_text(encoding="utf-8"))
+            return self._redact(str(record.get("prompt", "")))[:500]
+        except (OSError, ValueError, AttributeError):
+            return ""
+        finally:
+            self._prompt_path.unlink(missing_ok=True)
+
+    def verify(self, timeout: float = 45) -> Result:
+        """Authenticate and run a trivial command, raising a typed error on failure.
+
+        With `master=True` this leaves the connection's persistent socket open,
+        so a password or login code entered once serves later operations.
+        """
+        result = self.run("true", timeout=timeout)
+        error = classify_failure(result)
+        if error is not None:
+            raise error
+        if result.returncode:
+            raise TransportError("The cluster shell did not run a trivial command: " + (result.stderr or "").strip()[-300:])
+        return result
 
     def run(self, command: str, timeout: float = 60) -> Result:
         """Run a remote shell command, preserving complete stdout and stderr."""
         if self._closed:
             raise TransportError("SSH transport has been closed.")
+        self._check_connection()
         if self._native is not None:
             try:
                 result = self._native.run("bash -lc " + shlex.quote(command), timeout)
                 return Result(result.returncode, self._redact(result.stdout), self._redact(result.stderr))
+            except VerificationRequired as exc:
+                raise VerificationRequired(self._redact(str(exc)), self._redact(exc.prompt)) from None
+            except AuthenticationError as exc:
+                raise AuthenticationError(self._redact(str(exc)), exc.methods) from None
             except TransportError as exc:
-                raise TransportError(self._redact(str(exc))) from None
+                raise type(exc)(self._redact(str(exc))) from None
         return self._execute(
             [*self._ssh(), "--", self._host, "bash -lc " + shlex.quote(command)], timeout
         )
@@ -355,12 +582,14 @@ class SSHTransport:
         )
 
     def _upload_file(self, source: Path, destination: str) -> Result:
+        self._check_connection()
         if self._native is not None:
             self._native.transfer(str(source), destination, upload=True)
             return Result(0)
         return self._scp(str(source), self._remote_operand(destination))
 
     def _download_file(self, source: str, destination: Path) -> Result:
+        self._check_connection()
         if self._native is not None:
             self._native.transfer(str(destination), source, upload=False)
             return Result(0)
@@ -599,16 +828,18 @@ class SSHTransport:
     def close(self) -> None:
         if self._closed:
             return
+        self._closing = True
         try:
             if self._native is not None:
                 self._native.close()
-            elif not self._external_control and Path(self._control_path).exists():
+            elif not self._external_control and not self._master and Path(self._control_path).exists():
                 self._execute([*self._ssh(), "-O", "exit", "--", self._host], timeout=5)
         except TransportError:
             pass
         finally:
             self._closed = True
             self._password = ""
+            self._code = ""
             self._temporary.cleanup()
 
     def __enter__(self) -> SSHTransport:

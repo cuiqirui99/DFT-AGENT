@@ -12,6 +12,7 @@ import pytest
 
 from vasp_slurm_agent import qe_pairing_workflow as workflow
 from vasp_slurm_agent.config import ClusterConfig
+from vasp_slurm_agent.scheduler import get_scheduler
 from vasp_slurm_agent.transport import Result
 
 
@@ -41,16 +42,18 @@ class Transport:
         if words[:2] == ["python3", "-c"]:
             return Result(0, json.dumps([p.name for p in self.remote.iterdir() if p.is_file()]))
         if command.startswith("python3 ") and "/dispatch.py" in command:
-            name = words[-2] if "--reconcile-only" in words else words[-1]
+            name = words[3]
             if "--reconcile-only" in words and name not in self.jobs:
                 return Result(1, "", "No recorded submission")
-            self.jobs.setdefault(name, "8001")
+            self.jobs.setdefault(name, "8001.pbs.example" if "--scheduler pbs" in command else "8001")
             receipt = {"job_id": self.jobs[name], "job_name": name}
             (self.remote/"job.json").write_text(json.dumps(receipt))
             if self.lose_reply:
                 self.lose_reply = False
                 return Result(255, "", "outcome uncertain")
             return Result(0, json.dumps(receipt))
+        if command.startswith("qstat "):
+            return Result(0, json.dumps({"Jobs": {"8001.pbs.example": {"job_state": "Q" if self.queue else "F", "Exit_status": 0}}}))
         if command.startswith("squeue "):
             return Result(0, self.queue)
         if command.startswith("sacct "):
@@ -78,20 +81,22 @@ class Transport:
         name = next(iter(self.jobs))
         env = dict(os.environ, SLURM_JOB_ID="8001", SLURM_JOB_NAME=name,
                    OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
+        if self.jobs[name].endswith(".pbs.example"):
+            env.update(PBS_JOBID=self.jobs[name], PBS_JOBNAME=get_scheduler("pbs").job_name(name))
         result = subprocess.run([sys.executable, "execute.py"], cwd=self.remote, env=env, capture_output=True, text=True)
         assert result.returncode == 0, result.stderr
         self.queue, self.accounting = "", "COMPLETED"
 
 
 @pytest.fixture
-def prepared(tmp_path):
+def prepared(tmp_path, request):
     hr = tmp_path/"model_hr.dat"
     hr.write_text("Example model\n1\n3\n1 1 1\n0 0 0 1 1 0 0\n1 0 0 1 1 -1 0\n-1 0 0 1 1 -1 0\n")
     parameters = {"lattice_angstrom": [[1,0,0],[0,1,0],[0,0,1]], "orbital": "s",
                   "spin_convention": "spin_degenerate_no_soc", "u_ev": 1., "mu_ev": 0.,
                   "temperature_k": 11604.518121550322, "kmesh": [8,1,1], "matsubara_points": 32,
                   "channels": ["singlet", "triplet"], "double_counting": "Model only"}
-    config = ClusterConfig(engine="qe", host="cluster.invalid", user="user", remote_root="/scratch/test",
+    config = ClusterConfig(engine="qe", scheduler=getattr(request, "param", "slurm"), host="cluster.invalid", user="user", remote_root="/scratch/test",
                            partition="cpu", tasks=1, qe_pseudo_root="/unused")
     root = tmp_path/"run"
     state = workflow.prepare_run(hr, root, config, parameters, python_executable="python3", origin="model")
@@ -190,3 +195,13 @@ def test_scheduler_success_is_required(prepared):
     transport.accounting = "FAILED"
     assert workflow.advance(root, transport)["status"] == "needs_attention"
     assert workflow.load_run_context(root)["facts"]["run.accepted_stages"]["value"] == 0
+
+
+@pytest.mark.parametrize("prepared", ["pbs"], indirect=True)
+def test_pbs_pairing_native_payload_and_verified_model_context(prepared):
+    root, transport, state = complete(prepared)
+    assert state["stages"][0]["job_id"] == "8001.pbs.example"
+    context = workflow.load_run_context(root)
+    assert context["facts"]["run.accepted_stages"]["value"] == 1
+    assert context["facts"]["stage_1.material_prediction_accepted"]["value"] is False
+    assert all(not command.startswith(("squeue ", "sacct ")) for command in transport.commands)

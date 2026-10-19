@@ -34,8 +34,29 @@ class ClusterConfig:
     qe_bin_dir: str = ""
     qe_pseudo_root: str = ""
     qe_pseudopotentials: dict = field(default_factory=dict)
+    scheduler: str = "slurm"
+    extra_pbs: list[str] = field(default_factory=list)
+    ssh_jump_host: str = ""
+    ssh_identity_file: str = ""
+    connection_id: str = ""
+    connection_home: str = ""
 
     def __post_init__(self):
+        from .scheduler import get_scheduler
+        get_scheduler(self.scheduler)
+        for key in ("ssh_identity_file", "connection_home"):
+            value = getattr(self, key)
+            if not isinstance(value, str) or re.search(r"[\x00-\x1f\x7f]", value):
+                raise ValueError(f"Use an absolute path for {key}.")
+            if value:
+                path = Path(value).expanduser()
+                if not path.is_absolute():
+                    raise ValueError(f"Use an absolute path for {key}.")
+                object.__setattr__(self, key, str(path))
+        if not isinstance(self.connection_id, str) or (self.connection_id and not re.fullmatch(r"[A-Za-z0-9_-]+", self.connection_id)):
+            raise ValueError("Invalid connection identity.")
+        if not isinstance(self.ssh_jump_host, str) or (self.ssh_jump_host and not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.@:,\[\]-]*", self.ssh_jump_host)):
+            raise ValueError("Use an SSH jump host or user@host:port.")
         if self.engine not in {"vasp", "qe"}:
             raise ValueError("Choose vasp or qe for engine.")
         if not isinstance(self.vaspkit_executable, str) or not self.vaspkit_executable.strip() or any(c in self.vaspkit_executable for c in "\n\r\x00"):
@@ -58,7 +79,7 @@ class ClusterConfig:
         for key in ("partition", "account"):
             value = getattr(self, key)
             if (key == "partition" and not value) or (value and not re.fullmatch(r"[\w.-]+", value)):
-                raise ValueError(f"Enter a valid Slurm {key} using letters, numbers, dots, dashes or underscores.")
+                raise ValueError(f"Enter a valid {key} using letters, numbers, dots, dashes or underscores.")
         if type(self.port) is not int or type(self.tasks) is not int or not 1 <= self.port <= 65535 or not 1 <= self.tasks <= 4096:
             raise ValueError("Use an SSH port from 1 to 65535 and an MPI task count from 1 to 4096.")
         if type(self.nodes) is not int or not 1 <= self.nodes <= self.tasks:
@@ -71,6 +92,14 @@ class ClusterConfig:
         if self.compute_backend == "gpu" and self.tasks != self.nodes * self.gpus_per_node:
             raise ValueError("GPU runs require one MPI task per GPU: tasks = nodes × gpus_per_node.")
         self.sbatch_resource_lines()
+        self.pbs_resource_lines()
+        if self.scheduler == "pbs":
+            if self.compute_backend == "gpu":
+                raise ValueError("GPU execution currently requires Slurm.")
+            if self.extra_sbatch:
+                raise ValueError("Use extra_pbs for PBS resources.")
+        elif self.extra_pbs:
+            raise ValueError("Use extra_sbatch for Slurm resources.")
         if not 1 <= self.connect_timeout <= 120:
             raise ValueError("Set the SSH connection timeout to between 1 and 120 seconds.")
         if not re.fullmatch(r"(?:\d+-)?\d{1,3}:[0-5]\d:[0-5]\d", self.walltime):
@@ -96,6 +125,8 @@ class ClusterConfig:
             raise ValueError("Provide setup_commands as a list of shell commands for your cluster environment.")
         if any(line.lstrip().startswith("#SBATCH") for command in self.setup_commands for line in command.splitlines()):
             raise ValueError("Put #SBATCH options in extra_sbatch, not environment setup commands.")
+        if any(line.lstrip().startswith("#PBS") for command in self.setup_commands for line in command.splitlines()):
+            raise ValueError("Put #PBS options in extra_pbs, not environment setup commands.")
         for symbol, label in self.potcar_symbols.items():
             if not re.fullmatch(r"[A-Z][a-z]?", symbol) or not re.fullmatch(r"[A-Za-z0-9_.+-]+", label):
                 raise ValueError('Map each element to a POTCAR folder name, for example {"Ti": "Ti_pv"}.')
@@ -149,8 +180,30 @@ class ClusterConfig:
             lines.append(f"#SBATCH --cpus-per-task={self.cpus_per_task}")
         return lines
 
+    def pbs_resource_lines(self) -> list[str]:
+        if not isinstance(self.extra_pbs, list):
+            raise ValueError("Provide extra_pbs as a list of PBS resource options.")
+        lines, seen = [], set()
+        for line in self.extra_pbs:
+            if not isinstance(line, str) or re.search(r"[\x00-\x1f\x7f]", line):
+                raise ValueError("Use one PBS resource option per line.")
+            option = line.strip().removeprefix("#PBS").strip()
+            match = re.fullmatch(r"-l +([A-Za-z][A-Za-z0-9_]*)=([A-Za-z0-9_.:+/=-]+)", option)
+            if not match or match[1] in seen or match[1] in {"select", "nodes", "ncpus", "mpiprocs", "ompthreads", "ngpus", "walltime"}:
+                raise ValueError("Use each PBS resource once; set nodes, tasks, CPUs and time in their own fields.")
+            seen.add(match[1])
+            lines.append("#PBS -l " + match[1] + "=" + match[2])
+        return lines
+
     def to_dict(self) -> dict:
-        return asdict(self)
+        value = asdict(self)
+        # New defaults must not invalidate previously frozen Slurm configs.
+        defaults = {"scheduler": "slurm", "extra_pbs": [], "ssh_jump_host": "", "ssh_identity_file": "",
+                    "connection_id": "", "connection_home": ""}
+        for key, default in defaults.items():
+            if value[key] == default:
+                value.pop(key)
+        return value
 
     @classmethod
     def load(cls, path: str | Path) -> "ClusterConfig":
