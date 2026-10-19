@@ -47,8 +47,8 @@ def test_macos_command_quotes_paths_and_keeps_prompts_in_terminal(connection, mo
     assert visible[15:] == ssh_auth.command(registry, record["id"], system="Darwin")
     assert record["settings"]["identity_file"] in visible
     assert "jump@gateway.invalid:2200" in visible
-    control = record["settings"]["ssh_control_path"].replace('"', '\\"')
-    assert f'ControlPath="{control}"' in visible
+    control = next(item.removeprefix("ControlPath=") for item in visible if item.startswith("ControlPath="))
+    assert shlex.split(control) == [record["settings"]["ssh_control_path"]]
     assert "SSH_ASKPASS" not in launched.call_args.kwargs["env"]
     assert "DFT_AGENT_SSH_PASSWORD" not in launched.call_args.kwargs["env"]
     assert "_DFT_AGENT_ASKPASS_CODE" not in launched.call_args.kwargs["env"]
