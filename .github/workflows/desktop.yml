@@ -45,6 +45,11 @@ jobs:
           if ($result.ExitCode -ne 0) { throw 'Fresh installation failed' }
           python packaging/check_installed.py "$target/DFT Agent.exe" evidence/windows
           if ($LASTEXITCODE -ne 0) { throw 'Installed bundle checks failed' }
+          $env:DFT_AGENT_TEST_INSTALLED_EXECUTABLE = "$target/DFT Agent.exe"
+          $env:DFT_AGENT_TEST_BROKER_REPORT = 'evidence/windows/installed-broker.json'
+          python -m pytest -q tests/test_ssh_broker_acceptance.py --junitxml=evidence/windows/installed-broker.xml
+          if ($LASTEXITCODE -ne 0) { throw 'Installed MFA broker checks failed' }
+          Remove-Item Env:DFT_AGENT_TEST_INSTALLED_EXECUTABLE, Env:DFT_AGENT_TEST_BROKER_REPORT
           Get-FileHash $installer.FullName -Algorithm SHA256 | Format-List | Out-File evidence/windows/installer-sha256.txt
       - uses: actions/upload-artifact@v4
         if: always()
