@@ -757,7 +757,7 @@ def test_elk_versions_come_from_modules_and_managed_folders():
 def test_build_elk_checks_the_pinned_archive_and_indexes_it(pinned):
     built = references.build_elk("9.9.9", cache_dir=pinned.cache / "elk")
     assert built == {"engine": "elk", "version": "9.9.9", "records": 9, "examples": 2}
-    payload = json.loads((references.root() / "elk-9.9.9.json").read_text())
+    payload = json.loads((references.root() / "elk-9.9.9.json").read_text(encoding="utf-8"))
     assert payload["sources"][0]["sha256"] == pinned.catalog["elk"]["releases"]["9.9.9"]["sha256"]
     # A changed archive is refused before anything is indexed.
     (pinned.cache / "elk" / "elk-9.9.9.tgz").write_bytes(b"tampered")
@@ -982,7 +982,7 @@ def test_qe_reference_checks_the_configured_binary_and_binding(pinned, monkeypat
 
 def test_build_abinit_checks_each_pinned_file(pinned):
     built = references.build_abinit("9.9.9", cache_dir=pinned.cache / "abinit-docs")
-    payload = json.loads((references.root() / "abinit-9.9.9.json").read_text())
+    payload = json.loads((references.root() / "abinit-9.9.9.json").read_text(encoding="utf-8"))
     assert built == {"engine": "abinit", "version": "9.9.9", "records": len(payload["records"]), "examples": 3}
     assert {record["kind"] for record in payload["records"]} == {"keyword", "guide", "example"}
     assert payload["sources"] == [{"url": "https://raw.invalid/abinit/c0ffee/", "files": 7}]

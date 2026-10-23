@@ -873,3 +873,28 @@ def test_charge_density_cube(crystal, tmp_path):
     assert result["success"] and result["integrated_pseudocharge_electrons"] == 8
     (folder / "charge_density.cube").write_text(cube.rsplit("1 1 1 1 1 1 1 1", 1)[0] + "1 1\n")
     assert not analyze_outputs(folder, "pp")["success"]
+
+
+@pytest.mark.parametrize("unicode_file", ["qe-input.json", "charge_density.cube"])
+def test_utf8_results_under_windows_default_encoding(crystal, tmp_path, monkeypatch, unicode_file):
+    folder = tmp_path / "pp"
+    metadata = prepare_inputs(crystal, folder, "pp", {}, {})
+    (folder / "pp.out").write_text("JOB DONE.\n", encoding="utf-8")
+    title = "原子 density" if unicode_file.endswith(".cube") else "Density"
+    (folder / "charge_density.cube").write_text(
+        title + "\nTest\n2 0 0 0\n2 1 0 0\n2 0 1 0\n2 0 0 1\n"
+        "14 4 0 0 0\n14 4 1 1 1\n1 1 1 1 1 1 1 1\n", encoding="utf-8")
+    if unicode_file.endswith(".json"):
+        metadata["description"] = "原子 density"
+        (folder / unicode_file).write_text(json.dumps(metadata, ensure_ascii=False), encoding="utf-8")
+    original_open = Path.open
+
+    def windows_open(path, mode="r", buffering=-1, encoding=None, errors=None, newline=None):
+        if path.parent == folder and "b" not in mode and encoding in {None, "locale"}:
+            encoding = "cp1252"
+        return original_open(path, mode, buffering, encoding, errors, newline)
+
+    monkeypatch.setattr(Path, "open", windows_open)
+    result = analyze_outputs(folder, "pp")
+    assert result["success"], result["reason"]
+    assert result["integrated_pseudocharge_electrons"] == 8

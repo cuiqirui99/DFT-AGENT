@@ -155,7 +155,7 @@ Without spin–orbit coupling the total spin is conserved; with it, the moment f
 5. ABINIT, CP2K and Elk warnings were not shown in the app or given to the planner.
 6. QE 7.6's ph.x stopped with a segmentation fault in its electron–phonon step with PAW UPFs for aluminium, also on a small mesh, while norm-conserving UPFs ran through. Electron–phonon plans now require norm-conserving UPFs.
 7. www.pseudo-dojo.org did not answer from the laptop or from Arrhenius. The install now names the host and where a verified copy of the archive can go.
-8. pw.x cells are written in the rotated frame described above.
+8. Ordinary pw.x cells use the rotated frame described above; requested Cartesian directions retain the supplied frame.
 9. The VASP hybrid warm start used Python 3.10's `newline` argument and stopped on Arrhenius's Python 3.9. Every script that runs on the cluster is now checked for Python 3.6.
 10. Its PBE seed copied the hybrid's `ISYM = 3`, which VASP 5.4.4 accepts only with exact exchange; the seed now uses `ISYM = 2`.
 11. HSE06 runs set `HFRCUT = -1`. VASP 5.4.4 then truncated the bare Coulomb kernel instead of screening it: silicon came out at 1.97 eV with 4.0 eV at Γ, PBE0's values, 0.75 eV above QE's HSE06 on the same mesh, and GaAs at 2.05 eV. Only PBE0 truncates the kernel now; HSE06 then gave silicon 1.31 eV with 3.34 eV at Γ, and GaAs 1.43 eV, against QE's 1.22 and 1.38 eV on the same meshes.
@@ -216,6 +216,8 @@ QE plans may set native namelist options, which QE rejects only once the job run
 | Nb | 1.08–1.54 | 147–152 K | 11.6–17.7 K | 18–22 K | 3.80 meV at 1 K | 9.25 K |
 
 Aluminium's λ matches the measured 0.43; its Tc is high for μ* = 0.1, as usual for this choice. Niobium's λ depends strongly on the broadening and is above the 1.0–1.2 that converged calculations give, so these meshes overestimate its coupling. Both are functional checks of the chain, not predictions. Aluminium's three acoustic modes at Γ came out of ph.x at −2.5 cm⁻¹ with λ = 0 and reached lambda.x at zero frequency, as recorded in the stage. The first scans, 0.25–2 K and 1–14 K, did not reach an eigenvalue of one; the results said so instead of reporting a Tc.
+
+**Cartesian directions.** Explicit phonon q points, spin directions, fields and directional cell constraints retain the supplied cell frame. A fresh two-turn Codex plan changed the requested Cartesian q point before submission; all five QE stages passed on Arrhenius, and the retained native outputs confirmed the requested direction. Result analysis used verified outputs and submitted no new job.
 
 **Disk use of QE stages.** Each QE stage copied the whole checkpoint of the stage it continues. After ph.x that included its scratch: aluminium's electron–phonon run used 225 GB, of which q2r, matdyn and lambda.x held three 53 GB copies, niobium's 417 GB, and a Bi2Se3 spin–orbit DOS stage a 49 GB copy of nscf wavefunctions. These runs pushed the group's project storage over its quota. q2r, matdyn and lambda.x now take only the XML they need, and band, nscf and DOS stages the charge density without wavefunctions. Silicon bands, DOS and phonons ran through on Arrhenius that way: the DOS stage held 4 scratch files and no wavefunctions, q2r and matdyn one file each.
 

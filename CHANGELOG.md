@@ -2,6 +2,7 @@
 
 ## 0.4.5 — 2026-10-23
 
+- Read calculation outputs and saved metadata as UTF-8 on Windows, preserving Unicode labels and paths.
 - Add ABINIT 10, CP2K 2026 and Elk 10 for relaxation, SCF, bands and DOS, with spin, spin–orbit coupling and DFT+U where each code supports them. Plan them in chat and combine them with VASP and QE steps.
 - Install these codes from **Connections** without compiling: the app picks pinned conda-forge packages for the cluster's architecture and glibc, checks every hash, and verifies the installation with a silicon calculation. Each package set is checked for the glibc symbols and shared libraries its programs actually load, a failed installation can be planned again without rebuilding its environment, and installer downloads are removed once the test passes.
 - Detect site installations of ABINIT, CP2K and Elk. Install pinned PseudoDojo pseudopotentials, CP2K basis sets and Elk species per element.
@@ -29,7 +30,7 @@
 - Preserve CP2K trajectory coordinates in the program's cell frame. Keep the DDB from Γ-only ABINIT phonons, reject incomplete phonon tables, and check Elk spin-response timestamps. Magnetic Elk optics includes all three diagonal components by default.
 - Add ABINIT phonons by density-functional perturbation theory. One job runs the perturbations on a q mesh, merges them with mrgddb and interpolates the dispersion and DOS with anaddb; nonmagnetic insulators also get Born charges, the electronic dielectric constant and the LO–TO splitting. QE and ABINIT phonon dispersions are drawn like band structures.
 - Default QE hybrid SCF runs to `conv_thr` = 1e-6 Ry, which also ends the outer exact-exchange loop: with 1e-8 Ry, GaAs's exchange error levelled off near 1e-7 Ry and the run hit its time limit with the gap long settled.
-- Give pw.x every cell rotated so its symmetry axes lie along x, y and z, where pw.x looks for them. A cubic primitive cell from a CIF had shown pw.x 2 of GaAs's 24 symmetry operations, so an 8×8×8 SCF used 150 k points instead of 29, and phonons 24 q points instead of 8.
+- Align ordinary pw.x cells with the symmetry axes it searches. Preserve the supplied frame when Cartesian q points, spin directions, fields or directional cell constraints are specified. A cubic primitive cell from a CIF had shown pw.x 2 of GaAs's 24 symmetry operations, so an 8×8×8 SCF used 150 k points instead of 29, and phonons 24 q points instead of 8.
 - Report how far QE and ABINIT phonons miss the acoustic sum rule and charge neutrality before these are imposed, and warn when that makes a result unreliable; QE phonon stages now also warn about imaginary branches. With SSSP's Ga and As UPFs, QE 7.6 gave GaAs 118 cm⁻¹ at Γ and wrong transverse branches at every density cutoff and k mesh tried, while PseudoDojo norm-conserving UPFs gave branches within 11 cm⁻¹ of ABINIT.
 - Add `kshift` to QE, which moves the k mesh by half a step: on an 8×8×8 mesh through Γ, QE and ABINIT gave GaAs an electronic dielectric constant of 27–30, QE on the shifted mesh 13.6.
 - Require norm-conserving UPFs for QE electron–phonon coupling: QE 7.6's ph.x stopped with a segmentation fault in that step with PAW UPFs for aluminium, while PseudoDojo norm-conserving ones ran through.

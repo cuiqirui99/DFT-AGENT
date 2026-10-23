@@ -423,7 +423,7 @@ def _submit(root, state, config, transport):
         for name, destination in mapping.items():
             _name(name)
             _name(destination)
-        _validate_checkpoint(json.loads(checkpoint.read_text()), list(mapping))
+        _validate_checkpoint(json.loads(checkpoint.read_text(encoding="utf-8")), list(mapping))
         dependencies.append({"directory": state["remote_root"] + "/" + parent["folder"], "sha256": result["checkpoint_sha256"],
                              "mapping": mapping})
     remote = state["remote_root"] + "/" + stage["folder"]
@@ -515,7 +515,7 @@ def _exit_reason(engine, code, complete, output):
     if not complete:
         return text
     error = output / "slurm.err"
-    lines = error.read_text(errors="replace").splitlines() if error.is_file() else []
+    lines = error.read_text(errors="replace", encoding="utf-8").splitlines() if error.is_file() else []
     crash = next((line.strip() for line in lines if _CRASH.search(line)), "")
     detail = f' The error log reports "{crash[:160]}".' if crash else ""
     return (f"{text} Its output reports a finished calculation, so the program failed while shutting down.{detail} "
@@ -534,7 +534,7 @@ def _analyze_collection(root, state, stage, output, manifest):
         reasons.append("Required collection files are missing: " + ", ".join(sorted(required - set(manifest))) + ".")
     recorded = {}
     if (output / "input_hashes.sha256").is_file():
-        for line in (output / "input_hashes.sha256").read_text().splitlines():
+        for line in (output / "input_hashes.sha256").read_text(encoding="utf-8").splitlines():
             fields = line.split()
             if len(fields) == 2:
                 recorded[fields[1]] = fields[0]
@@ -543,7 +543,7 @@ def _analyze_collection(root, state, stage, output, manifest):
     result["input_identity_verified"] = identity
     if not identity:
         reasons.append("Input checksums do not match the approved inputs.")
-    execution = json.loads((output / "execution.json").read_text()) if (output / "execution.json").is_file() else {}
+    execution = json.loads((output / "execution.json").read_text(encoding="utf-8")) if (output / "execution.json").is_file() else {}
     receipt_ok = (execution.get("job_id") == stage["job_id"] and type(execution.get("exit_code")) is int
                   and execution.get("runtime_sha256") == stage.get("runtime_sha256") and "runtime.json" in manifest
                   and _digest(output / "runtime.json") == stage.get("runtime_sha256") and bool(execution.get("finished_at")))
@@ -563,7 +563,7 @@ def _analyze_collection(root, state, stage, output, manifest):
         checkpoint = output / "checkpoint.json"
         names = adapter(state["engine"]).checkpoint_names(stage["name"], metadata)
         try:
-            records = json.loads(checkpoint.read_text()) if checkpoint.is_file() else None
+            records = json.loads(checkpoint.read_text(encoding="utf-8")) if checkpoint.is_file() else None
             if names:
                 _validate_checkpoint(records, list(names))
         except (ValueError, OSError) as exc:
@@ -719,7 +719,7 @@ def checkpoint_files(run_dir, stage_index=None):
     path = root / stage["folder"] / "outputs" / "checkpoint.json"
     if _digest(path) != stage["result"]["checkpoint_sha256"]:
         raise ValueError("The checkpoint receipt changed.")
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def fetch_raw_files(run_dir, names, stage_index=None, transport=None):
@@ -738,7 +738,7 @@ def fetch_raw_files(run_dir, names, stage_index=None, transport=None):
         receipt_path = raw / "artifact_manifest.json"
         for name in names:
             _name(name)
-        previous = json.loads(receipt_path.read_text()) if receipt_path.is_file() else {}
+        previous = json.loads(receipt_path.read_text(encoding="utf-8")) if receipt_path.is_file() else {}
         config = ClusterConfig.load(root / "config.json")
         owned = transport is None
         transport = transport or SSHTransport(config)

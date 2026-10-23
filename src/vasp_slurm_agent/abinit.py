@@ -61,7 +61,7 @@ GENERATED = ("final.cif", "CONTCAR", "bands.csv", "dos.csv", "forces.csv", "magn
 
 @lru_cache(maxsize=1)
 def catalog():
-    return json.loads(files("vasp_slurm_agent").joinpath("abinit_pseudos.json").read_text())
+    return json.loads(files("vasp_slurm_agent").joinpath("abinit_pseudos.json").read_text(encoding="utf-8"))
 
 
 def library_key(parameters):
@@ -376,7 +376,7 @@ def _final_structure(variables, natom):
 
 def _eigenvalues(path):
     """(spin, k, band) eigenvalues in Hartree and the Fermi level, from the EIG text file."""
-    text = Path(path).read_text(errors="replace")
+    text = Path(path).read_text(errors="replace", encoding="utf-8")
     fermi = re.search(r"Fermi \(or HOMO\) energy \(hartree\) =\s*(" + _NUMBER.pattern + ")", text)
     blocks = re.split(r"Eigenvalues \(hartree\) for nkpt=\s*\d+\s+k points(?:, SPIN (?:UP|DOWN))?:", text)[1:]
     spins = []
@@ -399,7 +399,7 @@ def _eigenvalues(path):
 def _dos(path, spins):
     """Total DOS in states/eV/cell from the DOS file; spin blocks are summed."""
     rows, blocks = [], []
-    for line in Path(path).read_text(errors="replace").splitlines():
+    for line in Path(path).read_text(errors="replace", encoding="utf-8").splitlines():
         if line.lstrip().startswith("#"):
             if rows:
                 blocks.append(rows)
@@ -439,7 +439,7 @@ def _magnetization(text, result, structure):
 
 def _phonon_table(path, rows_expected, modes):
     """Frequencies (q, mode) in Hartree from anaddb's PHFRQ file."""
-    raw = Path(path).read_text(errors="replace")
+    raw = Path(path).read_text(errors="replace", encoding="utf-8")
     header = re.search(r"number_of_qpoints\s+(\d+).*?number_of_phonon_modes\s+(\d+)", raw, re.S)
     rows = [line.split() for line in raw.splitlines() if line.strip() and not line.lstrip().startswith("#")]
     if not header or int(header[1]) != rows_expected or int(header[2]) != modes or len(rows) != rows_expected:
@@ -485,14 +485,14 @@ def _born_and_dielectric(text, structure):
 def _phonons(folder, metadata, result, structure):
     """Dispersion along the band path and the DOS from anaddb, in cm⁻¹; a polar insulator adds ε∞ and Born charges."""
     output = folder / ANADDB_OUTPUT
-    text = output.read_text(errors="replace") if output.is_file() else ""
+    text = output.read_text(errors="replace", encoding="utf-8") if output.is_file() else ""
     if "the run completed succes" not in text:
         raise ValueError("anaddb did not finish." + _reported_error(folder, text))
     result["artifacts"].append(ANADDB_OUTPUT)
     path = metadata["phonon_path"]
     modes = 3 * len(structure)
     values = _phonon_table(folder / "anaddb_PHFRQ", len(path["reciprocal_fractional"]), modes) * CM1_PER_HA
-    rows = [line.split() for line in (folder / "anaddb_PHDOS").read_text(errors="replace").splitlines()
+    rows = [line.split() for line in (folder / "anaddb_PHDOS").read_text(errors="replace", encoding="utf-8").splitlines()
             if line.strip() and not line.lstrip().startswith("#")]
     dos = np.asarray([[float(x) for x in row[:3]] for row in rows if len(row) >= 3])
     if dos.ndim != 2 or len(dos) < 10:
@@ -531,7 +531,7 @@ def _phonons(folder, metadata, result, structure):
 
 def _reported_error(folder, text):
     """The message of the first error document ABINIT wrote, as a sentence to append, or nothing."""
-    sources = [text] + [(folder / name).read_text(errors="replace") for name in ("run.log", "__ABI_MPIABORTFILE__")
+    sources = [text] + [(folder / name).read_text(errors="replace", encoding="utf-8") for name in ("run.log", "__ABI_MPIABORTFILE__")
                         if (folder / name).is_file()]
     for source in sources:
         for match in re.finditer(r"^--- !(\w*(?:Error|ERROR|BUG))[ \t]*\n(.*?)^\.\.\.", source, re.M | re.S):
@@ -552,7 +552,7 @@ def analyze_outputs(folder, task, expected_structure=None):
     try:
         if task not in TASKS:
             raise ValueError(f"Unsupported ABINIT task: {task}")
-        metadata = json.loads((folder / METADATA_FILE).read_text())
+        metadata = json.loads((folder / METADATA_FILE).read_text(encoding="utf-8"))
         if metadata.get("canonical_task") != task or metadata.get("engine") != ENGINE:
             raise ValueError("Stage metadata does not match the requested analysis task.")
         output = folder / OUTPUT_FILE
@@ -632,7 +632,7 @@ def analyze_outputs(folder, task, expected_structure=None):
         elif task == "dos":
             dos_file = folder / f"{PREFIX}o_DOS"
             energy, dos = _dos(dos_file, int(metadata.get("nsppol", 1)))
-            header = re.search(r"#\s*Fermi energy\s*:\s*(" + _NUMBER.pattern + ")", dos_file.read_text(errors="replace"))
+            header = re.search(r"#\s*Fermi energy\s*:\s*(" + _NUMBER.pattern + ")", dos_file.read_text(errors="replace", encoding="utf-8"))
             if header and result.get("fermi_energy_ev") is None:
                 result["fermi_energy_ev"] = float(header[1]) * HA_EV
             result["artifacts"].append(dos_file.name)

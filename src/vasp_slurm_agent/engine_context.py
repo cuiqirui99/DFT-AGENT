@@ -129,7 +129,7 @@ def load_run_context(run_dir, *, _include_parent=True):
         try:
             if not digest(relative):
                 return {}
-            value = json.loads(path(relative).read_text())
+            value = json.loads(path(relative).read_text(encoding="utf-8"))
             return value if isinstance(value, dict) else {}
         except (ValueError, OSError):
             return {}
@@ -192,7 +192,7 @@ def load_run_context(run_dir, *, _include_parent=True):
             accepted = accepted and required.issubset(verified_names)
             try:
                 input_hashes = dict((fields[1], fields[0]) for fields in
-                                    (line.split() for line in path(output + "/input_hashes.sha256").read_text().splitlines()) if len(fields) == 2)
+                                    (line.split() for line in path(output + "/input_hashes.sha256").read_text(encoding="utf-8").splitlines()) if len(fields) == 2)
             except (OSError, ValueError):
                 input_hashes = {}
             accepted = accepted and input_hashes == expected_inputs
@@ -359,7 +359,7 @@ def load_run_context(run_dir, *, _include_parent=True):
                 if source_state.is_symlink() or not source_state.is_file():
                     continue
                 try:
-                    saved = json.loads(source_state.read_text())
+                    saved = json.loads(source_state.read_text(encoding="utf-8"))
                 except (ValueError, OSError):
                     continue
                 if isinstance(saved, dict) and saved.get("run_id") == parent.get("source_run_id") and saved.get("engine") == engine:
@@ -410,7 +410,7 @@ def inspect_continuation(source_run, source_stage=None):
     """The verified native structure of an accepted relax or SCF stage, for a later calculation."""
     root = Path(source_run).expanduser().resolve()
     context = load_run_context(root)
-    state = json.loads((root / "run.json").read_text())
+    state = json.loads((root / "run.json").read_text(encoding="utf-8"))
     stages = state.get("stages") or []
     indices = [source_stage] if source_stage is not None else list(reversed(range(len(stages))))
     for index in indices:
@@ -436,7 +436,7 @@ def inspect_repair(source_run):
     """Use the failed stage's frozen geometry, never its unaccepted final positions."""
     from .workflow import _check_config
     root = Path(source_run).expanduser().resolve()
-    state = json.loads((root / "run.json").read_text())
+    state = json.loads((root / "run.json").read_text(encoding="utf-8"))
     _check_config(root, state)
     if state.get("status") not in {"failed", "needs_attention"} or state.get("last_error") or state.get("cancel_requested"):
         raise ValueError("Reconnect and collect the failed job before planning a repair.")
@@ -452,7 +452,7 @@ def inspect_repair(source_run):
         raise ValueError("The failure has no verified terminal evidence. Reconnect first.")
     if any(item.get("job_id") or item.get("staged") for item in stages[index + 1:]):
         raise ValueError("A later stage has started. Reconcile this run first.")
-    plan = json.loads((root / "plan.json").read_text())
+    plan = json.loads((root / "plan.json").read_text(encoding="utf-8"))
     lineage = plan.get("repair")
     if lineage != state.get("repair"):
         raise ValueError("The repair record changed.")
@@ -538,17 +538,17 @@ def prepare_followup(source_run, source_stage, run_dir, config, plan, expected_c
             raise ValueError("The selected structure changed. Review a new plan.")
         child = temporary / "run"
         state = prepare_task(structure, child, config, plan)
-        (child / "parent.json").write_text(json.dumps(provenance, indent=2) + "\n")
+        (child / "parent.json").write_text(json.dumps(provenance, indent=2) + "\n", encoding="utf-8")
         if repair:
             lineage = {"attempt": source["attempt"], "max_attempts": 2, "source_run_id": source["source_run_id"], "changes": changes}
-            frozen = json.loads((child / "plan.json").read_text())
+            frozen = json.loads((child / "plan.json").read_text(encoding="utf-8"))
             frozen["repair"] = state["repair"] = lineage
-            (child / "plan.json").write_text(json.dumps(frozen, indent=2) + "\n")
+            (child / "plan.json").write_text(json.dumps(frozen, indent=2) + "\n", encoding="utf-8")
             state["plan_sha256"] = _sha(child / "plan.json")
-            (child / "run.json").write_text(json.dumps(state, indent=2) + "\n")
-            proposal = json.loads((child / "proposal.json").read_text())
+            (child / "run.json").write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+            proposal = json.loads((child / "proposal.json").read_text(encoding="utf-8"))
             proposal["execution"]["plan_sha256"] = state["plan_sha256"]
-            (child / "proposal.json").write_text(json.dumps(proposal, indent=2) + "\n")
+            (child / "proposal.json").write_text(json.dumps(proposal, indent=2) + "\n", encoding="utf-8")
         if load_run_context(root)["context_sha256"] != source["context_sha256"]:
             raise ValueError("The source results changed during preparation. Review a new plan.")
         if destination.exists():

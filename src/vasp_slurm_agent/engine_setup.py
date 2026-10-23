@@ -40,7 +40,7 @@ _SI = ("data_Si\n_cell_length_a 3.8395898\n_cell_length_b 3.8395898\n_cell_lengt
 
 @lru_cache(maxsize=1)
 def catalog():
-    return json.loads(files("vasp_slurm_agent").joinpath("engine_packages.json").read_text())
+    return json.loads(files("vasp_slurm_agent").joinpath("engine_packages.json").read_text(encoding="utf-8"))
 
 
 def _absolute(value):
@@ -158,7 +158,7 @@ def _smoke_inputs(engine, folder):
     from .engine_workflow import adapter
     folder = Path(folder)
     structure = folder.parent / "Si.cif"
-    structure.write_text(_SI)
+    structure.write_text(_SI, encoding="utf-8")
     metadata = adapter(engine).prepare_inputs(structure, folder, "scf", dict(_SMOKE[engine]))
     structure.unlink()
     return metadata
@@ -539,8 +539,8 @@ def start_install(config, plan, transport=None, *, cache_dir=None, wait=900, int
                           f"assert not missing, 'Missing commands: '+', '.join(missing)\nprint({_MARKER!r}+json.dumps({{}}))")
         with tempfile.TemporaryDirectory(prefix="dft-engine-install-") as folder:
             folder = Path(folder)
-            (folder / "plan.json").write_text(json.dumps(plan, indent=1) + "\n")
-            (folder / "stage.py").write_text(_STAGE_PY)
+            (folder / "plan.json").write_text(json.dumps(plan, indent=1) + "\n", encoding="utf-8")
+            (folder / "stage.py").write_text(_STAGE_PY, encoding="utf-8")
             active.upload_many([folder / "plan.json", folder / "stage.py"], work, permitted_names=frozenset({"plan.json", "stage.py"}))
         launched = active.run(f"cd {shlex.quote(work)} && (nohup python3 stage.py > stage.log 2>&1 < /dev/null &)", timeout=60)
         if launched.returncode:
@@ -566,7 +566,7 @@ def start_install(config, plan, transport=None, *, cache_dir=None, wait=900, int
             folder = Path(folder)
             smoke = folder / "smoke-inputs"
             metadata = _smoke_inputs(plan["engine"], smoke)
-            (smoke / "metadata.json").write_text(json.dumps(metadata, indent=1) + "\n")
+            (smoke / "metadata.json").write_text(json.dumps(metadata, indent=1) + "\n", encoding="utf-8")
             names = {"install.py": _INSTALL_PY, "build.sh": _job_script(plan)}
             for name, content in names.items():
                 (folder / name).write_text(content, encoding="utf-8", newline="\n")

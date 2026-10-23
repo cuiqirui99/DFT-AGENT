@@ -15,7 +15,7 @@ from vasp_slurm_agent import engine_setup
 from vasp_slurm_agent.config import ClusterConfig
 
 
-pytestmark = pytest.mark.skipif(os.name != "posix", reason="The installation scripts run on Linux clusters.")
+remote_runtime = pytest.mark.skipif(os.name != "posix", reason="Executes Linux cluster installation scripts locally.")
 
 
 def _run(path):
@@ -27,6 +27,7 @@ def _item(path, role):
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
 
 
+@remote_runtime
 def test_reconnect_does_not_replace_a_live_download_worker(tmp_path):
     import fcntl
 
@@ -108,6 +109,7 @@ launcher.chmod(0o755)
     return root, prefix, script
 
 
+@remote_runtime
 def test_partial_owned_install_retries_and_keeps_the_failed_prefix(tmp_path):
     root, prefix, script = _installation(tmp_path)
     (root / "fail-once").touch()
@@ -132,6 +134,7 @@ def test_partial_owned_install_retries_and_keeps_the_failed_prefix(tmp_path):
     assert json.loads((root / "install-status.json").read_text())["created"] is False
 
 
+@remote_runtime
 def test_unknown_nonempty_installation_directory_is_preserved(tmp_path):
     root, prefix, script = _installation(tmp_path)
     prefix.mkdir()
@@ -154,6 +157,7 @@ class _LocalTransport:
 
 
 @pytest.mark.parametrize("program_state", ["missing", "not_executable", "executable"])
+@remote_runtime
 def test_doctor_checks_absolute_program_path_and_executable_bit(tmp_path, program_state):
     tools = tmp_path / "tools"
     tools.mkdir()
@@ -173,6 +177,7 @@ def test_doctor_checks_absolute_program_path_and_executable_bit(tmp_path, progra
     assert result["ok"] is (program_state == "executable")
 
 
+@remote_runtime
 def test_doctor_uses_the_configured_environment(tmp_path):
     tools = tmp_path / "module-bin"
     tools.mkdir()
@@ -190,9 +195,9 @@ def test_doctor_uses_the_configured_environment(tmp_path):
 def test_managed_mpi_rejects_multiple_nodes_but_keeps_site_builds(tmp_path):
     from vasp_slurm_agent.engine_workflow import prepare_plan
 
-    common = {"host": "test.invalid", "user": "user", "remote_root": str(tmp_path), "partition": "cpu",
+    common = {"host": "test.invalid", "user": "user", "remote_root": "/scratch/user/runs", "partition": "cpu",
               "engine": "cp2k", "engine_command": "/env/bin/mpiexec -n {tasks} /env/bin/cp2k.psmp",
-              "engine_library_root": str(tmp_path), "tasks": 8}
+              "engine_library_root": "/scratch/user/library", "tasks": 8}
     managed = engine_setup.environment_setup("cp2k", {"mpi": "mpich"})
     engine_setup.validate_managed_resources(ClusterConfig(**common, nodes=1, setup_commands=managed))
     with pytest.raises(ValueError, match="one node"):

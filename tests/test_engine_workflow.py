@@ -129,6 +129,8 @@ class ReplayCluster:
 
 
 def _setup(tmp_path, engine, **changes):
+    if os.name != "posix":
+        pytest.skip("Replays Linux cluster job scripts locally; client path handling is tested separately.")
     library = tmp_path / "library"
     library.mkdir()
     recorded = {}

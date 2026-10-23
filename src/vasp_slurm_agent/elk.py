@@ -75,7 +75,7 @@ _NUMBER = re.compile(r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[EeDd][-+]?\d+)?")
 
 @lru_cache(maxsize=1)
 def catalog():
-    return json.loads(files("vasp_slurm_agent").joinpath("elk_species.json").read_text())
+    return json.loads(files("vasp_slurm_agent").joinpath("elk_species.json").read_text(encoding="utf-8"))
 
 
 def species_files(elements):
@@ -376,7 +376,7 @@ def _last_geometry_block(text):
 
 def _eigenvalues(path):
     """(1, k, state) eigenvalues in eV and occupations from EIGVAL.OUT."""
-    text = Path(path).read_text(errors="replace")
+    text = Path(path).read_text(errors="replace", encoding="utf-8")
     count = int(re.search(r"(\d+)\s*:\s*nkpt", text)[1])
     states = int(re.search(r"(\d+)\s*:\s*nstsv", text)[1])
     energies, occupations = [], []
@@ -400,7 +400,7 @@ def _occupied_gap(energies, occupations, scope, *, full_occupation=2, fermi=None
 
 def _band_table(folder, metadata):
     """BAND.OUT energies (eV, relative to E_F) on the prepared path, bridges removed."""
-    rows = [line.split() for line in (folder / "BAND.OUT").read_text(errors="replace").splitlines()]
+    rows = [line.split() for line in (folder / "BAND.OUT").read_text(errors="replace", encoding="utf-8").splitlines()]
     bands, current = [], []
     for row in rows:
         if len(row) < 2:
@@ -415,7 +415,7 @@ def _band_table(folder, metadata):
         raise ValueError("Elk band table is incomplete.")
     data = np.asarray(bands)
     x, energies = data[0, :, 0], data[:, :, 1].T * HA_EV
-    lines = [line.split() for line in (folder / "BANDLINES.OUT").read_text(errors="replace").splitlines() if line.split()]
+    lines = [line.split() for line in (folder / "BANDLINES.OUT").read_text(errors="replace", encoding="utf-8").splitlines() if line.split()]
     positions = sorted({float(row[0]) for row in lines})
     vertices = metadata["elk_vertices"]
     if len(positions) != len(vertices["labels"]):
@@ -474,7 +474,7 @@ def _moments(text, result, structure):
 def _tables(path):
     """Rows of numbers in an Elk table, split at blank lines."""
     blocks, rows = [], []
-    for line in Path(path).read_text(errors="replace").splitlines():
+    for line in Path(path).read_text(errors="replace", encoding="utf-8").splitlines():
         numbers = [float(x.replace("D", "E").replace("d", "e")) for x in _NUMBER.findall(line)]
         if numbers:
             rows.append(numbers)
@@ -598,7 +598,7 @@ def analyze_outputs(folder, task, expected_structure=None):
     try:
         if task not in TASKS:
             raise ValueError(f"Unsupported Elk task: {task}")
-        metadata = json.loads((folder / METADATA_FILE).read_text())
+        metadata = json.loads((folder / METADATA_FILE).read_text(encoding="utf-8"))
         if metadata.get("canonical_task") != task or metadata.get("engine") != ENGINE:
             raise ValueError("Stage metadata does not match the requested analysis task.")
         log = folder / OUTPUT_FILE
@@ -613,7 +613,7 @@ def analyze_outputs(folder, task, expected_structure=None):
             raise ValueError("Elk reported an error.")
         expected = structure_from_native(metadata["native_structure"])
         info_path = folder / "INFO.OUT"
-        info = info_path.read_text(errors="replace") if info_path.is_file() else ""
+        info = info_path.read_text(errors="replace", encoding="utf-8") if info_path.is_file() else ""
         # Before time zero, task 460 reruns one ground-state iteration under a large static A-field
         # along each axis, which rewrites INFO.OUT, EFERMI.OUT and EIGVAL.OUT; only the log still
         # tells whether the restarted ground state (task 1) converged.
@@ -631,22 +631,22 @@ def analyze_outputs(folder, task, expected_structure=None):
             if ground_state:
                 result["artifacts"].append("INFO.OUT")
         if task == "relax":
-            forces = (folder / "FORCES_OPT.OUT").read_text(errors="replace")
+            forces = (folder / "FORCES_OPT.OUT").read_text(errors="replace", encoding="utf-8")
             ionic = "Force convergence target achieved" in forces[forces.rfind("optimisation step"):] and "Warning(geomopt)" not in stdout
             if metadata["parameters"].get("cell_relax"):
-                stress = (folder / "STRESS_OPT.OUT").read_text(errors="replace")
+                stress = (folder / "STRESS_OPT.OUT").read_text(errors="replace", encoding="utf-8")
                 ionic = ionic and "Stress convergence target achieved" in stress
             result["converged_ionic"] = ionic
             if not ionic:
                 raise ValueError("The geometry optimisation did not reach its force or stress target.")
-            structure = _final_structure(_last_geometry_block((folder / "GEOMETRY_OPT.OUT").read_text(errors="replace")), expected)
+            structure = _final_structure(_last_geometry_block((folder / "GEOMETRY_OPT.OUT").read_text(errors="replace", encoding="utf-8")), expected)
             if not same_structure(structure, expected, positions=False):
                 raise ValueError("Elk optimised a different set of atoms.")
             write_final_structure(folder, result, structure)
         else:
             geometry = folder / "GEOMETRY.OUT"
             if geometry.is_file():
-                structure = _final_structure(geometry.read_text(errors="replace"), expected)
+                structure = _final_structure(geometry.read_text(errors="replace", encoding="utf-8"), expected)
                 if not same_structure(structure, expected, atol=1e-6):
                     raise ValueError("Elk used a structure that differs from the prepared input.")
             structure = expected
@@ -655,12 +655,12 @@ def analyze_outputs(folder, task, expected_structure=None):
         result["spin_mode"] = metadata.get("spin")
         result["spin_orbit_coupling"] = bool(metadata.get("soc"))
         if task in {"scf", "relax"}:
-            energies = [float(x) for x in (folder / "TOTENERGY.OUT").read_text().split()]
+            energies = [float(x) for x in (folder / "TOTENERGY.OUT").read_text(encoding="utf-8").split()]
             finish_energies(result, energies[-1] * HA_EV, len(structure))
             result["artifacts"].append("TOTENERGY.OUT")
         fermi_path = folder / "EFERMI.OUT"
         if ground_state and fermi_path.is_file():
-            result["fermi_energy_ev"] = float(fermi_path.read_text().split()[0]) * HA_EV
+            result["fermi_energy_ev"] = float(fermi_path.read_text(encoding="utf-8").split()[0]) * HA_EV
         if ground_state and info:
             _moments(info, result, structure)
         if task == "bands":
@@ -694,7 +694,7 @@ def analyze_outputs(folder, task, expected_structure=None):
             _time_evolution(folder, stdout, metadata, result)
         if task == "dos":
             blocks, rows = [], []
-            for line in (folder / "TDOS.OUT").read_text(errors="replace").splitlines():
+            for line in (folder / "TDOS.OUT").read_text(errors="replace", encoding="utf-8").splitlines():
                 numbers = [float(x) for x in _NUMBER.findall(line)]
                 if len(numbers) >= 2:
                     rows.append(numbers[:2])

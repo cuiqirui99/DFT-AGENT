@@ -225,8 +225,9 @@ def test_cp2k_prompt_distinguishes_residual_from_energy():
 
 
 def test_planner_receives_configured_resources_without_connection_details(tmp_path, monkeypatch):
-    run, _, _, _ = _setup(tmp_path, "cp2k")
-    config = load_config(run / "config.json")
+    config = ClusterConfig(engine="cp2k", host="cluster.invalid", user="tester", partition="cpu", tasks=1,
+        remote_root="/scratch/tester/runs", engine_command="srun cp2k.psmp", engine_library_root="/scratch/tester/library",
+        engine_library={name: {"sha256": "0" * 64} for name in ("BASIS_MOLOPT", "GTH_POTENTIALS")})
     seen, _ = provider(monkeypatch, [("cp2k_task", _plan(["scf"]))])
     proposal = engine_agent.draft_task("Run SCF.", DATA / "Si-perturbed.cif", SETTINGS, engine="cp2k", config=config)
     assert proposal["status"] == "ready"

@@ -53,7 +53,7 @@ GPA_PER_BAR = 1e-4
 
 @lru_cache(maxsize=1)
 def catalog():
-    return json.loads(files("vasp_slurm_agent").joinpath("cp2k_basis.json").read_text())
+    return json.loads(files("vasp_slurm_agent").joinpath("cp2k_basis.json").read_text(encoding="utf-8"))
 
 
 def basis_choice(elements, family, functional):
@@ -302,7 +302,7 @@ def _last(pattern, text, label):
 
 def _frames(path, count, species=None):
     """Cartesian frames (Å) and their step numbers from CP2K's xyz trajectory."""
-    lines = Path(path).read_text(errors="replace").splitlines()
+    lines = Path(path).read_text(errors="replace", encoding="utf-8").splitlines()
     frames, steps, index = [], [], 0
     while index + count + 2 <= len(lines):
         if lines[index].strip() != str(count):
@@ -355,7 +355,7 @@ def _rdf(frames, lattice, species, width=0.05):
 def _molecular_dynamics(folder, text, metadata, expected, result):
     settings = metadata["md"]
     energy_file = folder / f"{PROJECT}-1.ener"
-    rows = [[float(x) for x in line.split()[:7]] for line in energy_file.read_text(errors="replace").splitlines()
+    rows = [[float(x) for x in line.split()[:7]] for line in energy_file.read_text(errors="replace", encoding="utf-8").splitlines()
             if line.strip() and not line.lstrip().startswith("#")]
     if len(rows) < 2 or any(len(row) < 6 for row in rows) or int(rows[-1][0]) != settings["steps"]:
         raise ValueError("The molecular dynamics run stopped before its last step.")
@@ -418,7 +418,7 @@ def _molecular_dynamics(folder, text, metadata, expected, result):
 
 def _restart_structure(path, expected):
     """Final cell (Å) and coordinates from CP2K's restart input."""
-    text = Path(path).read_text(errors="replace")
+    text = Path(path).read_text(errors="replace", encoding="utf-8")
     cell = re.search(r"&CELL\b(.*?)&END CELL", text, re.S | re.I)
     coord = re.search(r"&COORD\b(.*?)&END COORD", text, re.S | re.I)
     if not cell or not coord:
@@ -454,7 +454,7 @@ def _same_crystal(actual, expected, atol=1e-5):
 
 def _band_file(path):
     """Band sets: points, labels, energies in eV and occupations, shaped (spin, k, band)."""
-    text = Path(path).read_text(errors="replace")
+    text = Path(path).read_text(errors="replace", encoding="utf-8")
     sets = []
     for chunk in re.split(r"^#\s+Set\s+\d+:", text, flags=re.M)[1:]:
         specials = re.findall(r"^#\s+Special point\s+\d+\s+(" + r")\s+(".join([_NUMBER.pattern] * 3) + r")\s+(\S+)\s*$", chunk, re.M)
@@ -504,7 +504,7 @@ def _broadened_dos(folder, names, states, width_ev):
     grid = None
     histograms = []
     for name in names:
-        text = (folder / name).read_text(errors="replace")
+        text = (folder / name).read_text(errors="replace", encoding="utf-8")
         match = re.search(r"E\(Fermi\)\s*=\s*(" + _NUMBER.pattern + r")\s*a\.u\.", text)
         if match:
             fermi = float(match[1]) * HA_EV
@@ -527,7 +527,7 @@ def _histogram_gap(folder, names, output_fermi_ev=None):
     Fermi energy that the same run printed in its main output is used instead."""
     fermi, filled, width, partial = None, [], None, False
     for name in names:
-        text = (folder / name).read_text(errors="replace")
+        text = (folder / name).read_text(errors="replace", encoding="utf-8")
         match = re.search(r"E\(Fermi\)\s*=\s*(" + _NUMBER.pattern + r")\s*a\.u\.", text)
         level = float(match[1]) if match else None if output_fermi_ev is None else output_fermi_ev / HA_EV
         if level is None:
@@ -587,7 +587,7 @@ def analyze_outputs(folder, task, expected_structure=None):
     try:
         if task not in TASKS:
             raise ValueError(f"Unsupported CP2K task: {task}")
-        metadata = json.loads((folder / METADATA_FILE).read_text())
+        metadata = json.loads((folder / METADATA_FILE).read_text(encoding="utf-8"))
         if metadata.get("canonical_task") != task or metadata.get("engine") != ENGINE:
             raise ValueError("Stage metadata does not match the requested analysis task.")
         output = folder / OUTPUT_FILE

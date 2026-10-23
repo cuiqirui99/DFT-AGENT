@@ -195,7 +195,7 @@ def test_band_figures_read_like_the_vasp_ones(tmp_path):
     assert spectra.band_reference({"status": "metallic_or_partially_occupied", "vbm_ev": 5.0}, 7.9) == (7.9, "fermi_level")
     names = spectra.plot_bands(tmp_path, "bands", np.linspace(0, 2, 5), energies, ["GAMMA", "", "", "", "X"], [[0, 5]])
     assert names == ["bands.png", "bands.pdf", "bands.svg"]
-    svg = (tmp_path / "bands.svg").read_text()
+    svg = (tmp_path / "bands.svg").read_text(encoding="utf-8")
     assert "Spin ↑" in svg and "Spin ↓" in svg
 
 

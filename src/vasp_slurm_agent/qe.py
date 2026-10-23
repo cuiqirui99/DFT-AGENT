@@ -718,7 +718,7 @@ def _expected_structure(folder, metadata, expected_structure=None):
     source = Path(folder) / "pw.in"
     if not source.is_file() or _hash(source) != metadata.get("input_sha256", {}).get("pw.in"):
         raise ValueError("The native PW input changed or is missing.")
-    lines = [line.strip() for line in source.read_text().splitlines()]
+    lines = [line.strip() for line in source.read_text(encoding="utf-8").splitlines()]
     if lines.count("CELL_PARAMETERS angstrom") != 1 or lines.count("ATOMIC_POSITIONS crystal") != 1:
         raise ValueError("Native PW structure cards are missing or ambiguous.")
     cell_start = lines.index("CELL_PARAMETERS angstrom") + 1
@@ -914,7 +914,7 @@ def _pw_result(folder, task, text, metadata, expected, result):
         header_records = metadata.get("pseudopotentials", {})
         receipt_path = folder / "pseudo_manifest.json"
         if receipt_path.is_file():
-            header_records = json.loads(receipt_path.read_text())
+            header_records = json.loads(receipt_path.read_text(encoding="utf-8"))
         force_supported = bool(header_records) and all(isinstance(value, dict) and str(value.get("pseudo_type", "")).upper() in {"NC", "NCPP"} for value in header_records.values())
         if not force_supported and output.find("forces") is not None:
             result["warnings"].append("Hybrid forces require verified norm-conserving UPFs. Forces were omitted; energy and spectra are checked separately.")
@@ -1005,7 +1005,7 @@ def _pw_result(folder, task, text, metadata, expected, result):
 def _table(path, min_columns=2):
     if not path.is_file() or not path.stat().st_size:
         raise ValueError(f"Required output {path.name} is missing or empty.")
-    data = np.loadtxt(path, comments="#", ndmin=2)
+    data = np.loadtxt(path, comments="#", ndmin=2, encoding="utf-8")
     if len(data) < 2 or data.shape[1] < min_columns or not np.isfinite(data).all():
         raise ValueError(f"Invalid numerical data in {path.name}.")
     return data
@@ -1016,7 +1016,7 @@ def _post_result(folder, task, text, metadata, result):
         path = folder / "charge_density.cube"
         if not path.is_file():
             raise ValueError("charge_density.cube is missing.")
-        with path.open() as stream:
+        with path.open(encoding="utf-8") as stream:
             next(stream)
             next(stream)
             origin = _floats(next(stream))
@@ -1059,7 +1059,7 @@ def _post_result(folder, task, text, metadata, result):
         result["artifacts"].append(f"{task}.csv")
         # Last DOS column is integrated DOS; do not plot it as a density.
         density = data[:, 1:-1] if task == "dos" and data.shape[1] > 2 else data[:, 1:2]
-        header = (folder / name).read_text(errors="replace").split("\n", 1)[0]
+        header = (folder / name).read_text(encoding="utf-8", errors="replace").split("\n", 1)[0]
         fermi = re.search(r"EFermi\s*=\s*(" + FLOAT + r")\s*eV", header) if task == "dos" else None
         if fermi:
             result.update(fermi_energy_ev=float(fermi[1]), dos_reference_ev=float(fermi[1]))
@@ -1078,7 +1078,7 @@ def _post_result(folder, task, text, metadata, result):
             index = folder / (PREFIX + ".dyn0")
             if not index.is_file():
                 raise ValueError("Phonon grid index is missing.")
-            lines = [line.strip() for line in index.read_text().splitlines() if line.strip()]
+            lines = [line.strip() for line in index.read_text(encoding="utf-8").splitlines() if line.strip()]
             if len(lines) < 2 or len(lines[0].split()) != 3:
                 raise ValueError("Invalid phonon grid index.")
             grid = [int(x) for x in lines[0].split()]
@@ -1129,14 +1129,14 @@ def _post_result(folder, task, text, metadata, result):
         result["artifacts"].append("phonons.csv")
     elif task == "q2r":
         path = folder / "force_constants"
-        if not path.is_file() or path.stat().st_size < 40 or not re.search(r"\d", path.read_text(errors="replace")):
+        if not path.is_file() or path.stat().st_size < 40 or not re.search(r"\d", path.read_text(encoding="utf-8", errors="replace")):
             raise ValueError("Force constants are missing or invalid.")
         result["artifacts"].append(path.name)
     elif task == "phonon_bands":
         path = folder / "phonon.freq"
         if not path.is_file():
             raise ValueError("phonon.freq is missing.")
-        raw = path.read_text()
+        raw = path.read_text(encoding="utf-8")
         header = re.search(r"nbnd\s*=\s*(\d+)\s*,\s*nks\s*=\s*(\d+)\s*/", raw)
         if not header:
             raise ValueError("Invalid matdyn frequency header.")
@@ -1250,7 +1250,7 @@ def analyze_outputs(folder, task, expected_structure=None):
         original_task = task
         task = ALIASES.get(task, task)
         meta_file = folder / "qe-input.json"
-        metadata = json.loads(meta_file.read_text()) if meta_file.is_file() else {"canonical_task": task}
+        metadata = json.loads(meta_file.read_text(encoding="utf-8")) if meta_file.is_file() else {"canonical_task": task}
         if metadata.get("canonical_task", task) != task:
             raise ValueError("Stage metadata does not match the requested analysis task.")
         output = folder / (FILENAMES[task] + ".out")

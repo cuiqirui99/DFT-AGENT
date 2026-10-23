@@ -348,7 +348,7 @@ def prepare_task(structure_path, run_dir, config, plan):
         shutil.copytree(edit_dir, prepared / "structure_edit")
         proposal = deepcopy(plan)
         proposal["execution"] = {"plan_sha256": state["plan_sha256"]}
-        (prepared / "proposal.json").write_text(json.dumps(proposal, indent=2) + "\n")
+        (prepared / "proposal.json").write_text(json.dumps(proposal, indent=2) + "\n", encoding="utf-8")
         if root.exists():
             root.rmdir()
         prepared.rename(root)
