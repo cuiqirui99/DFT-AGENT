@@ -12,7 +12,7 @@ Describe a calculation, review its inputs, and run VASP, Quantum ESPRESSO, ABINI
 
 Conceptual overview. Current engines: VASP, Quantum ESPRESSO, ABINIT, CP2K and Elk (the last three from 0.4.5).
 
-The built-in workflows cover structure edits, relaxation, SCF, bands, DOS, magnetism, SOC, DFT+U and hybrid functionals. [QE](docs/qe.md) also supports installation, phonons, NEB and electron–phonon calculations. [ABINIT, CP2K and Elk](docs/open-source-codes.md) install from the app and cover relaxation, SCF, bands and DOS.
+The built-in workflows cover structure edits, relaxation, SCF, bands, DOS, magnetism, SOC, DFT+U and hybrid functionals. Available methods depend on the engine. [QE](docs/qe.md) also supports installation, phonons, NEB, electron–phonon coupling and conventional superconductivity. [ABINIT, CP2K and Elk](docs/open-source-codes.md) install from the app on supported Linux clusters: ABINIT adds phonons, CP2K large-cell calculations and molecular dynamics, and Elk optics and real-time TDDFT.
 
 ![SrTiO3 crystal](docs/assets/crystal.png)
 
@@ -23,7 +23,16 @@ Download [v0.4.5](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5):
 - **Apple Silicon Mac, macOS 14+:** open the `.dmg`, copy **DFT Agent** to Applications, then open it.
 - **Windows x64:** run the `.exe` installer, then open **DFT Agent** from the Start menu.
 
-Python and model SDKs are included. Codex CLI and Claude Code CLI are optional, separate installations. Linux users can [install from source](docs/install.md#python-installation-from-source).
+Python and model SDKs are included. Codex CLI and Claude Code CLI are optional, separate installations.
+
+Or install from [PyPI](https://pypi.org/project/dft-agent/0.4.5/) with Python 3.11+:
+
+```bash
+python -m pip install "dft-agent[agent]==0.4.5"
+dft-agent ui
+```
+
+[Source installation](docs/install.md#python-installation-from-source).
 
 ## Start a project
 

@@ -8,7 +8,7 @@
 
 用自然语言描述计算，检查输入文件，然后在自己的超算集群上运行 VASP、Quantum ESPRESSO、ABINIT、CP2K 或 Elk。每个项目独立保存文件、对话和结果，你可以反复修改任务、组合多种程序，并在计算结束后继续分析数据。
 
-支持结构编辑、弛豫、SCF、能带、态密度、磁性、SOC、DFT+U 和杂化泛函。[QE](docs/qe.md)还支持安装部署、声子、NEB 和电子–声子计算。[ABINIT、CP2K 和 Elk](docs/open-source-codes.md)可从应用内一键安装，支持弛豫、SCF、能带和态密度（0.4.5 起）。
+支持结构编辑、弛豫、SCF、能带、态密度、磁性、SOC、DFT+U 和杂化泛函，具体方法取决于计算程序。[QE](docs/qe.md)还支持安装部署、声子、NEB、电子–声子耦合和常规超导计算。[ABINIT、CP2K 和 Elk](docs/open-source-codes.md)可在支持的 Linux 集群上通过应用安装：ABINIT 支持声子，CP2K 支持大晶胞计算和分子动力学，Elk 支持光学和实时 TDDFT。
 
 ## 安装
 
@@ -17,7 +17,16 @@
 - **Apple Silicon Mac，macOS 14+：**打开 `.dmg`，将 **DFT Agent** 拖入“应用程序”，再打开应用。
 - **Windows x64：**运行 `.exe` 安装程序，然后从开始菜单打开 **DFT Agent**。
 
-安装包内置 Python 和模型 SDK。Codex CLI、Claude Code CLI 为可选项，需要单独安装；Linux 用户可[从源码安装](docs/install.md#python-installation-from-source)。
+安装包内置 Python 和模型 SDK。Codex CLI、Claude Code CLI 为可选项，需要单独安装。
+
+也可使用 Python 3.11+ 从 [PyPI](https://pypi.org/project/dft-agent/0.4.5/) 安装：
+
+```bash
+python -m pip install "dft-agent[agent]==0.4.5"
+dft-agent ui
+```
+
+[从源码安装](docs/install.md#python-installation-from-source)。
 
 ## 开始使用
 
