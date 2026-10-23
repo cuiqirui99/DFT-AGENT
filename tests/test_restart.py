@@ -87,7 +87,8 @@ def test_new_hybrid_inputs_require_warm_start_on_the_same_basis(setup, task):
     assert target["ISTART"] == 1 and target["ICHARG"] == 0
     assert seed["LWAVE"] and seed["NSW"] == 0 and seed["ICHARG"] == 2
     assert not seed.get("LHFCALC", False) and target["LHFCALC"]
-    assert seed["ISYM"] == target["ISYM"] and seed["ENCUT"] == target["ENCUT"]
+    # VASP 5.4.4 stops a PBE run with the hybrid's ISYM = 3; ISYM = 2 reduces the k-points alike.
+    assert seed["ISYM"] == (2 if target["ISYM"] == 3 else target["ISYM"]) and seed["ENCUT"] == target["ENCUT"]
     spec = json.loads((inputs / "warm_start.spec.json").read_text())
     assert spec["target_inputs"]["KPOINTS"] == restart.sha256(inputs / "KPOINTS")
     if task == "bands":
@@ -170,6 +171,18 @@ def test_hybrid_cold_fallback_or_changed_basis_is_rejected(warm, issue):
     assert not json.loads((inputs / "warm_start.json").read_text())["restart_verified"]
 
 
+def test_seed_symmetry_may_differ_only_as_isym_2_for_a_hybrid_3(warm):
+    inputs, spec, _, _ = warm
+    assert spec["seed_tags"]["ISYM"] == 2 and spec["target_tags"]["ISYM"] == 3
+    seed = restart.xml_summary(inputs / ".pbe_seed/vasprun.xml")
+    xml(inputs / "vasprun.xml", spec, target=True)
+    target = restart.xml_summary(inputs / "vasprun.xml")
+    restart._check_target(seed, target, spec, "WAVECAR successfully read")
+    seed["actual"]["ISYM"] = 0
+    with pytest.raises(ValueError, match="actual ISYM"):
+        restart._check_target(seed, target, spec, "WAVECAR successfully read")
+
+
 def test_helper_is_standalone_stdlib_and_failure_is_recorded(warm):
     inputs, _, _, _ = warm
     process = subprocess.run([sys.executable, "-I", str(Path(restart.__file__)), "seed", "3"], cwd=inputs,
@@ -198,3 +211,45 @@ def test_seed_failure_records_job_exit_and_does_not_launch_hybrid(warm, tmp_path
     assert receipt["exit_code"] != 0 and receipt["finished_at"]
     assert (inputs / "launches").read_text().count("launched") == 1
     assert not (inputs / "hybrid.stdout").exists()
+
+
+def test_hybrid_runs_split_k_points_over_the_ranks(setup, tmp_path):
+    import dataclasses
+    from pymatgen.core import Lattice, Structure
+    _, _, config = setup
+    source = tmp_path / "Si.vasp"
+    Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.43), ["Si"], [[0, 0, 0]]).get_primitive_structure().to(filename=str(source), fmt="poscar")
+    config = dataclasses.replace(config, tasks=64)
+    root = tmp_path / "hse"
+    state = workflow.prepare_plan(source, root, config, ["scf", "bands"], {"functional": "HSE06", "mesh": [6, 6, 6]})
+    # 16 irreducible points of the 6x6x6 mesh; a band path keeps all 216 weighted ones beside its own.
+    # Without KPAR, VASP 5.4.4 gave silicon 64 bands on 64 ranks and its SCF took 22 minutes instead of 34 seconds.
+    for stage, kpar in zip(state["stages"], (16, 64)):
+        inputs = root / stage["folder"] / "inputs"
+        assert Incar.from_file(inputs / "INCAR")["KPAR"] == kpar == Incar.from_file(inputs / "seed.INCAR")["KPAR"]
+        assert stage["parameters"]["kpar"] == kpar
+    with pytest.raises(ValueError, match="multiple of 16 tasks"):
+        workflow.attach_config(root, dataclasses.replace(config, tasks=60))
+    pbe = workflow.prepare_plan(source, tmp_path / "pbe", config, ["scf"], {"mesh": [6, 6, 6]})
+    assert "KPAR" not in Incar.from_file(tmp_path / "pbe" / pbe["stages"][0]["folder"] / "inputs" / "INCAR")
+
+
+def test_parallel_layout_is_not_compared_with_vasprun(warm):
+    # VASP 5.4.4 applies KPAR (OUTCAR: "each k-point on 4 cores, 16 groups") but does not echo it in vasprun.xml.
+    inputs, spec, _, _ = warm
+    xml(inputs / "vasprun.xml", spec, target=True)
+    seed = restart.xml_summary(inputs / ".pbe_seed/vasprun.xml")
+    target = restart.xml_summary(inputs / "vasprun.xml")
+    approved = {**spec, "seed_tags": {**spec["seed_tags"], "KPAR": 16}, "target_tags": {**spec["target_tags"], "KPAR": 16}}
+    restart._check_seed(seed, approved)
+    restart._check_target(seed, target, approved, "WAVECAR successfully read")
+    changed = {**approved, "seed_tags": {**approved["seed_tags"], "EDIFF": 1e-7}}
+    with pytest.raises(ValueError, match="approved EDIFF"):
+        restart._check_seed(seed, changed)
+    # VASP 5 ignores LFOCKACE and leaves it out of vasprun.xml; a recorded value must still match.
+    restart._check_target(seed, target, {**approved, "target_tags": {**approved["target_tags"], "LFOCKACE": True}},
+                          "WAVECAR successfully read")
+    target["incar"]["LFOCKACE"] = False
+    with pytest.raises(ValueError, match="approved LFOCKACE"):
+        restart._check_target(seed, target, {**approved, "target_tags": {**approved["target_tags"], "LFOCKACE": True}},
+                              "WAVECAR successfully read")

@@ -43,7 +43,7 @@ def test_default_entrypoint_project_lifecycle_preserves_files(workspace):
     ui = app()
     assert not ui.exception and not ui.chat_input
     widget(ui.button, "＋ New project").click().run()
-    widget(ui.text_input, "Name").set_value("Silicon").run()
+    widget(ui.text_input, "Project name").set_value("Silicon").run()
     widget(ui.button, "Create project").click().run()
     assert not ui.exception and ui.chat_input[0].disabled
     pid = workspace.list_projects()[0]["id"]
@@ -71,7 +71,7 @@ def test_switch_projects_isolates_sessions_files_and_model(workspace):
     workspace.append_message(second, other, "user", "Other project question")
     ui = app()
     ui.button(key="project_open_" + first).click().run()
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
     assert widget(ui.selectbox, "File").value == "files/first.txt"
     assert not ui.chat_input[0].disabled
     assert "First project question" in [item.value for item in ui.markdown]
@@ -163,7 +163,7 @@ def test_first_run_checklist_guides_model_then_cluster(workspace, monkeypatch):
     pid, sid, registry = seed(workspace, model=False)
     ui = app()
     assert not ui.exception and ui.chat_input[0].disabled
-    assert "Connect a model to start chatting" in ui.chat_input[0].placeholder
+    assert "Connect a model to plan calculations" in ui.chat_input[0].placeholder
     assert widget(ui.button, "Connect a model") and widget(ui.button, "Connect a cluster")
     widget(ui.button, "Connect a model").click().run()
     assert not ui.exception and ui.pills[0].value == "model"
@@ -217,7 +217,7 @@ def test_file_editor_rejects_stale_write_and_reloads(workspace):
     pid, _, _ = seed(workspace)
     first = project_files.write_file(workspace, pid, "files/note.txt", "version one")
     ui = app()
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
     widget(ui.text_area, "Contents").set_value("user edit").run()
     project_files.write_file(workspace, pid, "files/note.txt", "external edit", expected_sha256=first["sha256"])
     widget(ui.button, "Save file").click().run()
@@ -248,7 +248,7 @@ def test_identical_files_keep_separate_unsaved_edits(workspace):
     project_files.write_file(workspace, pid, "files/first.txt", "same text")
     project_files.write_file(workspace, pid, "files/second.txt", "same text")
     ui = app()
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
     widget(ui.selectbox, "File").select("files/first.txt").run()
     widget(ui.text_area, "Contents").set_value("first file draft").run()
     widget(ui.selectbox, "File").select("files/second.txt").run()
@@ -260,13 +260,13 @@ def test_identical_files_keep_separate_unsaved_edits(workspace):
 def test_upload_adds_inputs_only_to_current_project_and_rejects_potcar(workspace):
     pid, _, _ = seed(workspace)
     ui = app()
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
     ui.file_uploader[0].upload("Si.cif", files("vasp_slurm_agent").joinpath("examples/Si.cif").read_bytes()).run()
     widget(ui.button, "Import files").click().run()
     assert not ui.exception
     assert project_files.read_file(workspace, pid, "files/Si.cif")["content"]
     ui = app()
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
     ui.file_uploader[0].upload("POTCAR", b"private potential").run()
     widget(ui.button, "Import files").click().run()
     assert not ui.exception and ui.error
@@ -294,7 +294,7 @@ def test_prepared_run_requires_review_and_explicit_submit(workspace, monkeypatch
     workflow.start_worker.assert_not_called()
     attempt = execution.latest(pid, graph["id"], "scf")
     assert attempt["state"] == "prepared"
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
     widget(ui.radio, "Context").set_value("Results").run()
     assert not ui.exception
     assert not any(button.label in {"Submit calculation", "Resume monitoring", "Open chat"} for button in ui.button)
@@ -323,10 +323,10 @@ def test_context_can_hide_and_connections_use_secure_panel(workspace):
     project_files.write_file(workspace, pid, "files/note.txt", "text")
     ui = app()
     assert not any(item.label == "File" for item in ui.selectbox)
-    widget(ui.button, "Context").click().run()
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
+    widget(ui.button, "Files and runs").click().run()
     assert not any(item.label == "File" for item in ui.selectbox)
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
     assert widget(ui.selectbox, "File").value == "files/note.txt"
     widget(ui.button, "Connections").click().run()
     assert not ui.exception and ui.pills[0].value == "model"
@@ -337,7 +337,7 @@ def test_legacy_route_and_back_preserve_default(workspace):
     seed(workspace)
     ui = app()
     widget(ui.button, "Settings").click().run()
-    widget(ui.button, "Legacy workbench").click().run()
+    widget(ui.button, "Open classic workbench").click().run()
     assert not ui.exception and widget(ui.radio, "Engine").value == "vasp"
     widget(ui.button, "Back to projects").click().run()
     assert not ui.exception and any(item.label == "＋ New project" for item in ui.button)
@@ -358,7 +358,7 @@ def test_python_results_show_execution_scope_and_raw_downloads(workspace, tmp_pa
     complete((root, Transport(tmp_path / "remote"), state))
     workspace.register_run(pid, root)
     ui = app()
-    widget(ui.button, "Context").click().run()
+    widget(ui.button, "Files and runs").click().run()
     widget(ui.radio, "Context").set_value("Results").run()
     assert not ui.exception and not ui.error
     assert "completed unverified" in [item.value for item in ui.markdown]

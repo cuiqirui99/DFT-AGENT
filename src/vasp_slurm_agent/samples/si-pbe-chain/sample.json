@@ -1,8 +1,8 @@
 {
   "order": 1,
   "title": "Si: relax, SCF, bands and DOS (PBE)",
-  "description": "A silicon workflow example with a coarse 2x2x2 k mesh, bands and DOS. Not a convergence benchmark.",
+  "description": "Diamond silicon: a PBE cell relaxation (5.431 → 5.468 Å), a 16x16x16 mesh, a 302-point band path (Γ–X–U|K–Γ–L–W–X) and a tetrahedron DOS.",
   "goal": "Relax silicon, then calculate PBE bands and DOS.",
-  "source": "VASP 6.2.1 on a Slurm cluster, from the v0.4.1 validation set",
-  "note": "Cluster names, accounts and paths were replaced with placeholders."
+  "source": "VASP 5.4.4 on Slurm, 22 October 2026. PBE, 400 eV, 16x16x16 mesh.",
+  "note": "Cluster labels and paths use placeholders. Inputs and numerical results are unchanged. This is not a convergence benchmark."
 }

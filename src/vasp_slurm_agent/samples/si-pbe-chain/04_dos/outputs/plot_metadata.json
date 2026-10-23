@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task": "dos",
+  "csv_contains_full_data": true,
+  "figure_formats": [
+    "png",
+    "pdf",
+    "svg"
+  ],
+  "energy_reference_ev": 5.62520794,
+  "energy_reference_source": "dos_run_fermi",
+  "energy_window_ev": [
+    -8.0,
+    8.0
+  ],
+  "density_unit": "states/eV per cell",
+  "down_spin_plot_sign": -1,
+  "csv_densities_are_unsigned": true,
+  "projection_note": "PAW sphere projections need not sum to the total DOS.",
+  "projected_dos_available": true
+}

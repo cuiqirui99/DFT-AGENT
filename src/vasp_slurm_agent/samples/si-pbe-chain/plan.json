@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "input_policy": 2,
   "tasks": [
     "relax",
     "scf",
@@ -9,22 +10,21 @@
   "parameters": {
     "encut": 400,
     "mesh": [
-      2,
-      2,
-      2
+      16,
+      16,
+      16
     ],
-    "ediff": 1e-05,
-    "ediffg": -0.03,
+    "ediff": 1e-06,
+    "ediffg": -0.01,
     "nelm": 160,
     "nsw": 100,
-    "ismear": 0,
-    "sigma": 0.1,
-    "line_density": 1,
-    "nedos": 301,
-    "cell_relax": false
+    "electronic_type": "insulator",
+    "line_density": 60,
+    "nedos": 2001,
+    "cell_relax": true
   },
   "sources": {
-    "source/input/si-pbe-chain.vasp": "0af1bd6005cfe9527c7e40a38ae389b4fbdedb1fc0953ee5c36f29b6bb940cce"
+    "source/input/si-pbe-chain-ideal.vasp": "2942e884c6a7feb5a81a19d1c86a53a8d24b7399939435eff0c6b302e121b303"
   },
   "magnetic_seeds": null,
   "stages": [
@@ -34,23 +34,22 @@
       "parameters": {
         "encut": 400,
         "mesh": [
-          2,
-          2,
-          2
+          16,
+          16,
+          16
         ],
-        "ediff": 1e-05,
-        "ediffg": -0.03,
+        "ediff": 1e-06,
+        "ediffg": -0.01,
         "nelm": 160,
         "nsw": 100,
-        "ismear": 0,
-        "sigma": 0.1,
-        "line_density": 1,
-        "nedos": 301,
-        "cell_relax": false
+        "electronic_type": "insulator",
+        "line_density": 60,
+        "nedos": 2001,
+        "cell_relax": true
       },
       "structure_from": null,
       "charge_from": null,
-      "source_path": "source/input/si-pbe-chain.vasp"
+      "source_path": "source/input/si-pbe-chain-ideal.vasp"
     },
     {
       "name": "scf",
@@ -58,23 +57,22 @@
       "parameters": {
         "encut": 400,
         "mesh": [
-          2,
-          2,
-          2
+          16,
+          16,
+          16
         ],
-        "ediff": 1e-05,
-        "ediffg": -0.03,
+        "ediff": 1e-06,
+        "ediffg": -0.01,
         "nelm": 160,
         "nsw": 100,
-        "ismear": 0,
-        "sigma": 0.1,
-        "line_density": 1,
-        "nedos": 301,
-        "cell_relax": false
+        "electronic_type": "insulator",
+        "line_density": 60,
+        "nedos": 2001,
+        "cell_relax": true
       },
       "structure_from": 0,
       "charge_from": null,
-      "source_path": "source/input/si-pbe-chain.vasp"
+      "source_path": "source/input/si-pbe-chain-ideal.vasp"
     },
     {
       "name": "bands",
@@ -82,23 +80,22 @@
       "parameters": {
         "encut": 400,
         "mesh": [
-          2,
-          2,
-          2
+          16,
+          16,
+          16
         ],
-        "ediff": 1e-05,
-        "ediffg": -0.03,
+        "ediff": 1e-06,
+        "ediffg": -0.01,
         "nelm": 160,
         "nsw": 100,
-        "ismear": 0,
-        "sigma": 0.1,
-        "line_density": 1,
-        "nedos": 301,
-        "cell_relax": false
+        "electronic_type": "insulator",
+        "line_density": 60,
+        "nedos": 2001,
+        "cell_relax": true
       },
       "structure_from": 0,
       "charge_from": 1,
-      "source_path": "source/input/si-pbe-chain.vasp"
+      "source_path": "source/input/si-pbe-chain-ideal.vasp"
     },
     {
       "name": "dos",
@@ -106,23 +103,22 @@
       "parameters": {
         "encut": 400,
         "mesh": [
-          2,
-          2,
-          2
+          16,
+          16,
+          16
         ],
-        "ediff": 1e-05,
-        "ediffg": -0.03,
+        "ediff": 1e-06,
+        "ediffg": -0.01,
         "nelm": 160,
         "nsw": 100,
-        "ismear": 0,
-        "sigma": 0.1,
-        "line_density": 1,
-        "nedos": 301,
-        "cell_relax": false
+        "electronic_type": "insulator",
+        "line_density": 60,
+        "nedos": 2001,
+        "cell_relax": true
       },
       "structure_from": 0,
       "charge_from": 1,
-      "source_path": "source/input/si-pbe-chain.vasp"
+      "source_path": "source/input/si-pbe-chain-ideal.vasp"
     }
   ]
 }

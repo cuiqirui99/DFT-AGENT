@@ -1,6 +1,6 @@
 # Install
 
-Download the macOS or Windows installer from [v0.4.4](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.4).
+Download the macOS or Windows installer from [v0.4.5](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5).
 
 ## Desktop app
 
@@ -27,7 +27,7 @@ your IT team. [Microsoft's guidance](https://learn.microsoft.com/en-us/windows/a
    request. CLI tools are installed separately. [Model setup](models.md).
 2. Open **Cluster** and enter `ssh name@host`. Follow the password or login-code
    prompts that apply to your site, then review the detected software.
-3. Return to chat, import a structure under **Context → Files → Add files**,
+3. Return to chat, import a structure under **Files and runs → Files → Add files**,
    and describe the calculation. Review **Prepare inputs** before **Submit**.
 
 For offline samples and manual preparation, open **Settings → Legacy workbench**.
@@ -101,7 +101,7 @@ check that the selected potentials suit the calculation, especially SOC.
 For Linux users and developers, use Python 3.11 or newer. On macOS/Linux:
 
 ```bash
-git clone --branch v0.4.4 https://github.com/cuiqirui99/DFT-AGENT.git dft-agent
+git clone --branch v0.4.5 https://github.com/cuiqirui99/DFT-AGENT.git dft-agent
 cd dft-agent
 python3 -m venv .venv
 source .venv/bin/activate
@@ -109,7 +109,7 @@ python -m pip install '.[agent]'
 dft-agent ui
 ```
 
-These commands install version `0.4.4`.
+These commands install version `0.4.5`.
 The Python interface opens in a local browser at
 `http://127.0.0.1:8501`; `--no-browser` skips opening it and `--port` selects
 another port. OpenSSH is required for macOS/Linux cluster connections.

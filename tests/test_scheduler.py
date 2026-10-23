@@ -35,7 +35,8 @@ def pbs_output(job="241.pbs.example.org", state="F", code=0, name="example"):
 def test_default_serialization_preserves_legacy_frozen_config(tmp_path):
     cfg = config()
     old = asdict(cfg)
-    for key in ("scheduler", "extra_pbs", "ssh_jump_host", "ssh_identity_file", "connection_id", "connection_home"):
+    for key in ("scheduler", "extra_pbs", "ssh_jump_host", "ssh_identity_file", "connection_id", "connection_home",
+                "engine_command", "engine_library_root", "engine_library"):
         old.pop(key)
     source = json.dumps(old, indent=2) + "\n"
     path = tmp_path / "config.json"

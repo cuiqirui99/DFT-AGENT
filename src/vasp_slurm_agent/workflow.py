@@ -116,6 +116,10 @@ def _launch_command(config, metadata):
     command = config.vasp_ncl_command if metadata.get("requires_ncl") else config.vasp_command
     if not command.strip():
         raise ValueError("Set vasp_ncl_command before preparing SOC or noncollinear calculations.")
+    kpar = (metadata.get("parameters") or {}).get("kpar")
+    if kpar and config.tasks % kpar:
+        raise ValueError(f"KPAR = {kpar} splits the ranks into {kpar} k-point groups; use a multiple of {kpar} tasks, "
+                         "or prepare the run again for the new task count.")
     return command
 
 
@@ -147,6 +151,11 @@ def prepare_plan(structure_path, run_dir, config, tasks, parameters=None, magnet
     With config=None the inputs are prepared locally for review; attach_config
     adds the cluster settings before submission.
     """
+    if config is not None and config.engine in {"abinit", "cp2k", "elk"}:
+        if magnetic_states:
+            raise ValueError("Use explicit starting moments for each magnetic calculation.")
+        from .engine_workflow import prepare_plan as prepare_engine
+        return prepare_engine(structure_path, run_dir, config, tasks, parameters, stage_parameters=stage_parameters)
     if config is not None and config.engine == "qe":
         if magnetic_states:
             raise ValueError("Use explicit QE starting magnetizations for each magnetic calculation.")
@@ -172,6 +181,11 @@ def prepare_plan(structure_path, run_dir, config, tasks, parameters=None, magnet
     source = Path(structure_path).expanduser().resolve()
     if not source.is_file():
         raise FileNotFoundError(source)
+    if config is not None and magnetic_states is None:
+        from .vasp import hybrid_kpar
+        for task, recipe in zip(tasks, recipes):
+            if recipe.get("functional", "PBE") in {"HSE06", "PBE0"} and recipe.get("kpar") is None:
+                recipe["kpar"] = hybrid_kpar(source, recipe, task, config.tasks)
     if root.exists() and (not root.is_dir() or any(root.iterdir())):
         raise FileExistsError("This run already exists. Resume it or choose a new run directory.")
     root.parent.mkdir(parents=True, exist_ok=True)
@@ -444,6 +458,9 @@ def attach_config(run_dir, config):
     if read_state(run_dir).get("engine") == "qe":
         from .qe_workflow import attach_config as attach_qe
         return attach_qe(run_dir, config)
+    if read_state(run_dir).get("engine") in {"abinit", "cp2k", "elk"}:
+        from .engine_workflow import attach_config as attach_engine
+        return attach_engine(run_dir, config)
     if config.engine != "vasp":
         raise ValueError("Attach a VASP cluster to this VASP run.")
     root = Path(run_dir).expanduser().resolve()
@@ -809,6 +826,9 @@ def advance(run_dir, transport=None, *, poll_only=False):
     if read_state(run_dir).get("engine") == "qe":
         from .qe_workflow import advance as advance_qe
         return advance_qe(run_dir, transport=transport, poll_only=poll_only)
+    if read_state(run_dir).get("engine") in {"abinit", "cp2k", "elk"}:
+        from .engine_workflow import advance as advance_engine
+        return advance_engine(run_dir, transport=transport, poll_only=poll_only)
     root = Path(run_dir).expanduser().resolve()
     with _lock(root):
         state = read_state(root)
@@ -887,6 +907,9 @@ def resume(run_dir, transport=None):
     if read_state(run_dir).get("engine") == "qe":
         from .qe_workflow import resume as resume_qe
         return resume_qe(run_dir, transport=transport)
+    if read_state(run_dir).get("engine") in {"abinit", "cp2k", "elk"}:
+        from .engine_workflow import resume as resume_engine
+        return resume_engine(run_dir, transport=transport)
     root = Path(run_dir).expanduser().resolve()
     with _lock(root):
         state = read_state(root)
@@ -937,6 +960,9 @@ def cancel(run_dir, transport=None):
     if read_state(run_dir).get("engine") == "qe":
         from .qe_workflow import cancel as cancel_qe
         return cancel_qe(run_dir, transport=transport)
+    if read_state(run_dir).get("engine") in {"abinit", "cp2k", "elk"}:
+        from .engine_workflow import cancel as cancel_engine
+        return cancel_engine(run_dir, transport=transport)
     root = Path(run_dir).expanduser().resolve()
     with _lock(root):
         state = read_state(root)
@@ -1019,6 +1045,9 @@ def bundle_run(run_dir):
     if read_state(run_dir).get("engine") == "qe":
         from .qe_workflow import bundle_run as bundle_qe
         return bundle_qe(run_dir)
+    if read_state(run_dir).get("engine") in {"abinit", "cp2k", "elk"}:
+        from .engine_workflow import bundle_run as bundle_engine
+        return bundle_engine(run_dir)
     root = Path(run_dir).expanduser().resolve()
     target = root / "results.zip"
     with zipfile.ZipFile(target.with_suffix(".tmp"), "w", zipfile.ZIP_DEFLATED) as archive:

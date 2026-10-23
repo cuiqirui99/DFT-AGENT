@@ -29,6 +29,9 @@ section modules
 { module -t avail 2>&1; module -t spider vasp 2>&1; } | grep -i vasp | grep -v -i -E 'error|not found|command' | sed 's/:$//' | sort -u | head -n 30
 section executables
 for n in vasp_std vasp_ncl vasp_gam; do p=$(command -v "$n" 2>/dev/null) && printf '%s=%s\n' "$n" "$p"; done
+section codes
+for n in abinit cp2k.psmp cp2k.popt cp2k elk pw.x; do p=$(command -v "$n" 2>/dev/null) && printf 'exe %s=%s\n' "$n" "$p"; done
+{ module -t avail 2>&1; } | grep -i -E '^(abinit|cp2k|elk|qe|quantum[-_]?espresso)([/-]|$)' | grep -v -i -E 'error|not found' | sed 's/([^)]*)//g; s/:$//' | sort -u | head -n 40 | sed 's/^/module /'
 section potcar
 {
   for d in "$VASP_PP_PATH" "$POTCAR_DIR" "$POTCAR_PATH" "$HOME"/potcar* "$HOME"/POTCAR* "$HOME"/*/potpaw* "$HOME"/*/*potpaw* "$HOME"/*/POTCAR* /opt/*/potpaw* /opt/*/*/potpaw* /sw/*/potpaw* /software/*/potpaw* /software/*/*/potpaw* /apps/*/potpaw* /apps/*/*/potpaw* /public*/soft*/*/potpaw* /public*/soft*/*/*/potpaw*; do
@@ -45,7 +48,8 @@ for d in "$SCRATCH" "$WORK" "$WORKDIR" "$PDC_TMP" "/scratch/$u" "$HOME/scratch" 
   [ -n "$d" ] && [ -d "$d" ] && [ -w "$d" ] && printf '%s\n' "$d"
 done 2>/dev/null | awk '!seen[$0]++' | head -n 10
 """
-SECTIONS = ("home", "user", "slurm", "partitions", "accounts", "modules", "executables", "potcar", "scratch")
+SECTIONS = ("home", "user", "slurm", "partitions", "accounts", "modules", "executables", "codes", "potcar", "scratch")
+CODES = {"abinit": ("abinit",), "cp2k": ("cp2k.psmp", "cp2k.popt", "cp2k"), "elk": ("elk",), "qe": ("pw.x",)}
 _SAFE_TEXT = re.compile(r"[^\x20-\x7e]")
 _NAME = re.compile(r"[\w.+/:@-]+")
 _GPU_MODULE = re.compile(r"(?:^|[^a-z])(gpu|cuda|openacc)(?:[^a-z]|$)", re.I)
@@ -93,18 +97,43 @@ def parse_probe(output: str) -> dict:
                            "nodes": fields[3] if len(fields) > 3 else "", "gres": gres,
                            "gpus_per_node": sum(int(count) for count in gpu_counts)})
     accounts = [line for line in sections["accounts"] if re.fullmatch(r"[\w.-]+", line)]
-    modules = [line for line in sections["modules"] if _NAME.fullmatch(line)]
+    # Lmod's terse listing also prints bare folder names such as "VASP/".
+    modules = [line for line in sections["modules"] if _NAME.fullmatch(line) and not line.endswith("/")]
     executables = {}
     for line in sections["executables"]:
         name, _, path = line.partition("=")
         if name in {"vasp_std", "vasp_ncl", "vasp_gam"} and path.startswith("/"):
             executables[name] = path
+    codes = {engine: {"executables": {}, "modules": []} for engine in CODES}
+    for line in sections.get("codes", []):
+        kind, _, value = line.partition(" ")
+        if kind == "exe":
+            name, _, location = value.partition("=")
+            engine = next((key for key, names in CODES.items() if name in names), None)
+            if engine and location.startswith("/") and _NAME.fullmatch(location):
+                codes[engine]["executables"][name] = location
+        elif kind == "module" and _NAME.fullmatch(value) and not value.endswith("/"):
+            engine = next((key for key in CODES if value.lower().startswith(key)), None)
+            if re.match(r"quantum[-_]?espresso[/\-]", value, re.I):
+                engine = "qe"
+            if engine and value not in codes[engine]["modules"]:
+                codes[engine]["modules"].append(value)
     potcar = [line for line in sections["potcar"] if line.startswith("/")]
     scratch = [line for line in sections["scratch"] if line.startswith("/")]
     home = next((line for line in sections["home"] if line.startswith("/")), "")
     return {"home": home, "user": sections["user"][0] if sections["user"] else "",
             "slurm": sections["slurm"], "partitions": partitions, "accounts": accounts, "modules": modules,
-            "executables": executables, "potcar_roots": potcar, "scratch_dirs": scratch}
+            "executables": executables, "codes": codes, "potcar_roots": potcar, "scratch_dirs": scratch}
+
+
+def preferred_module(names):
+    """The newest explicitly versioned module; aliases such as recommendation only as a fallback."""
+    candidates = [name for name in names if not name.endswith("/")]
+    explicit = [name for name in candidates if not re.search(r"/(?:recommendation|recommended|default|latest)$", name, re.I)]
+    pool = explicit or candidates
+    if not pool:
+        return None
+    return max(pool, key=lambda name: tuple(int(part) for part in re.findall(r"\d+", name.split("/", 1)[-1])[:3]))
 
 
 def suggest(facts: dict, compute_backend: str = "cpu") -> dict:
@@ -146,11 +175,13 @@ def suggest(facts: dict, compute_backend: str = "cpu") -> dict:
         suggested["vasp_command"] = "srun vasp_std"
         suggested["vasp_ncl_command"] = "srun vasp_ncl" if "vasp_ncl" in executables else ""
     elif modules:
-        suggested["setup_commands"] = [f"module load {modules[0]}"]
+        chosen = preferred_module(modules)
+        suggested["setup_commands"] = [f"module load {chosen}"]
         suggested["vasp_command"] = "srun vasp_std"
         suggested["vasp_ncl_command"] = "srun vasp_ncl"
-        if len(modules) > 1:
-            notes.append("Other VASP modules: " + ", ".join(modules[1:6]) + ".")
+        others = [name for name in modules if name != chosen]
+        if others:
+            notes.append("Other VASP modules: " + ", ".join(others[:5]) + ".")
     elif compute_backend == "gpu":
         notes.append("No GPU VASP module was identified. Set the module and command for your GPU build.")
     else:

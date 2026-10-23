@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "engine": "abinit",
+  "task": "relax",
+  "canonical_task": "relax",
+  "formula": "Si",
+  "number_of_atoms": 2,
+  "parameters": {
+    "mesh": [
+      2,
+      2,
+      2
+    ],
+    "dos_mesh": [
+      3,
+      3,
+      3
+    ],
+    "ecut_ha": 10,
+    "line_density": 4,
+    "max_ionic_steps": 20
+  },
+  "source_sha256": "1b2fc214abe4227c8573c5a07dc2244d93a6f13fa8ad27efd533b26604f42764",
+  "requires_restart": false,
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        3.325182306911612,
+        0.0,
+        1.9197949000000005
+      ],
+      [
+        1.1083941023038708,
+        3.1350119438649715,
+        1.9197949000000005
+      ],
+      [
+        0.0,
+        0.0,
+        3.8395898
+      ]
+    ],
+    "elements": [
+      "Si",
+      "Si"
+    ],
+    "fractional_positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.26,
+        0.24,
+        0.25
+      ]
+    ]
+  },
+  "elements": [
+    "Si"
+  ],
+  "scientific_accuracy_validated": false,
+  "mesh": [
+    2,
+    2,
+    2
+  ],
+  "input_file": "run.abi",
+  "output_file": "run.abo",
+  "stdout_file": "run.log",
+  "arguments": [
+    "run.abi"
+  ],
+  "input_files": [
+    "run.abi",
+    "structure.cif",
+    "abinit-input.json"
+  ],
+  "output_files": [
+    "run.abo",
+    "run.log",
+    "dft_agento_EIG",
+    "dft_agento_DOS"
+  ],
+  "pseudopotentials": {
+    "Si": {
+      "filename": "Si.pbe_sr.psp8",
+      "hints_ha": {
+        "high": 24.0,
+        "low": 14.0,
+        "normal": 18.0
+      },
+      "l_max": 2,
+      "md5": "45c393525680abc7b25445b8ec62bf83",
+      "path": "Si/Si.psp8",
+      "pspxc": 11,
+      "sha256": "5fe6068c15de07c06f23e61b681855f428ec585681c4308ab4cc2249b9644c95",
+      "size": 280044,
+      "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Si/Si.psp8",
+      "valence": 4.0,
+      "zatom": 14.0,
+      "library": "pbe_sr",
+      "element": "Si"
+    }
+  },
+  "library_key": "pbe_sr",
+  "library_dir": "library",
+  "library_files": {
+    "Si.pbe_sr.psp8": {
+      "element": "Si",
+      "sha256": "5fe6068c15de07c06f23e61b681855f428ec585681c4308ab4cc2249b9644c95",
+      "size": 280044,
+      "kind": "psp8",
+      "valence": 4.0
+    }
+  },
+  "electrons": 8.0,
+  "ecut_ha": 10.0,
+  "occopt": 7,
+  "tsmear_ha": 0.00499790781588908,
+  "spin": "none",
+  "spinor": false,
+  "soc": false,
+  "nsppol": 1,
+  "bands": 8,
+  "starting_moments": null,
+  "notes": []
+}

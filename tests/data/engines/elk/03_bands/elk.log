@@ -1,0 +1,174 @@
+
+┌─────────────────────────────────┐
+│ Elk code version 10.2.4 started │
+└─────────────────────────────────┘
+
+Number of MPI processes :      1
+Number of OpenMP threads per MPI process :    8
+Total number of threads (MPI x OpenMP) :      8
+Maximum OpenMP nesting level :    4
+Number of OpenMP threads at first nesting level :    8
+Number of MKL threads :    8
+
+RAM disk enabled
+
+┌───────────────────┐
+│ Current task : 20 │
+└───────────────────┘
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.2000 to   2.1964
+Info(bandstr):      1 of    145 k-points
+Info(bandstr):      2 of    145 k-points
+Info(bandstr):      3 of    145 k-points
+Info(bandstr):      4 of    145 k-points
+Info(bandstr):      5 of    145 k-points
+Info(bandstr):      6 of    145 k-points
+Info(bandstr):      7 of    145 k-points
+Info(bandstr):      8 of    145 k-points
+Info(bandstr):      9 of    145 k-points
+Info(bandstr):     10 of    145 k-points
+Info(bandstr):     11 of    145 k-points
+Info(bandstr):     12 of    145 k-points
+Info(bandstr):     13 of    145 k-points
+Info(bandstr):     14 of    145 k-points
+Info(bandstr):     15 of    145 k-points
+Info(bandstr):     16 of    145 k-points
+Info(bandstr):     17 of    145 k-points
+Info(bandstr):     18 of    145 k-points
+Info(bandstr):     19 of    145 k-points
+Info(bandstr):     20 of    145 k-points
+Info(bandstr):     21 of    145 k-points
+Info(bandstr):     22 of    145 k-points
+Info(bandstr):     23 of    145 k-points
+Info(bandstr):     24 of    145 k-points
+Info(bandstr):     25 of    145 k-points
+Info(bandstr):     26 of    145 k-points
+Info(bandstr):     27 of    145 k-points
+Info(bandstr):     28 of    145 k-points
+Info(bandstr):     29 of    145 k-points
+Info(bandstr):     30 of    145 k-points
+Info(bandstr):     31 of    145 k-points
+Info(bandstr):     32 of    145 k-points
+Info(bandstr):     33 of    145 k-points
+Info(bandstr):     34 of    145 k-points
+Info(bandstr):     35 of    145 k-points
+Info(bandstr):     36 of    145 k-points
+Info(bandstr):     37 of    145 k-points
+Info(bandstr):     38 of    145 k-points
+Info(bandstr):     39 of    145 k-points
+Info(bandstr):     40 of    145 k-points
+Info(bandstr):     41 of    145 k-points
+Info(bandstr):     42 of    145 k-points
+Info(bandstr):     43 of    145 k-points
+Info(bandstr):     44 of    145 k-points
+Info(bandstr):     45 of    145 k-points
+Info(bandstr):     46 of    145 k-points
+Info(bandstr):     47 of    145 k-points
+Info(bandstr):     48 of    145 k-points
+Info(bandstr):     49 of    145 k-points
+Info(bandstr):     50 of    145 k-points
+Info(bandstr):     51 of    145 k-points
+Info(bandstr):     52 of    145 k-points
+Info(bandstr):     53 of    145 k-points
+Info(bandstr):     54 of    145 k-points
+Info(bandstr):     55 of    145 k-points
+Info(bandstr):     56 of    145 k-points
+Info(bandstr):     57 of    145 k-points
+Info(bandstr):     58 of    145 k-points
+Info(bandstr):     59 of    145 k-points
+Info(bandstr):     60 of    145 k-points
+Info(bandstr):     61 of    145 k-points
+Info(bandstr):     62 of    145 k-points
+Info(bandstr):     63 of    145 k-points
+Info(bandstr):     64 of    145 k-points
+Info(bandstr):     65 of    145 k-points
+Info(bandstr):     66 of    145 k-points
+Info(bandstr):     67 of    145 k-points
+Info(bandstr):     68 of    145 k-points
+Info(bandstr):     69 of    145 k-points
+Info(bandstr):     70 of    145 k-points
+Info(bandstr):     71 of    145 k-points
+Info(bandstr):     72 of    145 k-points
+Info(bandstr):     73 of    145 k-points
+Info(bandstr):     74 of    145 k-points
+Info(bandstr):     75 of    145 k-points
+Info(bandstr):     76 of    145 k-points
+Info(bandstr):     77 of    145 k-points
+Info(bandstr):     78 of    145 k-points
+Info(bandstr):     79 of    145 k-points
+Info(bandstr):     80 of    145 k-points
+Info(bandstr):     81 of    145 k-points
+Info(bandstr):     82 of    145 k-points
+Info(bandstr):     83 of    145 k-points
+Info(bandstr):     84 of    145 k-points
+Info(bandstr):     85 of    145 k-points
+Info(bandstr):     86 of    145 k-points
+Info(bandstr):     87 of    145 k-points
+Info(bandstr):     88 of    145 k-points
+Info(bandstr):     89 of    145 k-points
+Info(bandstr):     90 of    145 k-points
+Info(bandstr):     91 of    145 k-points
+Info(bandstr):     92 of    145 k-points
+Info(bandstr):     93 of    145 k-points
+Info(bandstr):     94 of    145 k-points
+Info(bandstr):     95 of    145 k-points
+Info(bandstr):     96 of    145 k-points
+Info(bandstr):     97 of    145 k-points
+Info(bandstr):     98 of    145 k-points
+Info(bandstr):     99 of    145 k-points
+Info(bandstr):    100 of    145 k-points
+Info(bandstr):    101 of    145 k-points
+Info(bandstr):    102 of    145 k-points
+Info(bandstr):    103 of    145 k-points
+Info(bandstr):    104 of    145 k-points
+Info(bandstr):    105 of    145 k-points
+Info(bandstr):    106 of    145 k-points
+Info(bandstr):    107 of    145 k-points
+Info(bandstr):    108 of    145 k-points
+Info(bandstr):    109 of    145 k-points
+Info(bandstr):    110 of    145 k-points
+Info(bandstr):    111 of    145 k-points
+Info(bandstr):    112 of    145 k-points
+Info(bandstr):    113 of    145 k-points
+Info(bandstr):    114 of    145 k-points
+Info(bandstr):    115 of    145 k-points
+Info(bandstr):    116 of    145 k-points
+Info(bandstr):    117 of    145 k-points
+Info(bandstr):    118 of    145 k-points
+Info(bandstr):    119 of    145 k-points
+Info(bandstr):    120 of    145 k-points
+Info(bandstr):    121 of    145 k-points
+Info(bandstr):    122 of    145 k-points
+Info(bandstr):    123 of    145 k-points
+Info(bandstr):    124 of    145 k-points
+Info(bandstr):    125 of    145 k-points
+Info(bandstr):    126 of    145 k-points
+Info(bandstr):    127 of    145 k-points
+Info(bandstr):    128 of    145 k-points
+Info(bandstr):    129 of    145 k-points
+Info(bandstr):    130 of    145 k-points
+Info(bandstr):    131 of    145 k-points
+Info(bandstr):    132 of    145 k-points
+Info(bandstr):    133 of    145 k-points
+Info(bandstr):    134 of    145 k-points
+Info(bandstr):    135 of    145 k-points
+Info(bandstr):    136 of    145 k-points
+Info(bandstr):    137 of    145 k-points
+Info(bandstr):    138 of    145 k-points
+Info(bandstr):    139 of    145 k-points
+Info(bandstr):    140 of    145 k-points
+Info(bandstr):    141 of    145 k-points
+Info(bandstr):    142 of    145 k-points
+Info(bandstr):    143 of    145 k-points
+Info(bandstr):    144 of    145 k-points
+Info(bandstr):    145 of    145 k-points
+
+Info(bandstr):
+ Band structure plot written to BAND.OUT
+
+ Fermi energy is at zero in plot
+
+ Vertex location lines written to BANDLINES.OUT
+
+┌──────────────────┐
+│ Elk code stopped │
+└──────────────────┘

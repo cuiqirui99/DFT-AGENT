@@ -21,6 +21,70 @@ POTCAR_REFERENCE = "https://pymatgen.org/pymatgen.io.vasp.html#pymatgen.io.vasp.
 PAW_REFERENCE = "https://vasp.at/wiki/Choosing_pseudopotentials"
 KPOINT_REFERENCE = "https://vasp.at/wiki/KSPACING"
 SMEARING_REFERENCE = "https://vasp.at/wiki/Smearing_technique"
+# Symmetry tolerance (Å) for band paths. Relaxed cells keep residual distortions of a few mÅ;
+# seekpath's default 1e-5 Å then reports a low-symmetry path (relaxed silicon became monoclinic,
+# with labels C, Y_2, M_2 instead of X, K, L). 0.01 Å still missed half of the cells with 3 mÅ of
+# noise and 0.05 % strain; 0.02 Å finds them all and keeps a 1 % tetragonal or 0.05 Å polar distortion.
+BAND_PATH_SYMPREC = 0.02
+# Every path segment gets at least this many k-points, so bands are never drawn as straight
+# lines between high-symmetry points, whatever the line density or cell size.
+BAND_PATH_MIN_SEGMENT_POINTS = 10
+
+
+def path_time_reversal(moments, spinor):
+    """Whether E(k) = E(-k), so the path can skip its inverted half. Without a magnetic moment it
+    holds even with spin-orbit coupling (Kramers pairs), and a collinear magnet without spinor
+    states keeps it in each spin channel; only a moment acting on spinors breaks it."""
+    magnetic = moments is not None and bool(np.any(np.abs(np.asarray(moments, dtype=float)) > 1e-8))
+    return not (magnetic and spinor)
+
+
+def high_symmetry_path(structure, line_density, *, time_reversal=True, site_types=None):
+    """seekpath's HPKOT path in the input cell's reciprocal basis, with short segments filled in.
+
+    As in seekpath, consecutive segments share their joining point, a jump (such as U|K) adds no
+    distance, and only segment ends carry labels. Across a vacuum (a monolayer or a wire) only the
+    segments in the periodic directions are kept: a monolayer gets Γ–M–K–Γ, not the flat Γ–A–L–H part.
+    site_types (one label per site, such as a starting moment) separates otherwise equal atoms, so an
+    antiferromagnet follows its magnetic cell instead of a folded path of the smaller structural cell.
+    """
+    import seekpath
+
+    labels = [site.specie.Z for site in structure] if site_types is None else [
+        (site.specie.Z, kind) for site, kind in zip(structure, site_types, strict=True)]
+    numbers = {key: index + 1 for index, key in enumerate(dict.fromkeys(labels))}
+    path = seekpath.get_explicit_k_path_orig_cell(
+        (structure.lattice.matrix, structure.frac_coords, [numbers[key] for key in labels]),
+        reference_distance=1.0 / line_density, with_time_reversal=time_reversal, symprec=BAND_PATH_SYMPREC)
+    original, names = np.asarray(path["explicit_kpoints_rel"], dtype=float), list(path["explicit_kpoints_labels"])
+    vacuum = [item["axis"] for item in vacuum_axes(structure)]
+    periodic = [(start, end) for start, end in path["explicit_segments"]
+                if all(abs(original[index][axis]) < 1e-6 for index in (start, end - 1) for axis in vacuum)]
+    reciprocal = structure.lattice.reciprocal_lattice
+    points, labels, distance, segments, previous_end = [], [], [], [], None
+    for start, end in (periodic if vacuum and periodic else path["explicit_segments"]):
+        block, block_labels = original[start:end], names[start:end]
+        if end - start < BAND_PATH_MIN_SEGMENT_POINTS:
+            count = BAND_PATH_MIN_SEGMENT_POINTS
+            block = block[0] + np.linspace(0.0, 1.0, count)[:, None] * (block[-1] - block[0])
+            block_labels = [names[start]] + [""] * (count - 2) + [names[end - 1]]
+        cartesian = reciprocal.get_cartesian_coords(block)
+        local = np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(cartesian, axis=0), axis=1))]
+        offset = distance[-1] if distance else 0.0
+        if previous_end is not None and start == previous_end - 1:
+            first = len(points) - 1
+            block, block_labels, local = block[1:], block_labels[1:], local[1:]
+        else:
+            first = len(points)
+        points += block.tolist()
+        labels += block_labels
+        distance += (offset + local).tolist()
+        segments.append([first, len(points)])
+        previous_end = end
+    return {"reciprocal_fractional": points, "distance_inv_angstrom": distance, "labels": labels, "segments": segments,
+            "method": "seekpath_hpkot_orig_cell", "symprec_angstrom": BAND_PATH_SYMPREC,
+            "min_segment_points": BAND_PATH_MIN_SEGMENT_POINTS, "is_supercell": bool(path["is_supercell"]),
+            "vacuum_axes": vacuum}
 
 
 def vacuum_axes(structure):

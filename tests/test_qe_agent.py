@@ -220,3 +220,29 @@ def test_guidance_and_verified_cases_reach_planning_model(setup, monkeypatch, tm
     plan = qe_agent.draft_task("SCF", source, agent.ModelSettings("codex"), config=config, runs_root=tmp_path)
     assert requested == [(source, {"runs_root": tmp_path})]
     assert payloads[0]["scientific_context"] == plan["scientific_report"] == guidance
+
+
+def test_planner_sees_each_upf_functional_and_type(setup, monkeypatch):
+    # Without the functional, the planner asked whether the UPFs suit PBE+U.
+    from dataclasses import replace
+    source, _, config = setup
+    config = replace(config, qe_pseudopotentials={"Si": {"filename": "Si.UPF", "sha256": "a" * 64, "functional": "PBE",
+                                                         "pseudo_type": "NC", "relativistic": "scalar"}})
+    seen = {}
+
+    def reply(payload, *args, **kwargs):
+        seen.update(json.loads(payload))
+        return json.dumps(response(("scf",)))
+
+    monkeypatch.setattr(agent, "_request_structured", reply)
+    qe_agent.draft_task("SCF of silicon", source, agent.ModelSettings("codex"), config=config)
+    assert seen["pseudopotentials"]["Si"] == {"configured": True, "fully_relativistic": False, "functional": "PBE", "pseudo_type": "NC"}
+
+
+def test_unsupported_plan_is_not_asked_to_confirm_a_sequence(setup, monkeypatch):
+    source, _, config = setup
+    plan = response(("bands",))
+    plan.update(status="unsupported", stages=[], intent={"requested_tasks": ["bands"], "forbidden_tasks": [], "unsupported": ["GW"]})
+    mock(monkeypatch, plan)
+    result = qe_agent.draft_task("GW bands of silicon", source, agent.ModelSettings("codex"), config=config)
+    assert result["status"] == "unsupported" and not any("sequence" in question for question in result["questions"])

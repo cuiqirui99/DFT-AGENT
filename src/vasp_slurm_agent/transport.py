@@ -308,6 +308,21 @@ def _run_process(argv: list[str], *, timeout: float, **kwargs: Any) -> subproces
         return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
 
 
+_MUX_WINDOW = (7680, 8704)
+
+
+def _mux_safe(command: str) -> str:
+    """Keep a remote command clear of OpenSSH's multiplexing failure on macOS.
+
+    When a session request nearly fills the 8 KB control-socket buffer, the client cannot pass its
+    file descriptors ("mm_send_fd: sendmsg(2): Message too long"): commands of 8084-8124 bytes
+    failed every time, shorter and longer ones did not. Trailing spaces move the request past it.
+    """
+    low, high = _MUX_WINDOW
+    size = len(command.encode("utf-8"))
+    return command + " " * (high - size) if low <= size < high else command
+
+
 class SSHTransport:
     """Config requires host, user, port and connect_timeout.
 
@@ -523,7 +538,7 @@ class SSHTransport:
             except TransportError as exc:
                 raise type(exc)(self._redact(str(exc))) from None
         return self._execute(
-            [*self._ssh(), "--", self._host, "bash -lc " + shlex.quote(command)], timeout
+            [*self._ssh(), "--", self._host, _mux_safe("bash -lc " + shlex.quote(command))], timeout
         )
 
     def _require_success(self, result: Result, operation: str) -> None:

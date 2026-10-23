@@ -30,7 +30,11 @@ Seed evidence is retained; WAVECAR stays on the cluster. Previously prepared
 jobs keep their original inputs. [VASP hybrid guide](https://vasp.at/wiki/LHFCALC).
 Inspect final moments: the PBE seed can change the magnetic state, and MAGMOM
 does not reset moments when restarting. [VASP MAGMOM](https://vasp.at/wiki/MAGMOM).
-Hybrid bands require VASP 6 with [LFOCKACE](https://vasp.at/wiki/LFOCKACE) support.
+Hybrid runs split the k points into groups that fit the job's tasks (`KPAR`). Without it,
+VASP 5.4.4 gave silicon 64 bands on 64 ranks and its HSE06 SCF took 22 minutes instead of 34 seconds.
+Hybrid bands use adaptively compressed exchange ([LFOCKACE](https://vasp.at/wiki/LFOCKACE)) where
+VASP 6 provides it; VASP 5 ignores the tag and applies the full exchange operator, which is slower
+(a silicon HSE06 path took 18 minutes on 64 ranks of VASP 5.4.4).
 They combine a weighted mesh and a zero-weight path and are
 self-consistent and do not use `ICHARG=11`. A minimum of ten electronic steps
 is enforced. Bands use Davidson iteration and reject equivalent k points whose

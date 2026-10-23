@@ -117,7 +117,7 @@ def _review(plan, structure, settings, goal, history, runs_root):
     order = ["relax", "scf", "bands", "dos"]
     if tasks != [task for task in order if task in tasks]:
         raise AgentError("Use each calculation once, with relaxation first.")
-    if set(tasks) & set(intent["forbidden_tasks"]) or not set(intent["requested_tasks"]).issubset(tasks):
+    if plan["status"] != "unsupported" and (set(tasks) & set(intent["forbidden_tasks"]) or not set(intent["requested_tasks"]).issubset(tasks)):
         _ask(plan, "Confirm the calculation sequence; it differs from your request.")
     species = [site["element"] for site in structure["sites"]]
     reports = []

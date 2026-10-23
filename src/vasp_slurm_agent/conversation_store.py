@@ -70,7 +70,7 @@ def _validate(root, record):
         identifier = str(uuid.UUID(record["id"]))
     except (KeyError, ValueError, TypeError, AttributeError):
         raise ValueError("Invalid conversation identity.") from None
-    if identifier != root.name or record["id"] != identifier or record.get("engine") not in {"vasp", "qe"}:
+    if identifier != root.name or record["id"] != identifier or record.get("engine") not in {"vasp", "qe", "abinit", "cp2k", "elk"}:
         raise ValueError("Invalid conversation identity or engine.")
     if type(record.get("revision")) is not int or record["revision"] < 0:
         raise ValueError("Invalid conversation revision.")
@@ -186,8 +186,8 @@ def _lock(root):
 
 def create(runs_root, engine, source_path, *, images=None):
     """Copy only the selected structure inputs into a new private conversation."""
-    if engine not in {"vasp", "qe"}:
-        raise ValueError("Choose VASP or Quantum ESPRESSO.")
+    if engine not in {"vasp", "qe", "abinit", "cp2k", "elk"}:
+        raise ValueError("Choose VASP, Quantum ESPRESSO, ABINIT, CP2K or Elk.")
     parent = Path(runs_root).expanduser().resolve() / ".conversations"
     if parent.is_symlink():
         raise ValueError("The conversation folder cannot be a symbolic link.")
@@ -246,8 +246,8 @@ def save(folder, record, *, expected_revision=None):
 
 def list_conversations(runs_root, engine=None):
     """List readable conversations, newest first, without opening other engines."""
-    if engine is not None and engine not in {"vasp", "qe"}:
-        raise ValueError("Choose VASP or Quantum ESPRESSO.")
+    if engine is not None and engine not in {"vasp", "qe", "abinit", "cp2k", "elk"}:
+        raise ValueError("Choose VASP, Quantum ESPRESSO, ABINIT, CP2K or Elk.")
     parent = Path(runs_root).expanduser().resolve() / ".conversations"
     if parent.is_symlink() or not parent.is_dir():
         return []

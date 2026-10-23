@@ -25,9 +25,16 @@ PROTOCOL_VERSION = "2025-06-18"
 INSTRUCTIONS = (
     "Tools act on the user's current DFT Agent project. Read files and describe structures before planning. "
     "create_workflow records steps; plan_step runs the engine planner, which proposes and validates settings and may ask "
-    "questions; prepare_inputs writes reviewable input files; review_inputs shows them. Submission is not a tool: after "
+    "questions; continue_step starts a separate calculation from an accepted stage of a finished step; repair_step "
+    "drafts a bounded retry of a failed step. Old runs are preserved. prepare_inputs writes reviewable input files; "
+    "review_inputs shows them. Submission is not a tool: after "
     "preparing and reviewing, ask the user to click Submit in the step card. Use explain_results for any number taken "
-    "from a calculation. Never ask for passwords or keys."
+    "from a calculation. search_reference and read_reference return the official QE, Elk, ABINIT and CP2K manual entries and "
+    "example inputs for an environment's version; check them before saying what a program can do or what a setting "
+    "means. Examples demonstrate features and are not converged settings. "
+    "Open-source codes (QE, ABINIT, CP2K, Elk) can be installed on the cluster: plan with "
+    "qe_install_plan or engine_install_plan, then the user starts the installation in Connections. Never ask for "
+    "passwords or keys."
 )
 
 
@@ -72,7 +79,7 @@ class ProjectTools:
         draft_fields = project_schema()["properties"]["workflow"]["anyOf"][0]["properties"]["steps"]["items"]["properties"]
         step = {"type": "object", "additionalProperties": False, "required": ["name", "engine", "goal"], "properties": {
             "id": _text("Short unique step id, letters, digits, - and _"), "name": _text("Step name"),
-            "engine": {"type": "string", "enum": ["vasp", "qe", "wannier90", "python"]},
+            "engine": {"type": "string", "enum": ["vasp", "qe", "abinit", "cp2k", "elk", "wannier90", "python"]},
             "goal": _text("Scientific goal of this step in one or two sentences"),
             "source_path": _text("Project file used as the input structure, for example files/Si.cif"),
             "source_step": _text("Id of an earlier step whose accepted structure this step continues from"),
@@ -90,6 +97,10 @@ class ProjectTools:
                 "steps": {"type": "array", "minItems": 1, "maxItems": 32, "items": step}}, ["title", "goal", "steps"])},
             {"name": "plan_step", "description": "Run the engine planner for a step. It proposes validated settings from the goal and may return questions; answer them by calling plan_step again with instructions.", "inputSchema": _schema({
                 "workflow_id": _text(None), "step_id": _text(None), "instructions": _text("The user's requirements or answers to the planner's questions")}, ["workflow_id", "step_id"])},
+            {"name": "continue_step", "description": "Draft a separate calculation from an accepted stage of a finished step. Describe the source stage and new task. Preserves old runs; nothing is submitted.", "inputSchema": _schema({
+                "workflow_id": _text(None), "step_id": _text(None), "instructions": _text("The source stage and requested follow-up calculation")}, ["workflow_id", "step_id", "instructions"])},
+            {"name": "repair_step", "description": "Diagnose a failed step and draft a separate bounded repair. Keeps approved physics and previous runs; nothing is submitted.", "inputSchema": _schema({
+                "workflow_id": _text(None), "step_id": _text(None), "instructions": _text("The user's repair request or answers to its questions")}, ["workflow_id", "step_id", "instructions"])},
             {"name": "prepare_inputs", "description": "Write the input files of a planned step locally for review. Nothing is submitted.", "inputSchema": _schema({"workflow_id": _text(None), "step_id": _text(None)}, ["workflow_id", "step_id"])},
             {"name": "review_inputs", "description": "Prepared input files, their contents and the requested resources for a step.", "inputSchema": _schema({"workflow_id": _text(None), "step_id": _text(None)}, ["workflow_id", "step_id"])},
             {"name": "request_submission", "description": "Report that a step is ready to submit. The user submits it in the app after reviewing.", "inputSchema": _schema({"workflow_id": _text(None), "step_id": _text(None)}, ["workflow_id", "step_id"])},
@@ -101,9 +112,28 @@ class ProjectTools:
             {"name": "qe_install_plan", "description": "Detect a compiler toolchain on the cluster and plan a managed Quantum ESPRESSO build in the user's storage. Nothing is submitted.", "inputSchema": _schema({
                 "connection_id": _text(None), "build_cpus": {"type": "integer", "minimum": 1, "maximum": 64}, "partition": _text("Partition for the build job when the detected one is wrong")}, ["connection_id"])},
             {"name": "qe_install_status", "description": "Progress of the QE build; creates the QE environment when the build finished.", "inputSchema": _schema({"connection_id": _text(None)}, ["connection_id"])},
-            {"name": "install_pseudopotentials", "description": "Install public PBE pseudopotentials (SSSP or PseudoDojo) for elements into a QE environment's UPF folder.", "inputSchema": _schema({
+            {"name": "install_pseudopotentials", "description": "Install public PBE pseudopotentials (SSSP, PseudoDojo, or fully relativistic PseudoDojo FR for spin-orbit coupling) for elements into a QE environment's UPF folder.", "inputSchema": _schema({
                 "environment_id": _text(None), "elements": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 40},
-                "library": {"type": "string", "enum": ["sssp", "pseudodojo"]}}, ["environment_id", "elements"])},
+                "library": {"type": "string", "enum": ["sssp", "pseudodojo", "pseudodojo-fr"]}}, ["environment_id", "elements"])},
+            {"name": "engine_install_plan", "description": "Read the cluster's CPU architecture and glibc and plan a pinned ABINIT, CP2K or Elk installation (conda-forge packages, offline micromamba, silicon test job). Nothing is downloaded or submitted.", "inputSchema": _schema({
+                "connection_id": _text(None), "engine": {"type": "string", "enum": ["abinit", "cp2k", "elk"]},
+                "build_cpus": {"type": "integer", "minimum": 1, "maximum": 64}, "partition": _text("Partition for the installation job when the detected one is wrong")}, ["connection_id", "engine"])},
+            {"name": "engine_install_status", "description": "Progress of an ABINIT, CP2K or Elk installation; creates the software environment once its silicon test passed.", "inputSchema": _schema({
+                "connection_id": _text(None), "engine": {"type": "string", "enum": ["abinit", "cp2k", "elk"]}}, ["connection_id", "engine"])},
+            {"name": "install_library", "description": "Install pinned library files into an ABINIT (PseudoDojo psp8), CP2K (MOLOPT basis and GTH potentials) or Elk (species) environment.", "inputSchema": _schema({
+                "environment_id": _text(None), "elements": {"type": "array", "items": {"type": "string"}, "maxItems": 40},
+                "soc": {"type": "boolean"}, "functional": {"type": "string", "enum": ["PBE", "PBEsol"]}}, ["environment_id", "elements"])},
+            {"name": "search_reference", "description": "Search the official QE, Elk, ABINIT or CP2K manual, input variables or keywords, tutorials and example inputs for the version an environment runs, and DFT Agent's verified cluster checks. Local search; returns ids for read_reference.", "inputSchema": _schema({
+                "engine": {"type": "string", "enum": ["qe", "elk", "abinit", "cp2k"]},
+                "query": _text("Words or a question, such as 'bootstrap kernel exciton' or 'EPS_SCF'"),
+                "kind": {"type": "string", "enum": ["any", "keyword", "section", "task", "guide", "example", "lesson"]},
+                "environment_id": _text("Software environment whose program version to use")}, ["engine", "query"])},
+            {"name": "read_reference", "description": "One reference entry in full: an input variable or keyword with its type and default, a task, a manual section, an official example input or a verified check.", "inputSchema": _schema({
+                "engine": {"type": "string", "enum": ["qe", "elk", "abinit", "cp2k"]},
+                "id": _text("Entry id from search_reference, a variable name or a CP2K keyword path"),
+                "environment_id": _text(None)}, ["engine", "id"])},
+            {"name": "build_reference", "description": "Prepare the reference of a QE, Elk, ABINIT or CP2K environment: download the pinned manual and examples and, for CP2K, run cp2k --xml on the login node to read that build's keywords. Nothing is submitted.", "inputSchema": _schema({
+                "environment_id": _text(None)}, ["environment_id"])},
             {"name": "remember", "description": "Save a project note the user explicitly asked to keep.", "inputSchema": _schema({"key": _text(None), "text": _text(None)}, ["key", "text"])},
         ]
 
@@ -143,7 +173,7 @@ class ProjectTools:
                 "questions": list(proposal.get("questions") or []), "summary": redact(str(proposal.get("summary") or "")),
                 "plan": {key: value for key, value in plan.items() if key in {
                     "operations", "stages", "tasks", "variants", "parameters", "intent", "notes", "continuation",
-                    "entrypoint", "outputs", "arguments", "inputs", "limits"}} if isinstance(plan, dict) else None}
+                    "entrypoint", "outputs", "arguments", "inputs", "limits", "changes", "references"}} if isinstance(plan, dict) else None}
 
     # --- tools -------------------------------------------------------------
 
@@ -162,7 +192,8 @@ class ProjectTools:
         bound = {item["id"] for item in connections if item["kind"] == "hpc"}
         environments = [{"id": item["id"], "name": item["name"], "engine": item["engine"], "connection_id": item["connection_id"],
                          "partition": item["config"].get("partition"),
-                         "pseudopotentials": sorted((item["config"].get("qe_pseudopotentials") or {}).keys()) if item["engine"] == "qe" else None}
+                         "pseudopotentials": sorted((item["config"].get("qe_pseudopotentials") or {}).keys()) if item["engine"] == "qe" else None,
+                         "library_files": len(item["config"].get("engine_library") or {}) if item["engine"] in {"abinit", "cp2k", "elk"} else None}
                         for item in self.registry.environments() if item["connection_id"] in bound]
         workflows = []
         for item in self.workspace.list_workflows(self.project_id):
@@ -272,6 +303,14 @@ class ProjectTools:
         self.execution.draft_step(self.project_id, workflow_id, step_id, self._settings(), message=instructions or None)
         return self._attempt(workflow_id, step_id)
 
+    def continue_step(self, workflow_id, step_id, instructions):
+        self.execution.continue_step(self.project_id, workflow_id, step_id, self._settings(), message=instructions)
+        return self._attempt(workflow_id, step_id)
+
+    def repair_step(self, workflow_id, step_id, instructions):
+        self.execution.retry_step(self.project_id, workflow_id, step_id, self._settings(), message=instructions)
+        return self._attempt(workflow_id, step_id)
+
     def prepare_inputs(self, workflow_id, step_id):
         attempt = self.execution.prepare_step(self.project_id, workflow_id, step_id)
         review = self.execution.review(self.project_id, workflow_id, step_id)
@@ -334,6 +373,8 @@ class ProjectTools:
         return {key: answer.get(key) for key in ("answer", "evidence", "limits", "next_steps")}
 
     def cluster_status(self):
+        from . import references
+
         connections = [item for item in self.registry.project_connections(self.project_id)
                        if item["kind"] == "hpc" and not item["revoked"] and not item["deleted"]]
         result = []
@@ -342,22 +383,31 @@ class ProjectTools:
             environments = [{"id": environment["id"], "name": environment["name"], "engine": environment["engine"],
                              "partition": environment["config"].get("partition"),
                              "pseudopotentials": sorted((environment["config"].get("qe_pseudopotentials") or {}).keys())
-                             if environment["engine"] == "qe" else None}
+                             if environment["engine"] == "qe" else None,
+                             "library_files": sorted(environment["config"].get("engine_library") or {})[:40]
+                             if environment["engine"] in {"abinit", "cp2k", "elk"} else None,
+                             "reference": references.available(environment["engine"], self.registry._environment_config(environment))
+                             if environment["engine"] in references.ENGINES else None}
                             for environment in self.registry.environments(item["id"])]
             install = probe.get("qe_install") or {}
+            engine_installs = {engine: {key: (probe.get(f"{engine}_install") or {}).get(key)
+                                        for key in ("status", "plan_id", "job_id", "error", "environment_id")}
+                               for engine in ("abinit", "cp2k", "elk") if probe.get(f"{engine}_install")}
             result.append({"connection_id": item["id"], "name": item["name"], "host": item["settings"]["host"],
                            "status": item["connection_status"], "remote_base": item["settings"].get("remote_base"),
                            "scheduler": item["settings"].get("scheduler"), "schedulers_found": probe.get("schedulers"),
                            "environments": environments, "discovery": {key: probe.get("discovery", {}).get(key) for key in
                                                                         ("vasp_found", "qe_found", "notes", "suggested")},
-                           "qe_install": {key: install.get(key) for key in ("status", "plan_id", "job_id", "bin_dir", "error", "environment_id")}})
+                           "qe_install": {key: install.get(key) for key in ("status", "plan_id", "job_id", "bin_dir", "error", "environment_id")},
+                           "engine_installs": engine_installs})
         return {"clusters": result}
 
     def detect_software(self, connection_id):
         self._require_connection(connection_id)
         result = self.registry.discover_environments(connection_id)
         return {"created": [{"id": item["id"], "name": item["name"], "engine": item["engine"]} for item in result["created"]],
-                "missing": result["missing"], "notes": result["notes"], "vasp_found": result["vasp_found"], "qe_found": result["qe_found"]}
+                "missing": result["missing"], "notes": result["notes"], "vasp_found": result["vasp_found"], "qe_found": result["qe_found"],
+                "open_source_codes_found": result.get("codes_found", [])}
 
     def qe_install_plan(self, connection_id, build_cpus=8, partition=None):
         self._require_connection(connection_id)
@@ -374,6 +424,43 @@ class ProjectTools:
     def install_pseudopotentials(self, environment_id, elements, library="sssp"):
         self._require_connection(self.registry.environment(environment_id)["connection_id"])
         return self.registry.install_pseudopotentials(environment_id, list(elements), library=library or "sssp")
+
+    def engine_install_plan(self, connection_id, engine, build_cpus=4, partition=None):
+        self._require_connection(connection_id)
+        result = self.registry.engine_install_plan(connection_id, engine, build_cpus=build_cpus, partition=partition or None)
+        return {**result, "next": "Open Connections, review this installation and click Start. Only the user can start it."}
+
+    def engine_install_status(self, connection_id, engine):
+        self._require_connection(connection_id)
+        return self.registry.engine_install_status(connection_id, engine)
+
+    def install_library(self, environment_id, elements, soc=False, functional="PBE"):
+        self._require_connection(self.registry.environment(environment_id)["connection_id"])
+        return self.registry.install_engine_library(environment_id, list(elements), soc=soc, functional=functional)
+
+    def _reference_config(self, engine, environment_id):
+        if not environment_id:
+            return None
+        environment = self.registry.environment(environment_id)
+        self._require_connection(environment["connection_id"])
+        if environment["engine"] != engine:
+            raise ValueError(f"That environment runs {environment['engine']}, not {engine}.")
+        return self.registry._environment_config(environment)
+
+    def search_reference(self, engine, query, kind="any", environment_id=None):
+        from . import references
+
+        config = self._reference_config(engine, environment_id)
+        return references.search(engine, query, config=config, kinds=None if kind == "any" else [kind])
+
+    def read_reference(self, engine, id, environment_id=None):  # noqa: A002 - the tool's argument name
+        from . import references
+
+        return references.read(engine, id, config=self._reference_config(engine, environment_id))
+
+    def build_reference(self, environment_id):
+        self._require_connection(self.registry.environment(environment_id)["connection_id"])
+        return self.registry.build_reference(environment_id)
 
     def remember(self, key, text):
         result = self.workspace.save_memory(self.project_id, key, text)

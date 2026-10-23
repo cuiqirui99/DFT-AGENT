@@ -25,10 +25,13 @@ def _option_label(field, option):
     if field == "provider":
         from .providers import PROVIDERS
 
-        return PROVIDERS.get(option, {}).get("label", {"claude_cli": "Claude Code", "local": "Local model"}.get(option, option))
+        label = PROVIDERS.get(option, {}).get("label", {"claude_cli": "Claude Code", "local": "Local model"}.get(option, option))
+        # Product names stay as they are; the two generic entries are translated.
+        return t(label) if option in {"chat_completions", "local"} else label
     return {"auth_mode": {"agent": t("SSH agent"), "key": t("SSH key"), "password": t("Password"),
                           "code": t("Password and login code"), "interactive": t("Interactive SSH")},
-            "engine": {"vasp": "VASP", "qe": "Quantum ESPRESSO", "wannier90": "Wannier90", "python": "Python"},
+            "engine": {"vasp": "VASP", "qe": "Quantum ESPRESSO", "abinit": "ABINIT", "cp2k": "CP2K", "elk": "Elk",
+                       "wannier90": "Wannier90", "python": "Python"},
             "scheduler": {"auto": t("Detect"), "slurm": "Slurm", "pbs": "PBS"}}.get(field, {}).get(option, option)
 
 
@@ -212,17 +215,17 @@ def panel(registry, project_id=None):
 # ---------------------------------------------------------------------------
 
 _PROMPTS = {
-    "connection_id": "Which cluster should run this software?",
-    "engine": "Which software do you want to use?",
-    "config.partition": "Which partition or queue should it use?",
-    "config.vasp_command": "What command starts VASP on this cluster?",
-    "config.potcar_root": "Where is your licensed POTCAR library?",
-    "config.qe_command": "What command starts Quantum ESPRESSO?",
-    "config.qe_pseudo_root": "Where are your UPF pseudopotentials?",
-    "config.command": "What command starts this program?",
-    "config.tasks": "How many MPI tasks should a job use?",
-    "config.nodes": "How many nodes?",
-    "config.walltime": "What time limit should a job have (HH:MM:SS)?",
+    "connection_id": "Cluster",
+    "engine": "Program",
+    "config.partition": "Partition or queue",
+    "config.vasp_command": "VASP launch command",
+    "config.potcar_root": "POTCAR folder",
+    "config.qe_command": "Quantum ESPRESSO launch command",
+    "config.qe_pseudo_root": "UPF folder",
+    "config.command": "Launch command",
+    "config.tasks": "MPI tasks per job",
+    "config.nodes": "Nodes",
+    "config.walltime": "Time limit (HH:MM:SS)",
 }
 
 
@@ -358,9 +361,7 @@ def _model_setup(registry, project_id, prefix, state_key):
     if state["record_id"]:
         _model_record(registry, registry.get(state["record_id"]), prefix + state["record_id"] + "_", project_id, state)
         return
-    with st.chat_message("assistant"):
-        st.write(t("Which model would you like to use?"))
-        st.caption(t("A signed-in Codex or Claude Code CLI uses your existing subscription; no API key is needed."))
+    st.caption(t("A signed-in Codex or Claude Code CLI uses your existing subscription; no API key is needed."))
     detected = _cli_detection(prefix)
     columns = st.columns(len(detected))
     for column, item in zip(columns, detected):
@@ -431,7 +432,7 @@ def _model_record(registry, record, prefix, project_id, state):
         return
     detail = _probe_detail(record)
     if status == "connected":
-        st.success(t("The model answered. You can start chatting."))
+        st.success(t("Model connected."))
     elif detail:
         (st.warning if record["auth_status"] == "required" else st.error)(detail)
     if provider in _CLI_PROVIDERS and status != "connected":
@@ -458,14 +459,14 @@ def _cluster_setup(registry, project_id, prefix, state_key):
     if state["record_id"]:
         _cluster_record(registry, registry.get(state["record_id"]), prefix, project_id, state)
         return
-    with st.chat_message("assistant"):
-        if state["pending_host"]:
-            st.write(t("What is your username on this cluster?"))
-        else:
-            st.write(t("What is your cluster's SSH address? You can paste ssh user@host."))
-            st.caption(t("The app first tries your SSH keys, then asks for a password or login code only if the cluster requires one."))
-    answer = st.chat_input(t("Username") if state["pending_host"] else "ssh name@cluster.example.org", key=prefix + "answer")
-    if not answer:
+    if not state["pending_host"]:
+        st.caption(t("The app first tries your SSH keys, then asks for a password or login code only if the cluster requires one."))
+    with st.form(prefix + "address_form", border=False):
+        answer = st.text_input(t("Username on this cluster") if state["pending_host"] else t("SSH address"),
+                               key=prefix + ("username" if state["pending_host"] else "answer"),
+                               placeholder="" if state["pending_host"] else "user@cluster.example.org")
+        submitted = st.form_submit_button(t("Next"), type="primary")
+    if not submitted or not answer.strip():
         return
     try:
         if state["pending_host"]:
@@ -526,10 +527,8 @@ def _sign_in(registry, record_id, prefix, state, password=None, code=None):
 
 def _password_form(registry, record, prefix, state):
     key = prefix + "password"
-    with st.chat_message("assistant"):
-        st.write(t("Enter your password for this cluster."))
-        st.caption(t("It is stored in the system keychain and used only for this connection."))
-    st.text_input(t("SSH password"), type="password", key=key, label_visibility="collapsed")
+    st.text_input(t("SSH password"), type="password", key=key,
+                  help=t("It is stored in the system keychain and used only for this connection."))
 
     def submit():
         _sign_in(registry, record["id"], prefix, state, password=st.session_state.pop(key, ""))
@@ -539,13 +538,11 @@ def _password_form(registry, record, prefix, state):
 
 def _code_form(registry, record, prefix, state):
     key = prefix + "code"
-    with st.chat_message("assistant"):
-        st.write(t("This cluster also asks for a login code."))
-        if state["needs_code"]:
-            st.code(state["needs_code"], language="text")
-        from .transport import LOGIN_PERSIST_SECONDS
-        st.caption(t("Enter the code from your authenticator or message. The signed-in session is reused for about {hours} hours of activity, so the code is not needed for every job.").format(hours=LOGIN_PERSIST_SECONDS // 3600))
-    st.text_input(t("Login code"), type="password", key=key, label_visibility="collapsed", placeholder="123456")
+    from .transport import LOGIN_PERSIST_SECONDS
+    if state["needs_code"]:
+        st.code(state["needs_code"], language="text")
+    st.text_input(t("Login code"), type="password", key=key, placeholder="123456",
+                  help=t("Enter the code from your authenticator or message. The signed-in session is reused for about {hours} hours of activity, so the code is not needed for every job.").format(hours=LOGIN_PERSIST_SECONDS // 3600))
 
     def submit():
         _sign_in(registry, record["id"], prefix, state, code=st.session_state.pop(key, ""))
@@ -574,6 +571,36 @@ def _terminal_sign_in(registry, record, prefix):
                 st.rerun()
 
 
+def _reference_panel(registry, environments, prefix):
+    """Official manuals and examples the planner reads; CP2K's keyword list comes from the program itself."""
+    from . import references
+
+    missing, ready = [], []
+    for environment in environments:
+        if environment["engine"] not in references.ENGINES:
+            continue
+        parts = references.available(environment["engine"], registry._environment_config(environment))
+        label = references.LABELS[environment["engine"]] + (f" {parts['version']}" if parts.get("version") else "")
+        (ready if all(value for key, value in parts.items() if key != "version") else missing).append((environment, label))
+    if ready:
+        st.caption(t("Manual and examples ready: ") + ", ".join(label for _, label in ready))
+    if not missing:
+        return
+    if st.button(t("Get manuals and examples"), key=prefix + "references",
+                 help=t("Downloads the pinned official manual and examples for the planner. For CP2K it also runs cp2k --xml on the login node to read that build's keywords.")):
+        errors = []
+        with st.spinner(t("Reading the official manuals and examples…")):
+            for environment, label in missing:
+                try:
+                    registry.build_reference(environment["id"])
+                except (ValueError, OSError) as error:
+                    errors.append(f"{label}: {redact(str(error))}")
+        for error in errors:
+            st.error(error)
+        if not errors:
+            st.rerun()
+
+
 def _environments_panel(registry, record, prefix, state):
     environments = registry.environments(record["id"])
     discovery = (record.get("probe") or {}).get("discovery")
@@ -589,6 +616,7 @@ def _environments_panel(registry, record, prefix, state):
         st.write(t("Software found on this cluster:"))
         for environment in environments:
             st.caption(f"• {environment['name']} · " + t("partition") + f" {environment['config'].get('partition', '')}")
+        _reference_panel(registry, environments, prefix)
     if discovery:
         missing = {}
         if discovery.get("vasp_found") and not any(item["engine"] == "vasp" for item in environments):
@@ -606,6 +634,7 @@ def _environments_panel(registry, record, prefix, state):
             st.info(t("Neither VASP nor Quantum ESPRESSO was found on the login node. Quantum ESPRESSO is open source: the app can build it in your cluster storage below."))
         if (record.get("probe") or {}).get("qe_install") or (not discovery.get("qe_found") and not any(item["engine"] == "qe" for item in environments)):
             _qe_install_panel(registry, record, prefix)
+        _engine_install_panel(registry, record, prefix, environments)
     if st.button(t("Detect again"), key=prefix + "rediscover"):
         try:
             with st.spinner(t("Reading partitions, modules and potentials from the cluster…")):
@@ -679,6 +708,84 @@ def _qe_install_panel(registry, record, prefix):
             st.rerun()
         if install.get("logs"):
             st.caption(t("Build logs on the cluster: ") + ", ".join(install["logs"].values()))
+
+
+_CODES = {"abinit": "ABINIT", "cp2k": "CP2K", "elk": "Elk"}
+_CODE_NOTES = {"abinit": "Plane waves with PseudoDojo norm-conserving pseudopotentials. Spin-orbit coupling supported.",
+               "cp2k": "Gaussian basis sets (GPW). Efficient for large cells, molecules and surfaces.",
+               "elk": "All-electron full-potential LAPW. Reference-quality bands, magnetism and spin-orbit coupling."}
+
+
+def _engine_install_panel(registry, record, prefix, environments):
+    """Pinned conda-forge installs of ABINIT, CP2K and Elk: review the plan, start one job, follow it."""
+    probe = record.get("probe") or {}
+    with st.container(border=True):
+        st.markdown("**" + t("Install open-source codes") + "**")
+        st.caption(t("ABINIT, CP2K and Elk are open source. The app installs pinned, checksum-verified builds in your cluster storage and checks each with a small silicon calculation. No compiler or administrator access is needed."))
+        for engine, label in _CODES.items():
+            install = probe.get(f"{engine}_install") or {}
+            present = [item for item in environments if item["engine"] == engine]
+            status = install.get("status")
+            line = f"{label} · " + (t("ready") if present else t(str(status)) if status else t("not installed"))
+            if install.get("job_id"):
+                line += f" · job {install['job_id']}"
+            if install.get("scheduler_state"):
+                line += f" · {install['scheduler_state']}"
+            st.caption(line + " — " + t(_CODE_NOTES[engine]))
+            if install.get("error"):
+                st.error(redact(str(install["error"])))
+            if status == "installed" and (install.get("smoke") or {}).get("success"):
+                smoke = install["smoke"]
+                if smoke.get("final_energy_ev") is not None:
+                    st.caption(t("Silicon test passed: total energy {energy:.4f} eV.").format(energy=smoke["final_energy_ev"]))
+        choices = [engine for engine in _CODES if not any(item["engine"] == engine for item in environments)
+                   and (probe.get(f"{engine}_install") or {}).get("status") != "installed"]
+        if not choices:
+            return
+        engine = st.radio(t("Code"), choices, horizontal=True, key=prefix + "code_choice", format_func=lambda value: _CODES[value])
+        install = probe.get(f"{engine}_install") or {}
+        status = install.get("status")
+        suggested = (probe.get("discovery") or {}).get("suggested", {})
+        if status in {None, "planned"} or (status == "failed" and st.session_state.get(prefix + engine + "_replan")):
+            partition = st.text_input(t("Partition for the installation job"), install.get("partition") or suggested.get("partition", ""),
+                                      key=prefix + engine + "_partition")
+            account = st.text_input(t("Account (optional)"), install.get("account") or suggested.get("account", ""),
+                                    key=prefix + engine + "_account")
+            if st.button(t("Plan the installation"), key=prefix + engine + "_plan"):
+                try:
+                    with st.spinner(t("Reading the cluster's architecture…")):
+                        registry.engine_install_plan(record["id"], engine, partition=partition.strip() or None, account=account.strip())
+                    st.session_state.pop(prefix + engine + "_replan", None)
+                    st.rerun()
+                except (ValueError, OSError) as error:
+                    st.error(redact(str(error)))
+            if status == "planned":
+                plan = install["plan"]
+                st.write(f"{_CODES[engine]} {plan['version']} · {plan['platform']} · glibc {plan['glibc']} · "
+                         f"{round(plan['download_size'] / 1e6)} MB · {install['partition']}" + (f" · {install['account']}" if install.get("account") else ""))
+                st.code(plan["prefix"] + "\n" + plan["command"], language="text")
+                agreed = st.checkbox(t("Use this account and allocation for a short installation job."), key=prefix + engine + "_agree")
+                if st.button(t("Start the installation"), key=prefix + engine + "_start", type="primary", disabled=not agreed):
+                    try:
+                        with st.spinner(t("Downloading pinned packages on the cluster and submitting the job…")):
+                            registry.engine_install_start(record["id"], engine, install["plan_id"])
+                        st.rerun()
+                    except (ValueError, OSError) as error:
+                        st.error(redact(str(error)))
+            return
+        left, right = st.columns(2)
+        if left.button(t("Check the installation"), key=prefix + engine + "_check"):
+            try:
+                with st.spinner(t("Reading the installation status…")):
+                    registry.engine_install_status(record["id"], engine)
+                st.rerun()
+            except (ValueError, OSError) as error:
+                st.error(redact(str(error)))
+        if status == "failed" and right.button(t("Plan again"), key=prefix + engine + "_replan_button"):
+            st.session_state[prefix + engine + "_replan"] = True
+            st.rerun()
+        if install.get("logs"):
+            st.caption(t("Installation logs on the cluster: ") + ", ".join(install["logs"].values()))
 
 
 def _cluster_record(registry, record, prefix, project_id, state):
@@ -807,9 +914,8 @@ def _software_setup(registry, project_id, prefix, state_key):
         return
     question = assistant.next_question(state)
     if question is None:
-        with st.chat_message("assistant"):
-            st.write(t("Save this software environment?"))
-            st.json({"name": state["name"], **state["settings"]})
+        st.write(t("Review the environment, then save it."))
+        st.json({"name": state["name"], **state["settings"]})
         if st.button(t("Save environment"), key=prefix + "save", type="primary"):
             try:
                 assistant.save(state, registry, project_id)
@@ -825,21 +931,19 @@ def _software_setup(registry, project_id, prefix, state_key):
                 except Exception as error:
                     st.error(redact(str(error)))
         return
-    for message in state["history"][-6:]:
-        if message["role"] == "user":
-            with st.chat_message("user"):
-                st.write(message["content"])
+    answered = [message["content"] for message in state["history"] if message["role"] == "user"]
+    if answered:
+        st.caption(" · ".join(str(value) for value in answered[-6:]))
     field = question["field"]
-    with st.chat_message("assistant"):
-        st.write(t(_PROMPTS.get(field, question["label"])))
     options = question["options"]
     available = {}
     if field == "connection_id":
         available = {item["id"]: item for item in registry.list(kind="hpc") if not item["revoked"] and not item["deleted"]}
         options = list(available)
         if not options:
-            st.caption(t("Connect a cluster first."))
+            st.caption(t("Add a cluster in the Cluster tab first."))
             return
+    st.markdown("**" + t(_PROMPTS.get(field, question["label"])) + "**")
     if options:
         columns = st.columns(min(3, len(options)))
         for index, option in enumerate(options):
@@ -854,7 +958,11 @@ def _software_setup(registry, project_id, prefix, state_key):
     default = _software_defaults(registry, state).get(field) or question["default"] or ""
     if default:
         st.caption(t("Suggested: ") + str(default))
-    if response := st.chat_input(str(default) if default else t(_PROMPTS.get(field, question["label"])), key=prefix + "answer"):
+    with st.form(prefix + "answer_form_" + field, border=False):
+        response = st.text_input(t(_PROMPTS.get(field, question["label"])), key=prefix + "answer_" + field,
+                                 placeholder=str(default) if default else "", label_visibility="collapsed")
+        submitted = st.form_submit_button(t("Next"), type="primary")
+    if submitted and response.strip():
         try:
             st.session_state[state_key] = assistant.answer(state, field, response)
             st.rerun()

@@ -60,19 +60,31 @@ def _step_elements(workspace, identifier, step):
         return []
 
 
-def _pseudopotential_check(workspace, registry, identifier, step, environment_id, prefix):
+def _pseudopotential_check(workspace, registry, identifier, step, environment_id, prefix, proposal=None):
     """A QE step needs a UPF for every element; public libraries can be installed here."""
     try:
         environment = registry.environment(environment_id)
-    except ValueError:
-        return
-    present = set((environment["config"].get("qe_pseudopotentials") or {}).keys())
-    missing = [element for element in _step_elements(workspace, identifier, step) if element not in present]
+        requirements = _library_requirements(workspace, identifier, step, proposal)
+        plan = (proposal or {}).get("plan") or proposal or {}
+        stages = plan.get("stages", [])
+        soc = any(item[1] for item in requirements) or any(
+            (json.loads(stage.get("parameters_json", "{}")).get("namelists") or {}).get("system", {}).get("lspinorb") is True
+            for stage in stages)
+    except (ValueError, TypeError) as error:
+        st.caption(redact(str(error)))
+        return False
+    elements = sorted({element for symbols, _, _ in requirements for element in symbols})
+    present = environment["config"].get("qe_pseudopotentials") or {}
+    missing = [element for element in elements if element not in present or soc and not (
+        isinstance(present[element], dict) and (present[element].get("fully_relativistic") is True
+                                               or present[element].get("relativistic") == "full"))]
     if not missing:
-        return
+        return True
     st.info(t("This step needs pseudopotentials for {elements}. Install the public PBE library into the environment's UPF folder.").format(elements=", ".join(missing)))
-    library = st.selectbox(t("Library"), ["sssp", "pseudodojo"], key=prefix + "upf_library",
-                           format_func=lambda value: "SSSP 1.3 PBE efficiency" if value == "sssp" else "PseudoDojo 0.4 PBE (norm-conserving)")
+    options = ["pseudodojo-fr"] if soc else ["sssp", "pseudodojo", "pseudodojo-fr"]
+    library = st.selectbox(t("Library"), options, key=prefix + "upf_library_" + ("soc" if soc else "scalar"),
+                           format_func=lambda value: {"sssp": "SSSP 1.3 PBE efficiency", "pseudodojo": "PseudoDojo 0.4 PBE (norm-conserving)",
+                                                      "pseudodojo-fr": "PseudoDojo 0.4 PBE fully relativistic (spin-orbit)"}[value])
     if st.button(t("Install public UPFs"), key=prefix + "upf_install"):
         try:
             with st.spinner(t("Installing pseudopotentials on the cluster…")):
@@ -80,6 +92,48 @@ def _pseudopotential_check(workspace, registry, identifier, step, environment_id
             st.rerun()
         except Exception as error:
             st.error(redact(str(error)))
+    return False
+
+
+def _library_requirements(workspace, identifier, step, proposal=None):
+    plan = (proposal or {}).get("plan") or proposal or {}
+    sites = ((plan.get("preview") or {}).get("output") or {}).get("sites") or []
+    elements = sorted({site["element"] for site in sites}) if sites else _step_elements(workspace, identifier, step)
+    methods = set()
+    for stage in plan.get("stages", []):
+        parameters = json.loads(stage.get("parameters_json", "{}"))
+        methods.add((bool(parameters.get("soc", False)), parameters.get("functional", "PBE")))
+    return [(elements, soc, functional) for soc, functional in sorted(methods or {(False, "PBE")})]
+
+
+def _library_check(workspace, registry, identifier, step, environment_id, prefix, proposal=None):
+    """ABINIT, CP2K and Elk steps need their pinned library files in the environment's library folder."""
+    try:
+        missing = []
+        for elements, soc, functional in _library_requirements(workspace, identifier, step, proposal):
+            status = registry.library_status(environment_id, elements, soc=soc, functional=functional)
+            if status["missing"]:
+                missing.append((elements, soc, functional, status))
+    except ValueError as error:
+        st.caption(redact(str(error)))
+        return False
+    if not missing:
+        return True
+    label = {"abinit": t("pseudopotentials"), "cp2k": t("basis sets and pseudopotentials"), "elk": t("species files")}[step["engine"]]
+    st.info(t("This step needs {library} for {elements}. Install the pinned files into the environment's library folder.").format(
+        library=label, elements=", ".join(sorted({element for _, _, _, status in missing for element in status["missing"]}))))
+    if step["engine"] == "abinit":
+        st.caption(" · ".join(functional + (" + SOC" if soc else "") for _, soc, functional, _ in missing))
+    if st.button(t("Install library files"), key=prefix + "library_install"):
+        try:
+            with st.spinner(t("Installing library files on the cluster…")):
+                for elements, soc, functional, _ in missing:
+                    options = {"soc": soc, "functional": functional} if soc or functional != "PBE" else {}
+                    registry.install_engine_library(environment_id, elements, **options)
+            st.rerun()
+        except Exception as error:
+            st.error(redact(str(error)))
+    return False
 
 
 def _setup_status(registry, project_id):
@@ -109,8 +163,8 @@ def _onboarding(registry, project, status):
     prefix = f"project_{identifier}_welcome_"
     models = [item for item in status["models"] if item["connection_status"] == "connected"]
     clusters = [item for item in status["clusters"] if item["connection_status"] == "connected"]
-    st.html('<div class="dfa-hello">' + t("What are we working on?") + '</div><div class="dfa-sub">'
-            + t("Connect a model and a cluster once; after that, describe calculations in plain language.") + "</div>")
+    st.html('<div class="dfa-hello">' + t("Set up this project") + '</div><div class="dfa-sub">'
+            + t("Connect a model and a cluster, then add a structure.") + "</div>")
     first, second, third = st.columns(3, gap="medium")
     with first:
         if models:
@@ -134,7 +188,7 @@ def _onboarding(registry, project, status):
             _step_card(2, t("Cluster"), t("SSH address and password or key. Optional for planning."), current=bool(models))
             _go_to_connections("hpc", identifier, prefix + "cluster", t("Connect a cluster"))
     with third:
-        _step_card(3, t("Task"), t("Upload a structure, then describe the calculation in the message box."),
+        _step_card(3, t("Structure"), t("Upload a structure file, then describe the calculation below."),
                    current=bool(models and clusters))
         if st.button(t("Add files"), key=prefix + "files", use_container_width=True, icon=":material/upload_file:"):
             st.session_state[f"project_{identifier}_show_context"] = True
@@ -246,7 +300,8 @@ def _sidebar(workspace):
             session_id = sessions[0]["id"] if sessions else None
             st.session_state[session_key] = session_id
         for item in sessions[:20]:
-            if st.button(item["title"], key=prefix + "open_session_" + item["id"], use_container_width=True):
+            title = t("Untitled") if item["title"] == "New conversation" else item["title"]
+            if st.button(title, key=prefix + "open_session_" + item["id"], use_container_width=True):
                 st.session_state[session_key] = item["id"]
                 st.session_state["project_page"] = "Chat"
                 st.rerun()
@@ -268,9 +323,7 @@ def _sidebar(workspace):
 
 def _new_project(workspace):
     st.subheader(t("New project"))
-    with st.chat_message("assistant"):
-        st.write(t("What should we call this project?"))
-    name = st.text_input("Name", key="project_new_name", placeholder=t("Project name"), label_visibility="collapsed")
+    name = st.text_input(t("Project name"), key="project_new_name", placeholder=t("For example, silicon optics"))
     if st.button(t("Create project"), disabled=not name.strip(), key="project_create", type="primary"):
         project = workspace.create_project(name)
         workspace.create_session(project["id"])
@@ -328,26 +381,31 @@ def _language_selector():
 def _settings(workspace, project):
     st.header(t("Settings"))
     _language_selector()
+    if project:
+        _project_controls(workspace, project)
+        notes = workspace.list_memory(project["id"])
+        if notes:
+            with st.expander(t("Project notes")):
+                for item in notes:
+                    st.markdown("**" + item["key"] + "**")
+                    st.write(item["text"])
+    inactive = [item for item in workspace.list_projects(include_archived=True, include_deleted=True) if item["archived"] or item["deleted"]]
+    with st.expander(t("Archived and deleted projects")):
+        if not inactive:
+            st.caption(t("None."))
+        for item in inactive:
+            st.write(item["name"])
+            if st.button(t("Restore"), key="restore_project_" + item["id"]):
+                workspace.restore_project(item["id"])
+                st.session_state["project_selected_requested"] = item["id"]
+                st.rerun()
     with st.expander(t("Storage")):
         st.code(str(workspace.home), language="text")
-    with st.expander(t("Archived and deleted projects")):
-        for item in workspace.list_projects(include_archived=True, include_deleted=True):
-            if item["archived"] or item["deleted"]:
-                st.write(item["name"])
-                if st.button("Restore", key="restore_project_" + item["id"]):
-                    workspace.restore_project(item["id"])
-                    st.session_state["project_selected_requested"] = item["id"]
-                    st.rerun()
-    if st.button(t("Legacy workbench"), key="project_legacy"):
-        st.query_params["view"] = "legacy"
-        st.rerun()
-    if not project:
-        return
-    _project_controls(workspace, project)
-    st.subheader(t("Project notes"))
-    for item in workspace.list_memory(project["id"]):
-        with st.expander(item["key"]):
-            st.write(item["text"])
+    with st.expander(t("Classic workbench")):
+        st.caption(t("Single calculations without projects, as in earlier versions."))
+        if st.button(t("Open classic workbench"), key="project_legacy"):
+            st.query_params["view"] = "legacy"
+            st.rerun()
 
 
 def _upload(workspace, identifier, prefix, readonly):
@@ -428,11 +486,20 @@ def _file_proposal(workspace, identifier, message, readonly):
             _error(error)
 
 
-def _workflow_graph(item):
+def _current_task_label(attempt):
+    if not attempt or attempt.get("source_context", {}).get("kind") not in {"continuation", "retry"}:
+        return ""
+    return " → ".join(task.upper() for task in attempt.get("tasks", []))
+
+
+def _workflow_graph(item, attempts=None):
     nodes = {step["id"]: f"n{index}" for index, step in enumerate(item["steps"])}
     lines = ['digraph { rankdir=LR; node [shape=box, style="rounded", fontname="Arial"];']
     for step in item["steps"]:
         label = f"{step['name']}\n{step['engine'].upper()} · {step['status']}"
+        current = _current_task_label((attempts or {}).get(step["id"]))
+        if current:
+            label += "\nCurrent: " + current
         lines.append(f'{nodes[step["id"]]} [label={json.dumps(label)}];')
         lines.extend(f'{nodes[parent]} -> {nodes[step["id"]]};' for parent in step["depends_on"])
     lines.append("}")
@@ -473,6 +540,8 @@ def _step_controls(workspace, registry, execution, identifier, item, step_id, mo
     st.html(f'<div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.2rem">'
             f'<strong style="font-size:1rem">{_html.escape(step["name"])}</strong>{tag(step["engine"].upper())}'
             f'{chip(t(_STATE_LABELS.get(state, state)), _STATE_KIND.get(state, "warn"))}</div>')
+    if current := _current_task_label(attempt):
+        st.caption("Current: " + current)
     if attempt and attempt.get("last_error"):
         st.warning(redact(attempt["last_error"]))
     if readonly:
@@ -529,11 +598,16 @@ def _step_controls(workspace, registry, execution, identifier, item, step_id, mo
             st.json({key: value for key, value in plan.items()
                      if key in {"operations", "stages", "variants", "parameters", "task", "intent", "notes", "continuation",
                                 "inputs", "input_sha256", "entrypoint", "outputs", "arguments", "scope", "files",
-                                "validation", "dependencies", "input_artifacts", "limits"}})
+                                "validation", "dependencies", "input_artifacts", "limits", "references"}})
+    library_ready = True
     if step["engine"] == "qe" and configured and (not attempt or not attempt.get("run_id")):
-        _pseudopotential_check(workspace, registry, identifier, step, configured, prefix)
+        library_ready = _pseudopotential_check(workspace, registry, identifier, step, configured, prefix,
+                                              (attempt or {}).get("proposal"))
+    if step["engine"] in {"abinit", "cp2k", "elk"} and configured and (not attempt or not attempt.get("run_id")):
+        library_ready = _library_check(workspace, registry, identifier, step, configured, prefix,
+                                       (attempt or {}).get("proposal"))
     if attempt and attempt["state"] == "ready":
-        if st.button(t("Prepare inputs"), key=prefix + "prepare", type="primary",
+        if st.button(t("Prepare inputs"), key=prefix + "prepare", type="primary", disabled=not library_ready,
                      help=t("Writes the input files locally for review. Nothing is submitted yet.")):
             try:
                 execution.prepare_step(identifier, item["id"], step_id)
@@ -573,8 +647,13 @@ def _context_panel(workspace, registry, execution, project, workflow):
         _file_editor(workspace, identifier, prefix, readonly)
     elif page == "Workflow":
         if workflow:
-            _workflow_graph(workflow)
-            st.dataframe([{field: step[field] for field in ("name", "engine", "status")} for step in workflow["steps"]], hide_index=True)
+            attempts = {attempt["step_id"]: attempt for attempt in execution.attempts(identifier, workflow["id"])}
+            _workflow_graph(workflow, attempts)
+            rows = [{field: step[field] for field in ("name", "engine", "status")} for step in workflow["steps"]]
+            if any(_current_task_label(attempt) for attempt in attempts.values()):
+                for row, step in zip(rows, workflow["steps"]):
+                    row["current"] = _current_task_label(attempts.get(step["id"]))
+            st.dataframe(rows, hide_index=True)
         else:
             st.caption("Describe a calculation to create a workflow.")
     elif page in {"Jobs", "Results"}:
@@ -646,8 +725,8 @@ def _chat(workspace, registry, project, session_id):
     session = workspace.get_session(identifier, session_id)
     models = [item for item in registry.project_connections(identifier)
               if item["kind"] == "model" and not item["revoked"] and not item["deleted"]]
-    header, context_menu, project_menu = st.columns([6, 1.4, .6], vertical_alignment="center")
-    mode_menu, model_menu = st.columns([2.4, 3.6], vertical_alignment="center")
+    # One header row: the model and mode are settings of the conversation, not its headline.
+    header, mode_menu, model_menu, context_menu, project_menu = st.columns([3.4, 2.2, 1.9, 1.9, .8], vertical_alignment="center")
     with header:
         st.subheader(project["name"])
     selected_model = st.session_state.get(prefix + "model")
@@ -657,8 +736,8 @@ def _chat(workspace, registry, project, session_id):
     with mode_menu:
         if agent_capable:
             mode = st.pills(t("Mode"), ["guided", "agent"], default=st.session_state.get(mode_key, _DEFAULT_MODE), key=mode_key,
-                            format_func=lambda value: t("Agent mode") if value == "agent" else t("Guided mode"), label_visibility="collapsed",
-                            help=t("Agent: the CLI reads the project, plans, prepares and explains through its own tool calls. Guided: one checked action per message."))
+                            format_func=lambda value: t("Automatic") if value == "agent" else t("Step by step"), label_visibility="collapsed",
+                            help=t("Automatic: the CLI reads the project, then plans, prepares and explains with its own tool calls. Step by step: one checked action per message."))
             mode = mode or _DEFAULT_MODE
         else:
             mode = "guided"
@@ -680,7 +759,7 @@ def _chat(workspace, registry, project, session_id):
                 st.session_state["project_page"] = "Connections"
                 st.rerun()
     with context_menu:
-        if st.button(t("Context"), key=prefix + "context_toggle", use_container_width=True):
+        if st.button(t("Files and runs"), key=prefix + "context_toggle", use_container_width=True):
             st.session_state[prefix + "show_context"] = not st.session_state.get(prefix + "show_context", False)
             st.rerun()
     with project_menu:
@@ -747,14 +826,14 @@ def _chat(workspace, registry, project, session_id):
                     format_func=lambda value: next(run["run_id"] for run in run_records if run["id"] == value),
                     key=prefix + session_id + "_analysis_runs")
         if not models and session["messages"]:
-            st.caption(t("Connect a model to start chatting."))
+            st.caption(t("Connect a model to plan calculations."))
     if side:
         with side:
             with st.popover(t("Panel size")):
                 width = st.selectbox(t("Panel width"), ["Narrow", "Medium", "Wide"], index=1, key=prefix + "context_width", format_func=t)
             _context_panel(workspace, registry, execution, project, item)
     # At the page root, Streamlit keeps this composer fixed to the viewport.
-    placeholder = t("Message DFT Agent") if model_id else t("Connect a model to start chatting")
+    placeholder = t("Describe a calculation or ask about the results") if model_id else t("Connect a model to plan calculations")
     message = st.chat_input(placeholder, key=prefix + session_id + "_chat", disabled=readonly or not model_id)
     if not message and model_id and not readonly:
         message = st.session_state.pop(prefix + "send", None)
@@ -762,7 +841,7 @@ def _chat(workspace, registry, project, session_id):
         try:
             if mode == "agent":
                 known = {item["id"] for item in workspace.list_workflows(identifier)}
-                with st.spinner(t("The agent is working…")):
+                with st.spinner(t("Working…")):
                     outcome = agent_runner.run_turn(workspace, registry, identifier, session_id, message, model_id,
                                                     workflow_id=workflow_id, step_id=step_id, run_ids=selected_runs)
                 created = [item for item in workspace.list_workflows(identifier) if item["id"] not in known]

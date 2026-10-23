@@ -60,12 +60,13 @@ def stop_server(process):
 
 def serve(port):
     from streamlit.web import cli
+    from .ui_style import THEME_FLAGS
 
     os.environ["DFT_AGENT_DESKTOP"] = "1"
     sys.argv = ["streamlit", "run", str(Path(__file__).with_name("app.py")),
                 "--server.address=127.0.0.1", f"--server.port={port}",
                 "--server.headless=true", "--browser.gatherUsageStats=false",
-                "--client.toolbarMode=minimal", "--server.fileWatcherType=none",
+                "--client.toolbarMode=minimal", "--server.fileWatcherType=none", *THEME_FLAGS,
                 "--global.developmentMode=false"]
     return cli.main()
 
@@ -153,7 +154,7 @@ def _check_qe_bundle(root):
     from .config import ClusterConfig
     from . import qe, qe_setup, qe_workflow
 
-    for name in ("qe_pseudos.json", "qe_nc_pseudos.json", "qe_setup.py", "qe_epw.py", "qe_pairing.py"):
+    for name in ("qe_pseudos.json", "qe_nc_pseudos.json", "qe_nc_fr_pseudos.json", "qe_setup.py", "qe_epw.py", "qe_pairing.py"):
         assert files("vasp_slurm_agent").joinpath(name).is_file()
     assert qe_setup.plan_pseudopotentials(["Si"])["elements"]["Si"]
     nc = qe_setup.plan_pseudopotentials(["Si"], library="pseudodojo")
@@ -175,6 +176,29 @@ def _check_qe_bundle(root):
     assert len(qe._expected_structure(inputs, metadata)) == 2
 
 
+def _check_engine_bundle(root):
+    """ABINIT, CP2K and Elk: pinned catalogs ship, inputs prepare offline, installs plan for Linux."""
+    from importlib.resources import files
+    from types import SimpleNamespace
+    from .config import ClusterConfig
+    from . import engine_setup, engine_workflow
+
+    for name in ("abinit_pseudos.json", "cp2k_basis.json", "elk_species.json", "engine_packages.json",
+                 "engine_workflow.py", "engine_setup.py", "migrations/005_open_source_engines.sql"):
+        assert files("vasp_slurm_agent").joinpath(name).is_file()
+    source = root / "engine-Si.cif"
+    source.write_bytes(files("vasp_slurm_agent").joinpath("examples", "Si.cif").read_bytes())
+    profile = SimpleNamespace(remote_root="/scratch/check", partition="cpu", account="", scheduler="slurm", extra_pbs=[])
+    for engine, command, inputs in (("abinit", "srun abinit", "run.abi"), ("cp2k", "srun cp2k.psmp", "cp2k.inp"), ("elk", "elk", "elk.in")):
+        config = ClusterConfig(engine=engine, host="cluster.example.invalid", user="researcher", remote_root="/scratch/check",
+                               partition="cpu", engine_command=command, engine_library_root="/scratch/library")
+        state = engine_workflow.prepare_plan(source, root / f"{engine}-run", config, ["scf", "bands"], {"mesh": [2, 2, 2]})
+        assert state["status"] == "planned" and [stage["name"] for stage in state["stages"]] == ["scf", "bands"]
+        assert (root / f"{engine}-run" / "01_scf" / "inputs" / inputs).is_file()
+        plan = engine_setup.install_plan(profile, engine, {"platform": "linux-64", "glibc": "2.28"})
+        assert plan["downloads"] and plan["command"]
+
+
 def _check_project_bundle(root):
     """Check first-run projects and the exact MCP subprocess used by the CLI agents."""
     from importlib.resources import files
@@ -193,7 +217,7 @@ def _check_project_bundle(root):
         app = AppTest.from_file(str(Path(__file__).with_name("app.py"))).run(timeout=60)
         assert not app.exception, str(app.exception)
         next(item for item in app.button if item.label == "Create your first project").click().run()
-        next(item for item in app.text_input if item.label == "Name").set_value("Silicon").run()
+        next(item for item in app.text_input if item.label == "Project name").set_value("Silicon").run()
         next(item for item in app.button if item.label == "Create project").click().run()
         assert not app.exception, str(app.exception)
         assert app.chat_input[0].disabled
@@ -320,6 +344,7 @@ def check_bundle(output):
         if sys.platform == "win32":
             __import__("paramiko")
         _check_qe_bundle(root)
+        _check_engine_bundle(root)
         _check_project_bundle(root)
         if sys.platform in {"darwin", "win32"}:
             _check_broker_bundle(root)

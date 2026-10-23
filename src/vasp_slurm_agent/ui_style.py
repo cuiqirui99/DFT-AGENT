@@ -23,6 +23,9 @@ _DARK = dict(bg="#101317", surface="#171b21", raised="#1c2128", ink="#e7eaee", m
              ok="#4ade80", ok_soft="#14281c", warn="#fbbf24", warn_soft="#2c2414", bad="#f87171", bad_soft="#2d1818",
              code="#1f252d", shadow="0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8)")
 
+# Streamlit's own widgets (radio, pills, toggles, progress) take this accent instead of its default red.
+THEME_FLAGS = ("--theme.primaryColor=#0f766e",)
+
 FONT = ('-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Helvetica Neue", "PingFang SC", '
         '"Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif')
 MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'

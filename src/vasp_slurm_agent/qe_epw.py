@@ -177,12 +177,15 @@ def _nsiw(temperature, cutoff):
 
 
 def _matches_structure_file(actual, expected, path):
-    if qe._same_structure(actual, expected):
+    # pw.x runs the file's structure in the rotated frame of qe._standard_frame; runs prepared before
+    # that rotation ran it in the file's own frame.
+    from pymatgen.core import Structure
+    from pymatgen.io.cif import CifWriter
+
+    if any(qe._same_structure(actual, candidate) for candidate in (expected, qe._standard_frame(expected)[0], Structure.from_file(path))):
         return True
     if Path(path).suffix.lower() != ".cif":
         return False
-    from pymatgen.core import Structure
-    from pymatgen.io.cif import CifWriter
 
     serialized = Structure.from_str(str(CifWriter(actual)), fmt="cif")
     return qe._same_structure(serialized, expected)
@@ -391,7 +394,7 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
         return _prepare_aniso(structure_path, destination, p, evidence_dir=evidence_dir)
     if "broadening_index" not in p:
         raise ValueError("Choose broadening_index explicitly for EPW.")
-    structure = Structure.from_file(structure_path)
+    structure = qe._standard_frame(Structure.from_file(structure_path))[0]
     qe._validate_structure(structure)
     folder = Path(destination)
     if evidence_dir is None:
@@ -427,7 +430,7 @@ def _prepare_aniso(structure_path, destination, parameters, *, evidence_dir=None
     p = validate_parameters(parameters, "epw_aniso")
     if "broadening_index" in p:
         raise ValueError("Anisotropic EPW uses the frozen interpolation checkpoint, not a scalar broadening column.")
-    structure = Structure.from_file(structure_path)
+    structure = qe._standard_frame(Structure.from_file(structure_path))[0]
     qe._validate_structure(structure)
     folder = Path(destination)
     folder.mkdir(parents=True, exist_ok=True)
@@ -467,6 +470,18 @@ def _prepare_aniso(structure_path, destination, parameters, *, evidence_dir=None
     return meta
 
 
+# The Tc summary of each EPW release (EPW/src/supercond.f90): 6.0 renamed the simplified Allen-Dynes estimate
+# the "McMillan expression", kept its formula and prints four decimals instead of six.
+EPW_SUMMARIES = {(5, 9): {"omega": "Estimated w_log in Allen-Dynes Tc", "tc": "Estimated Allen-Dynes Tc", "digits": 6},
+                 (6, 0): {"omega": "Estimated w_log", "tc": "Estimated Tc using McMillan expression", "digits": 4},
+                 (6, 1): {"omega": "Estimated w_log", "tc": "Estimated Tc using McMillan expression", "digits": 4}}
+
+
+def _epw_version(text):
+    match = re.search(r"Program\s+EPW\s+v\.(\d+)\.(\d+)\b", text)
+    return (int(match[1]), int(match[2])) if match else None
+
+
 def _native_scalar(text, label):
     matches = re.findall(re.escape(label) + r"\s*=\s*(" + qe.FLOAT + r")", text)
     if len(matches) != 1:
@@ -496,8 +511,10 @@ def _analyze_aniso(folder, expected_structure=None):
         if expected_structure is not None and not _matches_structure_file(actual, Structure.from_file(expected_structure), expected_structure):
             raise ValueError("The anisotropic checkpoint differs from the requested structure.")
         text = (folder / "epw.out").read_text()
-        if not re.search(r"Program\s+EPW\s+v\.5\.9\b", text) or "Total program execution" not in text or not re.search(r"\bEPW\s*:\s*.+?CPU\s*.+?WALL", text) or "functionality-dependent EPW.bib file." not in text:
-            raise ValueError("EPW 5.9 did not finish normally.")
+        if "Total program execution" not in text or not re.search(r"\bEPW\s*:\s*.+?CPU\s*.+?WALL", text) or "functionality-dependent EPW.bib file." not in text:
+            raise ValueError("EPW did not finish normally.")
+        if _epw_version(text) != (5, 9):
+            raise ValueError("Anisotropic EPW output is read for EPW 5.9 only; this run used another version.")
         if re.search(r"Error in routine|MPI_ABORT|convergence.*not reached", text, re.I):
             raise ValueError("EPW reports a failed anisotropic calculation.")
         if "Solve anisotropic Eliashberg equations" not in text or "full-bandwidth" in text:
@@ -581,19 +598,27 @@ def analyze_outputs(folder, task=None, expected_structure=None):
         w, a2f, spectrum = read_spectrum(folder / "alpha2f.dat")
         text = (folder / "epw.out").read_text()
         finished = "Total program execution" in text and re.search(r"\bEPW\s*:\s*.+?CPU\s*.+?WALL", text) and "functionality-dependent EPW.bib file." in text
-        if not re.search(r"Program\s+EPW\s+v\.5\.9\b", text) or not finished:
-            raise ValueError("EPW 5.9 did not finish normally.")
+        if not finished:
+            raise ValueError("EPW did not finish normally.")
+        version = _epw_version(text)
+        summary = EPW_SUMMARIES.get(version)
+        if summary is None:
+            raise ValueError("DFT Agent reads the output of EPW " + ", ".join(f"{a}.{b}" for a, b in EPW_SUMMARIES)
+                             + "; this run used " + (f"EPW {version[0]}.{version[1]}." if version else "an unknown version."))
         if re.search(r"Error in routine|MPI_ABORT|convergence.*not reached|Maximum CPU time exceeded", text, re.I):
             raise ValueError("EPW reports a failed or unconverged calculation.")
         lam = _native_scalar(text, "Electron-phonon coupling strength")
-        omega = _native_scalar(text, "Estimated w_log in Allen-Dynes Tc")
-        tc_ad = _native_scalar(text, "Estimated Allen-Dynes Tc")
-        if not np.isclose(lam, spectrum["lambda"], atol=5.1e-8, rtol=1e-7) or not np.isclose(omega, spectrum["omega_log_mev"], atol=5.1e-7, rtol=1e-7):
+        omega = _native_scalar(text, summary["omega"])
+        tc_ad = _native_scalar(text, summary["tc"])
+        printed = 0.51 * 10.0 ** -summary["digits"]
+        if not np.isclose(lam, spectrum["lambda"], atol=5.1e-8, rtol=1e-7) or not np.isclose(omega, spectrum["omega_log_mev"], atol=printed, rtol=1e-7):
             raise ValueError("EPW lambda or omega_log differs from the saved spectral integral.")
         expected_ad = omega / (1000 * KB_EV * 1.2) * math.exp(-1.04 * (1 + lam) / (lam - p["mu_star"] * (1 + 0.62 * lam)))
-        if not np.isclose(tc_ad, expected_ad, atol=1e-5, rtol=2e-5):
+        if not np.isclose(tc_ad, expected_ad, atol=max(1e-5, printed), rtol=2e-5):
             raise ValueError("The EPW Allen-Dynes estimate differs from its stated spectrum and mu_star.")
-        result.update(task=task, mu_star=p["mu_star"], lambda_integral=lam, omega_log_mev=omega, allen_dynes_estimate_kelvin=tc_ad, source_provenance=meta["source_provenance"], artifacts=["epw.out", "alpha2f.dat", "source.a2f", "source-schema.xml", "crystal.fmt", "epw.in"])
+        result.update(task=task, mu_star=p["mu_star"], lambda_integral=lam, omega_log_mev=omega, allen_dynes_estimate_kelvin=tc_ad,
+                      epw_version=f"{version[0]}.{version[1]}", source_provenance=meta["source_provenance"],
+                      artifacts=["epw.out", "alpha2f.dat", "source.a2f", "source-schema.xml", "crystal.fmt", "epw.in"])
         if task == "epw_tc":
             records = _linear_results(text, p)
             qe._csv(folder / "eliashberg_eigenvalues.csv", ["temperature_K", "eigenvalue", "matsubara_points", "cutoff_eV", "iterations"], [[r[k] for k in ("temperature_kelvin", "eigenvalue", "matsubara_points", "cutoff_ev", "iterations")] for r in records])

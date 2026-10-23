@@ -51,3 +51,18 @@ def test_serial_epw_and_frozen_script():
         "input_file": "epw.in", "output_file": "epw.out"}})
     assert "#SBATCH --ntasks=8" in script
     assert "mpirun -np 8 epw.x -npool 8 -in epw.in > epw.out" in script
+
+
+@pytest.mark.parametrize("command, expected", [
+    ("srun pw.x", "srun -n 1 dos.x"),
+    ("srun --mpi=pmi2 -n 32 pw.x -nk 4", "srun --mpi=pmi2 -n 1 dos.x"),
+    ("srun --ntasks=32 -N 2 pw.x -ndiag 1", "srun -n 1 dos.x"),
+    ("mpirun -np 8 --bind-to core /opt/qe/bin/pw.x -npool 2", "mpirun --bind-to core -n 1 /opt/qe/bin/dos.x"),
+    ("mpiexec -n8 pw.x", "mpiexec -n 1 dos.x"),
+    ("pw.x -nk 2", "dos.x"),
+])
+def test_dos_runs_on_one_rank_with_the_configured_launcher(command, expected):
+    # QE 7.6 dos.x stopped (32 ranks) or hung (8 ranks) on spin-polarized PAW iron; one rank finished in a second.
+    config = ClusterConfig(host="test", user="test", remote_root="/scratch/test", engine="qe", qe_pseudo_root="/pseudo", partition="cpu", qe_command=command, tasks=8)
+    assert _command_for(config, "dos.x") == expected
+    assert _command_for(config, "pw.x") == command

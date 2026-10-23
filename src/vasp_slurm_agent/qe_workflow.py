@@ -39,8 +39,10 @@ RECEIPTS = {"execution.json", "input_hashes.sha256", "pseudo_manifest.json",
 _RESULT_NAME = re.compile(r"(?:pdos[^/]*|dft_agent\.(?:dyn[0-9]*(?:\.xml)?|dat|int|path|axsf|xyz)|phonon[^/]*|force_constants(?:\.xml)?|dos\.dat|charge_density\.(?:dat|cube)|a2F\.dos[0-9]+|lambda(?:\.dat)?|alpha2F\.dat|elph_dir/[A-Za-z0-9_.+-]+)")
 _EPW_RESULT_NAME = re.compile(r"(?:dft_agent\.(?:wout|win|a2f|imag_aniso_[0-9.]+)|crystal\.fmt|selecq\.fmt|scratch/dft_agent\.ephmat/(?:freq|egnv|ikmap|npool|ephmat[0-9]*))")
 
+SCRATCH_POLICY = {**dict.fromkeys(("q2r", "matdyn", "eph_q2r", "eph_matdyn", "eph_lambda"), "schema"),
+                  **dict.fromkeys(("bands", "nscf", "dos"), "density")}
 _QE_UPLOAD_NAMES = frozenset({"pw.in", "ph.in", "q2r.in", "matdyn.in", "dos.in", "projwfc.in",
-    "neb.in", "pp.in", "lambda.in", "structure.cif", "qe-input.json", "pseudo_manifest.json",
+    "neb.in", "pp.in", "lambda.in", "elph_zeroed.1", "structure.cif", "qe-input.json", "pseudo_manifest.json",
     "runtime.json", "qe_runtime.py", "submit.sh", "dispatch.py", "scheduler.py",
     "epw.in", "alpha2f.dat", "source.a2f", "source-schema.xml", "source-epw.in", "source-epw.out", "source-wannier.wout", "crystal.fmt"})
 
@@ -152,7 +154,33 @@ def _command_for(config, program):
     if program == "epw.x":
         ranks = _epw_ranks(tokens, index, config.tasks)
         tokens = _epw_pools(tokens, index, ranks)
+    elif program == "dos.x":
+        tokens = _one_rank(tokens, index)
     return shlex.join(tokens)
+
+
+def _one_rank(tokens, binary_index):
+    """dos.x only reads eigenvalues; on many ranks QE 7.6 stopped or hung for spin-polarized PAW iron."""
+    # One rank has no pools, images, band or task groups to split into.
+    splits = {"-nk", "-npool", "-npools", "-ni", "-nimage", "-nimages", "-npot", "-nb", "-nbgrp", "-nband_group",
+              "-nt", "-ntg", "-ntask_groups", "-nd", "-ndiag", "-northo", "-nproc_diag", "-nproc_ortho", "-nyfft", "-pd"}
+    program, i = [tokens[binary_index]], binary_index + 1
+    while i < len(tokens):
+        i, program = (i + 2, program) if tokens[i] in splits else (i + 1, program + [tokens[i]])
+    launcher = PurePosixPath(tokens[0]).name if binary_index else ""
+    if launcher not in {"srun", "mpirun", "mpiexec"} or ":" in tokens:
+        return tokens[:binary_index] + program
+    counts = {"-n", "--ntasks", "-N", "--nodes"} if launcher == "srun" else {"-n", "-np", "--np", "--n"}
+    kept, i = [], 1
+    while i < binary_index:
+        token = tokens[i]
+        if token in counts:
+            i += 2
+            continue
+        if not any(token.startswith(option + "=") for option in counts) and not re.fullmatch(r"-(?:n|np|N)\d+", token):
+            kept.append(token)
+        i += 1
+    return [tokens[0], *kept, "-n", "1", *program]
 
 
 def _sequence(tasks, parameters, stage_parameters):
@@ -453,7 +481,7 @@ def attach_config(run_dir, config):
 
 # This small stdlib program runs on the cluster. Checkpoints stay there; only
 # hashes, small scientific outputs and requested raw files cross SSH.
-_RUNTIME = r'''import datetime, hashlib, json, os, shutil, sys
+_RUNTIME = r'''import datetime, hashlib, json, os, re, shutil, sys
 from pathlib import Path
 
 def sha(path):
@@ -488,6 +516,14 @@ if sys.argv[1] == 'prepare':
         mapping = dep.get('mapping')
         if mapping is None:
             mapping = {name: name for name in records}
+            # q2r, matdyn and lambda.x read none of ph.x's scratch; band, nscf and DOS runs start from the
+            # charge density and read no earlier wavefunctions.
+            if dep.get('scratch') == 'schema':
+                mapping = {name: name for name in records
+                           if not name.startswith('scratch/') or name == 'scratch/dft_agent.save/data-file-schema.xml'}
+            elif dep.get('scratch') == 'density':
+                mapping = {name: name for name in records
+                           if not (name.startswith('scratch/') and re.search(r'(?:^|[._/])wfc(?:up|dw)?[0-9]*(?:[._]|$)', name))}
         elif not isinstance(mapping, dict) or not mapping or any(
                 not destination.startswith('save/') for destination in mapping.values()):
             raise RuntimeError('Invalid auxiliary phonon checkpoint mapping')
@@ -557,6 +593,7 @@ _UPF_VALIDATOR = r'''def validate_upf(data: bytes, element: str) -> dict:
             pseudo_type = "US"
         relativistic = attributes.get("relativistic", "")
         has_so = attributes.get("has_so", "").lower() in ("t", "true", ".true.")
+        valence = attributes.get("z_valence", "")
     else:
         lines = [line.strip() for line in (match[2] or "").splitlines() if line.strip()]
         if len(lines) < 6:
@@ -566,9 +603,15 @@ _UPF_VALIDATOR = r'''def validate_upf(data: bytes, element: str) -> dict:
         pseudo_type = lines[2].split()[0].upper()
         has_so = "<PP_SPIN_ORB" in text or "<PP_ADDINFO" in text
         relativistic = "full" if has_so else "scalar"
+        valence = lines[5].split()[0]
     if actual != element:
         raise ValueError(f"UPF element {actual!r} does not match {element}.")
-    return {"element": actual, "functional": functional, "pseudo_type": pseudo_type, "relativistic": relativistic, "has_so": has_so, "sha256": hashlib.sha256(data).hexdigest()}
+    try:
+        valence = float(valence.strip().lower().replace("d", "e"))
+    except ValueError:
+        valence = None
+    return {"element": actual, "functional": functional, "pseudo_type": pseudo_type, "relativistic": relativistic, "has_so": has_so,
+            "valence_electrons": valence if valence is not None and 0 < valence < 200 else None, "sha256": hashlib.sha256(data).hexdigest()}
 '''
 
 
@@ -611,7 +654,7 @@ for name,expected in %r.items():
         raise RuntimeError('SOC requires spin-orbit data in the actual UPF: '+name)
     result[name]={'sha256':header['sha256'],'size':len(data),'element':header['element'],
                   'fully_relativistic':header['has_so'],'functional':header['functional'],
-                  'pseudo_type':header['pseudo_type']}
+                  'pseudo_type':header['pseudo_type'],'valence_electrons':header['valence_electrons']}
 print(json.dumps(result))
 """ % (config.qe_pseudo_root, entries, require_soc)
     result = json.loads(_command(transport, "python3 -c " + shlex.quote(code)))
@@ -621,14 +664,26 @@ print(json.dumps(result))
             or value.get("element") != entries[name]["element"]
             or type(value.get("fully_relativistic")) is not bool
             or (require_soc and not value["fully_relativistic"])
+            or type(value.get("valence_electrons")) not in (int, float, type(None))
             for name, value in result.items())):
         raise ValueError("Invalid pseudopotential receipt.")
     for name, entry in entries.items():
         if entry.get("sha256") and result[name]["sha256"] != entry["sha256"]:
             raise ValueError("A QE pseudopotential differs from its validated library record.")
+    # Empty bands were counted from the recorded or bundled valence of each UPF;
+    # a file with more electrons would fill them.
+    prepared = stage["metadata"].get("valence_charges") or {}
+    for value in result.values():
+        expected, actual = prepared.get(value["element"]), value.get("valence_electrons")
+        if expected is not None and actual is not None and actual > expected + 1e-6:
+            raise ValueError(f"The {value['element']} UPF has {actual:g} valence electrons, more than the {expected:g} "
+                             "this stage was prepared for, so it would lack empty bands. Set nbnd and prepare the run again.")
     if stage.get("name", "").startswith("wannier_") or stage.get("name") == "epw_interpolate":
         from .qe_wannier import _require_nc
         _require_nc(result)
+    if stage.get("name", "").startswith("eph_"):
+        from .qe_eph import require_norm_conserving
+        require_norm_conserving(result, verified=True)
     effective = deepcopy(stage.get("parameters", {}))
     # Check generated defaults as well as explicit requests, including older
     # frozen inputs that still enabled unsupported noncollinear hybrid stress.
@@ -712,7 +767,12 @@ def _submit(root, state, config, transport):
         if not checkpoint.is_file() or _digest(checkpoint) != result["checkpoint_sha256"]:
             raise ValueError("The accepted QE checkpoint receipt changed.")
         _validate_checkpoint(json.loads(checkpoint.read_text()), stage["name"])
-        dependencies.append({"directory": state["remote_root"] + "/" + parent["folder"], "sha256": result["checkpoint_sha256"]})
+        dependency = {"directory": state["remote_root"] + "/" + parent["folder"], "sha256": result["checkpoint_sha256"]}
+        if stage["name"] in SCRATCH_POLICY:
+            # Copying ph.x's scratch to every later stage cost 53 GB each for aluminium's 150 q points,
+            # and a DOS stage copied 49 GB of Bi2Se3 nscf wavefunctions that dos.x never reads.
+            dependency["scratch"] = SCRATCH_POLICY[stage["name"]]
+        dependencies.append(dependency)
         inherited_pseudos = json.loads((root / parent["folder"] / "inputs" / "pseudo_manifest.json").read_text())
     auxiliary_index = stage.get("auxiliary_from")
     if auxiliary_index is not None:

@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "engine": "cp2k",
+  "task": "scf",
+  "canonical_task": "scf",
+  "formula": "Si",
+  "number_of_atoms": 2,
+  "parameters": {
+    "mesh": [
+      2,
+      2,
+      2
+    ],
+    "dos_mesh": [
+      3,
+      3,
+      3
+    ],
+    "cutoff_ry": 200,
+    "rel_cutoff_ry": 40,
+    "line_density": 4,
+    "max_ionic_steps": 20
+  },
+  "source_sha256": "b0a1e10e4df5ba44a9fd565f33833c230611189daf7d9e5bc17fe0ceccbc515d",
+  "requires_restart": false,
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        3.325182306911612,
+        0.0,
+        1.9197949000000005
+      ],
+      [
+        1.1083941023038708,
+        3.1350119438649715,
+        1.9197949000000005
+      ],
+      [
+        0.0,
+        0.0,
+        3.8395898
+      ]
+    ],
+    "elements": [
+      "Si",
+      "Si"
+    ],
+    "fractional_positions": [
+      [
+        0.0049995,
+        0.99500215,
+        0.99999916
+      ],
+      [
+        0.25499741,
+        0.24500084,
+        0.25000088
+      ]
+    ]
+  },
+  "elements": [
+    "Si"
+  ],
+  "scientific_accuracy_validated": false,
+  "input_file": "cp2k.inp",
+  "output_file": "cp2k.out",
+  "stdout_file": "cp2k.log",
+  "arguments": [
+    "-i",
+    "cp2k.inp",
+    "-o",
+    "cp2k.out"
+  ],
+  "input_files": [
+    "cp2k.inp",
+    "structure.cif",
+    "cp2k-input.json"
+  ],
+  "output_files": [
+    "cp2k.out",
+    "cp2k.log",
+    "dft_agent.bs",
+    "dft_agent-1.restart",
+    "dft_agent-pos-1.xyz",
+    "dft_agent-1.cell",
+    "dft_agent-1.dos",
+    "dft_agent-ALPHA-1.dos",
+    "dft_agent-BETA-1.dos"
+  ],
+  "library_dir": "library",
+  "kinds": {
+    "Si": {
+      "basis": "DZVP-MOLOPT-SR-GTH-q4",
+      "potential": "GTH-PBE-q4",
+      "valence": 4
+    }
+  },
+  "basis_family": "sr",
+  "library_files": {
+    "BASIS_MOLOPT": {
+      "sha256": "686dd72e7601ee41d4a173e4c7c3946f1e750f03095090f44d3821c180a81a61",
+      "size": 127679,
+      "kind": "cp2k_data",
+      "names": [
+        "DZVP-MOLOPT-SR-GTH-q4"
+      ]
+    },
+    "GTH_POTENTIALS": {
+      "sha256": "5a9bfbc3b37a55917ade4fb704b80546d210d843759b94e3915e74acfc3fafb2",
+      "size": 168128,
+      "kind": "cp2k_data",
+      "names": [
+        "GTH-PBE-q4"
+      ]
+    }
+  },
+  "electrons": 8,
+  "mesh": [
+    2,
+    2,
+    2
+  ],
+  "kpoints": true,
+  "functional": "PBE",
+  "spin": "none",
+  "soc": false,
+  "starting_moments": null,
+  "hubbard": [],
+  "cutoff_ry": 200.0,
+  "rel_cutoff_ry": 40.0,
+  "added_mos": 8,
+  "run_type": "ENERGY_FORCE",
+  "notes": []
+}

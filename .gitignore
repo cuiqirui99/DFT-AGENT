@@ -21,5 +21,6 @@ WAVECAR
 CHGCAR
 vaspout.h5
 *.log
+!tests/data/engines/**/*.log
 validation/unit-tests.xml
 validation/reference/prepared-*/

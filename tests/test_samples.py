@@ -40,6 +40,25 @@ def test_samples_verify_and_carry_no_personal_details(tmp_path):
     assert any((tmp_path / "runs" / "sample-si-pbe-chain").rglob("bands.png"))
 
 
+def test_sample_band_paths_follow_the_lattice_and_stay_smooth(tmp_path):
+    # The 0.4.4 silicon sample showed monoclinic labels and 13 points; a sample must look like the textbook.
+    from pymatgen.core import Structure
+    from vasp_slurm_agent.numerical_defaults import BAND_PATH_MIN_SEGMENT_POINTS, high_symmetry_path
+
+    checked = 0
+    for path in install_samples(tmp_path / "runs"):
+        for stage in read_state(path)["stages"]:
+            if stage["name"] != "bands":
+                continue
+            band_path = stage["metadata"]["band_path"]
+            assert min(end - start for start, end in band_path["segments"]) >= BAND_PATH_MIN_SEGMENT_POINTS, path.name
+            structure = Structure.from_file(path / stage["folder"] / "inputs" / "POSCAR")
+            assert [label for label in band_path["labels"] if label] == \
+                [label for label in high_symmetry_path(structure, 60)["labels"] if label], path.name
+            checked += 1
+    assert checked >= 2
+
+
 def test_cli_lists_and_copies_samples(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(sys, "argv", ["dft-agent", "samples", "--list"])
     assert cli.main() == 0

@@ -471,6 +471,17 @@ chat_panel(ConnectionRegistry(), {project_id!r})
 """, default_timeout=20).run()
 
 
+def address(view, text):
+    """Type into the cluster form's address (or username) field and press Next."""
+    field = next(item for item in view.text_input if item.label in {"SSH address", "Username on this cluster"})
+    field.set_value(text)
+    widget(view.button, "Next").click().run()
+
+
+def address_form(view):
+    return any(item.label in {"SSH address", "Username on this cluster"} for item in view.text_input)
+
+
 def detected(monkeypatch, codex_signed_in=True):
     items = [{"provider": "codex", "label": "Codex CLI", "installed": True, "path": "/mock/codex", "version": (0, 162, 0, 1),
               "logged_in": codex_signed_in, "detail": "ChatGPT" if codex_signed_in else "Not signed in."},
@@ -494,7 +505,7 @@ def test_signed_in_cli_connects_with_one_click(monkeypatch):
     record = registry.project_connections(project["id"])[0]
     assert record["settings"]["provider"] == "codex" and record["connection_status"] == "connected"
     probe.assert_called_once()
-    assert any("You can start chatting" in item.value for item in view.success)
+    assert any("Model connected" in item.value for item in view.success)
     assert widget(view.button, "Back to chat")
 
 
@@ -561,8 +572,8 @@ def test_cluster_setup_asks_only_for_what_the_cluster_needs(monkeypatch, keychai
     monkeypatch.setattr(ConnectionRegistry, "discover_environments", discover)
     view = chat_app(project["id"])
     widget(view.pills, "Connect").set_value("hpc").run()
-    view.chat_input[0].set_value("ssh researcher@cluster.invalid:2222").run()
-    assert not view.exception and not view.chat_input
+    address(view, "ssh researcher@cluster.invalid:2222")
+    assert not view.exception and not address_form(view)
     record = registry.project_connections(project["id"])[0]
     assert record["settings"]["host"] == "cluster.invalid" and record["settings"]["port"] == 2222
     password_field = widget(view.text_input, "SSH password")
@@ -597,9 +608,10 @@ def test_cluster_setup_uses_keys_when_they_work(monkeypatch, keychain):
     monkeypatch.setattr(ConnectionRegistry, "discover_environments", Mock(return_value={"created": [], "missing": {}, "notes": []}))
     view = chat_app()
     widget(view.pills, "Connect").set_value("hpc").run()
-    view.chat_input[0].set_value("hpc.invalid").run()
-    assert "username" in view.chat_input[0].placeholder.lower() or any("username" in m.value.lower() for m in view.markdown)
-    view.chat_input[0].set_value("researcher").run()
+    address(view, "hpc.invalid")
+    assert any(item.label == "Username on this cluster" for item in view.text_input)
+    assert widget(view.text_input, "Username on this cluster").value == ""
+    address(view, "researcher")
     assert not view.exception and not view.error
     record = registry.list(kind="hpc")[0]
     assert record["settings"] == {**record["settings"], "host": "hpc.invalid", "user": "researcher", "auth_mode": "agent"}
@@ -613,7 +625,7 @@ def test_cluster_setup_explains_unreachable_hosts_and_keeps_terminal_fallback(mo
     monkeypatch.setattr(ConnectionRegistry, "detect_auth", lambda self, identifier: {"status": "unreachable", "methods": (), "detail": "The cluster could not be reached."})
     view = chat_app()
     widget(view.pills, "Connect").set_value("hpc").run()
-    view.chat_input[0].set_value("researcher@nowhere.invalid").run()
+    address(view, "researcher@nowhere.invalid")
     assert not view.exception and any("could not be reached" in item.value for item in view.error)
     assert widget(view.button, "Try again") and widget(view.button, "Open terminal sign-in")
     assert not any(field.label == "SSH password" for field in view.text_input)
@@ -633,11 +645,11 @@ project = st.selectbox('Project', {[first, second]!r})
 chat_panel(ConnectionRegistry(), project)
 """).run()
     widget(view.pills, "Connect").set_value("hpc").run()
-    view.chat_input[0].set_value("researcher@first.invalid").run()
+    address(view, "researcher@first.invalid")
     assert any(field.label == "SSH password" for field in view.text_input)
     widget(view.selectbox, "Project").select(second).run()
     widget(view.pills, "Connect").set_value("hpc").run()
-    assert view.chat_input and not any(field.label == "SSH password" for field in view.text_input)
+    assert address_form(view) and not any(field.label == "SSH password" for field in view.text_input)
     assert not registry.project_connections(second)
     widget(view.selectbox, "Project").select(first).run()
     # Streamlit forgets widgets that were not drawn; the project's own setup progress survives.
@@ -653,7 +665,7 @@ def test_setup_rejects_secrets_typed_as_addresses_or_answers(monkeypatch):
     registry = ConnectionRegistry()
     view = chat_app()
     widget(view.pills, "Connect").set_value("hpc").run()
-    view.chat_input[0].set_value("password: hidden").run()
+    address(view, "password: hidden")
     assert not view.exception and view.error and not registry.list()
     assert "hidden" not in json.dumps({key: str(value) for key, value in view.session_state.items() if "state" in key})
 
@@ -832,7 +844,7 @@ def test_setup_recognizes_key_plus_code_without_password_prompt(monkeypatch):
     monkeypatch.setattr(ConnectionRegistry, "detect_auth", detect)
     view = chat_app()
     widget(view.pills, "Connect").set_value("hpc").run()
-    view.chat_input[0].set_value("researcher@hpc.invalid").run()
+    address(view, "researcher@hpc.invalid")
     assert not view.exception and widget(view.text_input, "Login code")
     assert not any(field.label == "SSH password" for field in view.text_input)
     assert not ConnectionRegistry().list(kind="hpc")[0]["has_secret"]

@@ -80,6 +80,22 @@ def test_rotating_crystal_rotates_the_cartesian_band_path(tmp_path):
     np.testing.assert_allclose(np.asarray(paths[0]["cartesian_inv_angstrom"]) @ rotation.T, paths[1]["cartesian_inv_angstrom"], atol=1e-7)
 
 
+def test_relaxed_cell_with_residual_distortion_keeps_its_band_path(tmp_path):
+    # Relaxations from a displaced start leave ~0.003 Å of distortion; silicon must stay fcc.
+    from vasp_slurm_agent import qe
+
+    a = 5.431
+    lattice = np.array([[0, a/2, a/2], [a/2, 0, a/2], [a/2 + 0.003, a/2, 0]])
+    structure = Structure(lattice, ["Si", "Si"], [[0.0006, 0.0003, 0.9996], [0.25, 0.25, 0.25]])
+    source = tmp_path / "POSCAR"
+    Poscar(structure).write_file(source)
+    path = vasp.prepare_inputs(source, tmp_path / "bands", "bands", {"line_density": 6})["band_path"]
+    assert [label for label in path["labels"] if label] == ["GAMMA", "X", "U", "K", "GAMMA", "L", "W", "X"]
+    assert path["symprec_angstrom"] == 0.02
+    assert [label for label in qe._path(structure, {"line_density": 6})["labels"] if label] == \
+        ["GAMMA", "X", "U", "K", "GAMMA", "L", "W", "X"]
+
+
 @pytest.mark.parametrize("parameters", [
     {"mesh": [0, 4, 4]}, {"mesh": [4, 4]}, {"ediff": float("nan")},
     {"encut": -1}, {"nsw": True}, {"cell_relax": "false"},
@@ -109,6 +125,14 @@ def test_missing_or_truncated_xml_is_not_success(tmp_path, xml):
     assert not result["success"] and not result["valid_structure"]
     assert not (tmp_path / "final_structure.cif").exists()
     assert json.loads((tmp_path / "result.json").read_text()) == result
+
+
+def test_missing_vasp_licence_is_named(tmp_path):
+    # A central VASP 6 module on Arrhenius wrote an empty vasprun.xml and this banner without a licence key file.
+    (tmp_path / "vasprun.xml").write_text("")
+    (tmp_path / "slurm.out").write_text(" |     No license file found. Please provide a valid license file. VASP        |\n")
+    result = vasp.analyze_outputs(tmp_path, "scf", EXAMPLES / "Si.cif")
+    assert not result["success"] and "no licence file" in result["reason"] and "vasp_license" in result["reason"]
 
 
 def _fake_run(**changes):
@@ -189,6 +213,23 @@ def test_dos_export_contract_with_parser_stub(monkeypatch, tmp_path):
     assert "70.0,60.0" in (tmp_path / "dos.csv").read_text()
     assert result["plot_settings"] == {"energy_window_ev": [-8.0, 8.0], "csv_contains_full_data": True}
     assert (tmp_path / "dos.png").stat().st_size > 100
+
+
+def test_band_window_stops_below_the_highest_computed_band(monkeypatch, tmp_path):
+    # With KPAR, a silicon HSE06 path had 8 bands; the highest follows whichever uncomputed band crosses it.
+    from pymatgen.electronic_structure.core import Spin
+    metadata = vasp.prepare_inputs(EXAMPLES / "Si.cif", tmp_path, "bands", {"line_density": 3})
+    metadata["scf_fermi_energy_ev"] = 0.0
+    (tmp_path / "metadata.json").write_text(json.dumps(metadata))
+    points = metadata["band_path"]["reciprocal_fractional"]
+    values = np.zeros((len(points), 2, 2))
+    values[:, 0, 0] = -1.0
+    values[:, 1, 0] = np.linspace(3.0, 7.5, len(points))
+    run = _fake_run(incar=dict(Incar.from_file(tmp_path / "INCAR")), efermi=0.0, actual_kpoints=points, eigenvalues={Spin.up: values})
+    _install_parser_stub(monkeypatch, tmp_path, run)
+    result = vasp.analyze_outputs(tmp_path, "bands", EXAMPLES / "Si.cif")
+    assert result["success"] and result["plot_settings"]["energy_window_ev"] == [-8.0, 2.9]
+    assert json.loads((tmp_path / "plot_metadata.json").read_text())["energy_window_ev"] == [-8.0, 2.9]
 
 
 def test_bands_export_checks_frozen_path_with_parser_stub(monkeypatch, tmp_path):

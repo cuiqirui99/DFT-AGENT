@@ -1,6 +1,11 @@
 include LICENSE NOTICE.md CHANGELOG.md CITATION.cff
 include src/vasp_slurm_agent/qe_pseudos.json
 include src/vasp_slurm_agent/qe_nc_pseudos.json
+include src/vasp_slurm_agent/qe_nc_fr_pseudos.json
+include src/vasp_slurm_agent/abinit_pseudos.json
+include src/vasp_slurm_agent/cp2k_basis.json
+include src/vasp_slurm_agent/elk_species.json
+include src/vasp_slurm_agent/engine_packages.json
 recursive-include docs *.md
 include docs/assets/dft-agent-logo.png docs/assets/dft-agent-logo.svg docs/assets/workflow.png
 recursive-include examples *.cif *.vasp *.json
@@ -9,6 +14,8 @@ recursive-include src/vasp_slurm_agent/knowledge *
 recursive-include src/vasp_slurm_agent/clusters *.json
 recursive-include src/vasp_slurm_agent/migrations *.sql
 recursive-include src/vasp_slurm_agent/samples *
+include tests/conftest.py
+recursive-include tests/data/engines *
 include validation/protocol.v1.json
 include validation/methods-0.3.0.json
 include validation/resource-adjustments.v1.json

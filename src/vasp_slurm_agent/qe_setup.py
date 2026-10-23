@@ -6,6 +6,7 @@ import contextlib
 from copy import deepcopy
 import gzip
 import hashlib
+import http.client
 import io
 import json
 import os
@@ -15,6 +16,7 @@ import shlex
 import ssl
 import tarfile
 import tempfile
+import urllib.parse
 import urllib.request
 import uuid
 
@@ -133,15 +135,20 @@ def _download(name: str, metadata: dict, cache: Path) -> Path:
         pass
     descriptor, temporary = tempfile.mkstemp(prefix=name + ".", dir=cache)
     try:
-        with os.fdopen(descriptor, "wb") as out, urllib.request.urlopen(metadata["url"], timeout=120, context=context) as source:
-            if not source.geturl().startswith("https://"):
-                raise ValueError("Download redirected outside HTTPS.")
-            size = 0
-            while block := source.read(1024 * 1024):
-                size += len(block)
-                if size > 512 * 1024 * 1024:
-                    raise ValueError("Download exceeded the expected size limit.")
-                out.write(block)
+        try:
+            with os.fdopen(descriptor, "wb") as out, urllib.request.urlopen(metadata["url"], timeout=120, context=context) as source:
+                if not source.geturl().startswith("https://"):
+                    raise ValueError("Download redirected outside HTTPS.")
+                size = 0
+                while block := source.read(1024 * 1024):
+                    size += len(block)
+                    if size > 512 * 1024 * 1024:
+                        raise ValueError("Download exceeded the expected size limit.")
+                    out.write(block)
+        except (OSError, http.client.HTTPException) as error:
+            host = urllib.parse.urlsplit(metadata["url"]).hostname
+            raise ValueError(f"{host} did not deliver {name} ({getattr(error, 'reason', error)}). Try again later, or put a copy "
+                             f"with SHA-256 {metadata['sha256']} in {cache}.") from error
         if _digest(Path(temporary)) != metadata["sha256"]:
             raise ValueError(f"SHA-256 mismatch for {name}; the file was not installed.")
         os.replace(temporary, target)
@@ -670,28 +677,35 @@ print({_MARKER!r}+json.dumps(value))
 
 
 def plan_pseudopotentials(elements, *, soc=False, library="sssp") -> dict:
-    """Select an explicit public PBE library and its cutoff hints."""
-    if library not in {"sssp", "pseudodojo"}:
-        raise ValueError("Choose SSSP or PseudoDojo.")
+    """Select an explicit public PBE library and its cutoff hints.
+
+    Spin-orbit coupling needs fully relativistic UPFs, so soc selects the PseudoDojo FR set, the
+    same pseudopotentials ABINIT uses for SOC, pinned per file at a fixed commit."""
+    if library not in {"sssp", "pseudodojo", "pseudodojo-fr"}:
+        raise ValueError("Choose SSSP, PseudoDojo or PseudoDojo FR.")
     if soc:
-        raise ValueError("SOC needs fully relativistic UPFs. Select your own verified library; these public libraries are scalar relativistic.")
-    if library == "pseudodojo":
-        catalogue = json.loads(Path(__file__).with_name("qe_nc_pseudos.json").read_text())
+        library = "pseudodojo-fr"
+    if library in {"pseudodojo", "pseudodojo-fr"}:
+        relativistic = library == "pseudodojo-fr"
+        catalogue = json.loads(Path(__file__).with_name("qe_nc_fr_pseudos.json" if relativistic else "qe_nc_pseudos.json").read_text())
         selected = {}
         for element in dict.fromkeys(elements):
             if element not in catalogue["elements"]:
-                raise ValueError(f"No PseudoDojo pseudopotential for {element}. Provide a compatible NC UPF.")
+                kind = "fully relativistic " if relativistic else ""
+                raise ValueError(f"No PseudoDojo {kind}pseudopotential for {element}. Provide a compatible NC UPF.")
             selected[element] = dict(catalogue["elements"][element], license=catalogue["license"]["name"],
                                      license_url=catalogue["license"]["url"])
         if not selected:
             raise ValueError("Select at least one element.")
-        return {"library": catalogue["library"], "library_id": library,
-                "source_url": catalogue["archive"]["url"], "archive_sha256": catalogue["archive"]["sha256"],
+        plan = {"library": catalogue["library"], "library_id": library,
                 "license": catalogue["license"], "cutoff_source": catalogue["cutoff_source"],
-                "citations": catalogue["citations"], "functional": "PBE", "relativistic": "scalar",
+                "citations": catalogue["citations"], "functional": "PBE", "relativistic": "full" if relativistic else "scalar",
                 "pseudo_type": "NC", "elements": selected,
                 "ecutwfc_ry": max(v["cutoff_wfc"] for v in selected.values()),
                 "ecutrho_ry": max(v["cutoff_rho"] for v in selected.values())}
+        if not relativistic:
+            plan.update(source_url=catalogue["archive"]["url"], archive_sha256=catalogue["archive"]["sha256"])
+        return plan
     catalogue = json.loads(Path(__file__).with_name("qe_pseudos.json").read_text())
     selected = {}
     for element in dict.fromkeys(elements):
@@ -728,6 +742,7 @@ def validate_upf(data: bytes, element: str) -> dict:
             pseudo_type = "US"
         relativistic = attributes.get("relativistic", "")
         has_so = attributes.get("has_so", "").lower() in ("t", "true", ".true.")
+        valence = attributes.get("z_valence", "")
     else:
         lines = [line.strip() for line in (match[2] or "").splitlines() if line.strip()]
         if len(lines) < 6:
@@ -737,47 +752,69 @@ def validate_upf(data: bytes, element: str) -> dict:
         pseudo_type = lines[2].split()[0].upper()
         has_so = "<PP_SPIN_ORB" in text or "<PP_ADDINFO" in text
         relativistic = "full" if has_so else "scalar"
+        valence = lines[5].split()[0]
     if actual != element:
         raise ValueError(f"UPF element {actual!r} does not match {element}.")
-    return {"element": actual, "functional": functional, "pseudo_type": pseudo_type, "relativistic": relativistic, "has_so": has_so, "sha256": hashlib.sha256(data).hexdigest()}
+    try:
+        valence = float(valence.strip().lower().replace("d", "e"))
+    except ValueError:
+        valence = None
+    return {"element": actual, "functional": functional, "pseudo_type": pseudo_type, "relativistic": relativistic, "has_so": has_so,
+            "valence_electrons": valence if valence is not None and 0 < valence < 200 else None, "sha256": hashlib.sha256(data).hexdigest()}
 
 
 def ensure_pseudos(config, elements, transport=None, *, cache_dir=None, soc=False, library="sssp") -> dict:
     """Install only selected public UPFs, never replacing a different existing file."""
     plan = plan_pseudopotentials(elements, soc=soc, library=library)
+    library = plan.get("library_id", library)
     destination = _absolute(getattr(config, "qe_pseudo_root", ""))
     cache = Path(cache_dir).expanduser() if cache_dir else Path.home() / ".dft-agent" / "downloads" / "qe"
+    archive = None
     if library == "pseudodojo":
         archive_metadata = {"url": plan["source_url"], "sha256": plan["archive_sha256"]}
         license_metadata = plan["license"]
         archive = _download("nc-sr-04_pbe_standard_upf.tgz", archive_metadata, cache)
         license_path = _download("PseudoDojo-README.md", license_metadata, cache)
+    elif library == "pseudodojo-fr":
+        license_metadata = plan["license"]
+        license_path = _download("PseudoDojo-README.md", license_metadata, cache)
     else:
         archive = _download("SSSP_1.3.0_PBE_efficiency.tar.gz", PSEUDO_ARCHIVE, cache)
         license_metadata = PSEUDO_LICENSE
         license_path = _download("SSSP-LICENSE.txt", license_metadata, cache)
-    with tempfile.TemporaryDirectory(prefix="dft-qe-pseudos-") as folder, tarfile.open(archive, "r:gz") as source, _connection(config, transport) as active:
+    contents = {}
+    if archive is None:
+        # The fully relativistic UPFs are pinned one file at a time, like the ABINIT psp8 files.
+        for element, metadata in plan["elements"].items():
+            contents[element] = _download(metadata["filename"], {"url": metadata["url"], "sha256": metadata["sha256"]}, cache).read_bytes()
+    else:
+        with tarfile.open(archive, "r:gz") as source:
+            members = {}
+            for member in source:
+                name = PurePosixPath(member.name).name
+                if name in {v.get("archive_filename", v["filename"]) for v in plan["elements"].values()}:
+                    if not member.isfile() or name in members:
+                        raise ValueError("Invalid or duplicate UPF archive member.")
+                    members[name] = member
+            for element, metadata in plan["elements"].items():
+                archive_name = metadata.get("archive_filename", metadata["filename"])
+                if archive_name not in members:
+                    raise ValueError(f"{plan['library']} archive is missing {archive_name}.")
+                with source.extractfile(members[archive_name]) as handle:
+                    contents[element] = handle.read(50 * 1024 * 1024 + 1)
+    with tempfile.TemporaryDirectory(prefix="dft-qe-pseudos-") as folder, _connection(config, transport) as active:
         folder = Path(folder)
-        members = {}
-        for member in source:
-            name = PurePosixPath(member.name).name
-            if name in {v.get("archive_filename", v["filename"]) for v in plan["elements"].values()}:
-                if not member.isfile() or name in members:
-                    raise ValueError("Invalid or duplicate UPF archive member.")
-                members[name] = member
         items = []
         for element, metadata in plan["elements"].items():
             name = metadata["filename"]
-            archive_name = metadata.get("archive_filename", name)
-            if archive_name not in members:
-                raise ValueError(f"{plan['library']} archive is missing {archive_name}.")
-            with source.extractfile(members[archive_name]) as handle:
-                data = handle.read(50 * 1024 * 1024 + 1)
+            data = contents[element]
             header = validate_upf(data, element)
             if header["sha256"] != metadata["sha256"]:
                 raise ValueError(f"UPF SHA-256 mismatch for {element}.")
             if library == "pseudodojo" and (header["pseudo_type"] != "NC" or header["functional"] != "PBE" or header["has_so"]):
                 raise ValueError(f"{element} is not a scalar-relativistic PBE NC pseudopotential.")
+            if library == "pseudodojo-fr" and (header["pseudo_type"] != "NC" or header["functional"] != "PBE" or not header["has_so"]):
+                raise ValueError(f"{element} is not a fully relativistic PBE NC pseudopotential.")
             metadata["header"] = header
             path = folder / name
             path.write_bytes(data)
@@ -837,6 +874,7 @@ print({_MARKER!r}+json.dumps({{'installed':str(target)}}))
                         "element": element, "functional": value["header"]["functional"],
                         "pseudo_type": value["header"]["pseudo_type"],
                         "relativistic": value["header"]["relativistic"],
-                        "fully_relativistic": value["header"]["has_so"]}
+                        "fully_relativistic": value["header"]["has_so"],
+                        "valence_electrons": value["header"]["valence_electrons"]}
                for element, value in plan["elements"].items()}
     return dict(plan, pseudo_root=destination, pseudopotentials={element: value["filename"] for element, value in plan["elements"].items()}, config_pseudopotentials=mapping)

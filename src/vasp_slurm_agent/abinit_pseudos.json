@@ -1,0 +1,3646 @@
+{
+ "citations": [
+  "https://doi.org/10.1016/j.cpc.2018.01.012",
+  "https://doi.org/10.1103/PhysRevB.88.085117"
+ ],
+ "format": "psp8",
+ "hints_unit": "Hartree",
+ "libraries": {
+  "pbe_fr": {
+   "base_url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/",
+   "commit": "7aa01a3fcf5ad226caf25bd387a9be9612be9f27",
+   "elements": {
+    "Ag": {
+     "filename": "Ag.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 47.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 2,
+     "md5": "92829af1ec97358bebb9f4d3d9aff83b",
+     "path": "Ag/Ag-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "2200f23a8e2a1422496c0ea5d64a2c206b2a754d1f30970fc1728bd51973fb9e",
+     "size": 436225,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ag/Ag-sp_r.psp8",
+     "valence": 19.0,
+     "zatom": 47.0
+    },
+    "Al": {
+     "filename": "Al.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 26.0,
+      "low": 16.0,
+      "normal": 20.0
+     },
+     "l_max": 2,
+     "md5": "389381ca2d99bc20f1dd88f221f4c68b",
+     "path": "Al/Al_r.psp8",
+     "pspxc": 11,
+     "sha256": "e9463697c1d631ede07f30762795118577160390d980c345e5a37de2990e3b40",
+     "size": 410908,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Al/Al_r.psp8",
+     "valence": 3.0,
+     "zatom": 13.0
+    },
+    "Ar": {
+     "filename": "Ar.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "ee2809e2840b6f1c86b1b543894ff8af",
+     "path": "Ar/Ar_r.psp8",
+     "pspxc": 11,
+     "sha256": "cb007131d58a02cb8911928093c06f61a7e60f0e64a51d5e79a74b6e0d37c81a",
+     "size": 265887,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ar/Ar_r.psp8",
+     "valence": 8.0,
+     "zatom": 18.0
+    },
+    "As": {
+     "filename": "As.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "f7680fb89ccb9aa0435f9d803758fb17",
+     "path": "As/As-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "78dfcd3f9e92c420d98368bc036cb702d3058e8252a2c63139fa3766ad6b9a52",
+     "size": 423574,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/As/As-d_r.psp8",
+     "valence": 15.0,
+     "zatom": 33.0
+    },
+    "Au": {
+     "filename": "Au.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 32.0,
+      "normal": 38.0
+     },
+     "l_max": 3,
+     "md5": "db8bbb120a1341d95c1bedea377dabda",
+     "path": "Au/Au-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "4640b5d3f6d3e8e50eedd22f173cd63b46988579598efa4450ec139923fc645a",
+     "size": 451814,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Au/Au-sp_r.psp8",
+     "valence": 19.0,
+     "zatom": 79.0
+    },
+    "B": {
+     "filename": "B.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 34.0,
+      "normal": 38.0
+     },
+     "l_max": 1,
+     "md5": "bf9849d1fdd695addbcd002caccae2db",
+     "path": "B/B_r.psp8",
+     "pspxc": 11,
+     "sha256": "cba9124b81e20525990ee9a2bb2b84adcfe62dd1168e6e22290b63af3d75154b",
+     "size": 292626,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/B/B_r.psp8",
+     "valence": 3.0,
+     "zatom": 5.0
+    },
+    "Ba": {
+     "filename": "Ba.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 28.0,
+      "low": 18.0,
+      "normal": 22.0
+     },
+     "l_max": 2,
+     "md5": "9075dab5c3435d10c597910ba6ee9f49",
+     "path": "Ba/Ba-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "dffd780e3b6c5b6684781be3f14248a9a27a5db0d3b4a0b44c404036932c6a64",
+     "size": 461497,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ba/Ba-sp_r.psp8",
+     "valence": 10.0,
+     "zatom": 56.0
+    },
+    "Be": {
+     "filename": "Be.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 38.0,
+      "normal": 44.0
+     },
+     "l_max": 1,
+     "md5": "3d4287265f355e9e45a447e06ba1bd05",
+     "path": "Be/Be-s_r.psp8",
+     "pspxc": 11,
+     "sha256": "bddfb7c23c265da052143e0a1ae21a81c0cbd80de808eee3693f31b9787f678f",
+     "size": 143520,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Be/Be-s_r.psp8",
+     "valence": 4.0,
+     "zatom": 4.0
+    },
+    "Bi": {
+     "filename": "Bi.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "cad5f017ceb3213dcf4efd820eba718e",
+     "path": "Bi/Bi-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "b56719cd16a8a63db7710847610e19b85fb34967caa46a942311bfd28e2f2d75",
+     "size": 436300,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Bi/Bi-d_r.psp8",
+     "valence": 15.0,
+     "zatom": 83.0
+    },
+    "Br": {
+     "filename": "Br.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 23.0
+     },
+     "l_max": 2,
+     "md5": "0fe2b1faa616dc177fc43107cb134ef4",
+     "path": "Br/Br_r.psp8",
+     "pspxc": 11,
+     "sha256": "1580759d93862e898ba85840145bbbc652a13893710f5bd4a3481b371cc11ca6",
+     "size": 436195,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Br/Br_r.psp8",
+     "valence": 7.0,
+     "zatom": 35.0
+    },
+    "C": {
+     "filename": "C.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 1,
+     "md5": "e1469fe6bcb5137735a22e79a136ddcd",
+     "path": "C/C_r.psp8",
+     "pspxc": 11,
+     "sha256": "68a978c0340ddd0079c0585c400e082846fba4d0e8e6a28efaee9c861217ccd6",
+     "size": 292626,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/C/C_r.psp8",
+     "valence": 4.0,
+     "zatom": 6.0
+    },
+    "Ca": {
+     "filename": "Ca.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 38.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "df83e3ff4bee83cd75bf5f05a4817abd",
+     "path": "Ca/Ca-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "88a0508512833fe7df44cea7aa5fbbed04598c489cfb9f29acd7a02067669d1d",
+     "size": 257481,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ca/Ca-sp_r.psp8",
+     "valence": 10.0,
+     "zatom": 20.0
+    },
+    "Cd": {
+     "filename": "Cd.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 57.0,
+      "low": 47.0,
+      "normal": 51.0
+     },
+     "l_max": 2,
+     "md5": "dcbd5767dfef427999519c4f3f741969",
+     "path": "Cd/Cd-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "5fe4fc81c64b1e0e912a6f362739a5d8d9cc47a26093f5e701f04c3973ced1e6",
+     "size": 461467,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Cd/Cd-sp_r.psp8",
+     "valence": 20.0,
+     "zatom": 48.0
+    },
+    "Cl": {
+     "filename": "Cl.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 33.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 2,
+     "md5": "f0db88b37030d3df831c013cee87c5ec",
+     "path": "Cl/Cl_r.psp8",
+     "pspxc": 11,
+     "sha256": "3f2406a240e59768898834f3483d6761fca6d012c4bf790a6bfe3161160672ea",
+     "size": 410908,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Cl/Cl_r.psp8",
+     "valence": 7.0,
+     "zatom": 17.0
+    },
+    "Co": {
+     "filename": "Co.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 54.0,
+      "low": 42.0,
+      "normal": 48.0
+     },
+     "l_max": 2,
+     "md5": "2a70167bae39e594ec797488acf18090",
+     "path": "Co/Co-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "efac64e324fb59685ee4564ecd9db66f737eaa9e8dc4d58667e25a74d07c871b",
+     "size": 410938,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Co/Co-sp_r.psp8",
+     "valence": 17.0,
+     "zatom": 27.0
+    },
+    "Cr": {
+     "filename": "Cr.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 55.0,
+      "low": 43.0,
+      "normal": 47.0
+     },
+     "l_max": 2,
+     "md5": "4006010818a8027f3e71692e9139636a",
+     "path": "Cr/Cr-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "bf6b44ca069827dd0c44f5c538ea7f756de17e01151aa32eb36577a557bf61e9",
+     "size": 423559,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Cr/Cr-sp_r.psp8",
+     "valence": 14.0,
+     "zatom": 24.0
+    },
+    "Cs": {
+     "filename": "Cs.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 25.0
+     },
+     "l_max": 3,
+     "md5": "be472666bf77996c77149a9e9ba51f1c",
+     "path": "Cs/Cs-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "106e0a65bc02f2bcbad336f7d56cb521a4e6165b2b5c7c4bd115710da28605f0",
+     "size": 567126,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Cs/Cs-sp_r.psp8",
+     "valence": 9.0,
+     "zatom": 55.0
+    },
+    "Cu": {
+     "filename": "Cu.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 52.0,
+      "low": 42.0,
+      "normal": 46.0
+     },
+     "l_max": 2,
+     "md5": "3b83ec5749842d14c979925dc52a55f4",
+     "path": "Cu/Cu-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "5bd2b99dbe7a7a8dbd7c9160306971f5235e87c7bec7838cea86f6cf34568e71",
+     "size": 423559,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Cu/Cu-sp_r.psp8",
+     "valence": 19.0,
+     "zatom": 29.0
+    },
+    "F": {
+     "filename": "F.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "084f3afa557e1010b9855368641c1134",
+     "path": "F/F_r.psp8",
+     "pspxc": 11,
+     "sha256": "c3bb357101be64792e16695e464d292fc0ac317248ce2768fad84127b3c403c8",
+     "size": 373013,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/F/F_r.psp8",
+     "valence": 7.0,
+     "zatom": 9.0
+    },
+    "Fe": {
+     "filename": "Fe.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 53.0,
+      "low": 41.0,
+      "normal": 45.0
+     },
+     "l_max": 2,
+     "md5": "383646c43cea6b7adaf4c925b0239376",
+     "path": "Fe/Fe-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "da37738f1345726d913a0dff1d5802e0bdc7c1ae43430e222bfb9fbd85429d18",
+     "size": 423559,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Fe/Fe-sp_r.psp8",
+     "valence": 16.0,
+     "zatom": 26.0
+    },
+    "Ga": {
+     "filename": "Ga.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "4fc0dc2916ae951ba10951578630a0be",
+     "path": "Ga/Ga-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "38fe1b31919aae78137f937f249b5cb8c9d8e3cb131ea3ed5c61a42e5874867c",
+     "size": 410953,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ga/Ga-d_r.psp8",
+     "valence": 13.0,
+     "zatom": 31.0
+    },
+    "Ge": {
+     "filename": "Ge.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 35.0,
+      "normal": 39.0
+     },
+     "l_max": 2,
+     "md5": "a4ae65efcea192d50cd69a7ef84d2d34",
+     "path": "Ge/Ge-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "249cccb24f4c4a5bd781c8aacffaa41b7d7ca87c38dd89c79897cb07afd881eb",
+     "size": 410953,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ge/Ge-d_r.psp8",
+     "valence": 14.0,
+     "zatom": 32.0
+    },
+    "H": {
+     "filename": "H.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 1,
+     "md5": "139d5f155399b309528797cf43da3d6f",
+     "path": "H/H_r.psp8",
+     "pspxc": 11,
+     "sha256": "db346bb24174c2acbef0a3bf5ad09c94c174c47b579ad637516d80a1ef3eb18d",
+     "size": 101583,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/H/H_r.psp8",
+     "valence": 1.0,
+     "zatom": 1.0
+    },
+    "He": {
+     "filename": "He.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 39.0,
+      "normal": 45.0
+     },
+     "l_max": 1,
+     "md5": "80ffa9290ba2a7c984f081ca6385bfc3",
+     "path": "He/He_r.psp8",
+     "pspxc": 11,
+     "sha256": "5117a04481ffa919a9ccfaf4fbed5667538a2108d74a0173b1a806f494a485a0",
+     "size": 202084,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/He/He_r.psp8",
+     "valence": 2.0,
+     "zatom": 2.0
+    },
+    "Hf": {
+     "filename": "Hf.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 35.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 3,
+     "md5": "5b0b6bab840fba0cdeb7a6267459965b",
+     "path": "Hf/Hf-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "a2d432030e0511d20271eded84bb32fc42bfcf5d34789aa6113e5f2ece68e4c9",
+     "size": 592398,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Hf/Hf-sp_r.psp8",
+     "valence": 12.0,
+     "zatom": 72.0
+    },
+    "Hg": {
+     "filename": "Hg.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 39.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 3,
+     "md5": "7a85efc460fa07b2dec0bea3b5be5eec",
+     "path": "Hg/Hg-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "ac3abe26cc70b2edf8b07a8007898122a5cb75c9c07ba3f75d36637c31cb2c1a",
+     "size": 541914,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Hg/Hg-sp_r.psp8",
+     "valence": 20.0,
+     "zatom": 80.0
+    },
+    "I": {
+     "filename": "I.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 35.0
+     },
+     "l_max": 2,
+     "md5": "a66b3a144f87731d94d6a5febf7323e3",
+     "path": "I/I_r.psp8",
+     "pspxc": 11,
+     "sha256": "d2fc267787cc5d8c9f0c46ee8bdd501bda74dcff06459508ac928321fcaef637",
+     "size": 461481,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/I/I_r.psp8",
+     "valence": 7.0,
+     "zatom": 53.0
+    },
+    "In": {
+     "filename": "In.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 35.0
+     },
+     "l_max": 2,
+     "md5": "2840042112ef15e82f1eb909d5a8f360",
+     "path": "In/In-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "ea72b2ca003af06ff52a86e80b57b3addc8dd58cba8f0d9ff779907a7ce62744",
+     "size": 423619,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/In/In-d_r.psp8",
+     "valence": 13.0,
+     "zatom": 49.0
+    },
+    "Ir": {
+     "filename": "Ir.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 30.0,
+      "normal": 34.0
+     },
+     "l_max": 3,
+     "md5": "6b14d8a8497c4e82304867c653eab99a",
+     "path": "Ir/Ir-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "a52185a4aab1e9429610be2ad32b7375619aaca7c7b3621d431ccb0fc27dcb4b",
+     "size": 493898,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ir/Ir-sp_r.psp8",
+     "valence": 17.0,
+     "zatom": 77.0
+    },
+    "K": {
+     "filename": "K.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 43.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 2,
+     "md5": "9c1505a031c02d4328084e0298b4294e",
+     "path": "K/K-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "065502e842d345bc3b5dbee0f4c5176ca2ac6a50c68ada1fc9f382d9c3802355",
+     "size": 274322,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/K/K-sp_r.psp8",
+     "valence": 9.0,
+     "zatom": 19.0
+    },
+    "Kr": {
+     "filename": "Kr.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 34.0,
+      "low": 22.0,
+      "normal": 26.0
+     },
+     "l_max": 2,
+     "md5": "4ba80a9f04efdbcae087e2830de3d208",
+     "path": "Kr/Kr_r.psp8",
+     "pspxc": 11,
+     "sha256": "255d21598b1f8f56536c192ff7c8833322a3986f08e7fe1e333dd49b46940b67",
+     "size": 436195,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Kr/Kr_r.psp8",
+     "valence": 8.0,
+     "zatom": 36.0
+    },
+    "Li": {
+     "filename": "Li.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 1,
+     "md5": "7c56211e2ccd124f6565b0dee2320c73",
+     "path": "Li/Li-s_r.psp8",
+     "pspxc": 11,
+     "sha256": "5f8499ea93ffd85133191592f3be5842426133a2cbb443827f58b8b9e69304df",
+     "size": 143520,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Li/Li-s_r.psp8",
+     "valence": 3.0,
+     "zatom": 3.0
+    },
+    "Mg": {
+     "filename": "Mg.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 1,
+     "md5": "8adb9a174215747892fb33aa18c195c0",
+     "path": "Mg/Mg-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "04957400a2199f1e7adc46e648195fe0cefedac83edce5c92456ce3b15dfd2cc",
+     "size": 135130,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Mg/Mg-sp_r.psp8",
+     "valence": 10.0,
+     "zatom": 12.0
+    },
+    "Mn": {
+     "filename": "Mn.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 54.0,
+      "low": 42.0,
+      "normal": 48.0
+     },
+     "l_max": 2,
+     "md5": "82177801a59c739c6e89d54a224c232d",
+     "path": "Mn/Mn-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "11238ac768ba9a6e1905f6b9319ab190386bb8da8ceb6195f4331da232dd5eed",
+     "size": 398317,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Mn/Mn-sp_r.psp8",
+     "valence": 15.0,
+     "zatom": 25.0
+    },
+    "Mo": {
+     "filename": "Mo.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "8cd2d425f51e246c25281b14d2c6cd83",
+     "path": "Mo/Mo-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "c286cf16b2a10520f729bdbc37795fffac50fcee7252153404c5f8bb265a3dd4",
+     "size": 423604,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Mo/Mo-sp_r.psp8",
+     "valence": 14.0,
+     "zatom": 42.0
+    },
+    "N": {
+     "filename": "N.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 1,
+     "md5": "df5cb2f1e23d74b882f1e9d22d2cd8b0",
+     "path": "N/N_r.psp8",
+     "pspxc": 11,
+     "sha256": "394fba658a119ad916e24fbbe2a85c0132c31a1ff1812b964521c91e82e6ae3b",
+     "size": 280005,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/N/N_r.psp8",
+     "valence": 5.0,
+     "zatom": 7.0
+    },
+    "Na": {
+     "filename": "Na.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 44.0
+     },
+     "l_max": 1,
+     "md5": "679a3df91587a154c7cf5a0b873caacc",
+     "path": "Na/Na-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "5ff0c79c282e8e8f405f69b3ea00e2d366e51d7f8ced33087e2e100a4a06ae4c",
+     "size": 143551,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Na/Na-sp_r.psp8",
+     "valence": 9.0,
+     "zatom": 11.0
+    },
+    "Nb": {
+     "filename": "Nb.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 2,
+     "md5": "dab6042b5866ba907e84001facb0f5ef",
+     "path": "Nb/Nb-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "3a88633b72c54cc4c26cf8a4aedbbe819a7da426841cfa1160f5bca0c6281c14",
+     "size": 423604,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Nb/Nb-sp_r.psp8",
+     "valence": 13.0,
+     "zatom": 41.0
+    },
+    "Ne": {
+     "filename": "Ne.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 30.0,
+      "normal": 34.0
+     },
+     "l_max": 1,
+     "md5": "672350896e528cb0716cb41d9033b916",
+     "path": "Ne/Ne_r.psp8",
+     "pspxc": 11,
+     "sha256": "d37e4e6aec072ef0fb5f1121df18b61cce03819d6470dc6e07e2f3f161e4b63a",
+     "size": 135115,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ne/Ne_r.psp8",
+     "valence": 8.0,
+     "zatom": 10.0
+    },
+    "O": {
+     "filename": "O.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "347596307985aac46874cce81198decf",
+     "path": "O/O_r.psp8",
+     "pspxc": 11,
+     "sha256": "679b5f3fcf47a6825de2fb0e1f5cb6c3806bb9e1f670a6b6ec6cb508300a18e0",
+     "size": 360392,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/O/O_r.psp8",
+     "valence": 6.0,
+     "zatom": 8.0
+    },
+    "Os": {
+     "filename": "Os.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 43.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 3,
+     "md5": "b6be08ae0656b16535c1ee621f11d890",
+     "path": "Os/Os-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "88ef546d89b72accfcf622c65640543697c23139af1c8c6acb70e946baf91318",
+     "size": 579777,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Os/Os-sp_r.psp8",
+     "valence": 16.0,
+     "zatom": 76.0
+    },
+    "P": {
+     "filename": "P.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 28.0,
+      "low": 18.0,
+      "normal": 22.0
+     },
+     "l_max": 2,
+     "md5": "6fb24396a190dba4295d5c3aa49a5532",
+     "path": "P/P_r.psp8",
+     "pspxc": 11,
+     "sha256": "95037d13a125279cec8e54455f01dd69d2de63f994c1e7c9b58f81ce5411e054",
+     "size": 398286,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/P/P_r.psp8",
+     "valence": 5.0,
+     "zatom": 15.0
+    },
+    "Pb": {
+     "filename": "Pb.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 34.0,
+      "low": 24.0,
+      "normal": 28.0
+     },
+     "l_max": 2,
+     "md5": "ce6d1e3aaa2f1c67d924a2b9725e4429",
+     "path": "Pb/Pb-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "48e32579b6fb0d694d7685c762579fa82b8c998bb0e2474d451a2ada906a70e0",
+     "size": 436300,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Pb/Pb-d_r.psp8",
+     "valence": 14.0,
+     "zatom": 82.0
+    },
+    "Po": {
+     "filename": "Po.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 38.0,
+      "low": 28.0,
+      "normal": 32.0
+     },
+     "l_max": 2,
+     "md5": "34be26ec0aebffdcaba3c8442ce8c342",
+     "path": "Po/Po-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "b3333338c735b20675108b9a09017d5152f101e9ade5269bbb2f35dd32c7b6e7",
+     "size": 448921,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Po/Po-d_r.psp8",
+     "valence": 16.0,
+     "zatom": 84.0
+    },
+    "Rb": {
+     "filename": "Rb.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 23.0
+     },
+     "l_max": 2,
+     "md5": "a3c7cf9612d550055c63ddbb889314cb",
+     "path": "Rb/Rb-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "84c7d74ab4154b7701633b265112652414280f248913c031e734d8966f0b7d34",
+     "size": 448831,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Rb/Rb-sp_r.psp8",
+     "valence": 9.0,
+     "zatom": 37.0
+    },
+    "Re": {
+     "filename": "Re.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 30.0,
+      "normal": 36.0
+     },
+     "l_max": 3,
+     "md5": "8ccdca6832ee06d084158adbc48abd7d",
+     "path": "Re/Re-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "dc04fe4c39bc1d47f1b1016ce2933d03ac7b78e4d6362bdad86e4ff622d9a406",
+     "size": 592398,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Re/Re-sp_r.psp8",
+     "valence": 15.0,
+     "zatom": 75.0
+    },
+    "Rh": {
+     "filename": "Rh.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 40.0,
+      "normal": 44.0
+     },
+     "l_max": 2,
+     "md5": "db91a174ef6f8a5d3db16b6205fbe324",
+     "path": "Rh/Rh-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "b49fbc08424f6ef5098e67f1cc6a035469b9c88151c45fab0c6b2bd40bd4e782",
+     "size": 461467,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Rh/Rh-sp_r.psp8",
+     "valence": 17.0,
+     "zatom": 45.0
+    },
+    "Rn": {
+     "filename": "Rn.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "b87da3991738d5af12b4e8013cced1d8",
+     "path": "Rn/Rn-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "40201feaf6c34b4cec3f00bc11f075d41b9d30d257d31a560ed63b583742bdba",
+     "size": 448921,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Rn/Rn-d_r.psp8",
+     "valence": 18.0,
+     "zatom": 86.0
+    },
+    "Ru": {
+     "filename": "Ru.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "cf9ee0d0129e897307236df5ac566b1c",
+     "path": "Ru/Ru-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "2360e0a88f3971d99cd52e9f14640618fdb90034d054000658652f96817e1d6f",
+     "size": 448846,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ru/Ru-sp_r.psp8",
+     "valence": 16.0,
+     "zatom": 44.0
+    },
+    "S": {
+     "filename": "S.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 32.0,
+      "low": 20.0,
+      "normal": 26.0
+     },
+     "l_max": 2,
+     "md5": "716c0967379f7734244ca23e53f6e068",
+     "path": "S/S_r.psp8",
+     "pspxc": 11,
+     "sha256": "2c32cb3b18c0dbf549acc520bc746358401f776843c968191ca4a3302921b56b",
+     "size": 398286,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/S/S_r.psp8",
+     "valence": 6.0,
+     "zatom": 16.0
+    },
+    "Sb": {
+     "filename": "Sb.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "7e58d42d4de91a7d37a579445e97fb5e",
+     "path": "Sb/Sb-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "c03c52f512cc6b8380c122ca239aec1446016a6c1a760c3fea2e40ea7c46ab73",
+     "size": 423619,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Sb/Sb-d_r.psp8",
+     "valence": 15.0,
+     "zatom": 51.0
+    },
+    "Sc": {
+     "filename": "Sc.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 35.0,
+      "normal": 39.0
+     },
+     "l_max": 2,
+     "md5": "1887b32a970ead2fcc35b056c267744b",
+     "path": "Sc/Sc-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "04b7bb0201a1c80fea8fd38147ca6a6abe27232a2252a603b15175e7079d93ca",
+     "size": 410938,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Sc/Sc-sp_r.psp8",
+     "valence": 11.0,
+     "zatom": 21.0
+    },
+    "Se": {
+     "filename": "Se.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 39.0,
+      "normal": 43.0
+     },
+     "l_max": 2,
+     "md5": "29090af8e82d11d0124cf271e5771eb9",
+     "path": "Se/Se-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "74c74b69a1195b9152f68dda8dca893c94cd060c2b7e91c9630e5ac91e781f8b",
+     "size": 398332,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Se/Se-d_r.psp8",
+     "valence": 16.0,
+     "zatom": 34.0
+    },
+    "Si": {
+     "filename": "Si.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 24.0,
+      "low": 14.0,
+      "normal": 18.0
+     },
+     "l_max": 2,
+     "md5": "c3139c72289618ec4037b4d1707d7127",
+     "path": "Si/Si_r.psp8",
+     "pspxc": 11,
+     "sha256": "f169a4f75dbb6f37e979e789e09b0bd9e1151c6e74adc9db62a6a948cc813e35",
+     "size": 410908,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Si/Si_r.psp8",
+     "valence": 4.0,
+     "zatom": 14.0
+    },
+    "Sn": {
+     "filename": "Sn.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "e6252c7247b3fe4765d637364e74215f",
+     "path": "Sn/Sn-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "474012b07bf336675c41e4ce13782ecfe9b3ec24821c689bdbc3baff05a4dc7f",
+     "size": 423619,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Sn/Sn-d_r.psp8",
+     "valence": 14.0,
+     "zatom": 50.0
+    },
+    "Sr": {
+     "filename": "Sr.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "0f5f27ec501f923240c4aa5d9c66c20c",
+     "path": "Sr/Sr-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "c1035b5961728a5e6b6b1bf6d95eebf106b9ecd7bae4173792250383f1aba8fd",
+     "size": 436210,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Sr/Sr-sp_r.psp8",
+     "valence": 10.0,
+     "zatom": 38.0
+    },
+    "Ta": {
+     "filename": "Ta.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 35.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 3,
+     "md5": "c283514433fc5076b2198e67e489f714",
+     "path": "Ta/Ta-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "93d945c86feb236f1338546989ddd254655eb3bff52b9e66012c0d5fe04425d4",
+     "size": 592398,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ta/Ta-sp_r.psp8",
+     "valence": 13.0,
+     "zatom": 73.0
+    },
+    "Tc": {
+     "filename": "Tc.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "f2a072cc1d772075248fd2e2ff5dc749",
+     "path": "Tc/Tc-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "720eb7881d1ff58856dd7cfbb37553efbb1258409906627974ac55a7cd39b55d",
+     "size": 423604,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Tc/Tc-sp_r.psp8",
+     "valence": 15.0,
+     "zatom": 43.0
+    },
+    "Te": {
+     "filename": "Te.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 34.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "198fb7fcceace28ae22a5dd5a5087a3e",
+     "path": "Te/Te-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "c306f620e606a618f94f81f8283f66575b01902b7d0051fc3aa8177876c13706",
+     "size": 423619,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Te/Te-d_r.psp8",
+     "valence": 16.0,
+     "zatom": 52.0
+    },
+    "Ti": {
+     "filename": "Ti.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "affd84c536621f19a5e694ba7ac83794",
+     "path": "Ti/Ti-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "91b9052353ed4c7e137ad98037464e047d45e268164e2cc0261bd0bedd401a69",
+     "size": 398317,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Ti/Ti-sp_r.psp8",
+     "valence": 12.0,
+     "zatom": 22.0
+    },
+    "Tl": {
+     "filename": "Tl.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 27.0,
+      "normal": 31.0
+     },
+     "l_max": 2,
+     "md5": "e1b5445c889389b13c2973cc5e5554e5",
+     "path": "Tl/Tl-d_r.psp8",
+     "pspxc": 11,
+     "sha256": "2be8b1c6ca8fd1d5d0f5425f20d721d388475cfe881d04325b730e214e7f946a",
+     "size": 436300,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Tl/Tl-d_r.psp8",
+     "valence": 13.0,
+     "zatom": 81.0
+    },
+    "V": {
+     "filename": "V.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "5ca97e2593c2478c3adcba820a3dd9b5",
+     "path": "V/V-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "41775bb121c0b1b7b2d865f30eb01abe3301b648ae25773265bf6fffa7a4b54b",
+     "size": 410937,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/V/V-sp_r.psp8",
+     "valence": 13.0,
+     "zatom": 23.0
+    },
+    "W": {
+     "filename": "W.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 37.0
+     },
+     "l_max": 3,
+     "md5": "a488815512eed3f2c4334effb2ca78d5",
+     "path": "W/W-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "36d9ec29c39f0b003a12204238543eb8c6ea81e8c0da3dfc5f604f8a03abe69a",
+     "size": 579776,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/W/W-sp_r.psp8",
+     "valence": 14.0,
+     "zatom": 74.0
+    },
+    "Xe": {
+     "filename": "Xe.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "ba4bb3e6402c6c1dcf7a5b62e0c72146",
+     "path": "Xe/Xe_r.psp8",
+     "pspxc": 11,
+     "sha256": "907cf2aa9d74237c16384ec6acb854a1dcbffed937e7f2a2ae9aeb1edf89a6e8",
+     "size": 448861,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Xe/Xe_r.psp8",
+     "valence": 8.0,
+     "zatom": 54.0
+    },
+    "Y": {
+     "filename": "Y.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 30.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "979d0de5c7cdc8df19021f2551f559fa",
+     "path": "Y/Y-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "e4808094b00087aed0e2c05e6fc020a926aec10361e3ea7f8722f883990a1b95",
+     "size": 436224,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Y/Y-sp_r.psp8",
+     "valence": 11.0,
+     "zatom": 39.0
+    },
+    "Zn": {
+     "filename": "Zn.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "09244d71c0c6e7aadc4b9f0d7d069d66",
+     "path": "Zn/Zn-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "b51c38bd079f5e79f4487ead8ace122d4a6cba76daa8fa0b0f5dbdfec9b08481",
+     "size": 385696,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Zn/Zn-sp_r.psp8",
+     "valence": 20.0,
+     "zatom": 30.0
+    },
+    "Zr": {
+     "filename": "Zr.pbe_fr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "ce9c7f54a966fc5c465657d4b8063231",
+     "path": "Zr/Zr-sp_r.psp8",
+     "pspxc": 11,
+     "sha256": "b4679a7e3a7a2696252456f3b1df7a4c971d9b6b9fbaa222292d555d5d594dda",
+     "size": 423604,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/Zr/Zr-sp_r.psp8",
+     "valence": 12.0,
+     "zatom": 40.0
+    }
+   },
+   "functional": "PBE",
+   "label": "PseudoDojo 0.4 PBE standard (fully relativistic)",
+   "missing": [
+    "Lu",
+    "Ni",
+    "Pd",
+    "Pt"
+   ],
+   "relativistic": "full",
+   "repo": "PseudoDojo/ONCVPSP-PBE-FR-PDv0.4",
+   "standard_table": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/7aa01a3fcf5ad226caf25bd387a9be9612be9f27/standard.djson",
+   "standard_table_sha256": "e15680010cd372d1ebd2405628aee8586e0f6f49f881f51a9f2d812f3c6e3dcb"
+  },
+  "pbe_sr": {
+   "base_url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/",
+   "commit": "134d757178552b8228a43a848b0e53f232cdda84",
+   "elements": {
+    "Ag": {
+     "filename": "Ag.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 47.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 2,
+     "md5": "449d8df2e2c022cd2e160f6756b0ce2e",
+     "path": "Ag/Ag-sp.psp8",
+     "pspxc": 11,
+     "sha256": "1257c83fb278d9a54b3a40a7b12086d129a35c484f5dfb41a494462e8fe45554",
+     "size": 280119,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ag/Ag-sp.psp8",
+     "valence": 19.0,
+     "zatom": 47.0
+    },
+    "Al": {
+     "filename": "Al.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 26.0,
+      "low": 16.0,
+      "normal": 20.0
+     },
+     "l_max": 2,
+     "md5": "57224185a50eb565dff7432e4aa35376",
+     "path": "Al/Al.psp8",
+     "pspxc": 11,
+     "sha256": "c5ba758b68934214b4eda5abdc8b267d2fbb16f2147c0fe622a33a1689ea807f",
+     "size": 280044,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Al/Al.psp8",
+     "valence": 3.0,
+     "zatom": 13.0
+    },
+    "Ar": {
+     "filename": "Ar.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "7a121790f17eb3e17b14dc6115be26c9",
+     "path": "Ar/Ar.psp8",
+     "pspxc": 11,
+     "sha256": "1d9b7c7cd2c9fbeae3690a81f26ea91fde11d8ad470cf31e5daed0ca78196343",
+     "size": 187044,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ar/Ar.psp8",
+     "valence": 8.0,
+     "zatom": 18.0
+    },
+    "As": {
+     "filename": "As.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "dcc36ea68579a22f411a6e67003c2999",
+     "path": "As/As-d.psp8",
+     "pspxc": 11,
+     "sha256": "db63779925b07d29dd414003ba4d30c1480a946fa89c3710f60486c07c11995e",
+     "size": 280089,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/As/As-d.psp8",
+     "valence": 15.0,
+     "zatom": 33.0
+    },
+    "Au": {
+     "filename": "Au.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 32.0,
+      "normal": 38.0
+     },
+     "l_max": 3,
+     "md5": "7d6427f481b493a1058a30fb9e859afa",
+     "path": "Au/Au-sp.psp8",
+     "pspxc": 11,
+     "sha256": "eb8d1e21542add674babc19dfbe4da177bb792a955f8ae492e7b6375bf9acbc6",
+     "size": 256686,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Au/Au-sp.psp8",
+     "valence": 19.0,
+     "zatom": 79.0
+    },
+    "B": {
+     "filename": "B.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 34.0,
+      "normal": 38.0
+     },
+     "l_max": 1,
+     "md5": "33584e3c449dab07fef6d5ec47c17801",
+     "path": "B/B.psp8",
+     "pspxc": 11,
+     "sha256": "d368a5ec135a0fcafe3c1e39e1f1965cca0b413457a98d3c6bb70cccdd99149b",
+     "size": 239784,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/B/B.psp8",
+     "valence": 3.0,
+     "zatom": 5.0
+    },
+    "Ba": {
+     "filename": "Ba.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 28.0,
+      "low": 18.0,
+      "normal": 22.0
+     },
+     "l_max": 2,
+     "md5": "cffa4c6fda8f7140bbe757a14e831b3e",
+     "path": "Ba/Ba-sp.psp8",
+     "pspxc": 11,
+     "sha256": "1c2a742f6ba4427b47776a907c56c6962704f6363fc18ad29c08ca0f356f0bd1",
+     "size": 280149,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ba/Ba-sp.psp8",
+     "valence": 10.0,
+     "zatom": 56.0
+    },
+    "Be": {
+     "filename": "Be.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 38.0,
+      "normal": 44.0
+     },
+     "l_max": 1,
+     "md5": "b98a1854883b01de12d5a7c2f4329dc9",
+     "path": "Be/Be-s.psp8",
+     "pspxc": 11,
+     "sha256": "43d6593268e77ddb347129112fa3c7aa4586292f0b155827c1be44b7ed04ebff",
+     "size": 108278,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Be/Be-s.psp8",
+     "valence": 4.0,
+     "zatom": 4.0
+    },
+    "Bi": {
+     "filename": "Bi.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "e6545dfcf2cb973e3c6a1ad490645939",
+     "path": "Bi/Bi-d.psp8",
+     "pspxc": 11,
+     "sha256": "0300e446f9f7311e74de0473b776223bf33ffff71483a7620992f2be2eb9cec9",
+     "size": 280194,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Bi/Bi-d.psp8",
+     "valence": 15.0,
+     "zatom": 83.0
+    },
+    "Br": {
+     "filename": "Br.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 23.0
+     },
+     "l_max": 2,
+     "md5": "1897f2a4df308ee6bf7582216e36c0a4",
+     "path": "Br/Br.psp8",
+     "pspxc": 11,
+     "sha256": "18943c04e76af51c427992cedc977a867e8ddc35625f705ca5a43d2b0d0f6544",
+     "size": 280089,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Br/Br.psp8",
+     "valence": 7.0,
+     "zatom": 35.0
+    },
+    "C": {
+     "filename": "C.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 1,
+     "md5": "8af239e6261c16367070328997070877",
+     "path": "C/C.psp8",
+     "pspxc": 11,
+     "sha256": "4323143370a8fd85fc6e1643e5a9e8252173a81854bfe246070c479c4e584009",
+     "size": 239784,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/C/C.psp8",
+     "valence": 4.0,
+     "zatom": 6.0
+    },
+    "Ca": {
+     "filename": "Ca.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 38.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "465a3a044f2c7a72aff2b3fb3f797e8d",
+     "path": "Ca/Ca-sp.psp8",
+     "pspxc": 11,
+     "sha256": "9a1b2cf320099c8d2c97adce21c30314292ac3ce82ffb8670b5c43665d582de8",
+     "size": 187059,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ca/Ca-sp.psp8",
+     "valence": 10.0,
+     "zatom": 20.0
+    },
+    "Cd": {
+     "filename": "Cd.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 57.0,
+      "low": 47.0,
+      "normal": 51.0
+     },
+     "l_max": 2,
+     "md5": "4d6f83295be510d76b1c55485e8a5b6a",
+     "path": "Cd/Cd-sp.psp8",
+     "pspxc": 11,
+     "sha256": "e94f8c2686c1c567f902f1e523adf98f6d98408e3a97226cea2d9239c2b85ea9",
+     "size": 280119,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Cd/Cd-sp.psp8",
+     "valence": 20.0,
+     "zatom": 48.0
+    },
+    "Cl": {
+     "filename": "Cl.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 33.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 2,
+     "md5": "a99ff832005f996c014846e25d8c3f0d",
+     "path": "Cl/Cl.psp8",
+     "pspxc": 11,
+     "sha256": "5b84e41840c026a887d24d6aa68d542f78d885d316dfcc5f98e191aadc8fc6be",
+     "size": 280044,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Cl/Cl.psp8",
+     "valence": 7.0,
+     "zatom": 17.0
+    },
+    "Co": {
+     "filename": "Co.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 54.0,
+      "low": 42.0,
+      "normal": 48.0
+     },
+     "l_max": 2,
+     "md5": "c372bd87f02751f2d80dee5710bf71a6",
+     "path": "Co/Co-sp.psp8",
+     "pspxc": 11,
+     "sha256": "644967f8a544c42da2a2a504692748a64bdaa64ca35cbc230e9aad8e1372d4b1",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Co/Co-sp.psp8",
+     "valence": 17.0,
+     "zatom": 27.0
+    },
+    "Cr": {
+     "filename": "Cr.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 55.0,
+      "low": 43.0,
+      "normal": 47.0
+     },
+     "l_max": 2,
+     "md5": "3d5291f54f8c034159c6bf882d5c0e5b",
+     "path": "Cr/Cr-sp.psp8",
+     "pspxc": 11,
+     "sha256": "f43b8e3bdd655bbe36192f4ac46424129812b995fdcd29ee148c7598cfff4dd6",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Cr/Cr-sp.psp8",
+     "valence": 14.0,
+     "zatom": 24.0
+    },
+    "Cs": {
+     "filename": "Cs.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 25.0
+     },
+     "l_max": 3,
+     "md5": "90ac4f38b4a380309a8b9ac899ea7a5c",
+     "path": "Cs/Cs-sp.psp8",
+     "pspxc": 11,
+     "sha256": "183ff11f99f165737c294ed04d010a98d164416900a8540c8fd21ef5506da94e",
+     "size": 320377,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Cs/Cs-sp.psp8",
+     "valence": 9.0,
+     "zatom": 55.0
+    },
+    "Cu": {
+     "filename": "Cu.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 52.0,
+      "low": 42.0,
+      "normal": 46.0
+     },
+     "l_max": 2,
+     "md5": "34eaeb77448968071cb309a4372c53e2",
+     "path": "Cu/Cu-sp.psp8",
+     "pspxc": 11,
+     "sha256": "193bb2ab65b05bcabec11a807fac38089664d2b56afc3706b0dcf847e60f904a",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Cu/Cu-sp.psp8",
+     "valence": 19.0,
+     "zatom": 29.0
+    },
+    "F": {
+     "filename": "F.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "c3f03d3c8bfaed8014dda45a8fc49c9b",
+     "path": "F/F.psp8",
+     "pspxc": 11,
+     "sha256": "02fd566ea9c32e3715dcc0af759ce23dcd6140e1a13a0649cc01a82ea4614861",
+     "size": 267391,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/F/F.psp8",
+     "valence": 7.0,
+     "zatom": 9.0
+    },
+    "Fe": {
+     "filename": "Fe.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 53.0,
+      "low": 41.0,
+      "normal": 45.0
+     },
+     "l_max": 2,
+     "md5": "b1a6c6085aee6d23d80253cdcecbb587",
+     "path": "Fe/Fe-sp.psp8",
+     "pspxc": 11,
+     "sha256": "582fddb29d2b5dfc2570da656e025efda58d1e532ada820385f7c2746e6bee90",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Fe/Fe-sp.psp8",
+     "valence": 16.0,
+     "zatom": 26.0
+    },
+    "Ga": {
+     "filename": "Ga.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "c0561db90e98f595da17f9cd99b3fad2",
+     "path": "Ga/Ga-d.psp8",
+     "pspxc": 11,
+     "sha256": "c029c68368a869789280137940c4f922b126e6d3f3e9539b35302466199ba614",
+     "size": 280089,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ga/Ga-d.psp8",
+     "valence": 13.0,
+     "zatom": 31.0
+    },
+    "Ge": {
+     "filename": "Ge.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 35.0,
+      "normal": 39.0
+     },
+     "l_max": 2,
+     "md5": "f1dafd00d73433ea03d0fb0be7e1baf3",
+     "path": "Ge/Ge-d.psp8",
+     "pspxc": 11,
+     "sha256": "3870985ef33da730d582b7e8b316a19c67e89115bf644f226a886d270672fbf1",
+     "size": 280089,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ge/Ge-d.psp8",
+     "valence": 14.0,
+     "zatom": 32.0
+    },
+    "H": {
+     "filename": "H.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 1,
+     "md5": "20698c48a21fe3532638b4d685fd1c8b",
+     "path": "H/H.psp8",
+     "pspxc": 11,
+     "sha256": "88bee4048c472e20da619f7c1926008168df8b9fd7f6a7e3c76cc25901a55bfe",
+     "size": 75141,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/H/H.psp8",
+     "valence": 1.0,
+     "zatom": 1.0
+    },
+    "He": {
+     "filename": "He.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 39.0,
+      "normal": 45.0
+     },
+     "l_max": 1,
+     "md5": "e3a551848b3cb7a0429b5bb3793283d7",
+     "path": "He/He.psp8",
+     "pspxc": 11,
+     "sha256": "df7bb8f1a971c2862f05271f57929c7664fcc85e7460edee5b4b68defc4807c4",
+     "size": 149242,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/He/He.psp8",
+     "valence": 2.0,
+     "zatom": 2.0
+    },
+    "Hf": {
+     "filename": "Hf.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 35.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 3,
+     "md5": "a94dcecaecf3e3e8fcaaf640a5786a6a",
+     "path": "Hf/Hf-sp.psp8",
+     "pspxc": 11,
+     "sha256": "aa11dd25b6a60372a156bcacee7f191bc0b5a1012252734b5286772b7134db4a",
+     "size": 320407,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Hf/Hf-sp.psp8",
+     "valence": 12.0,
+     "zatom": 72.0
+    },
+    "Hg": {
+     "filename": "Hg.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 39.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 3,
+     "md5": "c53844ac37c9efcd61ebf543ae1b8536",
+     "path": "Hg/Hg-sp.psp8",
+     "pspxc": 11,
+     "sha256": "f515eade65ab66595907de30b85c6a6892ad6bcb9ff0bda718c7e66c1c2f48c0",
+     "size": 307786,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Hg/Hg-sp.psp8",
+     "valence": 20.0,
+     "zatom": 80.0
+    },
+    "I": {
+     "filename": "I.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 35.0
+     },
+     "l_max": 2,
+     "md5": "587845c959284134e2da1f07d880f319",
+     "path": "I/I.psp8",
+     "pspxc": 11,
+     "sha256": "2b8190085b2be27bc220e2e0a8a24018bb069ff538f46f6d2cc5e4bd50f4bc4c",
+     "size": 280133,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/I/I.psp8",
+     "valence": 7.0,
+     "zatom": 53.0
+    },
+    "In": {
+     "filename": "In.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 35.0
+     },
+     "l_max": 2,
+     "md5": "6afc605ab2da9eed3c2cc6336515d190",
+     "path": "In/In-d.psp8",
+     "pspxc": 11,
+     "sha256": "9446e1d1c7c6f55c9ef1a5fee37912936fd095d0e0b4dc02f55f68708c0925d4",
+     "size": 280134,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/In/In-d.psp8",
+     "valence": 13.0,
+     "zatom": 49.0
+    },
+    "Ir": {
+     "filename": "Ir.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 30.0,
+      "normal": 34.0
+     },
+     "l_max": 3,
+     "md5": "7cf07043c08321c9e513b00b408cf8a2",
+     "path": "Ir/Ir-sp.psp8",
+     "pspxc": 11,
+     "sha256": "0d4eaadbc630f82d926d8e0e879c7fef5ddc7da24cc131b1ef04a672ca68cf7c",
+     "size": 267207,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ir/Ir-sp.psp8",
+     "valence": 17.0,
+     "zatom": 77.0
+    },
+    "K": {
+     "filename": "K.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 43.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 2,
+     "md5": "9b4846a554d2721f6419834272679039",
+     "path": "K/K-sp.psp8",
+     "pspxc": 11,
+     "sha256": "1986d06a56069813c9c8c710abf57c8b15c772605cf1dcae5994b52462ab7cbc",
+     "size": 187058,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/K/K-sp.psp8",
+     "valence": 9.0,
+     "zatom": 19.0
+    },
+    "Kr": {
+     "filename": "Kr.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 34.0,
+      "low": 22.0,
+      "normal": 26.0
+     },
+     "l_max": 2,
+     "md5": "4c10bd087422699f140dba13035aa468",
+     "path": "Kr/Kr.psp8",
+     "pspxc": 11,
+     "sha256": "825d7716ec3c1bbcb5693acb32b3f05473ad4f09431f2eb0208f53317268cd4d",
+     "size": 280089,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Kr/Kr.psp8",
+     "valence": 8.0,
+     "zatom": 36.0
+    },
+    "La": {
+     "filename": "La.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 65.0,
+      "low": 50.0,
+      "normal": 55.0
+     },
+     "l_max": 3,
+     "md5": "f24b1251fec3a6b34fed5c4724e895a0",
+     "path": "La/La-sp.psp8",
+     "pspxc": 11,
+     "sha256": "f4e585700e36151481c933a8fc85f7ea44d88bb0e0e5e3f29cc811617250317a",
+     "size": 320392,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/La/La-sp.psp8",
+     "valence": 11.0,
+     "zatom": 57.0
+    },
+    "Li": {
+     "filename": "Li.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 1,
+     "md5": "b8ea165dce08c65c90ae636c403b28a3",
+     "path": "Li/Li-s.psp8",
+     "pspxc": 11,
+     "sha256": "1657ffd4945efb36a22c0bb4d59ed48b6faf25713e26962c906cc748e433ca22",
+     "size": 108278,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Li/Li-s.psp8",
+     "valence": 3.0,
+     "zatom": 3.0
+    },
+    "Lu": {
+     "filename": "Lu.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 58.0,
+      "low": 46.0,
+      "normal": 50.0
+     },
+     "l_max": 3,
+     "md5": "08711af8312b6fda6adef07f194aef18",
+     "path": "Lu/Lu-fsp.psp8",
+     "pspxc": 11,
+     "sha256": "b43d75b06309878e23ce3e85824231708526c31468500a1eb32359d1a1cf2b80",
+     "size": 320407,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Lu/Lu-fsp.psp8",
+     "valence": 25.0,
+     "zatom": 71.0
+    },
+    "Mg": {
+     "filename": "Mg.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 1,
+     "md5": "d65d9c3e5a38003fc995d0911d5c6f77",
+     "path": "Mg/Mg-sp.psp8",
+     "pspxc": 11,
+     "sha256": "d52a670c38dd46a1110ec30de51738fada39f9da31cf811474409c78895d5649",
+     "size": 108309,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Mg/Mg-sp.psp8",
+     "valence": 10.0,
+     "zatom": 12.0
+    },
+    "Mn": {
+     "filename": "Mn.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 54.0,
+      "low": 42.0,
+      "normal": 48.0
+     },
+     "l_max": 2,
+     "md5": "07b06ade197f22e344e082957e33ca98",
+     "path": "Mn/Mn-sp.psp8",
+     "pspxc": 11,
+     "sha256": "a6bdc88c32ef35425ee283e206cba3b6973687b24bfd63f5fb50566ffbff5937",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Mn/Mn-sp.psp8",
+     "valence": 15.0,
+     "zatom": 25.0
+    },
+    "Mo": {
+     "filename": "Mo.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "228091cb5782e08cb8d68936b3c7e57b",
+     "path": "Mo/Mo-sp.psp8",
+     "pspxc": 11,
+     "sha256": "432b1f1365a94c00e79b5e8604af9991b5315b68e2a4fea9a9c1679efe525eaf",
+     "size": 280119,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Mo/Mo-sp.psp8",
+     "valence": 14.0,
+     "zatom": 42.0
+    },
+    "N": {
+     "filename": "N.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 1,
+     "md5": "01bdf84d59ae6bc236a02b05a98ec0f5",
+     "path": "N/N.psp8",
+     "pspxc": 11,
+     "sha256": "ae234f934266b6ba754a4277c99fb555b4e6cee329561c3aa60322ece555007b",
+     "size": 239784,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/N/N.psp8",
+     "valence": 5.0,
+     "zatom": 7.0
+    },
+    "Na": {
+     "filename": "Na.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 44.0
+     },
+     "l_max": 1,
+     "md5": "151aa953e348175c0ff4315363a42302",
+     "path": "Na/Na-sp.psp8",
+     "pspxc": 11,
+     "sha256": "d930393d19494ea7eb255e3e03c77d96a4b1b923e5dd300d0fe92f1d87ccc043",
+     "size": 108309,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Na/Na-sp.psp8",
+     "valence": 9.0,
+     "zatom": 11.0
+    },
+    "Nb": {
+     "filename": "Nb.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 2,
+     "md5": "c757912afc3509af55de8954c62c9199",
+     "path": "Nb/Nb-sp.psp8",
+     "pspxc": 11,
+     "sha256": "8c9b07348e1ff7163245137bb94ffb0127a1d62aeccc2857ec29fe6122b53967",
+     "size": 280119,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Nb/Nb-sp.psp8",
+     "valence": 13.0,
+     "zatom": 41.0
+    },
+    "Ne": {
+     "filename": "Ne.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 30.0,
+      "normal": 34.0
+     },
+     "l_max": 1,
+     "md5": "6cd5e0b5f2db0fe1f69ba5b10e88d19a",
+     "path": "Ne/Ne.psp8",
+     "pspxc": 11,
+     "sha256": "eb854cb9cf1476b6951308c92c2f2226f48e97f56de06ba1a3a7b325abaa3426",
+     "size": 108294,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ne/Ne.psp8",
+     "valence": 8.0,
+     "zatom": 10.0
+    },
+    "Ni": {
+     "filename": "Ni.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 55.0,
+      "low": 45.0,
+      "normal": 49.0
+     },
+     "l_max": 2,
+     "md5": "5e3e2f916e23a9236f3897122af67374",
+     "path": "Ni/Ni-sp.psp8",
+     "pspxc": 11,
+     "sha256": "add31a8735331cb1f07a3bfda3007b627619a75ac69540c2457e4a15085437b3",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ni/Ni-sp.psp8",
+     "valence": 18.0,
+     "zatom": 28.0
+    },
+    "O": {
+     "filename": "O.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "abbcf0645b4a6d69360cd16bcad3e730",
+     "path": "O/O.psp8",
+     "pspxc": 11,
+     "sha256": "e6eab14b32e926582e778d72f4939e0c2476316209b54b458da06b2d95d9d7c2",
+     "size": 267391,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/O/O.psp8",
+     "valence": 6.0,
+     "zatom": 8.0
+    },
+    "Os": {
+     "filename": "Os.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 43.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 3,
+     "md5": "cf10ae4985835d0c0f554fb60c152f96",
+     "path": "Os/Os-sp.psp8",
+     "pspxc": 11,
+     "sha256": "eb8dd1ca8ad336ce916ed4aee47f08bdaae8cf8f0cb748810141172b58169ec4",
+     "size": 320407,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Os/Os-sp.psp8",
+     "valence": 16.0,
+     "zatom": 76.0
+    },
+    "P": {
+     "filename": "P.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 28.0,
+      "low": 18.0,
+      "normal": 22.0
+     },
+     "l_max": 2,
+     "md5": "35592df3bc13b6b759c1537803003316",
+     "path": "P/P.psp8",
+     "pspxc": 11,
+     "sha256": "36608f2a91984dd5cc1a7ebfb5581e8b040a94d0af4728ee18339d2914a4ab92",
+     "size": 280043,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/P/P.psp8",
+     "valence": 5.0,
+     "zatom": 15.0
+    },
+    "Pb": {
+     "filename": "Pb.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 34.0,
+      "low": 24.0,
+      "normal": 28.0
+     },
+     "l_max": 2,
+     "md5": "a25dffbf6a64478aa4be444120946675",
+     "path": "Pb/Pb-d.psp8",
+     "pspxc": 11,
+     "sha256": "3f70d27e1eb98832425382eb023cf20b73a31addf8efe8b38ebc41545edd56f2",
+     "size": 280194,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Pb/Pb-d.psp8",
+     "valence": 14.0,
+     "zatom": 82.0
+    },
+    "Pd": {
+     "filename": "Pd.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 2,
+     "md5": "4144628137bc01fa80f914e5e2c5b797",
+     "path": "Pd/Pd-sp.psp8",
+     "pspxc": 11,
+     "sha256": "efcc2a59851b10283dae8315caf34a6e54dc6e15fe3ca1b854310349a58b79ff",
+     "size": 280104,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Pd/Pd-sp.psp8",
+     "valence": 18.0,
+     "zatom": 46.0
+    },
+    "Po": {
+     "filename": "Po.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 38.0,
+      "low": 28.0,
+      "normal": 32.0
+     },
+     "l_max": 2,
+     "md5": "30ebe001cc2def238d97196ef354b346",
+     "path": "Po/Po-d.psp8",
+     "pspxc": 11,
+     "sha256": "1ee028f0c65bb9d436405e9c9b2a2f9c9eeea0fef4223ed5249b92f29a4389e8",
+     "size": 280194,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Po/Po-d.psp8",
+     "valence": 16.0,
+     "zatom": 84.0
+    },
+    "Pt": {
+     "filename": "Pt.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 3,
+     "md5": "c80a5384c80be681fdf7ede18231808c",
+     "path": "Pt/Pt-sp.psp8",
+     "pspxc": 11,
+     "sha256": "e785d1bd9a349bde9d9b052a21c8a303c039058969f0b6cb419437b28996a946",
+     "size": 267207,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Pt/Pt-sp.psp8",
+     "valence": 18.0,
+     "zatom": 78.0
+    },
+    "Rb": {
+     "filename": "Rb.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 23.0
+     },
+     "l_max": 2,
+     "md5": "a6e6071d28592e9fe7e3e0d0f60a39da",
+     "path": "Rb/Rb-sp.psp8",
+     "pspxc": 11,
+     "sha256": "26e82feb70ecc478c08bc7fb8ece4cff7610789382507895a81f25e959f44ecb",
+     "size": 280104,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Rb/Rb-sp.psp8",
+     "valence": 9.0,
+     "zatom": 37.0
+    },
+    "Re": {
+     "filename": "Re.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 30.0,
+      "normal": 36.0
+     },
+     "l_max": 3,
+     "md5": "3ae8daf2a0357284a4e84b53b3efcc63",
+     "path": "Re/Re-sp.psp8",
+     "pspxc": 11,
+     "sha256": "f7fdb172f0a431bfb4e380baa0514607987fc560b94a59f368029486e9b525d3",
+     "size": 320407,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Re/Re-sp.psp8",
+     "valence": 15.0,
+     "zatom": 75.0
+    },
+    "Rh": {
+     "filename": "Rh.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 40.0,
+      "normal": 44.0
+     },
+     "l_max": 2,
+     "md5": "c443b0364029eb5cf0f073ead4f727d3",
+     "path": "Rh/Rh-sp.psp8",
+     "pspxc": 11,
+     "sha256": "aefb6223ed71d774585551467eb49d6f928996cf2a282e89c6119b5ebc3d959f",
+     "size": 280119,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Rh/Rh-sp.psp8",
+     "valence": 17.0,
+     "zatom": 45.0
+    },
+    "Rn": {
+     "filename": "Rn.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "b30216a24286d62ed9376d28f2306715",
+     "path": "Rn/Rn-d.psp8",
+     "pspxc": 11,
+     "sha256": "e87413b1b77514826353830ab7af2c4ccb2e52af75394d87e112e8ad203fc2c9",
+     "size": 280194,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Rn/Rn-d.psp8",
+     "valence": 18.0,
+     "zatom": 86.0
+    },
+    "Ru": {
+     "filename": "Ru.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "920316d78093f444577e850d5daca5d0",
+     "path": "Ru/Ru-sp.psp8",
+     "pspxc": 11,
+     "sha256": "2b2d63ac107362a4919b1f561d20163710a27f4137d6249ab7572b5e1573e4e1",
+     "size": 280119,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ru/Ru-sp.psp8",
+     "valence": 16.0,
+     "zatom": 44.0
+    },
+    "S": {
+     "filename": "S.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 32.0,
+      "low": 20.0,
+      "normal": 26.0
+     },
+     "l_max": 2,
+     "md5": "bfa270bf1631b0df1a1d98e9ab044d60",
+     "path": "S/S.psp8",
+     "pspxc": 11,
+     "sha256": "e6619f5d064db0640b73df2592df683cbdeb3d438ddb7cb45f4046e6966816bc",
+     "size": 280043,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/S/S.psp8",
+     "valence": 6.0,
+     "zatom": 16.0
+    },
+    "Sb": {
+     "filename": "Sb.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "2a8426c95e659b817ee220aeb90967a8",
+     "path": "Sb/Sb-d.psp8",
+     "pspxc": 11,
+     "sha256": "566882cda1b1835dd6bafc38d5eba0bea324facb9b9a96c49b832db43b65b2b5",
+     "size": 280134,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Sb/Sb-d.psp8",
+     "valence": 15.0,
+     "zatom": 51.0
+    },
+    "Sc": {
+     "filename": "Sc.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 35.0,
+      "normal": 39.0
+     },
+     "l_max": 2,
+     "md5": "ebb96bd9f11e0e883c467cef5216d780",
+     "path": "Sc/Sc-sp.psp8",
+     "pspxc": 11,
+     "sha256": "7eb381fc4af462793a2342158cec08a7c0e16bfad9464217985912819564e67b",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Sc/Sc-sp.psp8",
+     "valence": 11.0,
+     "zatom": 21.0
+    },
+    "Se": {
+     "filename": "Se.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 39.0,
+      "normal": 43.0
+     },
+     "l_max": 2,
+     "md5": "9d379314253f25ba1b3521210f42514f",
+     "path": "Se/Se-d.psp8",
+     "pspxc": 11,
+     "sha256": "2dfda9ad633cd0df52d203e7f0665108244eb5ea29f30fe5f7d816b52131a48a",
+     "size": 280089,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Se/Se-d.psp8",
+     "valence": 16.0,
+     "zatom": 34.0
+    },
+    "Si": {
+     "filename": "Si.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 24.0,
+      "low": 14.0,
+      "normal": 18.0
+     },
+     "l_max": 2,
+     "md5": "45c393525680abc7b25445b8ec62bf83",
+     "path": "Si/Si.psp8",
+     "pspxc": 11,
+     "sha256": "5fe6068c15de07c06f23e61b681855f428ec585681c4308ab4cc2249b9644c95",
+     "size": 280044,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Si/Si.psp8",
+     "valence": 4.0,
+     "zatom": 14.0
+    },
+    "Sn": {
+     "filename": "Sn.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "36ce2a2501b0ba4dc9d77c0c4b46e9ad",
+     "path": "Sn/Sn-d.psp8",
+     "pspxc": 11,
+     "sha256": "648003f2ab40df03e3a23fb9d12c1c510f2b1b0c5d1cb06fc225b8c18f30f3b9",
+     "size": 280134,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Sn/Sn-d.psp8",
+     "valence": 14.0,
+     "zatom": 50.0
+    },
+    "Sr": {
+     "filename": "Sr.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "7f9022370a0c7d83e08abc7c1ef904c7",
+     "path": "Sr/Sr-sp.psp8",
+     "pspxc": 11,
+     "sha256": "b745f24be218550e536b4bca236719339a8f7ece2001eae8dbee62f79d2082c8",
+     "size": 280104,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Sr/Sr-sp.psp8",
+     "valence": 10.0,
+     "zatom": 38.0
+    },
+    "Ta": {
+     "filename": "Ta.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 35.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 3,
+     "md5": "a4754341b50faa15de57713f8e7c88a8",
+     "path": "Ta/Ta-sp.psp8",
+     "pspxc": 11,
+     "sha256": "15ce043abc76e615fca28e0271fe394c296de85c44c868a8a21008f63dc7b06f",
+     "size": 320407,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ta/Ta-sp.psp8",
+     "valence": 13.0,
+     "zatom": 73.0
+    },
+    "Tc": {
+     "filename": "Tc.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "a9b331460393017fea58e9c2e7b4187f",
+     "path": "Tc/Tc-sp.psp8",
+     "pspxc": 11,
+     "sha256": "84ca9b190f330be9a8235a7862b61774b6b627c50d0df2886db2efaac60a41cb",
+     "size": 280119,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Tc/Tc-sp.psp8",
+     "valence": 15.0,
+     "zatom": 43.0
+    },
+    "Te": {
+     "filename": "Te.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 34.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "1da10c990c353a9d4a06f8b514f67806",
+     "path": "Te/Te-d.psp8",
+     "pspxc": 11,
+     "sha256": "bd243b86897c5b865a1253d2d8bdf3e4451b91afc4c6e3c32483a2869d8d28c3",
+     "size": 280134,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Te/Te-d.psp8",
+     "valence": 16.0,
+     "zatom": 52.0
+    },
+    "Ti": {
+     "filename": "Ti.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "ea4ed3d71d7ed9998c7c8ddd5e23a4a6",
+     "path": "Ti/Ti-sp.psp8",
+     "pspxc": 11,
+     "sha256": "120057e0e3ff1ad73f4d63b12c585bec4be9babe2fbfbbcca5e75acbac847425",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Ti/Ti-sp.psp8",
+     "valence": 12.0,
+     "zatom": 22.0
+    },
+    "Tl": {
+     "filename": "Tl.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 27.0,
+      "normal": 31.0
+     },
+     "l_max": 2,
+     "md5": "41c194216fce24aded23d0173cce5da6",
+     "path": "Tl/Tl-d.psp8",
+     "pspxc": 11,
+     "sha256": "6b9d8f31abf5c38c9af1592793a34622dfe8318c904805b865eaed29cca315f6",
+     "size": 280194,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Tl/Tl-d.psp8",
+     "valence": 13.0,
+     "zatom": 81.0
+    },
+    "V": {
+     "filename": "V.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "e985175337f6bb13d488a378b00c5826",
+     "path": "V/V-sp.psp8",
+     "pspxc": 11,
+     "sha256": "70421db92f9bb74d4d7f80c54d901f344497c4fd3b0c990a54a62cabf9e364e1",
+     "size": 280073,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/V/V-sp.psp8",
+     "valence": 13.0,
+     "zatom": 23.0
+    },
+    "W": {
+     "filename": "W.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 37.0
+     },
+     "l_max": 3,
+     "md5": "d71e7510732621619b8e16c2a4f78034",
+     "path": "W/W-sp.psp8",
+     "pspxc": 11,
+     "sha256": "d61b30efda62bfb01df1e908262910ca8def1bb41d2158d79653130558084acd",
+     "size": 320406,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/W/W-sp.psp8",
+     "valence": 14.0,
+     "zatom": 74.0
+    },
+    "Xe": {
+     "filename": "Xe.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "cec0a37a441329a4ffe3e19127c25b67",
+     "path": "Xe/Xe.psp8",
+     "pspxc": 11,
+     "sha256": "4cb9a929aa23336f4b338cf8c38afbcff89c0d2052a11c2ff72b63a48168caf0",
+     "size": 280134,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Xe/Xe.psp8",
+     "valence": 8.0,
+     "zatom": 54.0
+    },
+    "Y": {
+     "filename": "Y.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 30.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "a3018445faf9758c774c23d7dffb200c",
+     "path": "Y/Y-sp.psp8",
+     "pspxc": 11,
+     "sha256": "d83d2565a0f8ca26e9ab1028e046992fa9cea80315a83f047a37bb0281739098",
+     "size": 280118,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Y/Y-sp.psp8",
+     "valence": 11.0,
+     "zatom": 39.0
+    },
+    "Zn": {
+     "filename": "Zn.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "107a1bff54836171a556b2839dee4f22",
+     "path": "Zn/Zn-sp.psp8",
+     "pspxc": 11,
+     "sha256": "df7f86669418a941949883a7d90b5563b67de407c1b3c7c6e64aee2ca4ada52d",
+     "size": 280074,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Zn/Zn-sp.psp8",
+     "valence": 20.0,
+     "zatom": 30.0
+    },
+    "Zr": {
+     "filename": "Zr.pbe_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "4edbc6af4ab78b1ef5a08b11a546c46c",
+     "path": "Zr/Zr-sp.psp8",
+     "pspxc": 11,
+     "sha256": "af9ab8b426abba24574d1968f23c8cc373f7bc41ba76f5429f161ab199c48726",
+     "size": 280119,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/Zr/Zr-sp.psp8",
+     "valence": 12.0,
+     "zatom": 40.0
+    }
+   },
+   "functional": "PBE",
+   "label": "PseudoDojo 0.4 PBE standard (scalar relativistic)",
+   "missing": [],
+   "relativistic": "scalar",
+   "repo": "PseudoDojo/ONCVPSP-PBE-PDv0.4",
+   "standard_table": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-PDv0.4/134d757178552b8228a43a848b0e53f232cdda84/standard.djson",
+   "standard_table_sha256": "c22539521bd9b6ec0859eb53ab9948fd095d6e695437a4f6f1b1cd27fb080f26"
+  },
+  "pbesol_sr": {
+   "base_url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/",
+   "commit": "cd096b63d30772c93c645856b3651d8d7e8049e7",
+   "elements": {
+    "Ag": {
+     "filename": "Ag.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 47.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 2,
+     "md5": "b78013ec0dbcbffec63182725f9b226a",
+     "path": "Ag/Ag-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "046ff2f5b58dd60fca8a7d3395ea68c537ca1e8ab2f8b832adb32cef44d82565",
+     "size": 280117,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ag/Ag-sp.psp8",
+     "valence": 19.0,
+     "zatom": 47.0
+    },
+    "Al": {
+     "filename": "Al.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 26.0,
+      "low": 16.0,
+      "normal": 20.0
+     },
+     "l_max": 2,
+     "md5": "58d256ecbae5eede04400d9683496ce2",
+     "path": "Al/Al.psp8",
+     "pspxc": -116133,
+     "sha256": "a97bf04e6bf2d817cb04972ad6d2cf47e5998b950d0f08d2216c077bc081a9eb",
+     "size": 280042,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Al/Al.psp8",
+     "valence": 3.0,
+     "zatom": 13.0
+    },
+    "Ar": {
+     "filename": "Ar.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "71cf52731f31acacc9457be33f1cf7fa",
+     "path": "Ar/Ar.psp8",
+     "pspxc": -116133,
+     "sha256": "b8eee9516d55628073460ddb468a4b0ec0838a9d879664b80fcb55be47f73bc1",
+     "size": 187042,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ar/Ar.psp8",
+     "valence": 8.0,
+     "zatom": 18.0
+    },
+    "As": {
+     "filename": "As.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "e5513a87e1bb5f5b3c1afa106bac202e",
+     "path": "As/As-d.psp8",
+     "pspxc": -116133,
+     "sha256": "5535d2ba74a867ce5336735e96f663bf25248137d2c321bc6bd8b48e82297cfd",
+     "size": 280087,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/As/As-d.psp8",
+     "valence": 15.0,
+     "zatom": 33.0
+    },
+    "Au": {
+     "filename": "Au.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 32.0,
+      "normal": 38.0
+     },
+     "l_max": 3,
+     "md5": "5fdac7e12a30013a875e978e779b453f",
+     "path": "Au/Au-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "700ec7909141d3f38675d074217bbd458997bb88146ece09e0e7ee67558dbd37",
+     "size": 256684,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Au/Au-sp.psp8",
+     "valence": 19.0,
+     "zatom": 79.0
+    },
+    "B": {
+     "filename": "B.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 34.0,
+      "normal": 38.0
+     },
+     "l_max": 1,
+     "md5": "1f2cf3cbdd5aa8b931556630b9af3dc0",
+     "path": "B/B.psp8",
+     "pspxc": -116133,
+     "sha256": "c68fbe5d096b1d5c50960b8935baa4d81ebc2cf78292ca13a3e4f54cb4af9efb",
+     "size": 239782,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/B/B.psp8",
+     "valence": 3.0,
+     "zatom": 5.0
+    },
+    "Ba": {
+     "filename": "Ba.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 28.0,
+      "low": 18.0,
+      "normal": 22.0
+     },
+     "l_max": 2,
+     "md5": "a7b3951491755e00143ba72ba4612f0c",
+     "path": "Ba/Ba-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "4cf19fac77ac3d5eb1adbe9ccf78f1903cea6d0f6d370a664b834c1727cd1655",
+     "size": 280147,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ba/Ba-sp.psp8",
+     "valence": 10.0,
+     "zatom": 56.0
+    },
+    "Be": {
+     "filename": "Be.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 38.0,
+      "normal": 44.0
+     },
+     "l_max": 1,
+     "md5": "78be27d90b6ac763ed50dfb9c9d57b4d",
+     "path": "Be/Be-s.psp8",
+     "pspxc": -116133,
+     "sha256": "08b4b647bab499742ed4b553c40bdb8d03e92f2226af39e0e7ac64521b2fd86c",
+     "size": 108276,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Be/Be-s.psp8",
+     "valence": 4.0,
+     "zatom": 4.0
+    },
+    "Bi": {
+     "filename": "Bi.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "8da5561b1648fa953fb06b4c6407757c",
+     "path": "Bi/Bi-d.psp8",
+     "pspxc": -116133,
+     "sha256": "70ae0d702b50413938434c9ba21637fb89e7dcf706d708e802d440d34633779b",
+     "size": 280192,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Bi/Bi-d.psp8",
+     "valence": 15.0,
+     "zatom": 83.0
+    },
+    "Br": {
+     "filename": "Br.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 23.0
+     },
+     "l_max": 2,
+     "md5": "207914c12775648ee6f8ce27d7397e43",
+     "path": "Br/Br.psp8",
+     "pspxc": -116133,
+     "sha256": "113744065625f99daf4296020016062e1995825cab51b6d26f7f6253545cccd1",
+     "size": 280087,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Br/Br.psp8",
+     "valence": 7.0,
+     "zatom": 35.0
+    },
+    "C": {
+     "filename": "C.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 1,
+     "md5": "1fac0de256eeb6e13020dc2e94c74ce4",
+     "path": "C/C.psp8",
+     "pspxc": -116133,
+     "sha256": "73f64f8c2c61f3659e90d5382d2fdab0a329832e5c8bc25d9f961e540231ea1c",
+     "size": 239782,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/C/C.psp8",
+     "valence": 4.0,
+     "zatom": 6.0
+    },
+    "Ca": {
+     "filename": "Ca.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 38.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "33cd8f18ac1082808c322119bb226bec",
+     "path": "Ca/Ca-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "f5b3cbd28d09e09c89ea9be847066847119053876b0f3fcdf590caedc31b7b52",
+     "size": 187057,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ca/Ca-sp.psp8",
+     "valence": 10.0,
+     "zatom": 20.0
+    },
+    "Cd": {
+     "filename": "Cd.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 57.0,
+      "low": 47.0,
+      "normal": 51.0
+     },
+     "l_max": 2,
+     "md5": "804c517a47a522372604f92bc612cd97",
+     "path": "Cd/Cd-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "e07fce37fe6b2d9ce512a81b2f0ace84a251d7f66ba6aaed24f4c804d66e6b5b",
+     "size": 280117,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Cd/Cd-sp.psp8",
+     "valence": 20.0,
+     "zatom": 48.0
+    },
+    "Cl": {
+     "filename": "Cl.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 33.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 2,
+     "md5": "87f953aeb73c7b08b05251da74da53f0",
+     "path": "Cl/Cl.psp8",
+     "pspxc": -116133,
+     "sha256": "a976ac14049fd86d4a46d2fef800b0ca7a351e404fe43349aec405918469e2bd",
+     "size": 280042,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Cl/Cl.psp8",
+     "valence": 7.0,
+     "zatom": 17.0
+    },
+    "Co": {
+     "filename": "Co.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 54.0,
+      "low": 42.0,
+      "normal": 48.0
+     },
+     "l_max": 2,
+     "md5": "4d56a8a83c74be591a91b5986aa717dc",
+     "path": "Co/Co-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "f0df3bc3c94a3e818eddbc411fef14f1cd803bdbd17d30cb1b080056475e611c",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Co/Co-sp.psp8",
+     "valence": 17.0,
+     "zatom": 27.0
+    },
+    "Cr": {
+     "filename": "Cr.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 55.0,
+      "low": 43.0,
+      "normal": 47.0
+     },
+     "l_max": 2,
+     "md5": "fa3eb6c42ba62d165dd9bfa42959ab0b",
+     "path": "Cr/Cr-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "83587d3663c03d08e5894d5970175289c66f0b114c7a593ac1ca417a863211bf",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Cr/Cr-sp.psp8",
+     "valence": 14.0,
+     "zatom": 24.0
+    },
+    "Cs": {
+     "filename": "Cs.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 25.0
+     },
+     "l_max": 3,
+     "md5": "1191a199b6dfd8cbca600242dfc1a75d",
+     "path": "Cs/Cs-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "79ceb8ec5ce52788c9c34c8f3f7390d7f9aee99e14be1554396e42d820307f5f",
+     "size": 320375,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Cs/Cs-sp.psp8",
+     "valence": 9.0,
+     "zatom": 55.0
+    },
+    "Cu": {
+     "filename": "Cu.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 52.0,
+      "low": 42.0,
+      "normal": 46.0
+     },
+     "l_max": 2,
+     "md5": "6b53fceb8ac6bd93d3e7c25c078a3c48",
+     "path": "Cu/Cu-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "56589a410381c5b1f3aad978353e3633839f828f3a8a6b462f7e770db518343a",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Cu/Cu-sp.psp8",
+     "valence": 19.0,
+     "zatom": 29.0
+    },
+    "F": {
+     "filename": "F.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "10f723596cb88fc5e4cbbb9a464ff1b3",
+     "path": "F/F.psp8",
+     "pspxc": -116133,
+     "sha256": "a1a5a30547e2fa266092fc8052dfec2d872a6d605b4187b8a29a916b113f08a6",
+     "size": 267389,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/F/F.psp8",
+     "valence": 7.0,
+     "zatom": 9.0
+    },
+    "Fe": {
+     "filename": "Fe.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 53.0,
+      "low": 41.0,
+      "normal": 45.0
+     },
+     "l_max": 2,
+     "md5": "c797c38c56b4483504254db7ca359c7b",
+     "path": "Fe/Fe-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "41dbf74b474406fc2749cd2db80199380fec3426af3a846d9eed1f7c576eddb9",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Fe/Fe-sp.psp8",
+     "valence": 16.0,
+     "zatom": 26.0
+    },
+    "Ga": {
+     "filename": "Ga.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "716804e690a070470d666e0dba7eed1f",
+     "path": "Ga/Ga-d.psp8",
+     "pspxc": -116133,
+     "sha256": "95e50f888f41037b2a7122c6af8053b7a655981d39493d44d7cc477c80dbd5d6",
+     "size": 280087,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ga/Ga-d.psp8",
+     "valence": 13.0,
+     "zatom": 31.0
+    },
+    "Ge": {
+     "filename": "Ge.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 35.0,
+      "normal": 39.0
+     },
+     "l_max": 2,
+     "md5": "57bebdff15748ab36fa9a40a4266c39e",
+     "path": "Ge/Ge-d.psp8",
+     "pspxc": -116133,
+     "sha256": "0dad426e0b0865d3a1875482635ed7addd1bf2d6ac941724429868186568d8f6",
+     "size": 280087,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ge/Ge-d.psp8",
+     "valence": 14.0,
+     "zatom": 32.0
+    },
+    "H": {
+     "filename": "H.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 1,
+     "md5": "760b427e0401cad688b30716f788b329",
+     "path": "H/H.psp8",
+     "pspxc": -116133,
+     "sha256": "c5b1675bdc6c2633e0366ee88a6a9d8c60291a696b3f7819cba2cf6d4ce1657b",
+     "size": 75139,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/H/H.psp8",
+     "valence": 1.0,
+     "zatom": 1.0
+    },
+    "He": {
+     "filename": "He.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 39.0,
+      "normal": 45.0
+     },
+     "l_max": 1,
+     "md5": "fc47a02427b93987d33ad14af61ecafa",
+     "path": "He/He.psp8",
+     "pspxc": -116133,
+     "sha256": "815348eb713d55cc2bad5be5c8493e97430af08a63faefc53e56da14dcd51c79",
+     "size": 149240,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/He/He.psp8",
+     "valence": 2.0,
+     "zatom": 2.0
+    },
+    "Hf": {
+     "filename": "Hf.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 35.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 3,
+     "md5": "7f4121d377e945d458fc84a6b30ff820",
+     "path": "Hf/Hf-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "2fa87e90d1bc7ea104cf97039c4aab6bdf58e3c1236ee7dda798c13486728d40",
+     "size": 320405,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Hf/Hf-sp.psp8",
+     "valence": 12.0,
+     "zatom": 72.0
+    },
+    "Hg": {
+     "filename": "Hg.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 39.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 3,
+     "md5": "21b0adaef4ce584dd08c484b1b6a0e42",
+     "path": "Hg/Hg-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "f50358cd75cdc8df73c6d018938acdf658591e93be7c02674c318abdbc6665ee",
+     "size": 307784,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Hg/Hg-sp.psp8",
+     "valence": 20.0,
+     "zatom": 80.0
+    },
+    "I": {
+     "filename": "I.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 35.0
+     },
+     "l_max": 2,
+     "md5": "5a115ccc2544c6cf378706fe07446731",
+     "path": "I/I.psp8",
+     "pspxc": -116133,
+     "sha256": "4534b5c2dc3930d28f208edd78264260a5fb2cae31a607504a6d634cac58d02f",
+     "size": 280131,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/I/I.psp8",
+     "valence": 7.0,
+     "zatom": 53.0
+    },
+    "In": {
+     "filename": "In.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 35.0
+     },
+     "l_max": 2,
+     "md5": "0a93a8082d386bc526284ed26a2a0c91",
+     "path": "In/In-d.psp8",
+     "pspxc": -116133,
+     "sha256": "6c769d36f004897c6cffbecf7215ffb04f3a6ca022adab7e500f1dde4f5defbf",
+     "size": 280132,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/In/In-d.psp8",
+     "valence": 13.0,
+     "zatom": 49.0
+    },
+    "Ir": {
+     "filename": "Ir.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 30.0,
+      "normal": 34.0
+     },
+     "l_max": 3,
+     "md5": "c3fe3fb7b49985bcfe2f714186588842",
+     "path": "Ir/Ir-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "1d92dc5a468c06e17f39b9c7b386b61eabc279a7f64f9b22cab81be4c5ec16cf",
+     "size": 267205,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ir/Ir-sp.psp8",
+     "valence": 17.0,
+     "zatom": 77.0
+    },
+    "K": {
+     "filename": "K.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 43.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 2,
+     "md5": "4830bdd398f7888982831d7ca306a87d",
+     "path": "K/K-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "550dfef4d255ac65251f3c63e0e4839b22b7c978be77fbd76eba49605dfc6ffc",
+     "size": 187056,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/K/K-sp.psp8",
+     "valence": 9.0,
+     "zatom": 19.0
+    },
+    "Kr": {
+     "filename": "Kr.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 34.0,
+      "low": 22.0,
+      "normal": 26.0
+     },
+     "l_max": 2,
+     "md5": "a19b327d2fd3126927362ea96cc5faaa",
+     "path": "Kr/Kr.psp8",
+     "pspxc": -116133,
+     "sha256": "230509a5ec108e79adc8230b01c3d79afc4b11f143df4ea7c50c4131fe7cad29",
+     "size": 280087,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Kr/Kr.psp8",
+     "valence": 8.0,
+     "zatom": 36.0
+    },
+    "La": {
+     "filename": "La.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 65.0,
+      "low": 50.0,
+      "normal": 55.0
+     },
+     "l_max": 3,
+     "md5": "a2dff74fc4fe17d31e8344cc0b78f1c5",
+     "path": "La/La-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "68ee4ae1d444f1911de474ed9730001a7e97f5eb8d9c6b42def7bc02b13613d7",
+     "size": 320390,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/La/La-sp.psp8",
+     "valence": 11.0,
+     "zatom": 57.0
+    },
+    "Li": {
+     "filename": "Li.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 1,
+     "md5": "6276524b751468cfbac7692f61a50997",
+     "path": "Li/Li-s.psp8",
+     "pspxc": -116133,
+     "sha256": "7cd088645412db265d2016fa5c411bb6848d4def09db4f36d2f1257cdc935447",
+     "size": 108276,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Li/Li-s.psp8",
+     "valence": 3.0,
+     "zatom": 3.0
+    },
+    "Lu": {
+     "filename": "Lu.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 58.0,
+      "low": 46.0,
+      "normal": 50.0
+     },
+     "l_max": 3,
+     "md5": "1cba7b65b8a3b46818174d8d968b7435",
+     "path": "Lu/Lu-fsp.psp8",
+     "pspxc": -116133,
+     "sha256": "1da1816b0b46cbcbf7d8907022ad878303528fa90e686b768d6ad8375fccc79b",
+     "size": 320405,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Lu/Lu-fsp.psp8",
+     "valence": 25.0,
+     "zatom": 71.0
+    },
+    "Mg": {
+     "filename": "Mg.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 1,
+     "md5": "df1297c433abd77733e6445709f95c32",
+     "path": "Mg/Mg-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "2ab9c24251874f6917a99ab35595da2891637b066ec2e1b528f3e86cf9ed638c",
+     "size": 108307,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Mg/Mg-sp.psp8",
+     "valence": 10.0,
+     "zatom": 12.0
+    },
+    "Mn": {
+     "filename": "Mn.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 54.0,
+      "low": 42.0,
+      "normal": 48.0
+     },
+     "l_max": 2,
+     "md5": "7b10ea306b28c1914f5c3e40688bc8db",
+     "path": "Mn/Mn-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "2dd2444cf6c05c422b59a54a51005b1ea806117cfb97a2a1905737c241b7cf3f",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Mn/Mn-sp.psp8",
+     "valence": 15.0,
+     "zatom": 25.0
+    },
+    "Mo": {
+     "filename": "Mo.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "8cf9736a578e053a1c3ee0caef55a1c3",
+     "path": "Mo/Mo-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "caedd99236730018a6641b9c90896a2828909725c54105d5ce3a9594d6010662",
+     "size": 280117,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Mo/Mo-sp.psp8",
+     "valence": 14.0,
+     "zatom": 42.0
+    },
+    "N": {
+     "filename": "N.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 1,
+     "md5": "5bbaceb8547813b2293b5ed0603c9731",
+     "path": "N/N.psp8",
+     "pspxc": -116133,
+     "sha256": "12f5da791051002c4c8938f56a4253dbda659c4a2a9ad7275119be9aa4a84ec2",
+     "size": 239782,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/N/N.psp8",
+     "valence": 5.0,
+     "zatom": 7.0
+    },
+    "Na": {
+     "filename": "Na.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 44.0
+     },
+     "l_max": 1,
+     "md5": "8c85860efcfd589ef916c6afae968494",
+     "path": "Na/Na-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "f6f28bae56b4ae3b31bee1f529e3e708aa1d1e9a594fdbaf0d427af100ce503d",
+     "size": 108307,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Na/Na-sp.psp8",
+     "valence": 9.0,
+     "zatom": 11.0
+    },
+    "Nb": {
+     "filename": "Nb.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 2,
+     "md5": "4840866cd0ae603b5e21d416c1e2660a",
+     "path": "Nb/Nb-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "7ba50a74dde1bb5f51d7d6f4db7cfecbd747eb80f4193b76f0132ee8250b7f63",
+     "size": 280117,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Nb/Nb-sp.psp8",
+     "valence": 13.0,
+     "zatom": 41.0
+    },
+    "Ne": {
+     "filename": "Ne.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 30.0,
+      "normal": 34.0
+     },
+     "l_max": 1,
+     "md5": "1229c4982ee2102f31c9105c6c4d5da3",
+     "path": "Ne/Ne.psp8",
+     "pspxc": -116133,
+     "sha256": "dc48946a868819eef0fa4aeca9281a94da4bcdc620a36a99a6b2677655f8f305",
+     "size": 108292,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ne/Ne.psp8",
+     "valence": 8.0,
+     "zatom": 10.0
+    },
+    "Ni": {
+     "filename": "Ni.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 55.0,
+      "low": 45.0,
+      "normal": 49.0
+     },
+     "l_max": 2,
+     "md5": "a3b2a1e976128b281d9da6a65df2b77b",
+     "path": "Ni/Ni-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "bad641d6bcaaf19a7f225700e273965f01b2d86e872fffdce0ea9e8cc07505db",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ni/Ni-sp.psp8",
+     "valence": 18.0,
+     "zatom": 28.0
+    },
+    "O": {
+     "filename": "O.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 36.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "04a1db0de9507da3b14189085638b3ef",
+     "path": "O/O.psp8",
+     "pspxc": -116133,
+     "sha256": "e11d561cbdb4988e70108a7cd86c50dbe6aa4f6dd263c545ba4e3884f0bd4f40",
+     "size": 267389,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/O/O.psp8",
+     "valence": 6.0,
+     "zatom": 8.0
+    },
+    "Os": {
+     "filename": "Os.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 43.0,
+      "low": 33.0,
+      "normal": 37.0
+     },
+     "l_max": 3,
+     "md5": "d751181cd1926a0307cb32c594661a69",
+     "path": "Os/Os-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "1b4d621c7de336f1dc9bbe78065e50112b6ca78a75bfd92046006f9d71b721bc",
+     "size": 320405,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Os/Os-sp.psp8",
+     "valence": 16.0,
+     "zatom": 76.0
+    },
+    "P": {
+     "filename": "P.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 28.0,
+      "low": 18.0,
+      "normal": 22.0
+     },
+     "l_max": 2,
+     "md5": "d22e43254b2e5cda57fe78bf6d95e718",
+     "path": "P/P.psp8",
+     "pspxc": -116133,
+     "sha256": "aa742590589db26e8cd44822817e80bc59bf25265221045873b376940a5a39a9",
+     "size": 280041,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/P/P.psp8",
+     "valence": 5.0,
+     "zatom": 15.0
+    },
+    "Pb": {
+     "filename": "Pb.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 34.0,
+      "low": 24.0,
+      "normal": 28.0
+     },
+     "l_max": 2,
+     "md5": "107b528bba6b62a122786986ba9cf7fb",
+     "path": "Pb/Pb-d.psp8",
+     "pspxc": -116133,
+     "sha256": "b1ea09cda7ebd65d5a1bd32c3d740e5b0c7bbd5a82ca2c3d0ea4bc4c6f3ffb20",
+     "size": 280192,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Pb/Pb-d.psp8",
+     "valence": 14.0,
+     "zatom": 82.0
+    },
+    "Pd": {
+     "filename": "Pd.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 37.0,
+      "normal": 41.0
+     },
+     "l_max": 2,
+     "md5": "2dd5f98a2d5fb06e7c5d6a6dd3285606",
+     "path": "Pd/Pd-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "088fbf0a278d7adcda3e1057aa7ecd41df318d0c2f18379b443dad78f6dd5590",
+     "size": 280102,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Pd/Pd-sp.psp8",
+     "valence": 18.0,
+     "zatom": 46.0
+    },
+    "Po": {
+     "filename": "Po.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 38.0,
+      "low": 28.0,
+      "normal": 32.0
+     },
+     "l_max": 2,
+     "md5": "0745921dedf454c6ea1d295c52b40383",
+     "path": "Po/Po-d.psp8",
+     "pspxc": -116133,
+     "sha256": "01852d628583a81cf8aa012cf9cd616b354ad4df4efd3547d9c667f9fec82c96",
+     "size": 280192,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Po/Po-d.psp8",
+     "valence": 16.0,
+     "zatom": 84.0
+    },
+    "Pt": {
+     "filename": "Pt.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 3,
+     "md5": "dfd128001bf8ce36e2c086ee767dbec3",
+     "path": "Pt/Pt-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "43a9dd90f35100ef4b657c0529615c90647796b124ad97ed710c89c008ded174",
+     "size": 267205,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Pt/Pt-sp.psp8",
+     "valence": 18.0,
+     "zatom": 78.0
+    },
+    "Rb": {
+     "filename": "Rb.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 29.0,
+      "low": 19.0,
+      "normal": 23.0
+     },
+     "l_max": 2,
+     "md5": "b67c17d0740f71cd7f68fa3d949b58e2",
+     "path": "Rb/Rb-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "c1524fa5cd21150d57e810bda82b61a210243ceb4fc0d0000c51e6dbc44596d6",
+     "size": 280102,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Rb/Rb-sp.psp8",
+     "valence": 9.0,
+     "zatom": 37.0
+    },
+    "Re": {
+     "filename": "Re.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 30.0,
+      "normal": 36.0
+     },
+     "l_max": 3,
+     "md5": "974a43af13ee5e2864fa68cd857b1ec6",
+     "path": "Re/Re-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "0bb84a6c676737e7172930b5572d619c78072c4db63acbb66b1bea528e84a625",
+     "size": 320405,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Re/Re-sp.psp8",
+     "valence": 15.0,
+     "zatom": 75.0
+    },
+    "Rh": {
+     "filename": "Rh.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 40.0,
+      "normal": 44.0
+     },
+     "l_max": 2,
+     "md5": "829e5b4727b6cb1c5c994c1a309cde04",
+     "path": "Rh/Rh-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "4392b5f011ea9de5148d73303d4137c9bc7a32f7e7c22ed4d7fe9539fe796fbd",
+     "size": 280117,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Rh/Rh-sp.psp8",
+     "valence": 17.0,
+     "zatom": 45.0
+    },
+    "Rn": {
+     "filename": "Rn.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "f9f7427c29bb5c96c4f82ff0e27b09c1",
+     "path": "Rn/Rn-d.psp8",
+     "pspxc": -116133,
+     "sha256": "02ef25a522914ea14b841d4c18011fd3d77cf74152a85df038a039bc1fc6c33e",
+     "size": 280192,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Rn/Rn-d.psp8",
+     "valence": 18.0,
+     "zatom": 86.0
+    },
+    "Ru": {
+     "filename": "Ru.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 50.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "8c60c120b0d0274927cdcf1a3f5bda61",
+     "path": "Ru/Ru-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "4173c1a33dcf60945e0315a9aafa5bd45a828ccd9dcf2bf22d51ece7209ed990",
+     "size": 280117,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ru/Ru-sp.psp8",
+     "valence": 16.0,
+     "zatom": 44.0
+    },
+    "S": {
+     "filename": "S.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 32.0,
+      "low": 20.0,
+      "normal": 26.0
+     },
+     "l_max": 2,
+     "md5": "c238590e70bc09d9395365a83eca4396",
+     "path": "S/S.psp8",
+     "pspxc": -116133,
+     "sha256": "ceeee25a18e5100d73ad4655e1f26bbd789298b383a803eb394592ee3ed5b463",
+     "size": 280041,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/S/S.psp8",
+     "valence": 6.0,
+     "zatom": 16.0
+    },
+    "Sb": {
+     "filename": "Sb.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 44.0,
+      "low": 36.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "3bbd4c0a5a7cb42faad00176af01211f",
+     "path": "Sb/Sb-d.psp8",
+     "pspxc": -116133,
+     "sha256": "9da9dde7d24cc0d5b95bb5ff89f56d5ed6cf6973a53f30ba6506a3e684447eb5",
+     "size": 280132,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Sb/Sb-d.psp8",
+     "valence": 15.0,
+     "zatom": 51.0
+    },
+    "Sc": {
+     "filename": "Sc.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 45.0,
+      "low": 35.0,
+      "normal": 39.0
+     },
+     "l_max": 2,
+     "md5": "d7c345147528dae441f9f4656f90c02d",
+     "path": "Sc/Sc-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "24127efbb5a5ee448f8f86017ccdf9b3889d0fa7bad0822b8f53e82d65397beb",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Sc/Sc-sp.psp8",
+     "valence": 11.0,
+     "zatom": 21.0
+    },
+    "Se": {
+     "filename": "Se.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 39.0,
+      "normal": 43.0
+     },
+     "l_max": 2,
+     "md5": "3ba1fcb6c4dc9135ae9e5211008793b7",
+     "path": "Se/Se-d.psp8",
+     "pspxc": -116133,
+     "sha256": "419e28cfb6b17a98750b4113749567ff4c33fc62245cdc8f14e1ee8b7633682e",
+     "size": 280087,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Se/Se-d.psp8",
+     "valence": 16.0,
+     "zatom": 34.0
+    },
+    "Si": {
+     "filename": "Si.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 24.0,
+      "low": 14.0,
+      "normal": 18.0
+     },
+     "l_max": 2,
+     "md5": "926731724df1b06af70b3ef370bdc1e4",
+     "path": "Si/Si.psp8",
+     "pspxc": -116133,
+     "sha256": "d04475314befa5d8e5388c4c66ccc32d5af3e730833362c139b0ad37ec4626c0",
+     "size": 280042,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Si/Si.psp8",
+     "valence": 4.0,
+     "zatom": 14.0
+    },
+    "Sn": {
+     "filename": "Sn.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 32.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "524091b7f01afb7b9fde1573a684be03",
+     "path": "Sn/Sn-d.psp8",
+     "pspxc": -116133,
+     "sha256": "62da64a0c5393cdf71531e3218217d35ab2ec67fe490978c214fc78841560c2f",
+     "size": 280132,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Sn/Sn-d.psp8",
+     "valence": 14.0,
+     "zatom": 50.0
+    },
+    "Sr": {
+     "filename": "Sr.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 40.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "0374d77560d72fcd1d66299dbeddfe1d",
+     "path": "Sr/Sr-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "baa085cf7bf31d71aa81f62f3fe86180ea0430e10e4e58fade288dc8ab2b114c",
+     "size": 280102,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Sr/Sr-sp.psp8",
+     "valence": 10.0,
+     "zatom": 38.0
+    },
+    "Ta": {
+     "filename": "Ta.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 35.0,
+      "low": 25.0,
+      "normal": 29.0
+     },
+     "l_max": 3,
+     "md5": "a5983b13d603ccc37cf8cc75205e994e",
+     "path": "Ta/Ta-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "d743fc17cd35bed3dee531070e556caa4291724d1fe9a0a6027968bd8485d5bc",
+     "size": 320405,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ta/Ta-sp.psp8",
+     "valence": 13.0,
+     "zatom": 73.0
+    },
+    "Tc": {
+     "filename": "Tc.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "aef404fa804d1ab229b5a08fdaa0a8b1",
+     "path": "Tc/Tc-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "6fc9dd9fffcadd18fa2d409908eab32b0b3d9a42b0d6e93f158515b6364ca239",
+     "size": 280117,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Tc/Tc-sp.psp8",
+     "valence": 15.0,
+     "zatom": 43.0
+    },
+    "Te": {
+     "filename": "Te.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 34.0,
+      "normal": 40.0
+     },
+     "l_max": 2,
+     "md5": "12e917e399496eb7c6711cec14f75d2d",
+     "path": "Te/Te-d.psp8",
+     "pspxc": -116133,
+     "sha256": "d0de8d139b3726b4d2300292cfc1ea5b0cf2bb19502e53c7f3d6eca312c60c0a",
+     "size": 280132,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Te/Te-d.psp8",
+     "valence": 16.0,
+     "zatom": 52.0
+    },
+    "Ti": {
+     "filename": "Ti.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 46.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "80a1f4d5c3472b7ba567954996118e12",
+     "path": "Ti/Ti-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "4c75a8eb8bbf14a61f719e8de112b9b4a80d6f0927209a561cd9c84b03d9a52a",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Ti/Ti-sp.psp8",
+     "valence": 12.0,
+     "zatom": 22.0
+    },
+    "Tl": {
+     "filename": "Tl.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 37.0,
+      "low": 27.0,
+      "normal": 31.0
+     },
+     "l_max": 2,
+     "md5": "43d05b42eddbf12867235ccb0cef998a",
+     "path": "Tl/Tl-d.psp8",
+     "pspxc": -116133,
+     "sha256": "99bde638b5d11d51092fc58f399b5c1c5d84905f7cb4312b346ee766dbd8c19b",
+     "size": 280192,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Tl/Tl-d.psp8",
+     "valence": 13.0,
+     "zatom": 81.0
+    },
+    "V": {
+     "filename": "V.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "0bfbce05e0f38d6ef81d47eb64ba2a7f",
+     "path": "V/V-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "518b1eaac3e1e7b645be1a8ebecec20bc6a3824452ca569f420f049b2009200a",
+     "size": 280071,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/V/V-sp.psp8",
+     "valence": 13.0,
+     "zatom": 23.0
+    },
+    "W": {
+     "filename": "W.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 41.0,
+      "low": 31.0,
+      "normal": 37.0
+     },
+     "l_max": 3,
+     "md5": "fe3c73ac02fd8539d2b8a2c9a6c242d2",
+     "path": "W/W-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "5f403f0514eaa1a947386c163dc523f8078a55170678d65975b340b756814119",
+     "size": 320404,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/W/W-sp.psp8",
+     "valence": 14.0,
+     "zatom": 74.0
+    },
+    "Xe": {
+     "filename": "Xe.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 28.0,
+      "normal": 34.0
+     },
+     "l_max": 2,
+     "md5": "2713fc6a93a4f61df64c145f32c839ae",
+     "path": "Xe/Xe.psp8",
+     "pspxc": -116133,
+     "sha256": "a09c8b9d274495adde18954a046d9d926a6b2fe7bea60e3685d901ea0d15bce3",
+     "size": 280132,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Xe/Xe.psp8",
+     "valence": 8.0,
+     "zatom": 54.0
+    },
+    "Y": {
+     "filename": "Y.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 42.0,
+      "low": 30.0,
+      "normal": 36.0
+     },
+     "l_max": 2,
+     "md5": "0da793f07a6af946df2daa7ce5d87300",
+     "path": "Y/Y-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "de5b965ab41227de9db4a659c708f8e3981e79db7306e69c0a37064d3a8a2676",
+     "size": 280116,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Y/Y-sp.psp8",
+     "valence": 11.0,
+     "zatom": 39.0
+    },
+    "Zn": {
+     "filename": "Zn.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 48.0,
+      "low": 38.0,
+      "normal": 42.0
+     },
+     "l_max": 2,
+     "md5": "d60574770aa6e8cc1ec7923476accedc",
+     "path": "Zn/Zn-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "fd0444aa58d7341de08ab0a6b15a579bff6db9bcc4db5358904477634248cef2",
+     "size": 280072,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Zn/Zn-sp.psp8",
+     "valence": 20.0,
+     "zatom": 30.0
+    },
+    "Zr": {
+     "filename": "Zr.pbesol_sr.psp8",
+     "hints_ha": {
+      "high": 49.0,
+      "low": 29.0,
+      "normal": 33.0
+     },
+     "l_max": 2,
+     "md5": "0a5c0e4e01ca8e42e3242146dfbdbf05",
+     "path": "Zr/Zr-sp.psp8",
+     "pspxc": -116133,
+     "sha256": "2ad5300fff820e5b74d2564b1866ad9834478d74945a41d5720b70c42125079d",
+     "size": 280117,
+     "url": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/Zr/Zr-sp.psp8",
+     "valence": 12.0,
+     "zatom": 40.0
+    }
+   },
+   "functional": "PBEsol",
+   "label": "PseudoDojo 0.4 PBEsol standard (scalar relativistic)",
+   "missing": [],
+   "relativistic": "scalar",
+   "repo": "PseudoDojo/ONCVPSP-PBEsol-PDv0.4",
+   "standard_table": "https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBEsol-PDv0.4/cd096b63d30772c93c645856b3651d8d7e8049e7/standard.djson",
+   "standard_table_sha256": "6522857d70668a10c0bc9d5f7405193e65f2cb07864079582ec465f522e2ddf3"
+  }
+ },
+ "license": {
+  "name": "CC-BY-4.0",
+  "url": "https://raw.githubusercontent.com/abinit/pseudo_dojo/4048962957711c04281ffe6c2bd2c96f0f7110aa/README.md"
+ },
+ "schema_version": 1
+}

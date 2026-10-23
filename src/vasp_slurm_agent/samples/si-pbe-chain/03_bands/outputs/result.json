@@ -5,21 +5,36 @@
   "converged_electronic": true,
   "converged_ionic": true,
   "valid_structure": true,
-  "final_energy_ev": -6.88632205,
-  "final_max_force_ev_angstrom": 0.03249833108441416,
-  "vasp_version": "6.2.1",
+  "final_energy_ev": -7.91482868,
+  "final_max_force_ev_angstrom": 0.4650115394168934,
+  "vasp_version": "5.4.4.18apr17-6-g9f103f2a35",
   "forces_available": true,
+  "ionic_steps_count": null,
+  "ionic_iteration_limit_reached": false,
+  "ionic_force_limit_ev_angstrom": null,
   "fermi_energy_ev": null,
-  "final_energy_ev_per_atom": -3.443161025,
+  "final_energy_ev_per_atom": -3.95741434,
   "reason": "The calculation finished and its output passed the checks for this task.",
   "artifacts": [
     "final_structure.cif",
     "final_structure.vasp",
     "bands.csv",
-    "bands.png"
+    "bands.png",
+    "bands.pdf",
+    "bands.svg",
+    "plot_metadata.json",
+    "structure.json",
+    "ionic_steps.csv",
+    "electronic_steps.csv",
+    "forces.csv",
+    "stress.csv",
+    "bands_dos.png",
+    "bands_dos.pdf",
+    "bands_dos.svg",
+    "bands_dos_metadata.json"
   ],
   "scientific_accuracy_validated": false,
-  "vasprun_sha256": "b998bf8b539b8c374ddcd6c20e437d696a6ccc48cd2edd65802ab0bf4b4c11ed",
+  "vasprun_sha256": "4f17509a4d87459e6b4ca34577f2c6ac8955beb7b3b691cca1a2d26b59ef56e2",
   "method": {
     "spin": "none",
     "magmom": null,
@@ -34,14 +49,28 @@
   },
   "method_fingerprint": "760b7adabbe5432c72a1eba636a6db03cc9ad3e8922d13412d36ae13e012d22b",
   "method_comparison_fingerprint": "7c77f08f4ba52abf7aa25b2bf6bc3afc578658cc0d18a653f5bfa18504d2d7d6",
+  "band_gap": {
+    "available": true,
+    "status": "gapped",
+    "scope": "sampled_path",
+    "gap_ev": 0.6100000000000003,
+    "direct_gap_ev": 2.5572999999999997,
+    "vbm_ev": 5.6182,
+    "cbm_ev": 6.2282,
+    "partial_occupations": false,
+    "occupation_tolerance": 0.001,
+    "full_bz_validated": false,
+    "reason": "Only the retained k-points were checked; this is not a converged full-zone or optical gap.",
+    "kpoint_count": 302
+  },
   "plot_settings": {
     "energy_window_ev": [
-      -15.0,
-      10.0
+      -8.0,
+      8.0
     ],
     "csv_contains_full_data": true
   },
-  "energy_reference_ev": 6.42173037,
+  "energy_reference_ev": 5.87706294,
   "energy_reference_source": "preceding_scf",
   "magnetization": {
     "available": false,
@@ -58,8 +87,8 @@
     "note": "Site moments are PAW sphere projections; their sum is not the full cell moment."
   },
   "magnetic_ground_state_validated": false,
-  "final_structure_poscar_sha256": "7ff2750c75c9e651f5acfb830cc0a4abf95eff91821e7bf7266f797bb740930a",
+  "final_structure_poscar_sha256": "ddbade811cabf019c9bb6ce10c018e79575b7c64ababa951a02c7913aee1b0a2",
   "input_identity_verified": true,
   "scheduler_state": "COMPLETED",
-  "final_structure_sha256": "85ba26f1cfc00905f68204a0ed696f82e253a345c74a5ca579de1b574e051a63"
+  "final_structure_sha256": "d52f53c001ed7a4a952c071a392ae5571388c3037318d7b64506b09d260bdb61"
 }

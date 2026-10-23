@@ -39,10 +39,19 @@ def prepared(tmp_path, source, task="epw_iso", **changes):
     return folder, meta
 
 
-def header(meta):
+def header(meta, version="5.9"):
     lam, omega = meta["spectrum"]["lambda"], meta["spectrum"]["omega_log_mev"]
     mu = meta["parameters"]["mu_star"]
     tc = omega / (1000 * epw.KB_EV * 1.2) * math.exp(-1.04 * (1 + lam) / (lam - mu * (1 + 0.62 * lam)))
+    if version != "5.9":
+        # EPW 6 (QE 7.5 and 7.6) names the same estimate the McMillan expression and prints four decimals.
+        return f"""Program EPW v.{version} starts on synthetic parser fixture
+Electron-phonon coupling strength = {lam:12.7f}
+Estimated Tc using McMillan expression = {tc:8.4f} K for muc = {mu:8.4f}
+Estimated Tc using Allen-Dynes modified McMillan expression = {1.1 * tc:8.4f} K
+Estimated Tc using SISSO machine learning model = {1.2 * tc:8.4f} K
+Estimated w_log = {omega:8.4f} meV
+"""
     return f"""Program EPW v.5.9 starts on synthetic parser fixture
 Electron-phonon coupling strength = {lam:.7f}
 Estimated w_log in Allen-Dynes Tc = {omega:.6f} meV
@@ -460,3 +469,39 @@ def test_scalar_wannier_rejects_unverified_source(tmp_path, source, mutation, ma
         file.write_text(file.read_text().replace('<calculation>nscf', '<calculation>scf'))
     with pytest.raises(ValueError, match=match):
         epw.prepare_inputs(source / 'Al.cif', tmp_path / 'rejected', 'epw_iso', p, evidence_dir=evidence)
+
+
+def test_spectrum_checkpoint_may_be_in_the_file_frame_of_older_runs(tmp_path):
+    path = tmp_path / "Nb.cif"
+    # A bcc primitive cell whose axes are not along x, y and z, as a CIF may store it.
+    bcc = np.array([[1.65, 1.65, -1.65], [-1.65, 1.65, 1.65], [1.65, -1.65, 1.65]])
+    Structure(Lattice(bcc @ [[0.8, 0.6, 0], [-0.6, 0.8, 0], [0, 0, 1]]), ["Nb"], [[0, 0, 0]]).to(filename=str(path))
+    raw = Structure.from_file(path)
+    planned = qe._standard_frame(raw)[0]
+    assert not qe._same_structure(raw, planned)
+    # Runs prepared before the rotation ran pw.x in the file's frame; current ones in the rotated frame.
+    assert epw._matches_structure_file(raw, planned, path) and epw._matches_structure_file(planned, planned, path)
+    strained = raw.copy()
+    strained.apply_strain(0.01)
+    assert not epw._matches_structure_file(strained, planned, path)
+
+
+@pytest.mark.parametrize("version", ["6.0", "6.1"])
+def test_epw_6_summaries_are_read_with_their_labels_and_precision(tmp_path, source, version):
+    folder, meta = prepared(tmp_path, source)
+    write_gap(folder, meta)
+    original = (folder / "epw.out").read_text()
+    (folder / "epw.out").write_text(original.replace(header(meta), header(meta, version)))
+    result = epw.analyze_outputs(folder, "epw_iso")
+    assert result["success"], result.get("reason")
+    assert result["epw_version"] == version and len(result["temperature_results"]) == 3
+    assert result["allen_dynes_estimate_kelvin"] == pytest.approx(epw.analyze_outputs(folder, "epw_iso")["allen_dynes_estimate_kelvin"])
+    (folder / "epw.out").write_text(original.replace("Program EPW v.5.9", "Program EPW v.6.2"))
+    assert "this run used EPW 6.2" in epw.analyze_outputs(folder, "epw_iso")["reason"]
+    # The linearized solver's table kept its format.
+    folder, meta = prepared(tmp_path / "linear", source, "epw_tc")
+    write_linear(folder, meta)
+    linear = (folder / "epw.out").read_text()
+    (folder / "epw.out").write_text(linear.replace(header(meta), header(meta, version)))
+    result = epw.analyze_outputs(folder, "epw_tc")
+    assert result["success"] and result["tc_bracket_kelvin"] == [10.0, 15.0] and result["epw_version"] == version

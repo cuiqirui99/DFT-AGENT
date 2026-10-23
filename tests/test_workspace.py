@@ -41,6 +41,26 @@ def test_workspace_defaults_migration_and_private_files(store, monkeypatch):
         assert store.db_path.stat().st_mode & 0o777 == 0o600
 
 
+def test_side_files_removed_by_another_process_do_not_fail_a_read(store, monkeypatch):
+    # SQLite deletes -wal/-shm when another process closes the last connection.
+    original = Path.chmod
+
+    def vanishing(path, mode, **kwargs):
+        if str(path).endswith(("-wal", "-shm")):
+            raise FileNotFoundError(2, "No such file or directory", str(path))
+        return original(path, mode, **kwargs)
+
+    other = sqlite3.connect(store.db_path)  # keeps the side files on disk, as a second process does
+    try:
+        other.execute("SELECT count(*) FROM sqlite_master").fetchone()
+        assert Path(str(store.db_path) + "-shm").is_file()
+        monkeypatch.setattr(Path, "chmod", vanishing)
+        with store._transaction(write=False) as db:
+            assert db.execute("PRAGMA user_version").fetchone()[0] == module._MIGRATIONS[-1][0]
+    finally:
+        other.close()
+
+
 def test_failed_migration_rolls_back_schema_and_version(tmp_path, monkeypatch):
     original = module._migration_sql
     monkeypatch.setattr(module, "_migration_sql", lambda name: original(name) + "INVALID SQL;\n")

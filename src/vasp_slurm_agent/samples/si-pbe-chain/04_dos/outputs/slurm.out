@@ -1,12 +1,13 @@
  running on    8 total cores
  distrk:  each k-point on    8 cores,    1 groups
  distr:  one band on    1 cores,    8 groups
- vasp.6.2.1 16May21 (build Sep 08 2021 21:49:32) complex                        
-  
- POSCAR found type information on POSCAR Si
+ using from now: INCAR     
+ vasp.5.4.4.18Apr17-6-g9f103f2a35 (build Jun 16 2026 17:25:11) complex           
+ POSCAR found type information on POSCAR  Si
  POSCAR found :  1 types and       2 ions
  scaLAPACK will be used
- -----------------------------------------------------------------------------
+
+ ----------------------------------------------------------------------------- 
 |                                                                             |
 |           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
 |           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
@@ -15,18 +16,17 @@
 |           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
 |           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
 |                                                                             |
-|     For optimal performance we recommend to set                             |
-|       NCORE = 2 up to number-of-cores-per-socket                            |
-|     NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).      |
-|     This setting can greatly improve the performance of VASP for DFT.       |
-|     The default, NCORE=1 might be grossly inefficient on modern             |
-|     multi-core architectures or massively parallel machines. Do your        |
-|     own testing! More info at https://www.vasp.at/wiki/index.php/NCORE      |
-|     Unfortunately you need to use the default for GW and RPA                |
-|     calculations (for HF NCORE is supported but not extensively tested      |
-|     yet).                                                                   |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default,   NCORE=1            might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
 |                                                                             |
- -----------------------------------------------------------------------------
+ ----------------------------------------------------------------------------- 
 
  LDA part: xc-table for Pade appr. of Perdew
  WARNING: stress and forces are not correct
@@ -36,10 +36,10 @@
  charge-density read from file: dft-agent                               
  entering main loop
        N       E                     dE             d eps       ncg     rms          rms(c)
-DAV:   1     0.731998235147E+01    0.73200E+01   -0.25818E+03    96   0.621E+02
-DAV:   2    -0.802913234732E+01   -0.15349E+02   -0.14374E+02   152   0.713E+01
-DAV:   3    -0.829057103726E+01   -0.26144E+00   -0.26144E+00   136   0.114E+01
-DAV:   4    -0.829121924662E+01   -0.64821E-03   -0.64821E-03   152   0.582E-01
-DAV:   5    -0.829122409644E+01   -0.48498E-05   -0.48503E-05   120   0.292E-02
-DAV:   6    -0.829122410148E+01   -0.50377E-08   -0.52830E-08   152   0.124E-03
-   1 F= -.82912241E+01 E0= -.82912199E+01  d E =-.833540E-05
+DAV:   1     0.464120866084E+01    0.46412E+01   -0.28594E+03  2320   0.621E+02
+DAV:   2    -0.106608882282E+02   -0.15302E+02   -0.15039E+02  3584   0.742E+01
+DAV:   3    -0.108489569823E+02   -0.18807E+00   -0.18807E+00  2960   0.104E+01
+DAV:   4    -0.108497135315E+02   -0.75655E-03   -0.75655E-03  3720   0.727E-01
+DAV:   5    -0.108497140197E+02   -0.48820E-06   -0.48820E-06  3088   0.162E-02
+DAV:   6    -0.108497140227E+02   -0.30841E-08   -0.30840E-08  3728   0.872E-04
+   1 F= -.10849714E+02 E0= -.10849714E+02  d E =0.000000E+00

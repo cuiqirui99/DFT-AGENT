@@ -41,7 +41,7 @@ def questions(state):
     elif state["kind"] == "software":
         fields.extend([
             _question("connection_id", "HPC connection"),
-            _question("engine", "Software", options=["vasp", "qe", "wannier90", "python"]),
+            _question("engine", "Software", options=["vasp", "qe", "abinit", "cp2k", "elk", "wannier90", "python"]),
             _question("config.partition", "Partition or queue"),
         ])
         if settings.get("engine") == "vasp":
@@ -50,6 +50,9 @@ def questions(state):
         elif settings.get("engine") == "qe":
             fields.extend([_question("config.qe_command", "QE command"),
                            _question("config.qe_pseudo_root", "UPF folder")])
+        elif settings.get("engine") in {"abinit", "cp2k", "elk"}:
+            fields.extend([_question("config.engine_command", "Launch command"),
+                           _question("config.engine_library_root", "Library folder")])
         elif settings.get("engine") in {"wannier90", "python"}:
             fields.append(_question("config.command", "Program command"))
         fields.extend([_question("config.tasks", "Tasks", integer=True),

@@ -1,0 +1,641 @@
+{
+ "archive": {
+  "filename": "elk-10.2.4.tgz",
+  "sha256": "015e1d2a04a6c8335af2e5f5adaae143c6c0287f34772e069834a691bb15ac9d",
+  "size": 2905985,
+  "species_dir": "elk-10.2.4/species",
+  "url": "https://downloads.sourceforge.net/project/elk/elk-10.2.4.tgz"
+ },
+ "license": {
+  "name": "GPL-3.0-or-later",
+  "url": "https://elk.sourceforge.io/"
+ },
+ "schema_version": 1,
+ "species": {
+  "Ac": {
+   "filename": "Ac.in",
+   "sha256": "abc423dd9a9d3c2c6736a740275a64e8f4356afb21d52daa220f7edbd3a29571",
+   "size": 2218,
+   "z": 89.0
+  },
+  "Ag": {
+   "filename": "Ag.in",
+   "sha256": "c31f05e50b13e19102d5bed45135ebf1d902e97790ad3d5fc384110d770eb472",
+   "size": 1910,
+   "z": 47.0
+  },
+  "Al": {
+   "filename": "Al.in",
+   "sha256": "febe12b35963841ff0cc8637f28676b334578403bd16b22f1858b204f7f76c01",
+   "size": 1214,
+   "z": 13.0
+  },
+  "Am": {
+   "filename": "Am.in",
+   "sha256": "0be3348ccc45ae0e8aaf59c368b2833f6b47cf4fe530c69834ae772316527cb9",
+   "size": 2394,
+   "z": 95.0
+  },
+  "Ar": {
+   "filename": "Ar.in",
+   "sha256": "74a23570e6e489c425e603593ab6fc5bdbbe305ac41cc12c08c0a49868e80396",
+   "size": 1242,
+   "z": 18.0
+  },
+  "As": {
+   "filename": "As.in",
+   "sha256": "8ac9fd72ab69c7b1d09cf816030f21ccd91dac37f66c1488ee780a1df2920f50",
+   "size": 1678,
+   "z": 33.0
+  },
+  "At": {
+   "filename": "At.in",
+   "sha256": "5eca39e99a3765566155ed8e7bfc6a658f7cfb56db99e2c083a97eb5083f3cdb",
+   "size": 2014,
+   "z": 85.0
+  },
+  "Au": {
+   "filename": "Au.in",
+   "sha256": "4dec45ecbc60477f3f55af364f526ff04e2fc1a85fb240b6c3341f376a1b3679",
+   "size": 2254,
+   "z": 79.0
+  },
+  "B": {
+   "filename": "B.in",
+   "sha256": "6eecd858614179aba6e77ea22d1df1f3af7b1a4a68bce64b010d7bc30030a1fe",
+   "size": 982,
+   "z": 5.0
+  },
+  "Ba": {
+   "filename": "Ba.in",
+   "sha256": "b7db3964dd9050b1f5b41baab130edc73214f2b19aae675653249fe81feef159",
+   "size": 1994,
+   "z": 56.0
+  },
+  "Be": {
+   "filename": "Be.in",
+   "sha256": "776a88561a70f670c19d4a5979038f29a35c9b43a15ac323e97bd8ae283c9824",
+   "size": 954,
+   "z": 4.0
+  },
+  "Bi": {
+   "filename": "Bi.in",
+   "sha256": "147f531fbb1f0eacdf6b36948d4f6dd6244461e9c83014872359f152fcf415bf",
+   "size": 2014,
+   "z": 83.0
+  },
+  "Bk": {
+   "filename": "Bk.in",
+   "sha256": "53d9ea3d4dcaad15e2453c82dd4696f02627f0ff70a16e8f489354e2ef9e7e4b",
+   "size": 2394,
+   "z": 97.0
+  },
+  "Br": {
+   "filename": "Br.in",
+   "sha256": "d176b88b65a4545e3e51916021f5acc6b95c0b3b6a0d685f4bb8fd8c9eee96f8",
+   "size": 1678,
+   "z": 35.0
+  },
+  "C": {
+   "filename": "C.in",
+   "sha256": "365b845a518db5c1563ace1590d48875da6167d84f7c8f500fa8e170a1ee465b",
+   "size": 1158,
+   "z": 6.0
+  },
+  "Ca": {
+   "filename": "Ca.in",
+   "sha256": "ce7da9967adc4726151941138363ba67a46765bc73bba53fe5468f9ade003e9e",
+   "size": 1418,
+   "z": 20.0
+  },
+  "Cd": {
+   "filename": "Cd.in",
+   "sha256": "2d971af595d15a7895cedfcd028ec1550780b21bf4696e2b5217e2a151a8eeb4",
+   "size": 1762,
+   "z": 48.0
+  },
+  "Ce": {
+   "filename": "Ce.in",
+   "sha256": "9be836138be4c5f3e3c2f62479835e0cd29ae7acf258b3e8e8fb6de7212c4782",
+   "size": 2022,
+   "z": 58.0
+  },
+  "Cf": {
+   "filename": "Cf.in",
+   "sha256": "b619760cf9e3b1ef02ae335f185702ec0b968033089bd2bc025cb8a2b4da46f0",
+   "size": 2394,
+   "z": 98.0
+  },
+  "Cl": {
+   "filename": "Cl.in",
+   "sha256": "137506965d689c68bc144e3d0b6b899091dc8642e1a88471993cd3e270394ef3",
+   "size": 1242,
+   "z": 17.0
+  },
+  "Cm": {
+   "filename": "Cm.in",
+   "sha256": "3a3097dc72c4e9bfc8f38eb015a35349440e09a4c3a1aa89190e4deb98351430",
+   "size": 2422,
+   "z": 96.0
+  },
+  "Co": {
+   "filename": "Co.in",
+   "sha256": "81c57cfec0d1c67314c6117f3edb631ee445af4d3e8f399613b70411566763c6",
+   "size": 1622,
+   "z": 27.0
+  },
+  "Cr": {
+   "filename": "Cr.in",
+   "sha256": "b07a87fa6a6b5cb48f4dc64da118d52e0c0258db0326bc8afee90fd2f55c08d8",
+   "size": 1770,
+   "z": 24.0
+  },
+  "Cs": {
+   "filename": "Cs.in",
+   "sha256": "60892e0d9b7178039806b2f6098eb295cb6626e2676873cc0b0b87fe4b2dd7d3",
+   "size": 1994,
+   "z": 55.0
+  },
+  "Cu": {
+   "filename": "Cu.in",
+   "sha256": "b3ee526b2ee1d72baf78bf648ab5ffb70106dd06c82ed9e8e07e28f94207a325",
+   "size": 1622,
+   "z": 29.0
+  },
+  "Dy": {
+   "filename": "Dy.in",
+   "sha256": "5ee0f1d202a6af1556c002852a3baaebdc01afffa297dd901dc13ea9f69bd61d",
+   "size": 2198,
+   "z": 66.0
+  },
+  "Er": {
+   "filename": "Er.in",
+   "sha256": "e5db28d61bd19fc65fdb6d5deb032bf7f35ae0b3e4340d22e45e0d9079410a3a",
+   "size": 2198,
+   "z": 68.0
+  },
+  "Es": {
+   "filename": "Es.in",
+   "sha256": "c0465b5a9d1086a48607873adb03533f34562a245e4a5ff16469e948a8a3a87e",
+   "size": 2394,
+   "z": 99.0
+  },
+  "Eu": {
+   "filename": "Eu.in",
+   "sha256": "116c74c80d70698fbe46656280a3a3fa9e6596bfa4e8063203340a88c28d3075",
+   "size": 2198,
+   "z": 63.0
+  },
+  "F": {
+   "filename": "F.in",
+   "sha256": "e8c02ae80e31306187a579504a34aa41d8b8e1d8e246a4ebd5eaf51dd7c36609",
+   "size": 1306,
+   "z": 9.0
+  },
+  "Fe": {
+   "filename": "Fe.in",
+   "sha256": "bc763bbf4424e55739de52b2f6c7f06e2c4d0ab619a12baa306dd348978453b3",
+   "size": 1770,
+   "z": 26.0
+  },
+  "Fm": {
+   "filename": "Fm.in",
+   "sha256": "ee324d8b0ade21a5ada7b864f7794acca1216ca4011e8bf5f12a85a821a95662",
+   "size": 2394,
+   "z": 100.0
+  },
+  "Fr": {
+   "filename": "Fr.in",
+   "sha256": "e8843b03b5dfaf45d7ae0cba97b6d275519cad5937bceaeeff13e61ea74e871f",
+   "size": 2190,
+   "z": 87.0
+  },
+  "Ga": {
+   "filename": "Ga.in",
+   "sha256": "2c2cad1b3a779039408380b0358cb342626de7d0bac889352b5c073629895c49",
+   "size": 1502,
+   "z": 31.0
+  },
+  "Gd": {
+   "filename": "Gd.in",
+   "sha256": "62b2a19a6a08e1265737ff793cdd3d1544c6863b98c2893d1764620c5faef7cf",
+   "size": 2226,
+   "z": 64.0
+  },
+  "Ge": {
+   "filename": "Ge.in",
+   "sha256": "508ca1168a290a31ad0766cd93c0f2fc620204ea49d05b9c79bbd15a34be128a",
+   "size": 1678,
+   "z": 32.0
+  },
+  "H": {
+   "filename": "H.in",
+   "sha256": "78eba34e0ade2a3f33e87081de5b8db829489c1b5f952e207ee32de3ee522f87",
+   "size": 926,
+   "z": 1.0
+  },
+  "He": {
+   "filename": "He.in",
+   "sha256": "7d4eb88b5a95b93fc76cb920ea334401ab22e25a3aba8a83569edb47d3e0d31b",
+   "size": 1074,
+   "z": 2.0
+  },
+  "Hf": {
+   "filename": "Hf.in",
+   "sha256": "8009d2271eb61ece322426fd2d0a3b50851cc9cfedf4bcb0ac9bf03b872b56dc",
+   "size": 2226,
+   "z": 72.0
+  },
+  "Hg": {
+   "filename": "Hg.in",
+   "sha256": "84fe104708b714d587797110a81d99ba38d6710cdff70f6002ab675f220e3a74",
+   "size": 1958,
+   "z": 80.0
+  },
+  "Ho": {
+   "filename": "Ho.in",
+   "sha256": "c37f80bda27514c614dc5fc30c80e1268904875788e868f92a4712f482d22723",
+   "size": 2198,
+   "z": 67.0
+  },
+  "I": {
+   "filename": "I.in",
+   "sha256": "14a06710d4b8955a271b50bb4c4edc2c649a85e30477165a1e9f7d006a930b55",
+   "size": 1818,
+   "z": 53.0
+  },
+  "In": {
+   "filename": "In.in",
+   "sha256": "595a10703b133c70148e3f1e48dfb3ea8f973ebdf524f0d74441312e9000c66f",
+   "size": 1790,
+   "z": 49.0
+  },
+  "Ir": {
+   "filename": "Ir.in",
+   "sha256": "edee84100aad06e5ea4d52b90e30d472d10b654216171aadd2777820c47d202b",
+   "size": 2254,
+   "z": 77.0
+  },
+  "K": {
+   "filename": "K.in",
+   "sha256": "dcd4d781a1e5512a03f9738f3cfabc3b9c45edddec987acaa953aa1af10c83d6",
+   "size": 1418,
+   "z": 19.0
+  },
+  "Kr": {
+   "filename": "Kr.in",
+   "sha256": "62a40a45723582951ed65039a79e85ed1109658f1e2369750b080427ebc88cd5",
+   "size": 1678,
+   "z": 36.0
+  },
+  "La": {
+   "filename": "La.in",
+   "sha256": "088b3f5918a4672cc974b1abe8ef761d954cb7cd862d2110aba16976830edf80",
+   "size": 1874,
+   "z": 57.0
+  },
+  "Li": {
+   "filename": "Li.in",
+   "sha256": "c208fa7b3a5609ec5a92074a1993d142a4c830d480c2524a24e8e94e8a12a967",
+   "size": 1102,
+   "z": 3.0
+  },
+  "Lr": {
+   "filename": "Lr.in",
+   "sha256": "889b18c0c6ccb6ee812ab2946d9d4826e33ae18a0f6cd9004dfc31d188a3713f",
+   "size": 2422,
+   "z": 103.0
+  },
+  "Lu": {
+   "filename": "Lu.in",
+   "sha256": "1f3bb0e65cde7c397fb08fbea32895de760ec4361613a3f95cb8e3a29a954df8",
+   "size": 2226,
+   "z": 71.0
+  },
+  "Md": {
+   "filename": "Md.in",
+   "sha256": "16440c31efe0f8155a3fb6dcb2050f11e8b8736b5dbce074b508af27782012e5",
+   "size": 2394,
+   "z": 101.0
+  },
+  "Mg": {
+   "filename": "Mg.in",
+   "sha256": "f235380d4886d44e12d55f5dbe340566f7680590bf603e52d1f8ed71ed1a213e",
+   "size": 1334,
+   "z": 12.0
+  },
+  "Mn": {
+   "filename": "Mn.in",
+   "sha256": "5ef6ec5cbdac95a37933113aeb341520eaff5fbdcff21b744c461bcd335491d8",
+   "size": 1770,
+   "z": 25.0
+  },
+  "Mo": {
+   "filename": "Mo.in",
+   "sha256": "eae3661e99700c184c05b6de4213038ca2e0acb88e1f78ca82069cadd347818c",
+   "size": 1910,
+   "z": 42.0
+  },
+  "N": {
+   "filename": "N.in",
+   "sha256": "1266dfc7109cf4bcd185fc7ce3981e55e8ad7a85575118cd796abaaee4a8a068",
+   "size": 1158,
+   "z": 7.0
+  },
+  "Na": {
+   "filename": "Na.in",
+   "sha256": "4e3036144d8926ebaccb6ff07c28e46da33c8ec061156547f8dc154d1a4d247e",
+   "size": 1334,
+   "z": 11.0
+  },
+  "Nb": {
+   "filename": "Nb.in",
+   "sha256": "528796df052d326f97991f96a653db6559cf05d7babdecfb9d665474dfb98a67",
+   "size": 1910,
+   "z": 41.0
+  },
+  "Nd": {
+   "filename": "Nd.in",
+   "sha256": "348a68ab7abe8188a72e8d1005401914dadc5d3357a22b5d8999fb377e633f9d",
+   "size": 2198,
+   "z": 60.0
+  },
+  "Ne": {
+   "filename": "Ne.in",
+   "sha256": "2286cc0179db7240e70f0075fe1d728873776d19109d596f8db58f60bf4e7502",
+   "size": 1306,
+   "z": 10.0
+  },
+  "Ni": {
+   "filename": "Ni.in",
+   "sha256": "d74c415f4c4fd155c9436b4f48696f134e17040f5cd5510d7074595bbcfc75b0",
+   "size": 1622,
+   "z": 28.0
+  },
+  "No": {
+   "filename": "No.in",
+   "sha256": "81dfbe4feb76031ded1fe3c22c432177a1521705d954a23fd7e42bf813cdf313",
+   "size": 2394,
+   "z": 102.0
+  },
+  "Np": {
+   "filename": "Np.in",
+   "sha256": "49ec57ecb274cbf9dc1cedcec08f6067d0a41c52e50b183b269e9024f1f68ecd",
+   "size": 2422,
+   "z": 93.0
+  },
+  "O": {
+   "filename": "O.in",
+   "sha256": "c1bc1d90f74761b61ebd58d24b039f3032925b94866619be15232d11972cff5f",
+   "size": 1158,
+   "z": 8.0
+  },
+  "Os": {
+   "filename": "Os.in",
+   "sha256": "2648e1b6b7429ee81eb8885445c7b21b220536c8f7865395afed205e9322d327",
+   "size": 2402,
+   "z": 76.0
+  },
+  "P": {
+   "filename": "P.in",
+   "sha256": "a77d8f670d08772adb823cb6537b7be446013349df66f173868831c0cdaf989f",
+   "size": 1242,
+   "z": 15.0
+  },
+  "Pa": {
+   "filename": "Pa.in",
+   "sha256": "1d32e33b2feeb7daee26ba034d391046a13a530b4c2801df47230c31a234df5c",
+   "size": 2246,
+   "z": 91.0
+  },
+  "Pb": {
+   "filename": "Pb.in",
+   "sha256": "1cf0b06656b9b09ff8699e4bb3a0ab595299fbcbf44a4406709294d48564f430",
+   "size": 2014,
+   "z": 82.0
+  },
+  "Pd": {
+   "filename": "Pd.in",
+   "sha256": "4ee13713fce8dd9a5deac2e6947d5dfb3854f7c893b701953e35bd175c0830bc",
+   "size": 1882,
+   "z": 46.0
+  },
+  "Pm": {
+   "filename": "Pm.in",
+   "sha256": "b0950885b6c293d400108214d7bd5ba93a74a26621bb831066be70e28d12933a",
+   "size": 2198,
+   "z": 61.0
+  },
+  "Po": {
+   "filename": "Po.in",
+   "sha256": "b32a7dc8cf8cb481696998732addaac2e4e18073a8e88fdc8b66bcab25bb4b8c",
+   "size": 2014,
+   "z": 84.0
+  },
+  "Pr": {
+   "filename": "Pr.in",
+   "sha256": "8d5bb1b8ea5f9e24e17ea87a3ec226097d73c697ee1afad5415715bf123efb81",
+   "size": 2022,
+   "z": 59.0
+  },
+  "Pt": {
+   "filename": "Pt.in",
+   "sha256": "5e8a746639b0143af5256be55285d22bf30a60e39385cd6c40d0bc8745a6ea38",
+   "size": 2254,
+   "z": 78.0
+  },
+  "Pu": {
+   "filename": "Pu.in",
+   "sha256": "3a4b74e9247ed53756cc59ed406cf845467b6eefe157ea95a92f41109d25de50",
+   "size": 2394,
+   "z": 94.0
+  },
+  "Ra": {
+   "filename": "Ra.in",
+   "sha256": "d683fd882756a33f971bcec895b30293a88d4bbff420b77394f72a8104891f73",
+   "size": 2190,
+   "z": 88.0
+  },
+  "Rb": {
+   "filename": "Rb.in",
+   "sha256": "2f484528337403296b7b7ab236231a081cd1efd1984300793c3b31396a5003c7",
+   "size": 1558,
+   "z": 37.0
+  },
+  "Re": {
+   "filename": "Re.in",
+   "sha256": "ee859797f23cc29d4ae99edb243579c7042de90835e4ee067986ba3747b29db2",
+   "size": 2402,
+   "z": 75.0
+  },
+  "Rf": {
+   "filename": "Rf.in",
+   "sha256": "dad18e0c373e79da6937155ca34c42f488617667d4c289d4f9a4a204eb2581a2",
+   "size": 2422,
+   "z": 104.0
+  },
+  "Rh": {
+   "filename": "Rh.in",
+   "sha256": "d019b43bd8118b5da465a5e2e436159e2a522f0e24f9db15e8dfdccff68259c9",
+   "size": 1910,
+   "z": 45.0
+  },
+  "Rn": {
+   "filename": "Rn.in",
+   "sha256": "3a85e53afad504d7a585db4e984fe1fb7f5eaccf67985f284d4b53953109000a",
+   "size": 2014,
+   "z": 86.0
+  },
+  "Ru": {
+   "filename": "Ru.in",
+   "sha256": "318f98ced095fac90c723e7e9ce9da383bcda73615c60897ad2a037745895234",
+   "size": 1910,
+   "z": 44.0
+  },
+  "S": {
+   "filename": "S.in",
+   "sha256": "e85647305912156018696431bf71046699b1f4b8eaa83561fa731728a8df0439",
+   "size": 1242,
+   "z": 16.0
+  },
+  "Sb": {
+   "filename": "Sb.in",
+   "sha256": "602162d78a0cf55ceedf739d164a1e248483932055f88dd694549208b131e94d",
+   "size": 1818,
+   "z": 51.0
+  },
+  "Sc": {
+   "filename": "Sc.in",
+   "sha256": "6162410179c831f5e3e38532eaf1e1749216583527888aa27b1652bb407a39ab",
+   "size": 1594,
+   "z": 21.0
+  },
+  "Se": {
+   "filename": "Se.in",
+   "sha256": "ce7ce3baf07f9ea81d44b707baa90e8002ffeaee8956a098fd5d45a1c63cf9eb",
+   "size": 1678,
+   "z": 34.0
+  },
+  "Si": {
+   "filename": "Si.in",
+   "sha256": "e1a2718cdd95ce354e1976a1f307317ef34a8505aa437e93ad8e1641bb21c284",
+   "size": 1094,
+   "z": 14.0
+  },
+  "Sm": {
+   "filename": "Sm.in",
+   "sha256": "4ba58a704f2e2cf5d1ea2e213edd9bad599ecbfde1dbc6a6da4e5df5b3885fe5",
+   "size": 2198,
+   "z": 62.0
+  },
+  "Sn": {
+   "filename": "Sn.in",
+   "sha256": "d0d579e065e5475cea63b2675795af7b76b8f98f4fdd61a4d13e71aa7f3c652b",
+   "size": 1818,
+   "z": 50.0
+  },
+  "Sr": {
+   "filename": "Sr.in",
+   "sha256": "ef376050bff78e675bad8fd7854a528e539a501942efa71c02371c2447f6756c",
+   "size": 1558,
+   "z": 38.0
+  },
+  "Ta": {
+   "filename": "Ta.in",
+   "sha256": "60b1e4154fb036255c923be4176cd2311a81acef7b4fb6bf482f6458ddcf5805",
+   "size": 2226,
+   "z": 73.0
+  },
+  "Tb": {
+   "filename": "Tb.in",
+   "sha256": "50b92b9da961bcb1ca301720b3f7c8e6463e9b9c695d1012fae4e1c397078c15",
+   "size": 2198,
+   "z": 65.0
+  },
+  "Tc": {
+   "filename": "Tc.in",
+   "sha256": "bb41827a299824194a25a7f812c25f9e1f4cf9978221c23500297868d5de9d55",
+   "size": 1910,
+   "z": 43.0
+  },
+  "Te": {
+   "filename": "Te.in",
+   "sha256": "06f7756e9e48c8b49a39376c7a618e2a4a65c075366a93e0e1618a99fdb61457",
+   "size": 1818,
+   "z": 52.0
+  },
+  "Th": {
+   "filename": "Th.in",
+   "sha256": "bddae666db393580b91ede9312d0046d875c5aea2ad170787f78e85f249183e3",
+   "size": 2218,
+   "z": 90.0
+  },
+  "Ti": {
+   "filename": "Ti.in",
+   "sha256": "089a20649d0afce4c040205fce79c28952bb9c2305be7323ac7cc6ddbfe70891",
+   "size": 1594,
+   "z": 22.0
+  },
+  "Tl": {
+   "filename": "Tl.in",
+   "sha256": "45e7d4bf5ecbfda6021b902bd90dc487d308f4e22491d8ac56ddb348a329b895",
+   "size": 1986,
+   "z": 81.0
+  },
+  "Tm": {
+   "filename": "Tm.in",
+   "sha256": "31c192a96f7532da2739c05a1ac7756012fe54b04c7fd8cede9dccb943c7ab9a",
+   "size": 2198,
+   "z": 69.0
+  },
+  "U": {
+   "filename": "U.in",
+   "sha256": "3542d94dbefecf908f63b968236acdbfbf37da59ddf1bfae841ace0385e15336",
+   "size": 2246,
+   "z": 92.0
+  },
+  "V": {
+   "filename": "V.in",
+   "sha256": "9aa252e1714de7968e86b69773bd3ef6de87376dbd3e85364794678e9cfef863",
+   "size": 1594,
+   "z": 23.0
+  },
+  "W": {
+   "filename": "W.in",
+   "sha256": "f1fc143e08cf38f235ec0fde6317bc34ebfff090254a986a0c3e25c1112dc772",
+   "size": 2402,
+   "z": 74.0
+  },
+  "Xe": {
+   "filename": "Xe.in",
+   "sha256": "9652680d577eb04baa003c6132c6e04630579ceece8ba5d7f82e5e5637f9b897",
+   "size": 1818,
+   "z": 54.0
+  },
+  "Y": {
+   "filename": "Y.in",
+   "sha256": "7c5b1bfad71d434d10eee7f813c07a0e526546461d66a4785ca69b1492bee587",
+   "size": 1734,
+   "z": 39.0
+  },
+  "Yb": {
+   "filename": "Yb.in",
+   "sha256": "4b2ad8df5749c13b3b4671cc1ccc27f3cc65d1b8efb6fea455001822a21180ee",
+   "size": 2198,
+   "z": 70.0
+  },
+  "Zn": {
+   "filename": "Zn.in",
+   "sha256": "003bfc2f9de01930b9a49bac9709eae21016e4cdf669872c9fc2a43cdb0813b0",
+   "size": 1622,
+   "z": 30.0
+  },
+  "Zr": {
+   "filename": "Zr.in",
+   "sha256": "3ece51cb93ea3c952f1c3ebf228f2261a92faf76851360fc0290a8d097d1b087",
+   "size": 1734,
+   "z": 40.0
+  }
+ },
+ "version": "10.2.4"
+}

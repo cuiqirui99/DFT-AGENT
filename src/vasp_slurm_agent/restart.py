@@ -27,8 +27,17 @@ def sha256(path):
     return digest.hexdigest()
 
 
+PARALLEL_TAGS = frozenset({"KPAR", "NCORE", "NPAR", "NSIM"})
+
+
+def _text(path, content):
+    # This module runs on the cluster's own python3, which may be 3.6; Path.write_text has newline only from 3.10.
+    with open(str(path), "w", encoding="utf-8", newline="\n") as stream:
+        stream.write(content)
+
+
 def _write(path, data):
-    Path(path).write_text(json.dumps(data, sort_keys=True, indent=2, allow_nan=False) + "\n", encoding="utf-8", newline="\n")
+    _text(path, json.dumps(data, sort_keys=True, indent=2, allow_nan=False) + "\n")
 
 
 def prepare_warm_inputs(source, destination, task, parameters, potcar_symbols=None):
@@ -42,7 +51,7 @@ def prepare_warm_inputs(source, destination, task, parameters, potcar_symbols=No
         raise ValueError("A PBE wavefunction seed is only needed for a hybrid target.")
     target = Incar.from_file(destination / "INCAR")
     target.update(ISTART=1, ICHARG=0, LWAVE=False)
-    (destination / "INCAR").write_text(str(target), encoding="utf-8", newline="\n")
+    _text(destination / "INCAR", str(target))
     metadata["method_incar_expected"].update(ISTART=1, ICHARG=0, LWAVE=False)
     metadata["input_sha256"]["INCAR"] = sha256(destination / "INCAR")
     recipe = {**metadata["parameters"], "functional": "PBE"}
@@ -52,10 +61,13 @@ def prepare_warm_inputs(source, destination, task, parameters, potcar_symbols=No
         seed = Incar.from_file(seed_dir / "INCAR")
         # Keep the target's symmetry and parallel basis. The seed is static even
         # when the target relaxes; it never borrows orbitals from a changed cell.
-        seed.update(ISYM=target["ISYM"], LWAVE=True, LCHARG=False, ISTART=0, ICHARG=2)
+        # VASP 5.4.4 stops a non-hybrid run with ISYM = 3 ("KPOINTS_FULL not properly
+        # initialised"); ISYM = 2 reduces the k-points in the same way, which the
+        # hybrid check below confirms point by point.
+        seed.update(ISYM=2 if target["ISYM"] == 3 else target["ISYM"], LWAVE=True, LCHARG=False, ISTART=0, ICHARG=2)
         if task == "bands":
             seed["NELMIN"] = target.get("NELMIN", 10)
-        (destination / "seed.INCAR").write_text(str(seed), encoding="utf-8", newline="\n")
+        _text(destination / "seed.INCAR", str(seed))
         seed_metadata["method_incar_expected"].update(ISYM=seed["ISYM"], LWAVE=True, ISTART=0, ICHARG=2)
         seed_metadata["input_sha256"] = {"INCAR": sha256(destination / "seed.INCAR"),
                                          "POSCAR": metadata["input_sha256"]["POSCAR"],
@@ -126,7 +138,10 @@ def xml_summary(path):
 
 def _check_tags(actual, expected):
     for key, value in expected.items():
-        if key == "SYSTEM":
+        # VASP 5.4.4 does not echo KPAR in vasprun.xml; parallel layout tags do not change results,
+        # and the identical NBANDS check below covers what they would. VASP 5 also has no adaptively
+        # compressed exchange and ignores LFOCKACE, which changes the algorithm, not the result.
+        if key in PARALLEL_TAGS or key == "SYSTEM" or (key == "LFOCKACE" and key not in actual):
             continue
         found = actual.get(key, False if type(value) is bool else None)
         if key == "LDAUTYPE" and isinstance(found, list) and len(found) == 1:
@@ -274,7 +289,10 @@ def _check_target(seed, target, spec, stdout):
     if not re.search(r"WAVECAR\s+(?:successfully\s+read|(?:file\s+)?(?:was\s+)?read\s+successfully)", stdout, re.I) or re.search(r"WAVECAR\s+not\s+read", stdout, re.I):
         raise ValueError("VASP did not confirm a successful WAVECAR read.")
     for key in ("NBANDS", "NELECT", "ISPIN", "LNONCOLLINEAR", "LSORBIT", "ENCUT", "ISYM"):
-        if not _same(_effective(seed, key), _effective(target, key)):
+        values = _effective(seed, key), _effective(target, key)
+        if key == "ISYM" and [int(value) for value in values] == [2, 3]:
+            continue
+        if not _same(*values):
             raise ValueError("Seed and hybrid differ in actual " + key + ".")
     for key in ("kpoints", "weights", "lattice", "positions"):
         if not _same(seed[key], target[key]):

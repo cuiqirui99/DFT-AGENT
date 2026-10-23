@@ -115,11 +115,23 @@ def build_project_context(workspace, project_id, *, session_id=None,
     context["omitted"]["workflows"] = omitted
     for selected in workflows:
         item = _owned(workspace.get_workflow(project_id, selected["id"]), project_id)
+        with workspace._transaction(write=False) as db:
+            attempts = {row["step_id"]: dict(row) for row in db.execute(
+                "SELECT step_id,attempt,state,run_id FROM step_attempts WHERE project_id=? AND workflow_id=? ORDER BY attempt",
+                (project_id, item["id"]))}
+        steps = []
+        for step in item.get("steps", []):
+            entry = {key: _value(step[key]) for key in ("id", "name", "engine", "status", "depends_on")}
+            attempt = attempts.get(step["id"])
+            if attempt:
+                state = (workspace.get_run(project_id, attempt["run_id"])["state"] or {}) if attempt["run_id"] else {}
+                tasks = [stage["name"] for stage in state.get("stages", []) if stage.get("name")]
+                entry["current_attempt"] = {"number": attempt["attempt"], "tasks": _value(tasks),
+                                            "status": attempt["state"], "run_id": attempt["run_id"]}
+            steps.append(entry)
         context["workflows"].append({"id": item["id"], "title": _text(item["title"]),
                                      "goal": _text(item["goal"]), "status": item["status"],
-                                     "steps": [{key: _value(step[key]) for key in
-                                                ("id", "name", "engine", "status", "depends_on")}
-                                               for step in item.get("steps", [])]})
+                                     "steps": steps})
     artifacts, omitted = _select(workspace.list_artifacts(project_id), artifact_ids,
                                 project_id, bounds["artifacts"], "artifact")
     context["omitted"]["artifacts"] = omitted

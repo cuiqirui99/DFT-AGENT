@@ -27,7 +27,32 @@ Or choose the divisions directly:
 ```
 
 Band paths use `line_density: 60` (about 0.017 Å⁻¹ between points). The total
-depends on the path length. Increase this value for a finer path.
+depends on the path length. Increase this value for a finer path. Every segment
+gets at least 10 points, so short segments and large cells still give smooth
+bands.
+
+The path follows the lattice found with a 0.02 Å symmetry tolerance, so a relaxed
+cell keeps its labels (silicon: Γ–X–U|K–Γ–L–W–X) despite residual distortions of a
+few mÅ. Distortions of about 0.04 Å or more, such as a 1 % tetragonal strain, keep
+their lower-symmetry path. This applies to VASP, QE, ABINIT, CP2K and Elk.
+
+Across a vacuum gap only the in-plane segments are kept, so a monolayer gets
+Γ–M–K–Γ. Atoms with different starting moments count as different atoms, so an
+antiferromagnet follows its magnetic cell. Spin–orbit coupling alone keeps time
+reversal, so its path is not repeated with primed points (X′, K′); only a magnetic
+moment acting on spinor states, with spin–orbit coupling or noncollinear spin,
+adds the reversed half.
+
+## Band and DOS plots
+
+Band plots show −8 to 8 eV around their reference, like the VASP plots. The upper
+end stops 0.1 eV below the highest computed band, so no band is missing inside the
+window and the highest one, which follows whichever uncomputed band crosses it, is not drawn. Spin-up bands are solid and spin-down bands dashed; Elk's band file mixes
+both spins, so its bands share one style. Metals are drawn against the Fermi level.
+For QE, ABINIT, CP2K and Elk, an insulator's bands start at its valence band
+maximum, because its Fermi level can sit anywhere in the gap. A jump in the path
+reads U|K, and seekpath's numbered points read H₂. DOS plots use the same window,
+with spin down below zero. The CSV files keep every band and energy.
 
 ## Smearing
 

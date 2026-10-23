@@ -83,6 +83,14 @@ class ProjectExecution:
         elif item['source_context'].get('kind') == 'script':
             item['proposal'] = {'status': 'ready', **item['source_context']}
             item['reply'] = 'Review the input files and expected outputs before preparing this step.'
+        item['tasks'] = list(((item['proposal'] or {}).get('plan') or {}).get('tasks') or [])
+        if item['run_id']:
+            item['tasks'] = []
+            try:
+                state = self.workspace.get_run(item['project_id'], item['run_id'])['state'] or {}
+                item['tasks'] = [stage['name'] for stage in state.get('stages', []) if stage.get('name')]
+            except (ValueError, OSError):
+                pass
         return item
 
     def latest(self, project_id, workflow_id, step_id):
@@ -285,11 +293,11 @@ class ProjectExecution:
             path = self.workspace.resolve_path(project_id, source['path'], must_exist=True)
             if _digest(path) != source['sha256']:
                 raise ValueError('The input structure changed. Create a new plan before preparing.')
-        elif source.get('kind') == 'retry':
+        elif source.get('kind') in {'retry', 'continuation'}:
             from .explanation import load_run_context
             record = self.workspace.get_run(project_id, source['run_id'])
             if load_run_context(record['run_dir'])['context_sha256'] != source['context_sha256']:
-                raise ValueError('The failed run changed. Review the repair again.')
+                raise ValueError('The source run changed. Review the follow-up again.')
         elif source:
             from .project_artifacts import verify_transfer
             verify_transfer(self.workspace, project_id, source['receipt'] if source.get('kind') == 'transfer' else source)
@@ -328,7 +336,7 @@ class ProjectExecution:
             _, step = self._step(project_id, workflow_id, step_id)
             if step['engine'] in {'python', 'wannier90'}:
                 return self._draft_script(project_id, workflow_id, step, settings, message)
-            if step['engine'] not in {'vasp', 'qe'}:
+            if step['engine'] not in {'vasp', 'qe', 'abinit', 'cp2k', 'elk'}:
                 raise ValueError('Choose a supported program for this step.')
             text = message or step['spec'].get('goal', '')
             reject_ordinary_text(text)
@@ -348,8 +356,8 @@ class ProjectExecution:
                         if attempt.get('conversation_error'):
                             raise ValueError('The saved step conversation is unavailable.')
                     except (ValueError, OSError):
-                        if attempt['source_context'].get('kind') == 'retry':
-                            raise ValueError('The failed run changed. Request a fresh repair plan.') from None
+                        if attempt['source_context'].get('kind') in {'retry', 'continuation'}:
+                            raise ValueError('The source run changed. Request a fresh follow-up plan.') from None
                         # A new source needs a new frozen copy. Keep the old
                         # attempt and carry only the user's stated requirements.
                         if not attempt.get('conversation_error'):
@@ -373,7 +381,8 @@ class ProjectExecution:
                     self._check_source(project_id, workflow_id, step, attempt)
                     folder = self.workspace.resolve_path(project_id, attempt['conversation_path'], must_exist=True)
                 self._source_history(project_id, workflow_id, step, attempt, folder)
-                result = conversation.send(folder, text, settings, config=config)
+                followup = {'retry': 'repair', 'continuation': 'continue'}.get(attempt['source_context'].get('kind'))
+                result = conversation.send(folder, text, settings, config=config, requested_action=followup)
                 pending = result.get('pending')
                 state = 'ready' if pending and pending.get('status') == 'ready' else 'needs_input'
                 return self._save(attempt, state=state)
@@ -465,39 +474,51 @@ class ProjectExecution:
 
     def retry_step(self, project_id, workflow_id, step_id, settings, message):
         """Draft a separate repair; never overwrite or relaunch the failed run."""
+        return self._followup_step(project_id, workflow_id, step_id, settings, message, 'repair')
+
+    def continue_step(self, project_id, workflow_id, step_id, settings, message):
+        """Draft a new calculation from a selected accepted stage, preserving old runs."""
+        return self._followup_step(project_id, workflow_id, step_id, settings, message, 'continue')
+
+    def _followup_step(self, project_id, workflow_id, step_id, settings, message, action):
         reject_ordinary_text(message)
         with self._lock(project_id, workflow_id):
             _, step = self._step(project_id, workflow_id, step_id)
-            if step['engine'] not in {'vasp', 'qe'}:
+            if step['engine'] not in {'vasp', 'qe', 'abinit', 'cp2k', 'elk'}:
                 raise ValueError('Review and edit the program inputs, then create a follow-up workflow.')
             previous = self.latest(project_id, workflow_id, step_id)
-            pending_retry = previous if previous and not previous['run_id'] and previous['source_context'].get('kind') == 'retry' else None
+            source_kind = 'retry' if action == 'repair' else 'continuation'
+            pending_retry = previous if previous and not previous['run_id'] and previous['source_context'].get('kind') == source_kind else None
             original_run = previous['run_id'] if previous else None
             if pending_retry:
                 original_run = pending_retry['source_context']['run_id']
             if not original_run:
-                raise ValueError('Select a failed run before planning a repair.')
+                raise ValueError('Select a finished run before planning a follow-up.')
             run = self.workspace.get_run(project_id, original_run)
             if run['kind'] == 'batch':
-                raise ValueError('Open the failed comparison member before planning its repair.')
+                raise ValueError('Open the comparison member before planning its follow-up.')
             state = run['state']
-            if state is None or state['status'] not in {'failed', 'needs_attention', 'cancelled'}:
-                raise ValueError('The run is not ready for a repair. Refresh its status first.')
+            allowed = {'failed', 'needs_attention', 'cancelled'} if action == 'repair' else {'succeeded', 'failed', 'needs_attention'}
+            if state is None or state['status'] not in allowed:
+                raise ValueError('The run is not ready for this follow-up. Refresh its status first.')
             from .scheduler import TERMINAL_STATES
             for stage in state.get('stages', []):
                 if (stage.get('job_id') or stage.get('staged')) and stage.get('scheduler_state') not in TERMINAL_STATES:
                     raise ValueError('The submission is uncertain or still active. Reconnect before retrying.')
             from .explanation import load_run_context
             evidence = load_run_context(run['run_dir'])
+            if action == 'continue' and not any(key.endswith('.accepted') and value.get('value') is True
+                                               for key, value in evidence['facts'].items()):
+                raise ValueError('This run has no accepted stage to continue from.')
             config = self._config(project_id, step, previous, required=True)
             folder = conversation.open_run(run['run_dir'], self.workspace.project_paths(project_id)['runs'])
             attempt = pending_retry or self._new(project_id, workflow_id, step)
             relative = folder.relative_to(self.workspace.project_paths(project_id)['root']).as_posix()
             attempt = self._save(attempt, conversation_path=relative, environment_id=previous['environment_id'],
                                  state='planning', approved_digest=None,
-                                 source_context={'kind': 'retry', 'run_id': original_run, 'context_sha256': evidence['context_sha256']})
+                                 source_context={'kind': source_kind, 'run_id': original_run, 'context_sha256': evidence['context_sha256']})
             try:
-                result = conversation.send(folder, message, settings, config=config)
+                result = conversation.send(folder, message, settings, config=config, requested_action=action)
                 pending = result.get('pending')
                 return self._save(attempt, state='ready' if pending and pending.get('status') == 'ready' else 'needs_input')
             except Exception as error:

@@ -30,6 +30,17 @@ PASSWORD_MODES = {"password", "code"}
 AUTH_MODES = {"key", "agent", "password", "code", "interactive"}
 # Settings a successful test may fill in without resetting the test result.
 _PATCHABLE = {"remote_base", "ssh_control_path", "scheduler", "cli_path", "auth_mode"}
+_CODE_LABELS = {"abinit": "ABINIT", "cp2k": "CP2K", "elk": "Elk"}
+_CODE_PROGRAMS = {"abinit": ("abinit",), "cp2k": ("cp2k.psmp", "cp2k.popt", "cp2k"), "elk": ("elk",)}
+
+
+def site_library_root(engine, remote_base):
+    """Where the pinned library lives for a program the cluster already provides."""
+    base = PurePosixPath(remote_base or "/tmp")
+    return str({"abinit": base / "pseudos" / "abinit", "cp2k": base / "libraries" / "cp2k-2026.2",
+                "elk": base / "libraries" / "elk-10.2.4" / "species"}[engine])
+
+
 _TRANSPORT_FIELDS = {"host", "user", "port", "remote_root", "ssh_control_path",
                      "ssh_jump_host", "ssh_identity_file", "connection_id", "connection_home"}
 
@@ -690,24 +701,55 @@ class ConnectionRegistry:
                           "setup_commands": suggested.get("setup_commands", []), "walltime": "02:00:00"}
                 created.append(self.create_environment(identifier, "VASP · " + base["partition"], "vasp",
                                                        {key: value for key, value in values.items() if value not in ("", [], None)}))
-        qe_seen = "pw.x" in tools
+        qe_software = (facts.get("codes") or {}).get("qe") or {}
+        qe_executables, qe_modules = qe_software.get("executables") or {}, qe_software.get("modules") or []
+        qe_seen = bool("pw.x" in tools or qe_executables or qe_modules)
         if "qe" not in existing and qe_seen:
             if not base["partition"]:
                 missing["qe"] = ["partition"]
             else:
                 values = {**base, "qe_command": "srun pw.x",
                           "qe_pseudo_root": str(PurePosixPath(settings["remote_base"] or "/tmp") / "pseudos"), "walltime": "02:00:00"}
+                if qe_modules and not qe_executables and "pw.x" not in tools:
+                    values["setup_commands"] = [f"module load {discovery.preferred_module(qe_modules)}"]
+                if qe_executables.get("pw.x"):
+                    values["qe_bin_dir"] = str(PurePosixPath(qe_executables["pw.x"]).parent)
                 created.append(self.create_environment(identifier, "Quantum ESPRESSO · " + base["partition"], "qe",
                                                        {key: value for key, value in values.items() if value not in ("", [], None)}))
-        if not vasp_seen and not qe_seen:
-            notes.append("Neither VASP nor Quantum ESPRESSO was found on the login node. Add a software environment manually, or install QE from the app.")
+        codes_found = []
+        try:
+            launcher = "mpiexec" if self._scheduler_for(item) == "pbs" else "srun"
+        except ValueError:
+            launcher = "srun"
+        for engine, entry in sorted((facts.get("codes") or {}).items()):
+            if engine == "qe":
+                continue
+            executables, modules = entry.get("executables") or {}, entry.get("modules") or []
+            if not executables and not modules:
+                continue
+            codes_found.append(engine)
+            if engine in existing:
+                continue
+            if not base["partition"]:
+                missing[engine] = ["partition"]
+                continue
+            program = next((name for name in _CODE_PROGRAMS[engine] if name in executables), _CODE_PROGRAMS[engine][0])
+            values = {**base, "engine_command": f"{launcher} {program}",
+                      "engine_library_root": site_library_root(engine, settings["remote_base"]),
+                      "setup_commands": [] if executables else [f"module load {discovery.preferred_module(modules)}"], "walltime": "02:00:00"}
+            if engine == "elk":
+                values.update(tasks=1, cpus_per_task=8)
+            created.append(self.create_environment(identifier, f"{_CODE_LABELS[engine]} · {base['partition']}", engine,
+                                                   {key: value for key, value in values.items() if value not in ("", [], None)}))
+        if not vasp_seen and not qe_seen and not codes_found:
+            notes.append("No VASP, Quantum ESPRESSO, ABINIT, CP2K or Elk was found on the login node. Install an open-source code from the app, or add a software environment manually.")
         result = {"facts": facts, "suggested": suggested, "notes": notes, "created": created, "missing": missing,
-                  "vasp_found": vasp_seen, "qe_found": qe_seen}
+                  "vasp_found": vasp_seen, "qe_found": qe_seen, "codes_found": codes_found}
         with self.workspace._transaction() as db:
             row = self._row(db, identifier, active=True)
             probe = json.loads(row["probe"]) if row["probe"] else {}
             probe["discovery"] = {"suggested": suggested, "notes": notes, "partitions": facts.get("partitions", [])[:20],
-                                  "vasp_found": vasp_seen, "qe_found": qe_seen, "checked_at": _now()}
+                                  "vasp_found": vasp_seen, "qe_found": qe_seen, "codes_found": codes_found, "checked_at": _now()}
             db.execute("UPDATE connections SET probe=?,updated_at=? WHERE id=?", (_object(probe), _now(), identifier))
             self._event(db, identifier, "discovered", {"created": [environment["id"] for environment in created]})
         return result
@@ -846,6 +888,199 @@ class ConnectionRegistry:
         self._store_probe(identifier, "qe_install", record)
         return {key: record.get(key) or (record["plan"]["prefix"] if key == "prefix" else None) for key in summary_keys}
 
+    # --- ABINIT, CP2K and Elk: managed installs and pinned libraries ---------
+
+    def _engine_base_config(self, item, engine, *, partition, account=""):
+        """A cluster profile for an installation; never used for a project run."""
+        from .config import ClusterConfig
+
+        settings = item["settings"]
+        if not settings["remote_base"]:
+            raise ValueError("Set the connection's work folder first.")
+        return ClusterConfig(engine=engine, host=settings["host"], user=settings["user"], port=settings["port"],
+                             connect_timeout=settings["connect_timeout"], remote_root=settings["remote_base"],
+                             partition=partition, account=account or "", engine_command=_CODE_PROGRAMS[engine][0],
+                             engine_library_root=site_library_root(engine, settings["remote_base"]),
+                             scheduler=self._scheduler_for(item), ssh_control_path=settings["ssh_control_path"],
+                             ssh_jump_host=settings["jump_host"], ssh_identity_file=settings["identity_file"],
+                             connection_id=item["id"], connection_home=str(self.home))
+
+    def _connected_hpc(self, identifier):
+        item = self.get(identifier)
+        if item["kind"] != "hpc" or item["revoked"] or item["deleted"]:
+            raise ValueError("Select an active HPC connection.")
+        if item["connection_status"] != "connected":
+            raise ValueError("Test the cluster connection first.")
+        return item
+
+    @staticmethod
+    def _install_summary(engine, record):
+        plan = record.get("plan") or {}
+        summary = {key: record.get(key) for key in ("status", "plan_id", "job_id", "error", "environment_id", "scheduler_state")}
+        summary.update(engine=engine, prefix=plan.get("prefix"), version=plan.get("version"), platform=plan.get("platform"),
+                       glibc=plan.get("glibc"), mpi=plan.get("mpi"), partition=record.get("partition"), account=record.get("account"),
+                       download_mb=round(plan.get("download_size", 0) / 1e6) if plan else None, progress=record.get("progress"),
+                       smoke=record.get("smoke"), retained_prefix=record.get("retained_prefix"))
+        return summary
+
+    def engine_install_plan(self, identifier, engine, *, build_cpus=4, partition=None, account=None):
+        """Read the cluster's architecture and plan a pinned installation. Nothing is downloaded or submitted."""
+        from . import engine_setup
+
+        if engine not in _CODE_LABELS:
+            raise ValueError("Choose ABINIT, CP2K or Elk.")
+        item = self._connected_hpc(identifier)
+        suggested = ((item["probe"] or {}).get("discovery") or {}).get("suggested", {})
+        partition = (partition or suggested.get("partition") or "").strip()
+        if not partition:
+            raise ValueError("Choose a partition for the installation job; the cluster listed none.")
+        account = suggested.get("account", "") if account is None else account.strip()
+        base = self._engine_base_config(item, engine, partition=partition, account=account)
+        remote = self._qe_transport(item)
+        try:
+            platform = engine_setup.detect_platform(base, transport=remote)
+        finally:
+            remote.close()
+        previous = (item["probe"] or {}).get(f"{engine}_install") or {}
+        # After a failed attempt, plan a new one; it reuses an environment the old one created.
+        attempt = previous.get("attempt", 0) + 1 if previous.get("status") == "failed" else previous.get("attempt", 0)
+        plan = engine_setup.install_plan(base, engine, platform, build_cpus=build_cpus, attempt=attempt)
+        if previous.get("status") in {"staging", "submitted", "running", "installed"}:
+            if previous.get("plan_id") != plan["id"]:
+                raise ValueError("An installation already exists. Check its status before changing the plan.")
+            return {**self._install_summary(engine, previous), "walltime": plan["walltime"], "build_cpus": build_cpus,
+                    "command": plan["command"], "library_root": plan["library_root"],
+                    "next": "Continue the existing installation."}
+        record = {"status": "planned", "plan": plan, "plan_id": plan["id"], "partition": partition, "account": account,
+                  "platform": platform, "planned_at": _now(), "attempt": attempt}
+        self._store_probe(identifier, f"{engine}_install", record)
+        return {**self._install_summary(engine, record), "walltime": plan["walltime"], "build_cpus": build_cpus,
+                "command": plan["command"], "library_root": plan["library_root"],
+                "next": "Review the partition and account, then start the installation. Only the user can start it."}
+
+    def engine_install_start(self, identifier, engine, plan_id, *, wait=900):
+        """Download the pinned packages and submit the reviewed installation job."""
+        from . import engine_setup
+
+        item = self.get(identifier)
+        record = (item["probe"] or {}).get(f"{engine}_install")
+        if not record or record.get("plan_id") != plan_id:
+            raise ValueError("Plan the installation first, then start the plan you reviewed.")
+        base = self._engine_base_config(item, engine, partition=record["partition"], account=record["account"])
+        remote = self._qe_transport(item)
+        try:
+            receipt = engine_setup.start_install(base, record["plan"], transport=remote, wait=wait)
+        finally:
+            remote.close()
+        record.update(receipt=receipt, status=receipt.get("status", "submitted"), job_id=receipt.get("job_id"),
+                      progress=receipt.get("progress"), started_at=_now())
+        record.pop("error", None)
+        self._store_probe(identifier, f"{engine}_install", record)
+        return self._install_summary(engine, record)
+
+    def engine_install_status(self, identifier, engine):
+        """Read the installation; when it passed its silicon test, create the environment."""
+        from . import engine_setup
+
+        if engine not in _CODE_LABELS:
+            raise ValueError("Choose ABINIT, CP2K or Elk.")
+        item = self.get(identifier)
+        record = (item["probe"] or {}).get(f"{engine}_install")
+        if not record:
+            return {"engine": engine, "status": "not_planned"}
+        receipt = record.get("receipt")
+        if record.get("status") == "installed" or not receipt:
+            return self._install_summary(engine, record)
+        if receipt.get("status") == "staging":
+            # Continue the same reviewed plan; report progress instead of waiting long.
+            return self.engine_install_start(identifier, engine, record["plan_id"], wait=45)
+        base = self._engine_base_config(item, engine, partition=record["partition"], account=record["account"])
+        remote = self._qe_transport(item)
+        try:
+            status = engine_setup.poll_install(base, record["plan"], receipt, transport=remote)
+        finally:
+            remote.close()
+        record.update(status=status.get("status", "unknown"), scheduler_state=status.get("scheduler_state"),
+                      error=status.get("error"), checked_at=_now(), logs=status.get("logs"), smoke=status.get("smoke"),
+                      retained_prefix=status.get("retained_prefix"))
+        if record["status"] == "installed" and not record.get("environment_id"):
+            plan = record["plan"]
+            library = {}
+            if engine == "abinit":
+                library = {download["name"]: {"sha256": download["sha256"], "element": "Si", "library": "pbe_sr"}
+                           for download in plan["downloads"] if download["role"] == "library"}
+            else:
+                library = {entry["name"]: {"sha256": entry["sha256"], "library": entry["library"]}
+                           for entry in engine_setup.plan_library(engine, [])}
+            values = {"partition": record["partition"], "account": record["account"], "setup_commands": plan["setup_commands"],
+                      "engine_command": plan["command"], "engine_library_root": plan["library_root"], "engine_library": library,
+                      "walltime": "02:00:00"}
+            values.update({"tasks": 1, "cpus_per_task": 8} if engine == "elk" else {"tasks": 8})
+            environment = self.create_environment(identifier, f"{_CODE_LABELS[engine]} {plan['version']} · {record['partition']}", engine,
+                                                  {key: value for key, value in values.items() if value not in ("", [], None)})
+            record["environment_id"] = environment["id"]
+        self._store_probe(identifier, f"{engine}_install", record)
+        return self._install_summary(engine, record)
+
+    def build_reference(self, environment_id):
+        """The official manual and examples for a QE, Elk, ABINIT or CP2K environment; CP2K's keywords come from its program."""
+        from . import references
+
+        environment = self.environment(environment_id)
+        engine = environment["engine"]
+        if engine not in references.ENGINES:
+            raise ValueError("References are available for QE, Elk, ABINIT and CP2K environments.")
+        config = self._environment_config(environment)
+        if engine != "cp2k" and references.environment_version(engine, config):
+            built = references.build_for_environment(config)
+        else:
+            remote = self._qe_transport(self.get(environment["connection_id"]))
+            try:
+                built = references.build_for_environment(config, transport=remote)
+            finally:
+                remote.close()
+        return {"environment_id": environment_id, "built": built, **references.status(engine, config)}
+
+    def library_status(self, environment_id, elements, *, soc=False, functional="PBE"):
+        """Library files a calculation on these elements needs that the environment has not recorded."""
+        from . import engine_setup
+
+        environment = self.environment(environment_id)
+        if environment["engine"] not in _CODE_LABELS:
+            raise ValueError("Libraries belong to ABINIT, CP2K or Elk environments.")
+        recorded = environment["config"].get("engine_library") or {}
+        needed = engine_setup.plan_library(environment["engine"], list(elements), soc=soc, functional=functional)
+        return {"missing": sorted({item.get("element") or item["name"] for item in needed
+                                   if (recorded.get(item["name"]) or {}).get("sha256") != item["sha256"]}),
+                "files": [item["name"] for item in needed]}
+
+    def install_engine_library(self, environment_id, elements, *, soc=False, functional="PBE"):
+        """Install pinned pseudopotentials, basis files or species and record their hashes."""
+        from . import engine_setup
+
+        environment = self.environment(environment_id)
+        if environment["engine"] not in _CODE_LABELS:
+            raise ValueError("Libraries belong to ABINIT, CP2K or Elk environments.")
+        symbols = []
+        for element in elements:
+            if not isinstance(element, str) or not re.fullmatch(r"[A-Z][a-z]?", element):
+                raise ValueError("Give element symbols such as Si or O.")
+            if element not in symbols:
+                symbols.append(element)
+        if not symbols and environment["engine"] != "cp2k":
+            raise ValueError("Name at least one element.")
+        config = self._environment_config(environment)
+        item = self.get(environment["connection_id"])
+        remote = self._qe_transport(item)
+        try:
+            result = engine_setup.ensure_library(config, symbols, transport=remote, soc=bool(soc), functional=functional)
+        finally:
+            remote.close()
+        mapping = dict(environment["config"].get("engine_library") or {})
+        mapping.update(result["files"])
+        self.update_environment(environment_id, {**environment["config"], "engine_library": mapping})
+        return {"environment_id": environment_id, "library_root": result["library_root"], "installed": sorted(result["files"])}
+
     def _environment_config(self, environment):
         """ClusterConfig for an environment outside a project, for pseudopotential installation."""
         from .config import ClusterConfig
@@ -898,9 +1133,7 @@ class ConnectionRegistry:
         finally:
             remote.close()
         mapping = dict(environment["config"].get("qe_pseudopotentials") or {})
-        for element, entry in result["elements"].items():
-            mapping[element] = {"filename": entry["filename"], "sha256": entry["sha256"], "ecutwfc": entry["cutoff_wfc"],
-                                "ecutrho": entry["cutoff_rho"], "element": element, "relativistic": entry["header"]["relativistic"]}
+        mapping.update(result["config_pseudopotentials"])
         self.update_environment(environment_id, {**environment["config"], "qe_pseudopotentials": mapping})
         return {"environment_id": environment_id, "library": result.get("library", library), "pseudo_root": config.qe_pseudo_root,
                 "elements": {element: {"filename": entry["filename"], "ecutwfc": entry["cutoff_wfc"], "ecutrho": entry["cutoff_rho"]}
@@ -909,7 +1142,7 @@ class ConnectionRegistry:
     def _check_environment(self, item, engine, config):
         from .config import ClusterConfig
 
-        if engine not in {"vasp", "qe", "wannier90", "python"}:
+        if engine not in {"vasp", "qe", "abinit", "cp2k", "elk", "wannier90", "python"}:
             raise ValueError("Choose a supported scientific program.")
         allowed = {field.name for field in fields(ClusterConfig)} - _TRANSPORT_FIELDS
         if engine in {"wannier90", "python"}:
@@ -922,7 +1155,7 @@ class ConnectionRegistry:
         if config.get("engine", engine) != engine:
             raise ValueError("The environment engine does not match its configuration.")
         connection = item["settings"]
-        if engine in {"vasp", "qe"}:
+        if engine in {"vasp", "qe", "abinit", "cp2k", "elk"}:
             ClusterConfig(**{**config, "engine": engine, "host": connection["host"],
                 "user": connection["user"], "port": connection["port"],
                 "remote_root": connection["remote_base"] or "/tmp",
@@ -946,7 +1179,7 @@ class ConnectionRegistry:
         item = self.get(connection_id)
         if item["kind"] != "hpc" or item["revoked"] or item["deleted"]:
             raise ValueError("Choose an active HPC connection.")
-        if engine not in {"vasp", "qe", "wannier90", "python"}:
+        if engine not in {"vasp", "qe", "abinit", "cp2k", "elk", "wannier90", "python"}:
             raise ValueError("Choose a supported scientific program.")
         allowed = {field.name for field in fields(ClusterConfig)} - _TRANSPORT_FIELDS
         if engine in {"wannier90", "python"}:
@@ -958,7 +1191,7 @@ class ConnectionRegistry:
         reject_ordinary_text(json.dumps(config))
         if config.get("engine", engine) != engine:
             raise ValueError("The environment engine does not match its configuration.")
-        if engine in {"vasp", "qe"}:
+        if engine in {"vasp", "qe", "abinit", "cp2k", "elk"}:
             connection = item["settings"]
             ClusterConfig(**{**config, "engine": engine, "host": connection["host"],
                 "user": connection["user"], "port": connection["port"],
@@ -1003,7 +1236,7 @@ class ConnectionRegistry:
 
     def resolve_cluster(self, project_id, environment_id):
         resolved = self.resolve_environment(project_id, environment_id)
-        if resolved['environment']['engine'] not in {'vasp', 'qe'}:
+        if resolved['environment']['engine'] not in {'vasp', 'qe', 'abinit', 'cp2k', 'elk'}:
             raise ValueError('Use the reviewed script adapter for this environment.')
         return resolved['config']
 

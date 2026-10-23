@@ -149,8 +149,12 @@ def test_pseudo_plan_cutoffs_and_soc_boundary():
     assert plan["ecutrho_ry"] == 400
     assert plan["elements"]["Sr"]["license"] == "GPL-3.0"
     assert plan["elements"]["O"]["license"] == "GPL-2.0-or-later"
-    with pytest.raises(ValueError, match="fully relativistic"):
-        setup.plan_pseudopotentials(["Si"], soc=True)
+    # Spin-orbit coupling selects the fully relativistic PseudoDojo set; it has no Ni.
+    soc = setup.plan_pseudopotentials(["Bi", "Se"], soc=True)
+    assert soc["library_id"] == "pseudodojo-fr" and soc["relativistic"] == "full"
+    assert soc["elements"]["Bi"]["filename"] == "Bi.pbe-nc-fr-04-pd.upf" and soc["elements"]["Bi"]["url"].endswith("/Bi/Bi-d_r.upf")
+    with pytest.raises(ValueError, match="No PseudoDojo fully relativistic pseudopotential for Ni"):
+        setup.plan_pseudopotentials(["Ni"], soc=True)
     with pytest.raises(ValueError, match="No SSSP"):
         setup.plan_pseudopotentials(["Bogus"])
 
@@ -173,8 +177,13 @@ def test_nc_library_is_explicit_complete_and_converts_hartree_hints():
         assert item["pseudo_type"] == "NC" and len(item["sha256"]) == 64
         assert 0 < item["cutoff_wfc"] * 4 == item["cutoff_rho"]
     assert setup.plan_pseudopotentials(["Al"])["library"].startswith("SSSP")
-    with pytest.raises(ValueError, match="fully relativistic"):
-        setup.plan_pseudopotentials(["Al"], library="pseudodojo", soc=True)
+    assert setup.plan_pseudopotentials(["Al"], library="pseudodojo", soc=True)["library_id"] == "pseudodojo-fr"
+    fr = json.loads(Path(setup.__file__).with_name("qe_nc_fr_pseudos.json").read_text())
+    assert len(fr["elements"]) == 67 and set(fr["missing"]) == {"Lu", "Ni", "Pd", "Pt"}
+    for element, item in fr["elements"].items():
+        assert item["filename"] == element + ".pbe-nc-fr-04-pd.upf" and item["relativistic"] == "full"
+        assert item["url"].startswith("https://raw.githubusercontent.com/PseudoDojo/ONCVPSP-PBE-FR-PDv0.4/") and len(item["sha256"]) == 64
+        assert 0 < item["cutoff_wfc"] * 4 == item["cutoff_rho"]
     with pytest.raises(ValueError, match="No PseudoDojo"):
         setup.plan_pseudopotentials(["U"], library="pseudodojo")
     with pytest.raises(ValueError, match="Choose SSSP"):
@@ -226,6 +235,33 @@ def test_nc_install_checks_type_and_keeps_existing_library(tmp_path, monkeypatch
     assert old.read_bytes() == b"Existing user library"
 
 
+@pytest.mark.parametrize("has_so", [True, False])
+def test_fully_relativistic_install_downloads_pinned_files_and_checks_spin_orbit(tmp_path, monkeypatch, has_so):
+    data = upf("Bi").replace(b'functional="PBE"', b'functional="PBE" pseudo_type="NC"')
+    if has_so:
+        data = data.replace(b'relativistic="scalar" has_so="F"', b'relativistic="full" has_so="T"')
+    source = tmp_path / "Bi-d_r.upf"
+    source.write_bytes(data)
+    license_path = tmp_path / "PseudoDojo-README.md"
+    license_path.write_text("Test attribution")
+    plan = setup.plan_pseudopotentials(["Bi"], soc=True)
+    plan["elements"]["Bi"]["sha256"] = hashlib.sha256(data).hexdigest()
+    plan["license"]["sha256"] = setup._digest(license_path)
+    monkeypatch.setattr(setup, "plan_pseudopotentials", lambda *a, **kw: plan)
+    fetched = []
+    monkeypatch.setattr(setup, "_download", lambda name, metadata, cache: fetched.append(metadata.get("url")) or (license_path if name.endswith(".md") else source))
+    cfg = config(tmp_path)
+    transport = LocalTransport()
+    if not has_so:
+        with pytest.raises(ValueError, match="not a fully relativistic PBE NC"):
+            setup.ensure_pseudos(cfg, ["Bi"], transport, soc=True)
+        return
+    result = setup.ensure_pseudos(cfg, ["Bi"], transport, soc=True)
+    assert Path(cfg.qe_pseudo_root, "Bi.pbe-nc-fr-04-pd.upf").read_bytes() == data
+    assert result["config_pseudopotentials"]["Bi"]["fully_relativistic"] is True
+    assert plan["elements"]["Bi"]["url"] in fetched
+
+
 def test_upf_headers_reject_wrong_element_and_entities():
     assert setup.validate_upf(upf(), "Si")["has_so"] is False
     with pytest.raises(ValueError, match="does not match"):
@@ -241,6 +277,18 @@ def test_upf_headers_reject_wrong_element_and_entities():
 def test_upf_legacy_header():
     data = ("<PP_HEADER>\n0 Version Number\nSr Element\nUS Ultrasoft\nT Core\nSLA PW PBE PBE Exchange-Correlation\n10.0 Zval\n</PP_HEADER><PP_MESH></PP_MESH><PP_LOCAL></PP_LOCAL>" + " " * 100).encode()
     assert setup.validate_upf(data, "Sr")["element"] == "Sr"
+    assert setup.validate_upf(data, "Sr")["valence_electrons"] == 10.0
+
+
+def test_upf_valence_is_read_for_empty_band_counts():
+    assert setup.validate_upf(upf(), "Si")["valence_electrons"] is None
+    data = upf().replace(b'has_so="F"', b'has_so="F" z_valence=" 4.000000000000000D+00"')
+    assert setup.validate_upf(data, "Si")["valence_electrons"] == 4.0
+    # Every bundled library entry carries the valence of its file.
+    for name in ("qe_pseudos.json", "qe_nc_pseudos.json", "qe_nc_fr_pseudos.json"):
+        catalogue = json.loads(Path(setup.__file__).with_name(name).read_text())
+        entries = catalogue.get("elements", catalogue)
+        assert len(entries) > 60 and all(0 < entry["valence_electrons"] < 100 for entry in entries.values())
 
 
 def test_download_checksum_failure_keeps_old_cache(tmp_path, monkeypatch):
@@ -256,6 +304,17 @@ def test_download_checksum_failure_keeps_old_cache(tmp_path, monkeypatch):
         setup._download(target.name, {"url": "https://example.org/file", "sha256": "0" * 64}, tmp_path)
     assert target.read_bytes() == b"old"
     assert list(tmp_path.iterdir()) == [target]
+
+
+def test_unreachable_download_names_the_host_and_the_cache(tmp_path, monkeypatch):
+    # www.pseudo-dojo.org timed out on 2026-10-22 from both the laptop and Arrhenius.
+    def offline(*args, **kwargs):
+        raise setup.urllib.error.URLError(TimeoutError(60, "Operation timed out"))
+
+    monkeypatch.setattr(setup.urllib.request, "urlopen", offline)
+    with pytest.raises(ValueError, match=r"www\.pseudo-dojo\.org did not deliver nc\.tgz .*Try again later, or put a copy with SHA-256 0{64}") as error:
+        setup._download("nc.tgz", {"url": "https://www.pseudo-dojo.org/pseudos/nc.tgz", "sha256": "0" * 64}, tmp_path)
+    assert str(tmp_path) in str(error.value) and list(tmp_path.iterdir()) == []
 
 
 def test_build_archive_keeps_verified_source_and_license_without_datasets(tmp_path):

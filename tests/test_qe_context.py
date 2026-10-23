@@ -72,6 +72,24 @@ def test_cached_number_edit_cannot_become_a_fact(accepted_qe):
     assert "numerical" in context["facts"]["stage_1.availability"]["value"]
 
 
+def test_results_saved_before_a_new_field_stay_accepted(accepted_qe):
+    # A stage accepted by an earlier version lacks fields added since; its saved numbers still have to match.
+    root = accepted_qe
+    state = json.loads((root / "run.json").read_text())
+    result = state["stages"][0]["result"]
+    gap = result.pop("band_gap")
+    (root / "run.json").write_text(json.dumps(state))
+    (root / "01_scf/outputs/result.json").write_text(json.dumps(result))
+    assert qe_context.load_run_context(root)["facts"]["stage_1.accepted"]["value"]
+    result["band_gap"] = {**gap, "gap_ev": gap["gap_ev"] + 1}
+    (root / "run.json").write_text(json.dumps(state))
+    (root / "01_scf/outputs/result.json").write_text(json.dumps(result))
+    assert not qe_context.load_run_context(root)["facts"]["stage_1.accepted"]["value"]
+    assert qe_context.saved_matches({"rows": [{"lambda": 0.44}]}, {"rows": [{"lambda": 0.44, "negative_lambda_fraction": 0.006}]})
+    assert not qe_context.saved_matches({"rows": [{"lambda": 0.44}]}, {"rows": [{"lambda": 0.45}]})
+    assert not qe_context.saved_matches({"rows": [{"lambda": 0.44}]}, {"rows": []})
+
+
 def test_verified_failure_reaches_model_without_cached_claims(accepted_qe):
     from vasp_slurm_agent import qe
     root = accepted_qe

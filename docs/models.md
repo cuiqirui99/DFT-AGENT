@@ -25,9 +25,9 @@ uses its configured account and applicable quota or billing; no separate API
 key is entered in DFT Agent for this route. Nothing needs to be installed on
 the cluster for model access.
 
-CLI connections offer **Agent mode** and **Guided mode**. Agent mode lets the
-CLI inspect project files and use the app's tools across several actions.
-Guided mode processes a checked action at a time. Neither mode can authorize
+CLI connections offer two modes, **Automatic** and **Step by step**. Automatic
+lets the CLI inspect project files and use the app's tools across several
+actions. Step by step processes one checked action at a time. Neither mode can authorize
 its own calculation submission or QE installation: review and confirm those
 in the app.
 
@@ -57,7 +57,7 @@ and model ID. A compatible name alone is insufficient: that route requires
 the structured-output request format used by the app.
 
 OpenAI uses Responses, Claude uses its native Messages API, and the other
-presets use Chat Completions. API connections use **Guided mode**. Every plan
+presets use Chat Completions. API connections work **Step by step**. Every plan
 is checked locally before it can become a calculation. Provider adapters
 have offline tests; this does not establish live success for every model or
 account. No live Claude API acceptance is claimed.
@@ -73,7 +73,7 @@ required structured responses. A remote server uses **Compatible API** instead.
 
 A successful **Connect** test shows that the selected model answered. Use
 **Test connection** to retry a saved connection. Return with **Back to chat**,
-import a structure through **Context → Files → Add files → Import files**, and
+import a structure through **Files and runs → Files → Add files → Import files**, and
 describe the calculation. Follow-up messages can revise the plan or discuss
 selected runs under **Attach results**. [Quickstart](quickstart.md).
 
@@ -97,7 +97,7 @@ falling back to an environment variable. The legacy workbench and command-line
 provider options retain their separate key controls and environment variables.
 
 Model requests include the task, selected project context and relevant results.
-Agent mode may read project files through its tools, so use a provider suitable
+Automatic mode may read project files through its tools, so use a provider suitable
 for the data in that project. Keep the app local.
 
 ## If a connection fails

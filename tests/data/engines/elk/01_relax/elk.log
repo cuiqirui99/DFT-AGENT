@@ -1,0 +1,41 @@
+
+┌─────────────────────────────────┐
+│ Elk code version 10.2.4 started │
+└─────────────────────────────────┘
+
+Number of MPI processes :      1
+Number of OpenMP threads per MPI process :    8
+Total number of threads (MPI x OpenMP) :      8
+Maximum OpenMP nesting level :    4
+Number of OpenMP threads at first nesting level :    8
+Number of MKL threads :    8
+
+RAM disk enabled
+
+┌──────────────────┐
+│ Current task : 2 │
+└──────────────────┘
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.2000 to   2.1671
+Info(geomopt): atomic position optimisation step :      1
+Info(geomopt): atomic position optimisation step :      2
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1671 to   2.1693
+Info(geomopt): atomic position optimisation step :      3
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1693 to   2.1780
+Info(geomopt): atomic position optimisation step :      4
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1780 to   2.1884
+Info(geomopt): atomic position optimisation step :      5
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1884 to   2.1965
+Info(geomopt): atomic position optimisation step :      6
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1965 to   2.1932
+Info(geomopt): atomic position optimisation step :      7
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1932 to   2.1933
+Info(geomopt): atomic position optimisation step :      8
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1933 to   2.1942
+Info(geomopt): atomic position optimisation step :      9
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1942 to   2.1952
+Info(geomopt): atomic position optimisation step :     10
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.1952 to   2.1960
+
+┌──────────────────┐
+│ Elk code stopped │
+└──────────────────┘

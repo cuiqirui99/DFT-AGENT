@@ -1,0 +1,45 @@
+
+┌─────────────────────────────────┐
+│ Elk code version 10.2.4 started │
+└─────────────────────────────────┘
+
+Number of MPI processes :      1
+Number of OpenMP threads per MPI process :    8
+Total number of threads (MPI x OpenMP) :      8
+Maximum OpenMP nesting level :    4
+Number of OpenMP threads at first nesting level :    8
+Number of MKL threads :    8
+
+RAM disk enabled
+
+┌──────────────────┐
+│ Current task : 1 │
+└──────────────────┘
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.2000 to   2.1964
+
+┌───────────────────┐
+│ Current task : 10 │
+└───────────────────┘
+
+Info(writedos):
+ Total density of states written to TDOS.OUT
+
+ Partial density of states written to PDOS_Sss_Aaaaa.OUT
+ for all species and atoms
+
+ Spin-quantisation axis :    0.000000000       0.000000000       1.000000000    
+
+ Eigenvalues of a random matrix in the Yₗₘ basis symmetrised
+ with the site symmetries written to ELMIREP.OUT for all
+ species and atoms. Degenerate eigenvalues correspond to
+ irreducible representations of each site symmetry group
+
+ Interstitial density of states written to IDOS.OUT
+
+ Fermi energy is at zero in plots
+
+ DOS units are states/Hartree/unit cell
+
+┌──────────────────┐
+│ Elk code stopped │
+└──────────────────┘

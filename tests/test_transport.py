@@ -126,6 +126,19 @@ def test_command_output_is_complete_and_status_preserved(config, local_wire):
     assert result.stderr == "e" * 8000
 
 
+@pytest.mark.parametrize("size, glyph", [(n, "a") for n in (100, 7600, 8000, 8040, 8600, 20000)] + [(2670, "算")])
+def test_commands_near_8_kb_are_padded_past_the_macos_mux_failure(config, local_wire, size, glyph):
+    # OpenSSH's mux client on macOS failed to pass its file descriptors for requests of 8084-8124
+    # bytes on Arrhenius ("mm_send_fd: sendmsg(2): Message too long"), and only for those.
+    script = "x = '" + glyph * size + "'; print(len(x))"
+    with SSHTransport(config, password="") as transport:
+        result = transport.run("python3 -c " + shlex.quote(script))
+    assert result.returncode == 0 and result.stdout.strip() == str(size)
+    sent = local_wire.calls[-1][0][-1]
+    low, high = transport_module._MUX_WINDOW
+    assert not low <= len(sent.encode("utf-8")) < high and sent.rstrip() == "bash -lc " + shlex.quote("python3 -c " + shlex.quote(script))
+
+
 def test_timeout_preserves_complete_partial_output(config, monkeypatch):
     def timeout(argv, **kwargs):
         raise subprocess.TimeoutExpired(argv, kwargs["timeout"], output=b"x" * 25000, stderr=b"partial error")

@@ -35,11 +35,11 @@ T_c=\frac{\omega_{\log}}{1.2}
 
 with ωlog in kelvin. Label this as the simplified Allen–Dynes estimate; it omits strong-coupling correction factors. Keep μ* visible and provide a sensitivity range. Do not report a value when the denominator is nonpositive.
 
-Before analysis, check q coordinates and weights against every coupling file. The upstream program does not enforce all these matches. Material imaginary modes, missing q points, unconverged DFPT, nonfinite integrals or a mismatch between integrated and summed λ must prevent a validated Tc result. A coarse functional test is not a converged material prediction.
+Before analysis, check q coordinates and weights against every coupling file. The upstream program does not enforce all these matches. Material imaginary modes, missing q points, unconverged DFPT, nonfinite integrals or a mismatch between integrated and summed λ must prevent a validated Tc result. The acoustic modes at Γ are the one exception: ph.x can leave them a few cm⁻¹ imaginary before the sum rule, with zero coupling. lambda.x takes the square root of ω² and would turn them into NaN spectra, so it reads a copy of that one q point with those modes at zero frequency, and the stage records which modes and frequencies; up to 10 cm⁻¹ with λ = 0 in every broadening is accepted. A coarse functional test is not a converged material prediction.
 
 ## EPW route
 
-QE 7.4.1 contains EPW 5.9. Select **Include EPW** when preparing an installation. The managed build includes the pinned Wannier90 dependency and builds core QE before EPW. A real Slurm installation passed checks for all 13 programs; it uses a separate prefix and preserves previous installations.
+QE 7.4.1 contains EPW 5.9. Site installations of QE 7.5 and 7.6 contain EPW 6.0 and 6.1, whose isotropic gap and Tc runs are read as well: EPW 6 calls the same simplified Allen–Dynes estimate the "McMillan expression", prints it to four decimals, and adds a strong-coupling Allen–Dynes value and a machine-learning estimate that DFT Agent does not use. Anisotropic runs are read for EPW 5.9 only. Select **Include EPW** when preparing an installation. The managed build includes the pinned Wannier90 dependency and builds core QE before EPW. A real Slurm installation passed checks for all 13 programs; it uses a separate prefix and preserves previous installations.
 
 For isotropic calculations, use **Eliashberg gap** or **Eliashberg Tc** after an accepted `electron_phonon` or `wannier_electron_phonon` spectrum. Choose temperatures, μ*, the frequency cutoff and `broadening_index` explicitly. The index selects an electronic-broadening column for `lambda.x`, or a phonon-broadening column for Wannier/EPW; that source's electronic broadening stays fixed.
 
@@ -47,7 +47,7 @@ Open the completed run's **Continue this task**, describe the solver and these s
 
 Eight native Al cases passed on the test cluster, covering two broadenings, two cutoffs and both scalar solvers. Independent calculations checked linearized eigenvalues and nonlinear residuals. These are functional checks, not a converged prediction for Al.
 
-Negative interpolated spectral weights remain a failed result. An explicit `eph_integration="q_sum"` integrates the original DFPT modes by a separate method. It does not erase or validate a failed Fourier interpolation. Preserve both outcomes and examine grid and broadening dependence.
+matdyn's Fourier interpolation can leave small negative spectral weights at the lowest frequencies, mostly for the narrowest broadening. A broadening whose negative weights stay within 1 % of its λ is kept and the result says so; beyond that the broadening is excluded, and the stage fails only when every broadening is excluded. On Arrhenius, aluminium had 0.64 % in the narrowest of ten broadenings and none in the others. An explicit `eph_integration="q_sum"` integrates the original DFPT modes by a separate method. It does not erase or validate a failed Fourier interpolation. Preserve both outcomes and examine grid and broadening dependence.
 
 Retain the dynamical matrices, potential derivatives, phonon recovery data and electronic wavefunctions. This Wannier route requires scalar, nonmagnetic NC pseudopotentials. **PseudoDojo (NC)** supplies public PBE files; use compatible NC files for LDA. Projections, energy windows, band counts and coarse/fine grids must be explicit. Validate Wannier bands in the Fermi window before using a material result.
 

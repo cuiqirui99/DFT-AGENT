@@ -156,7 +156,9 @@ def test_magnetic_phonon_native_restrictions():
 
 
 def xml_output(folder, crystal, calculation="scf", scf=True, ionic=True, energies=None, occupations=None, change_atom=False):
-    structure = Structure.from_file(crystal)
+    # pw.x writes its XML in the frame of its input, the standard frame of the submitted structure.
+    from vasp_slurm_agent.qe import _standard_frame
+    structure = crystal if isinstance(crystal, Structure) else _standard_frame(Structure.from_file(crystal))[0]
     matrix = structure.lattice.matrix / BOHR_ANGSTROM
     xyz = structure.cart_coords / BOHR_ANGSTROM
     cell = "<cell>" + "".join(f"<a{i + 1}>{' '.join(map(str, v))}</a{i + 1}>" for i, v in enumerate(matrix)) + "</cell>"
@@ -176,20 +178,24 @@ def xml_output(folder, crystal, calculation="scf", scf=True, ionic=True, energie
     (folder / "pw.out").write_text("!    total energy = -20.0 Ry\nEnd of band structure calculation\nJOB DONE.\n")
 
 
-def test_poscar_orientation_survives_cif_display_roundtrip(tmp_path):
+def test_pw_cell_lies_in_the_symmetric_frame_and_other_orientations_are_rejected(tmp_path):
     from vasp_slurm_agent.qe import _same_structure
     source = tmp_path / "POSCAR"
-    structure = Structure([[0, 2.715, 2.715], [2.715, 0, 2.715], [2.715, 2.715, 0]],
-                          ["Si", "Si"], [[0, 0, 0], [.25, .25, .25]])
+    # A CIF-style fcc cell with c along z; pw.x found only 2 of its 48 operations in this frame.
+    structure = Structure(Lattice.from_parameters(3.84, 3.84, 3.84, 60, 60, 60), ["Si", "Si"], [[0, 0, 0], [.25, .25, .25]])
     structure.to(filename=source, fmt="poscar")
     folder = tmp_path / "stage"
     prepare(source, folder)
+    cell = np.asarray(json.loads((folder / "qe-input.json").read_text())["native_structure"]["lattice_angstrom"])
+    # In the frame pw.x reads, the cubic axes are x, y and z: each vector is (0, ±a/2, ±a/2) up to order.
+    assert np.allclose(np.sort(np.abs(cell), axis=1), [[0, 2.7153, 2.7153]] * 3, atol=1e-3)
+    assert np.allclose(cell @ cell.T, structure.lattice.matrix @ structure.lattice.matrix.T)
     xml_output(folder, source)
-    assert not _same_structure(structure, Structure.from_file(folder / "structure.cif"))
     result = analyze_outputs(folder, "scf", folder / "structure.cif")
     assert result["success"], result["reason"]
-    # Rotating only the XML is still rejected, even though the physical cells match.
-    xml_output(folder, folder / "structure.cif")
+    assert not _same_structure(structure, Structure(cell, ["Si", "Si"], structure.frac_coords))
+    # An XML in another orientation is rejected, even though the physical cells match.
+    xml_output(folder, structure)
     result = analyze_outputs(folder, "scf", folder / "structure.cif")
     assert not result["success"]
     assert "submitted structure" in result["reason"]
@@ -231,7 +237,8 @@ def test_native_structure_must_match_frozen_pw_cards(crystal, tmp_path, change):
 def test_legacy_metadata_uses_supplied_structure(crystal, tmp_path):
     folder = tmp_path / "stage"
     prepare(crystal, folder)
-    xml_output(folder, crystal)
+    # Runs prepared before the standard frame ran pw.x in the file's own orientation.
+    xml_output(folder, Structure.from_file(crystal))
     metadata = json.loads((folder / "qe-input.json").read_text())
     metadata.pop("native_structure")
     (folder / "qe-input.json").write_text(json.dumps(metadata))
@@ -407,6 +414,22 @@ def test_species_magnetism_hubbard(tmp_path):
         prepare_inputs(path, tmp_path / "bad", "scf", {"spin": "collinear"}, {"Fe": "Fe.UPF"})
 
 
+def test_spin_polarized_insulator_keeps_a_valid_occupation_scheme(tmp_path):
+    # pw.x stopped on AFM NiO: "fixed occupations and lsda need tot_magnetization".
+    path = tmp_path / "fe.cif"
+    Structure(Lattice.cubic(4), ["Fe", "Fe"], [[0, 0, 0], [0.5, 0.5, 0.5]]).to(filename=path)
+    afm = {"spin": "collinear", "electronic_type": "insulator", "site_labels": ["Fe1", "Fe2"],
+           "starting_magnetization": {"Fe1": 0.5, "Fe2": -0.5}}
+    metadata = prepare_inputs(path, tmp_path / "afm", "scf", afm, {"Fe": "Fe.UPF"})
+    text = (tmp_path / "afm" / "pw.in").read_text()
+    assert "occupations = 'smearing'" in text and "degauss = 0.002" in text and "tot_magnetization" not in text
+    assert "tot_magnetization" in metadata["notes"][0]
+    fixed = dict(afm, namelists={"system": {"tot_magnetization": 0}})
+    prepare_inputs(path, tmp_path / "fixed", "scf", fixed, {"Fe": "Fe.UPF"})
+    text = (tmp_path / "fixed" / "pw.in").read_text()
+    assert "occupations = 'fixed'" in text and "tot_magnetization = 0" in text
+
+
 def test_hybrid_scf_and_unsupported_nscf(crystal, tmp_path):
     prepare(crystal, tmp_path / "hse", functional="HSE06")
     text = (tmp_path / "hse" / "pw.in").read_text()
@@ -435,6 +458,57 @@ def test_bands_explicit_path(crystal, tmp_path):
     meta = prepare(crystal, tmp_path / "bands", task="bands", kpoints=[[0, 0, 0], [0.5, 0, 0]])
     assert meta["band_path"]["distance_inv_angstrom"][-1] == pytest.approx(np.pi / 5.43)
     assert "K_POINTS crystal\n2" in (tmp_path / "bands" / "pw.in").read_text()
+
+
+def test_band_and_nscf_stages_add_empty_bands(crystal, tmp_path):
+    """pw.x gives an insulator only its occupied bands; band plots, DOS and gaps need empty ones."""
+    # Si.UPF is not a bundled file: the largest bundled Si valence (4) is assumed and checked at submission.
+    meta = prepare(crystal, tmp_path / "bands", task="bands", electronic_type="insulator")
+    assert meta["namelists"]["system"]["nbnd"] == 4 + 8 and meta["valence_charges"] == {"Si": 4.0}
+    assert prepare(crystal, tmp_path / "nscf", task="nscf")["namelists"]["system"]["nbnd"] == 12
+    # An insulator SCF gets a few empty bands for its gap; metals keep the pw.x smearing default.
+    assert prepare(crystal, tmp_path / "scf", electronic_type="insulator")["namelists"]["system"]["nbnd"] == 4 + 4
+    assert "nbnd" not in prepare(crystal, tmp_path / "metal", electronic_type="metal")["namelists"]["system"]
+    # Spinors hold one electron each; LSDA leaves room for the starting moment in the majority channel.
+    soc = prepare_inputs(crystal, tmp_path / "soc", "bands", {"soc": True}, {"Si": {"filename": "Si.UPF", "fully_relativistic": True}})
+    assert soc["namelists"]["system"]["nbnd"] == 8 + 8
+    spin = prepare(crystal, tmp_path / "spin", task="bands", spin="collinear", starting_magnetization={"Si": 0.5})
+    assert spin["namelists"]["system"]["nbnd"] == 6 + 8
+    # A recorded header value wins, and an explicit nbnd is kept.
+    recorded = prepare_inputs(crystal, tmp_path / "recorded", "bands", {}, {"Si": {"filename": "Si.UPF", "valence_electrons": 14}})
+    assert recorded["namelists"]["system"]["nbnd"] == 14 + 8
+    assert prepare(crystal, tmp_path / "explicit", task="bands", nbnd=30)["namelists"]["system"]["nbnd"] == 30
+    assert prepare(crystal, tmp_path / "native", task="bands", namelists={"system": {"nbnd": 31}})["namelists"]["system"]["nbnd"] == 31
+
+
+def test_plot_and_dos_stages_converge_eigenvalues_only_as_far_as_they_need(crystal, tmp_path):
+    # pw.x would ask conv_thr/N/10 (~1e-11 Ry) at every path point; 1e-6 Ry is ~1e-5 eV.
+    for task in ("bands", "nscf"):
+        assert prepare(crystal, tmp_path / task, task=task)["namelists"]["electrons"]["diago_thr_init"] == 1e-6
+    custom = prepare(crystal, tmp_path / "custom", task="bands", namelists={"electrons": {"diago_thr_init": 1e-10}})
+    assert custom["namelists"]["electrons"]["diago_thr_init"] == 1e-10
+    # Stages that choose their bands (Wannier, EPW) keep the tight pw.x default; so do SCF runs.
+    assert "diago_thr_init" not in prepare(crystal, tmp_path / "wannier", task="nscf", nbnd=16)["namelists"]["electrons"]
+    assert "diago_thr_init" not in prepare(crystal, tmp_path / "scf", electronic_type="insulator")["namelists"]["electrons"]
+
+
+def test_dos_uses_tetrahedra_on_a_3d_mesh_and_gaussians_on_a_layer(crystal, tmp_path):
+    # dos.x otherwise keeps the NSCF occupations, which leave an insulator's DOS almost unbroadened.
+    bulk = prepare(crystal, tmp_path / "bulk", task="dos", mesh=[6, 6, 6])
+    assert "bz_sum = 'tetrahedra_opt'" in (tmp_path / "bulk" / "dos.in").read_text() and bulk["dos_method"] == "tetrahedron"
+    layer = prepare(crystal, tmp_path / "layer", task="dos", mesh=[6, 6, 1])
+    text = (tmp_path / "layer" / "dos.in").read_text()
+    assert "ngauss = 0" in text and "degauss = 0.01" in text and "bz_sum" not in text and layer["dos_method"] == "gaussian_smearing"
+    custom = prepare(crystal, tmp_path / "custom", task="dos", mesh=[6, 6, 6], namelists={"dos": {"bz_sum": "smearing", "degauss": 0.02}})
+    assert "bz_sum = 'smearing'" in (tmp_path / "custom" / "dos.in").read_text()
+
+
+def test_unknown_upf_valence_asks_for_nbnd(crystal, tmp_path, monkeypatch):
+    from vasp_slurm_agent import qe
+    monkeypatch.setattr(qe, "_library_valence", lambda: ({}, {}))
+    with pytest.raises(ValueError, match="Set nbnd"):
+        prepare(crystal, tmp_path / "bands", task="bands")
+    assert "nbnd" not in prepare(crystal, tmp_path / "scf", electronic_type="insulator")["namelists"]["system"]
 
 
 def test_neb_inputs_and_endpoint_checks(crystal, tmp_path):
@@ -540,6 +614,15 @@ def test_nscf_not_scf_convergence(crystal, tmp_path):
     assert not (folder / "final.cif").exists()
 
 
+def test_qe_error_message_is_reported(crystal, tmp_path):
+    folder = tmp_path / "bands"
+    prepare(crystal, folder, task="bands", kpoints=[[0, 0, 0], [0.5, 0, 0]])
+    (folder / "pw.out").write_text("     Computing kpt #:     2  of   110\n %%%%%%%%\n     Error in routine cdiaghg (116):\n"
+                                   "     S matrix not positive definite\n %%%%%%%%\n\n     stopping ...\n")
+    result = analyze_outputs(folder, "bands", crystal)
+    assert not result["success"] and 'cdiaghg: "S matrix not positive definite"' in result["reason"]
+
+
 def test_nscf_end_marker_does_not_clear_final_eigenvalue_failure(crystal, tmp_path):
     folder = tmp_path / "nscf"
     prepare(crystal, folder, task="nscf")
@@ -581,11 +664,90 @@ def test_phonon_modes_and_missing_grid_matrix(crystal, tmp_path):
     assert analyze_outputs(folder, "phonon")["success"]
 
 
+def test_hybrid_scf_ends_its_exchange_loop_at_qe_default(crystal, tmp_path):
+    # GaAs HSE06 on Arrhenius: dexx levelled off near 1e-7 Ry and never met conv_thr 1e-8 in 2 hours.
+    for functional, expected in (("HSE06", "1e-06"), ("PBE0", "1e-06"), ("PBE", "1e-08")):
+        prepare(crystal, tmp_path / functional, functional=functional)
+        assert f"conv_thr = {expected}" in (tmp_path / functional / "pw.in").read_text()
+    prepare(crystal, tmp_path / "explicit", functional="HSE06", conv_thr=1e-9)
+    assert "conv_thr = 1e-09" in (tmp_path / "explicit" / "pw.in").read_text()
+
+
+def test_kshift_moves_the_mesh_by_half_a_step(crystal, tmp_path):
+    prepare(crystal, tmp_path / "shift", kshift=[1, 1, 1])
+    assert "K_POINTS automatic\n" in (tmp_path / "shift" / "pw.in").read_text()
+    assert (tmp_path / "shift" / "pw.in").read_text().split("K_POINTS automatic\n")[1].split()[3:6] == ["1", "1", "1"]
+    prepare(crystal, tmp_path / "plain")
+    assert (tmp_path / "plain" / "pw.in").read_text().split("K_POINTS automatic\n")[1].split()[3:6] == ["0", "0", "0"]
+    with pytest.raises(ValueError, match="kshift"):
+        prepare(crystal, tmp_path / "bad", kshift=[0.5, 0, 0])
+
+
+@pytest.mark.parametrize("parameters", [
+    {"spin": "noncollinear", "starting_magnetization": {"Si": 0.5}},
+    {"namelists": {"system": {"noncolin": True, "angle1(1)": 45, "angle2(1)": 30}}},
+    {"namelists": {"electrons": {"efield_cart(1)": 0.01}}},
+    {"namelists": {"cell": {"cell_dofree": "z"}}},
+    {"qpoint": [0.5, 0, 0]},
+])
+def test_standard_frame_preserves_requested_cartesian_directions(tmp_path, parameters):
+    from vasp_slurm_agent.qe import _standard_frame
+    path = tmp_path / "primitive.cif"
+    Structure([[0, 2.715, 2.715], [2.715, 0, 2.715], [2.715, 2.715, 0]],
+              ["Si", "Si"], [[0, 0, 0], [0.25, 0.25, 0.25]]).to(filename=path)
+    supplied = Structure.from_file(path)
+    assert not np.allclose(_standard_frame(supplied)[1], np.eye(3))
+    meta = prepare(path, tmp_path / "scf", **parameters)
+    assert np.allclose(meta["native_structure"]["lattice_angstrom"], supplied.lattice.matrix)
+    if "qpoint" in parameters:
+        ph = prepare(path, tmp_path / "ph", task="phonon", **parameters)
+        assert np.allclose(ph["native_structure"]["lattice_angstrom"], supplied.lattice.matrix)
+        assert (tmp_path / "ph/ph.in").read_text().rstrip().endswith("0.5 0.0 0.0")
+
+
+def test_phonon_sum_rule_error_and_imaginary_modes_are_reported(crystal, tmp_path):
+    folder = tmp_path / "ph"
+    prepare_inputs(crystal, folder, "phonon", {"qmesh": [2, 2, 2]}, {})
+    (folder / "dft_agent.dyn0").write_text("2 2 2\n2\n0 0 0\n0.5 0 0\n")
+    for index in (1, 2):
+        (folder / f"dft_agent.dyn{index}").write_text("Dynamical matrix file\n")
+
+    def output(gamma, zone):
+        block = lambda q, values: ("     Diagonalizing the dynamical matrix\n\n     q = (    " + q + " ) \n\n"
+                                   + "".join(f"     freq ({i:5d}) =       1.000000 [THz] = {f:14.6f} [cm-1]\n" for i, f in enumerate(values, 1)))
+        return ("Convergence has been achieved\n" + block("0.000000000   0.000000000   0.000000000", gamma)
+                + block("0.500000000   0.000000000   0.000000000", zone) + "JOB DONE.\n")
+
+    # Silicon with SSSP UPFs on Arrhenius: 20 cm-1 at Γ before the sum rule, nothing imaginary elsewhere.
+    (folder / "ph.out").write_text(output([-19.8, -19.8, -19.8, 514, 514, 514], [140, 140, 410, 410, 462, 462]))
+    result = analyze_outputs(folder, "phonon")
+    assert result["success"] and result["acoustic_sum_rule_violation_cm1"] == pytest.approx(19.8) and not result["warnings"]
+    # GaAs with SSSP UPFs: 119 cm-1 at Γ and an imaginary transverse branch at L.
+    (folder / "ph.out").write_text(output([-119, -119, -119, 250, 250, 250], [-55, -55, 203, 239, 257, 257]))
+    result = analyze_outputs(folder, "phonon")
+    assert result["success"] and len(result["warnings"]) == 2
+    assert "119 cm⁻¹ instead of 0" in result["warnings"][0] and "down to -55 cm⁻¹" in result["warnings"][1]
+    # GaAs with norm-conserving UPFs on a Γ-centred mesh: 50 cm-1 is tolerated, Born charges far from neutral are not.
+    text = output([50.1, 50.1, 50.1, 270, 270, 270], [83, 83, 204, 234, 266, 266])
+    (folder / "ph.out").write_text(text.replace("JOB DONE.", "          Effective charges Sum: Mean:       -0.25505\nJOB DONE."))
+    result = analyze_outputs(folder, "phonon")
+    assert result["charge_neutrality_violation"] == pytest.approx(0.25505)
+    assert len(result["warnings"]) == 1 and "kshift" in result["warnings"][0]
+
+
+def _matdyn_cartesian(folder, requested):
+    from vasp_slurm_agent.qe import _standard_frame
+    structure = _standard_frame(Structure.from_file(folder / "structure.cif"))[0]
+    return np.array(requested) @ structure.lattice.reciprocal_lattice.matrix * np.linalg.norm(structure.lattice.matrix[0]) / (2 * np.pi)
+
+
 def test_matdyn_data(crystal, tmp_path):
     folder = tmp_path / "matdyn"
     prepare_inputs(crystal, folder, "matdyn", {"qpoints": [[0, 0, 0], [0.5, 0, 0]]}, {})
     (folder / "matdyn.out").write_text("JOB DONE.\n")
-    (folder / "phonon.freq").write_text("&plot nbnd=6, nks=2 /\n0 0 0\n0 0 0 100 100 100\n0.5 0 0\n10 20 30 110 120 130\n")
+    # matdyn writes Cartesian q in 2π/alat of the cell pw.x ran, the standard frame.
+    q = _matdyn_cartesian(folder, [[0, 0, 0], [0.5, 0, 0]])
+    (folder / "phonon.freq").write_text(f"&plot nbnd=6, nks=2 /\n{' '.join(map(str, q[0]))}\n0 0 0 100 100 100\n{' '.join(map(str, q[1]))}\n10 20 30 110 120 130\n")
     result = analyze_outputs(folder, "matdyn")
     assert result["success"] and result["qpoint_count"] == 2, result
     assert (folder / "phonon_bands.csv").is_file()
@@ -598,8 +760,7 @@ def test_matdyn_fixed_width_weights_and_multiline_modes(tmp_path):
     folder = tmp_path / "matdyn"
     requested = [[0, 0, 0], [.125, .25, 0]]
     prepare_inputs(crystal, folder, "matdyn", {"qpoints": requested}, {})
-    structure = Structure.from_file(folder / "structure.cif")
-    points = np.array(requested) @ structure.lattice.reciprocal_lattice.matrix * np.linalg.norm(structure.lattice.matrix[0]) / (2 * np.pi)
+    points = _matdyn_cartesian(folder, requested)
     rows = ['&plot nbnd=9, nks=2 /']
     for point, weight in zip(points, ['  0.000000', '**********']):
         rows.append(' ' * 10 + ''.join(f'{number:10.6f}' for number in point) + weight)

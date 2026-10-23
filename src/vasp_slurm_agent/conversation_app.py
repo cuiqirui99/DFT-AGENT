@@ -177,7 +177,7 @@ def panel(runs_root, engine, settings, config=None):
     message = st.chat_input(t("Ask, revise, or plan the next step"), key=f"chat_message_{engine}")
     if message:
         try:
-            with st.spinner(t("Thinking…")):
+            with st.spinner(t("Planning…")):
                 conversation.send(folder, message, settings, config=config)
             st.session_state.pop(f"chat_error_{selected}", None)
             st.rerun()

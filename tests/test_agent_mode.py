@@ -359,13 +359,18 @@ def test_install_pseudopotentials_records_mapping(project, connected_cluster, mo
 
     def ensure(config, elements, transport=None, **kwargs):
         seen["elements"], seen["library"], seen["root"] = elements, kwargs.get("library"), config.qe_pseudo_root
-        return {"library": "SSSP 1.3.0 PBE efficiency", "elements": {element: {"filename": f"{element}.upf", "sha256": "0" * 64, "cutoff_wfc": 30, "cutoff_rho": 240,
-                "header": {"relativistic": "scalar"}} for element in elements}}
+        return {"library": "SSSP 1.3.0 PBE efficiency", "elements": {element: {"filename": f"{element}.upf", "sha256": "0" * 64, "cutoff_wfc": 30, "cutoff_rho": 240}
+                for element in elements},
+                "config_pseudopotentials": {element: {"filename": f"{element}.upf", "sha256": "0" * 64, "ecutwfc": 30, "ecutrho": 240, "element": element,
+                                                      "functional": "PBE", "pseudo_type": "US", "relativistic": "scalar", "fully_relativistic": False,
+                                                      "valence_electrons": {"Si": 4.0, "O": 6.0}[element]} for element in elements}}
     monkeypatch.setattr(qe_setup, "ensure_pseudos", ensure)
     result = registry.install_pseudopotentials(environment["id"], ["Si", "O", "Si"])
     assert seen["elements"] == ["Si", "O"] and seen["library"] == "sssp" and seen["root"] == "/scratch/researcher/pseudos"
     mapping = registry.environment(environment["id"])["config"]["qe_pseudopotentials"]
     assert mapping["Si"]["filename"] == "Si.upf" and mapping["O"]["ecutwfc"] == 30
+    # The UPF valence is recorded so band and NSCF stages can add empty bands.
+    assert mapping["O"]["valence_electrons"] == 6.0 and mapping["Si"]["fully_relativistic"] is False
     assert result["elements"]["O"]["filename"] == "O.upf"
     with pytest.raises(ValueError, match="element symbols"):
         registry.install_pseudopotentials(environment["id"], ["si"])

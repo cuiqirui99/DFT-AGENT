@@ -357,6 +357,10 @@ def _preview(upload) -> Structure | None:
 
 
 def _stage_results(run_dir: Path, stage: dict, scf_fermi_energy: float | None = None) -> None:
+    if (stage.get("metadata") or {}).get("engine") in {"abinit", "cp2k", "elk"}:
+        from vasp_slurm_agent.engine_app import stage_results
+        stage_results(run_dir, stage)
+        return
     if (stage.get("metadata") or {}).get("engine") == "qe":
         from vasp_slurm_agent.qe_app import stage_results
         stage_results(run_dir, stage)
@@ -462,7 +466,7 @@ def _stage_downloads(run_dir: Path, stage: dict) -> None:
     output = run_dir / stage["folder"] / "outputs"
     key = f"files_{run_dir}_{stage['folder']}"
     show_plots = bool((stage.get("result") or {}).get("success"))
-    is_qe = (stage.get("metadata") or {}).get("engine") == "qe"
+    is_qe = (stage.get("metadata") or {}).get("engine") in {"qe", "abinit", "cp2k", "elk"}
     if (not is_qe and show_plots and stage["name"] == "relax" and (run_dir / "run.json").is_file()
             and (output / "relax_energy.png").is_file()):
         from vasp_slurm_agent.postprocessing import refresh_energy_exports
@@ -1320,8 +1324,8 @@ def _run_panel(run_dir: Path, model_settings=None, config=None, *, read_only=Fal
             st.info(t("No cluster is attached to this run yet. Submitting attaches the saved Cluster setup."))
     with st.expander(t("Stage details and run history")):
         st.json({"stages": stages, "history": state.get("history", [])})
-    is_qe = state.get("engine") == "qe"
-    with st.expander("Generated inputs" if is_qe else t("Generated INCAR and KPOINTS")):
+    is_qe = state.get("engine") in {"qe", "abinit", "cp2k", "elk"}
+    with st.expander(t("Generated inputs") if is_qe else t("Generated INCAR and KPOINTS")):
         for stage in stages:
             folder = stage.get("folder")
             if not folder:

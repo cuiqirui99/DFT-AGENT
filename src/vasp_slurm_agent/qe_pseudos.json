@@ -5,7 +5,8 @@
     "pseudopotential": "100US",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "c5b5399b2e84313f16c1196504101b4d6ed341a346df193ea1a987be439edff2"
+    "sha256": "c5b5399b2e84313f16c1196504101b4d6ed341a346df193ea1a987be439edff2",
+    "valence_electrons": 11.0
   },
   "Ag": {
     "filename": "Ag_ONCV_PBE-1.0.oncvpsp.upf",
@@ -13,7 +14,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 200.0,
-    "sha256": "0494aa5927b754b42d3e72535636f215b4658e9b437e639dbc09674c36c8059a"
+    "sha256": "0494aa5927b754b42d3e72535636f215b4658e9b437e639dbc09674c36c8059a",
+    "valence_electrons": 19.0
   },
   "Al": {
     "filename": "Al.pbe-n-kjpaw_psl.1.0.0.UPF",
@@ -21,7 +23,8 @@
     "pseudopotential": "100PAW",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "fd7b78921e6d0939095b681c328732668eaefd1dee6882fdbc03be463550cc97"
+    "sha256": "fd7b78921e6d0939095b681c328732668eaefd1dee6882fdbc03be463550cc97",
+    "valence_electrons": 3.0
   },
   "Am": {
     "filename": "Am.paw.z_17.ld1.uni-marburg.v0.upf",
@@ -29,7 +32,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "6cf417f19b4b44e749ef70821b4577db6845e5c1ddc8f73f39a3f537f5411950"
+    "sha256": "6cf417f19b4b44e749ef70821b4577db6845e5c1ddc8f73f39a3f537f5411950",
+    "valence_electrons": 17.0
   },
   "Ar": {
     "filename": "Ar_ONCV_PBE-1.1.oncvpsp.upf",
@@ -37,7 +41,8 @@
     "pseudopotential": "SG15-1.1",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 240.0,
-    "sha256": "e2b7c25f41973b7ec7f701afc9502fbf2bd9db430ace134a51b59352fb56bbe1"
+    "sha256": "e2b7c25f41973b7ec7f701afc9502fbf2bd9db430ace134a51b59352fb56bbe1",
+    "valence_electrons": 8.0
   },
   "As": {
     "filename": "As.pbe-n-rrkjus_psl.0.2.UPF",
@@ -45,7 +50,8 @@
     "pseudopotential": "031US",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 280.0,
-    "sha256": "5b31b3d612abd028d3a9ab896bf6de95d455080ad415d21f1011e130342b4434"
+    "sha256": "5b31b3d612abd028d3a9ab896bf6de95d455080ad415d21f1011e130342b4434",
+    "valence_electrons": 5.0
   },
   "At": {
     "filename": "At.us.z_17.ld1.psl.v1.0.0-high.upf",
@@ -53,7 +59,8 @@
     "pseudopotential": "100US",
     "cutoff_wfc": 80.0,
     "cutoff_rho": 640.0,
-    "sha256": "7c5e13cdb4f4abe012c5b8488e11882110e569728feaff6c85b45a36eda03032"
+    "sha256": "7c5e13cdb4f4abe012c5b8488e11882110e569728feaff6c85b45a36eda03032",
+    "valence_electrons": 17.0
   },
   "Au": {
     "filename": "Au_ONCV_PBE-1.0.oncvpsp.upf",
@@ -61,7 +68,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 180.0,
-    "sha256": "3c3760361623288c265c193dddce2d5c6ced6f95bdb9138307530d51bc5ca9f0"
+    "sha256": "3c3760361623288c265c193dddce2d5c6ced6f95bdb9138307530d51bc5ca9f0",
+    "valence_electrons": 19.0
   },
   "B": {
     "filename": "b_pbe_v1.4.uspp.F.UPF",
@@ -69,7 +77,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 280.0,
-    "sha256": "01a3696c14b1b245b9741165ffea38120b879286cddbeb956142f8fa922941ee"
+    "sha256": "01a3696c14b1b245b9741165ffea38120b879286cddbeb956142f8fa922941ee",
+    "valence_electrons": 3.0
   },
   "Ba": {
     "filename": "Ba.pbe-spn-kjpaw_psl.1.0.0.UPF",
@@ -77,7 +86,8 @@
     "pseudopotential": "100PAW",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "315a2af416c5906cdff071f5f8e59cfdff912f3c488be1be2cb2f1a044ec7c64"
+    "sha256": "315a2af416c5906cdff071f5f8e59cfdff912f3c488be1be2cb2f1a044ec7c64",
+    "valence_electrons": 10.0
   },
   "Be": {
     "filename": "be_pbe_v1.4.uspp.F.UPF",
@@ -85,7 +95,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "469e0c341411bcaf0b93bdff28b1bec7a728d11c92368d4bb25e44ae4b846047"
+    "sha256": "469e0c341411bcaf0b93bdff28b1bec7a728d11c92368d4bb25e44ae4b846047",
+    "valence_electrons": 4.0
   },
   "Bi": {
     "filename": "Bi_pbe_v1.uspp.F.UPF",
@@ -93,7 +104,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 360.0,
-    "sha256": "56e4e097a6b5a74149ba3b3bb75c03f2b022b509f53767143653dcd7b079e97d"
+    "sha256": "56e4e097a6b5a74149ba3b3bb75c03f2b022b509f53767143653dcd7b079e97d",
+    "valence_electrons": 15.0
   },
   "Bk": {
     "filename": "Bk.paw.z_19.ld1.uni-marburg.v0.upf",
@@ -101,7 +113,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "481c54a2d52a5914f6b341bd707d3621147164a1b55b738b24f9fadbdb0ffae5"
+    "sha256": "481c54a2d52a5914f6b341bd707d3621147164a1b55b738b24f9fadbdb0ffae5",
+    "valence_electrons": 19.0
   },
   "Br": {
     "filename": "br_pbe_v1.4.uspp.F.UPF",
@@ -109,7 +122,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "611dc0ac2804aed2e5b8a3c138f272b2a4e131009aad5279454170f948176951"
+    "sha256": "611dc0ac2804aed2e5b8a3c138f272b2a4e131009aad5279454170f948176951",
+    "valence_electrons": 7.0
   },
   "C": {
     "filename": "C.pbe-n-kjpaw_psl.1.0.0.UPF",
@@ -117,7 +131,8 @@
     "pseudopotential": "100PAW",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 360.0,
-    "sha256": "9900d1efd50b9848e31849f39094b33348486b400ee51e0f3922f716137cf3d7"
+    "sha256": "9900d1efd50b9848e31849f39094b33348486b400ee51e0f3922f716137cf3d7",
+    "valence_electrons": 4.0
   },
   "Ca": {
     "filename": "Ca_pbe_v1.uspp.F.UPF",
@@ -125,7 +140,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "5887acb75823f7f92df1b3117fece4e43498cafccaaaf9cfa653615af1a20d6e"
+    "sha256": "5887acb75823f7f92df1b3117fece4e43498cafccaaaf9cfa653615af1a20d6e",
+    "valence_electrons": 10.0
   },
   "Cd": {
     "filename": "Cd.pbe-dn-rrkjus_psl.0.3.1.UPF",
@@ -133,7 +149,8 @@
     "pseudopotential": "031US",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "eb5553c18543c409454926825f7653c985cd40a24993a26d37a913d6f4d40b8c"
+    "sha256": "eb5553c18543c409454926825f7653c985cd40a24993a26d37a913d6f4d40b8c",
+    "valence_electrons": 12.0
   },
   "Ce": {
     "filename": "Ce.paw.z_12.atompaw.wentzcovitch.v1.2.upf",
@@ -141,7 +158,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 400.0,
-    "sha256": "08bdca0ececbc70371a9fa2169f406c5dccac5b4ead0a53b358e09301d047460"
+    "sha256": "08bdca0ececbc70371a9fa2169f406c5dccac5b4ead0a53b358e09301d047460",
+    "valence_electrons": 12.0
   },
   "Cf": {
     "filename": "Cf.paw.z_20.ld1.uni-marburg.v0.upf",
@@ -149,7 +167,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "9450bbbdf5df930ab80112b19e81b133f99bb0d688e3d0e0c02a928776bd6922"
+    "sha256": "9450bbbdf5df930ab80112b19e81b133f99bb0d688e3d0e0c02a928776bd6922",
+    "valence_electrons": 20.0
   },
   "Cl": {
     "filename": "cl_pbe_v1.4.uspp.F.UPF",
@@ -157,7 +176,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "5b1ebdea1e5ba743fba0100806206287e1f7f00460c7e6f19791446beaee0655"
+    "sha256": "5b1ebdea1e5ba743fba0100806206287e1f7f00460c7e6f19791446beaee0655",
+    "valence_electrons": 7.0
   },
   "Cm": {
     "filename": "Cm.paw.z_18.ld1.uni-marburg.v0.upf",
@@ -165,7 +185,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "a0fba038964467c51250b82c4c6b75f062cebcf1099a2ea040815c62b4201caf"
+    "sha256": "a0fba038964467c51250b82c4c6b75f062cebcf1099a2ea040815c62b4201caf",
+    "valence_electrons": 18.0
   },
   "Co": {
     "filename": "Co_pbe_v1.2.uspp.F.UPF",
@@ -173,7 +194,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 360.0,
-    "sha256": "a5f392a0d35fc78cc9e2ac1636bb1cd02e9b80a063ea368e85be83b0e4523c45"
+    "sha256": "a5f392a0d35fc78cc9e2ac1636bb1cd02e9b80a063ea368e85be83b0e4523c45",
+    "valence_electrons": 17.0
   },
   "Cr": {
     "filename": "cr_pbe_v1.5.uspp.F.UPF",
@@ -181,7 +203,8 @@
     "pseudopotential": "GBRV-1.5",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "c7449bbfea358d76832cf2f7b43dc89101ead6891806773121bfaa93a140f6de"
+    "sha256": "c7449bbfea358d76832cf2f7b43dc89101ead6891806773121bfaa93a140f6de",
+    "valence_electrons": 14.0
   },
   "Cs": {
     "filename": "Cs_pbe_v1.uspp.F.UPF",
@@ -189,7 +212,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "5039c3123828de0c626459254b67b6637225866dd81d5ee1d855e26f99d3ac2c"
+    "sha256": "5039c3123828de0c626459254b67b6637225866dd81d5ee1d855e26f99d3ac2c",
+    "valence_electrons": 9.0
   },
   "Cu": {
     "filename": "Cu.paw.z_11.ld1.psl.v1.0.0-low.upf",
@@ -197,7 +221,8 @@
     "pseudopotential": "100PAW-low",
     "cutoff_wfc": 90.0,
     "cutoff_rho": 720.0,
-    "sha256": "b31028b2bae60cd9903260715a49b4c6d2b6dc654558c87023fa5206e427a16d"
+    "sha256": "b31028b2bae60cd9903260715a49b4c6d2b6dc654558c87023fa5206e427a16d",
+    "valence_electrons": 11.0
   },
   "Dy": {
     "filename": "Dy.paw.z_20.atompaw.wentzcovitch.v1.2.upf",
@@ -205,7 +230,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "c8718e1b6a5eee3d72c8c9a9d527bb351409cd27de3ebb3ecb4c9206df77d06d"
+    "sha256": "c8718e1b6a5eee3d72c8c9a9d527bb351409cd27de3ebb3ecb4c9206df77d06d",
+    "valence_electrons": 20.0
   },
   "Er": {
     "filename": "Er.paw.z_22.atompaw.wentzcovitch.v1.2.upf",
@@ -213,7 +239,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "90381456dc3b00a71dbfe262ea4f521ca05ae7f5a0a0dfc36178b00407e36c4d"
+    "sha256": "90381456dc3b00a71dbfe262ea4f521ca05ae7f5a0a0dfc36178b00407e36c4d",
+    "valence_electrons": 22.0
   },
   "Es": {
     "filename": "Es.paw.z_21.ld1.uni-marburg.v0.upf",
@@ -221,7 +248,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "98d4a354b114c632b1370635677cca0399ac900b62550a904e7980195032fb91"
+    "sha256": "98d4a354b114c632b1370635677cca0399ac900b62550a904e7980195032fb91",
+    "valence_electrons": 21.0
   },
   "Eu": {
     "filename": "Eu.paw.z_17.atompaw.wentzcovitch.v1.2.upf",
@@ -229,7 +257,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "0f920edc4c3a6a7521fb8f1452c9e7ce3b3e69522f55ab9199c54e06a6fffbd3"
+    "sha256": "0f920edc4c3a6a7521fb8f1452c9e7ce3b3e69522f55ab9199c54e06a6fffbd3",
+    "valence_electrons": 17.0
   },
   "F": {
     "filename": "f_pbe_v1.4.uspp.F.UPF",
@@ -237,7 +266,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 360.0,
-    "sha256": "9802dd8e5c30fe92ff0a8dc0865f4fb9023d6a3a42caccdd33c0de6de83d0883"
+    "sha256": "9802dd8e5c30fe92ff0a8dc0865f4fb9023d6a3a42caccdd33c0de6de83d0883",
+    "valence_electrons": 7.0
   },
   "Fe": {
     "filename": "Fe.pbe-spn-kjpaw_psl.0.2.1.UPF",
@@ -245,7 +275,8 @@
     "pseudopotential": "031PAW",
     "cutoff_wfc": 90.0,
     "cutoff_rho": 1080.0,
-    "sha256": "2317a0d3b136c09b6263e1ba328b505fb1ebf33bb4b28dc3df9e39af3184ef19"
+    "sha256": "2317a0d3b136c09b6263e1ba328b505fb1ebf33bb4b28dc3df9e39af3184ef19",
+    "valence_electrons": 16.0
   },
   "Fm": {
     "filename": "Fm.paw.z_22.ld1.uni-marburg.v0.upf",
@@ -253,7 +284,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "ee3245963570b07aed869f3a0df85709e219f890a53ed21cff248b23704e4ece"
+    "sha256": "ee3245963570b07aed869f3a0df85709e219f890a53ed21cff248b23704e4ece",
+    "valence_electrons": 22.0
   },
   "Fr": {
     "filename": "Fr.paw.z_19.ld1.psl.v1.0.0-high.upf",
@@ -261,7 +293,8 @@
     "pseudopotential": "100PAW",
     "cutoff_wfc": 150.0,
     "cutoff_rho": 1200.0,
-    "sha256": "ff14b36a6bb5eef48a88a2dac5b8f1624f583936423fa3c1ab982aec6fc307b1"
+    "sha256": "ff14b36a6bb5eef48a88a2dac5b8f1624f583936423fa3c1ab982aec6fc307b1",
+    "valence_electrons": 19.0
   },
   "Ga": {
     "filename": "Ga.pbe-dn-kjpaw_psl.1.0.0.UPF",
@@ -269,7 +302,8 @@
     "pseudopotential": "100PAW",
     "cutoff_wfc": 70.0,
     "cutoff_rho": 560.0,
-    "sha256": "cf8a2be9b30552dd9bb12304d2aa96978e5d10636ca562b42d5a37dc385acd15"
+    "sha256": "cf8a2be9b30552dd9bb12304d2aa96978e5d10636ca562b42d5a37dc385acd15",
+    "valence_electrons": 13.0
   },
   "Gd": {
     "filename": "Gd.paw.z_18.atompaw.wentzcovitch.v1.2.upf",
@@ -277,7 +311,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "ef4295b158490f8742559c5815e161256f1accfb54cb864be8ed2d0dec2ac085"
+    "sha256": "ef4295b158490f8742559c5815e161256f1accfb54cb864be8ed2d0dec2ac085",
+    "valence_electrons": 18.0
   },
   "Ge": {
     "filename": "ge_pbe_v1.4.uspp.F.UPF",
@@ -285,7 +320,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "1b95046ab0f3228e0404719ca66d0309af5a62313be0b22171b963566c90430b"
+    "sha256": "1b95046ab0f3228e0404719ca66d0309af5a62313be0b22171b963566c90430b",
+    "valence_electrons": 14.0
   },
   "H": {
     "filename": "H.pbe-rrkjus_psl.1.0.0.UPF",
@@ -293,7 +329,8 @@
     "pseudopotential": "100US",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "27f8a7e87851d59a2698237d6ab4578d62950640f4f175781b015a0ce731f962"
+    "sha256": "27f8a7e87851d59a2698237d6ab4578d62950640f4f175781b015a0ce731f962",
+    "valence_electrons": 1.0
   },
   "He": {
     "filename": "He_ONCV_PBE-1.0.oncvpsp.upf",
@@ -301,7 +338,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 200.0,
-    "sha256": "27fca1dad6cd2df7dbc35d5f5df3bd4e1104db0cdd929d1cab1eb6687276b035"
+    "sha256": "27fca1dad6cd2df7dbc35d5f5df3bd4e1104db0cdd929d1cab1eb6687276b035",
+    "valence_electrons": 2.0
   },
   "Hf": {
     "filename": "Hf-sp.oncvpsp.upf",
@@ -309,7 +347,8 @@
     "pseudopotential": "Dojo",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 200.0,
-    "sha256": "f019947b40f1831f9bd44a630e9445a07c1e864ce81f0ac6286035a1e0c2080b"
+    "sha256": "f019947b40f1831f9bd44a630e9445a07c1e864ce81f0ac6286035a1e0c2080b",
+    "valence_electrons": 12.0
   },
   "Hg": {
     "filename": "Hg_ONCV_PBE-1.0.oncvpsp.upf",
@@ -317,7 +356,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 200.0,
-    "sha256": "d9739c3b83e714fdbc820832d91c04a1bf0768e71e51f99fa72ab2c36b0a3f87"
+    "sha256": "d9739c3b83e714fdbc820832d91c04a1bf0768e71e51f99fa72ab2c36b0a3f87",
+    "valence_electrons": 20.0
   },
   "Ho": {
     "filename": "Ho.paw.z_21.atompaw.wentzcovitch.v1.2.upf",
@@ -325,7 +365,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "80f5abc892b8f7f6a6af10c76a3fcab97a5e24cc14bae801532e7ddeafd60df3"
+    "sha256": "80f5abc892b8f7f6a6af10c76a3fcab97a5e24cc14bae801532e7ddeafd60df3",
+    "valence_electrons": 21.0
   },
   "I": {
     "filename": "I.pbe-n-kjpaw_psl.0.2.UPF",
@@ -333,7 +374,8 @@
     "pseudopotential": "031PAW",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 280.0,
-    "sha256": "24cb9b3d87f9cd94b025b333aef9360b1e1a721e82ca0efacc5cc33f8370ae8f"
+    "sha256": "24cb9b3d87f9cd94b025b333aef9360b1e1a721e82ca0efacc5cc33f8370ae8f",
+    "valence_electrons": 7.0
   },
   "In": {
     "filename": "In.pbe-dn-rrkjus_psl.0.2.2.UPF",
@@ -341,7 +383,8 @@
     "pseudopotential": "031US",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 400.0,
-    "sha256": "ac76860606654bf63d2950129329ee50267d50ad92296728a7d42e9355bcfb39"
+    "sha256": "ac76860606654bf63d2950129329ee50267d50ad92296728a7d42e9355bcfb39",
+    "valence_electrons": 13.0
   },
   "Ir": {
     "filename": "Ir_pbe_v1.2.uspp.F.UPF",
@@ -349,7 +392,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 55.0,
     "cutoff_rho": 440.0,
-    "sha256": "7fb680571391e90cc59b343841d65f69fbf47382191c6fc511717f0e0b689e03"
+    "sha256": "7fb680571391e90cc59b343841d65f69fbf47382191c6fc511717f0e0b689e03",
+    "valence_electrons": 15.0
   },
   "K": {
     "filename": "K.pbe-spn-kjpaw_psl.1.0.0.UPF",
@@ -357,7 +401,8 @@
     "pseudopotential": "100PAW",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "1dcce1298a9d62eb5625f379743a3da1f4dca353d989d7893ad12e9b3a561c21"
+    "sha256": "1dcce1298a9d62eb5625f379743a3da1f4dca353d989d7893ad12e9b3a561c21",
+    "valence_electrons": 9.0
   },
   "Kr": {
     "filename": "Kr_ONCV_PBE-1.0.oncvpsp.upf",
@@ -365,7 +410,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 180.0,
-    "sha256": "c582d70ae395b1eb46dcde90bfe209364b276c51f076444d1872043075dea228"
+    "sha256": "c582d70ae395b1eb46dcde90bfe209364b276c51f076444d1872043075dea228",
+    "valence_electrons": 8.0
   },
   "La": {
     "filename": "La.paw.z_11.atompaw.wentzcovitch.v1.2.upf",
@@ -373,7 +419,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "8d610fb41db376d5e24de33648147b807d560114cebc0041310599c9333eafa2"
+    "sha256": "8d610fb41db376d5e24de33648147b807d560114cebc0041310599c9333eafa2",
+    "valence_electrons": 11.0
   },
   "Li": {
     "filename": "li_pbe_v1.4.uspp.F.UPF",
@@ -381,7 +428,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "02cc4b3810e28a43b570277840d9631ca24f634d922928200c047b72c0a86bf5"
+    "sha256": "02cc4b3810e28a43b570277840d9631ca24f634d922928200c047b72c0a86bf5",
+    "valence_electrons": 3.0
   },
   "Lr": {
     "filename": "Lr.paw.z_25.ld1.uni-marburg.v0.upf",
@@ -389,7 +437,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "590342d887bf4a904da6b265946b4871f6627da7d08a65e35cf79f2d96373820"
+    "sha256": "590342d887bf4a904da6b265946b4871f6627da7d08a65e35cf79f2d96373820",
+    "valence_electrons": 25.0
   },
   "Lu": {
     "filename": "Lu.paw.z_25.atompaw.wentzcovitch.v1.2.upf",
@@ -397,7 +446,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 360.0,
-    "sha256": "db462df8ffad370ffec0bdb77b723e9cdc66f6a46c9ca7597736a8f66ab6b352"
+    "sha256": "db462df8ffad370ffec0bdb77b723e9cdc66f6a46c9ca7597736a8f66ab6b352",
+    "valence_electrons": 25.0
   },
   "Md": {
     "filename": "Md.paw.z_23.ld1.uni-marburg.v0.upf",
@@ -405,7 +455,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "7a9fa74b12905256c3f17950be0ac441746acee08515f5c3b50166127736fbb4"
+    "sha256": "7a9fa74b12905256c3f17950be0ac441746acee08515f5c3b50166127736fbb4",
+    "valence_electrons": 23.0
   },
   "Mg": {
     "filename": "Mg.pbe-n-kjpaw_psl.0.3.0.UPF",
@@ -413,7 +464,8 @@
     "pseudopotential": "031PAW",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "f057a22e5d8484686a1b3fe3724aa01af4236fe8a845e5c2f772c472f107639f"
+    "sha256": "f057a22e5d8484686a1b3fe3724aa01af4236fe8a845e5c2f772c472f107639f",
+    "valence_electrons": 2.0
   },
   "Mn": {
     "filename": "mn_pbe_v1.5.uspp.F.UPF",
@@ -421,7 +473,8 @@
     "pseudopotential": "GBRV-1.5",
     "cutoff_wfc": 65.0,
     "cutoff_rho": 780.0,
-    "sha256": "c5b6117e22f571895b69dbec8491df6afb2efee1206dad54680881dbd33eb8f0"
+    "sha256": "c5b6117e22f571895b69dbec8491df6afb2efee1206dad54680881dbd33eb8f0",
+    "valence_electrons": 15.0
   },
   "Mo": {
     "filename": "Mo_ONCV_PBE-1.0.oncvpsp.upf",
@@ -429,7 +482,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 140.0,
-    "sha256": "bf2bf79aec40a5e0f0b390faabb4be1a33829e8e25d28040e01a08f0ab1dcb03"
+    "sha256": "bf2bf79aec40a5e0f0b390faabb4be1a33829e8e25d28040e01a08f0ab1dcb03",
+    "valence_electrons": 14.0
   },
   "N": {
     "filename": "N.pbe-n-radius_5.UPF",
@@ -437,7 +491,8 @@
     "pseudopotential": "THEOS",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "9efee6eb6465c9020af3c8f395fa837810e8f1263ac6cfd52e437a170f8f6e9a"
+    "sha256": "9efee6eb6465c9020af3c8f395fa837810e8f1263ac6cfd52e437a170f8f6e9a",
+    "valence_electrons": 5.0
   },
   "Na": {
     "filename": "na_pbe_v1.5.uspp.F.UPF",
@@ -445,7 +500,8 @@
     "pseudopotential": "GBRV-1.5",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "f84820c4280d21603bd50ae76a08e15c26864391ea055cf50affc4aedefc8f87"
+    "sha256": "f84820c4280d21603bd50ae76a08e15c26864391ea055cf50affc4aedefc8f87",
+    "valence_electrons": 9.0
   },
   "Nb": {
     "filename": "Nb.pbe-spn-kjpaw_psl.0.3.0.UPF",
@@ -453,7 +509,8 @@
     "pseudopotential": "031PAW",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "ccf07218ea34daaa63ff57d9f44ca8b4b529728cccbc8f74dd5fc804ac01e48e"
+    "sha256": "ccf07218ea34daaa63ff57d9f44ca8b4b529728cccbc8f74dd5fc804ac01e48e",
+    "valence_electrons": 13.0
   },
   "Nd": {
     "filename": "Nd.paw.z_14.atompaw.wentzcovitch.v1.2.upf",
@@ -461,7 +518,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "443c472700a658d76d39503670c5923a9fd47338bcc543050ba6968b393bc292"
+    "sha256": "443c472700a658d76d39503670c5923a9fd47338bcc543050ba6968b393bc292",
+    "valence_electrons": 14.0
   },
   "Ne": {
     "filename": "Ne_ONCV_PBE-1.0.oncvpsp.upf",
@@ -469,7 +527,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 200.0,
-    "sha256": "3ab08110ec2368b8693a06511bc0e633ffe175f6e4c93b622cf07f4c48f4de9b"
+    "sha256": "3ab08110ec2368b8693a06511bc0e633ffe175f6e4c93b622cf07f4c48f4de9b",
+    "valence_electrons": 8.0
   },
   "Ni": {
     "filename": "ni_pbe_v1.4.uspp.F.UPF",
@@ -477,7 +536,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 360.0,
-    "sha256": "f76b86ce60cde3d83dfcc8df79ba05478db573d158289f1b226919442d977d25"
+    "sha256": "f76b86ce60cde3d83dfcc8df79ba05478db573d158289f1b226919442d977d25",
+    "valence_electrons": 18.0
   },
   "No": {
     "filename": "No.paw.z_24.ld1.uni-marburg.v0.upf",
@@ -485,7 +545,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "73f25a88748f4e88ef7a33c3e47b6481ec64d50d38acc75a28a828e632c2ffca"
+    "sha256": "73f25a88748f4e88ef7a33c3e47b6481ec64d50d38acc75a28a828e632c2ffca",
+    "valence_electrons": 24.0
   },
   "Np": {
     "filename": "Np.paw.z_15.ld1.uni-marburg.v0.upf",
@@ -493,7 +554,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "126ce51b5b9f3fb574662090752cdb6aaf9bdf41df307ade714d2f5abcf967af"
+    "sha256": "126ce51b5b9f3fb574662090752cdb6aaf9bdf41df307ade714d2f5abcf967af",
+    "valence_electrons": 15.0
   },
   "O": {
     "filename": "O.pbe-n-kjpaw_psl.0.1.UPF",
@@ -501,7 +563,8 @@
     "pseudopotential": "031PAW",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 400.0,
-    "sha256": "7c4b6ed541f83d0afdf5c1d3a8c611340f073f3e2b11e95b7963bb2ee26929aa"
+    "sha256": "7c4b6ed541f83d0afdf5c1d3a8c611340f073f3e2b11e95b7963bb2ee26929aa",
+    "valence_electrons": 6.0
   },
   "Os": {
     "filename": "Os_pbe_v1.2.uspp.F.UPF",
@@ -509,7 +572,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "fb26113f4c4f67a8e0f996bff2a6411a1abdbd12c0d023912361536fdfde4d28"
+    "sha256": "fb26113f4c4f67a8e0f996bff2a6411a1abdbd12c0d023912361536fdfde4d28",
+    "valence_electrons": 16.0
   },
   "P": {
     "filename": "P.pbe-n-rrkjus_psl.1.0.0.UPF",
@@ -517,7 +581,8 @@
     "pseudopotential": "100US",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "2d112dfec2e2d9b75a971574d9116aa92249988177791659bbcd2ba15f23c20c"
+    "sha256": "2d112dfec2e2d9b75a971574d9116aa92249988177791659bbcd2ba15f23c20c",
+    "valence_electrons": 5.0
   },
   "Pa": {
     "filename": "Pa.paw.z_13.ld1.uni-marburg.v0.upf",
@@ -525,7 +590,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "7449f12dca36bf20749ef39ff0b8faab5ed351f2934c83da08e5f27eea429ce8"
+    "sha256": "7449f12dca36bf20749ef39ff0b8faab5ed351f2934c83da08e5f27eea429ce8",
+    "valence_electrons": 13.0
   },
   "Pb": {
     "filename": "Pb.pbe-dn-kjpaw_psl.0.2.2.UPF",
@@ -533,7 +599,8 @@
     "pseudopotential": "031PAW",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "b67ab5c757bc89933ccd96deecdf3b629c72783a38b6c23d78457e4abb61219d"
+    "sha256": "b67ab5c757bc89933ccd96deecdf3b629c72783a38b6c23d78457e4abb61219d",
+    "valence_electrons": 14.0
   },
   "Pd": {
     "filename": "Pd_ONCV_PBE-1.0.oncvpsp.upf",
@@ -541,7 +608,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 180.0,
-    "sha256": "ef259baba5cf16c89389729e960cfb851e4cba656aef62fd8bf1a93de2124020"
+    "sha256": "ef259baba5cf16c89389729e960cfb851e4cba656aef62fd8bf1a93de2124020",
+    "valence_electrons": 18.0
   },
   "Pm": {
     "filename": "Pm.paw.z_15.atompaw.wentzcovitch.v1.2.upf",
@@ -549,7 +617,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "6bbcf0610301712e228cb498212d92b73a056081a4d702cb0075c6d4b99ce91e"
+    "sha256": "6bbcf0610301712e228cb498212d92b73a056081a4d702cb0075c6d4b99ce91e",
+    "valence_electrons": 15.0
   },
   "Po": {
     "filename": "Po.pbe-dn-rrkjus_psl.1.0.0.UPF",
@@ -557,7 +626,8 @@
     "pseudopotential": "100US",
     "cutoff_wfc": 75.0,
     "cutoff_rho": 600.0,
-    "sha256": "f4ac4279ab48d0c0ac9c4c16a6cff4dbe5546b636bb64c97daf98837a8126e11"
+    "sha256": "f4ac4279ab48d0c0ac9c4c16a6cff4dbe5546b636bb64c97daf98837a8126e11",
+    "valence_electrons": 16.0
   },
   "Pr": {
     "filename": "Pr.paw.z_13.atompaw.wentzcovitch.v1.2.upf",
@@ -565,7 +635,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "09468e74ab83a13d0e1438c4b25f404cfa2f5702f1879efc06327b5850b6ca83"
+    "sha256": "09468e74ab83a13d0e1438c4b25f404cfa2f5702f1879efc06327b5850b6ca83",
+    "valence_electrons": 13.0
   },
   "Pt": {
     "filename": "pt_pbe_v1.4.uspp.F.UPF",
@@ -573,7 +644,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 280.0,
-    "sha256": "69f60fd2451b1845888681f987a801a2c45a8df104d0fe0b43ad4cd1c6e3ad81"
+    "sha256": "69f60fd2451b1845888681f987a801a2c45a8df104d0fe0b43ad4cd1c6e3ad81",
+    "valence_electrons": 16.0
   },
   "Pu": {
     "filename": "Pu.paw.z_16.ld1.uni-marburg.v0.upf",
@@ -581,7 +653,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "4b39845d3f496ab5d81ea832d92ec46570943277b6fc037b619187ecede5e97f"
+    "sha256": "4b39845d3f496ab5d81ea832d92ec46570943277b6fc037b619187ecede5e97f",
+    "valence_electrons": 16.0
   },
   "Ra": {
     "filename": "Ra.paw.z_20.ld1.psl.v1.0.0-high.upf",
@@ -589,7 +662,8 @@
     "pseudopotential": "100PAW",
     "cutoff_wfc": 90.0,
     "cutoff_rho": 720.0,
-    "sha256": "8cd1f59313a70ea8674f095ef7417e3203133d64348d082e424356c0d9543432"
+    "sha256": "8cd1f59313a70ea8674f095ef7417e3203133d64348d082e424356c0d9543432",
+    "valence_electrons": 20.0
   },
   "Rb": {
     "filename": "Rb_ONCV_PBE-1.0.oncvpsp.upf",
@@ -597,7 +671,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 120.0,
-    "sha256": "b5f77d0adb6f4ae9fbae600bd3a16681e6fc46c301f5502e94f741491e065d90"
+    "sha256": "b5f77d0adb6f4ae9fbae600bd3a16681e6fc46c301f5502e94f741491e065d90",
+    "valence_electrons": 9.0
   },
   "Re": {
     "filename": "Re_pbe_v1.2.uspp.F.UPF",
@@ -605,7 +680,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "61146e72676c25b08fce566316216ce8c1e4ec1317f418513daf36e6e52a65eb"
+    "sha256": "61146e72676c25b08fce566316216ce8c1e4ec1317f418513daf36e6e52a65eb",
+    "valence_electrons": 15.0
   },
   "Rh": {
     "filename": "Rh_ONCV_PBE-1.0.oncvpsp.upf",
@@ -613,7 +689,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 140.0,
-    "sha256": "e9b88f5513e25cd2833cd4587d2d34b46dd0be86aaa0e7b00404147510a87504"
+    "sha256": "e9b88f5513e25cd2833cd4587d2d34b46dd0be86aaa0e7b00404147510a87504",
+    "valence_electrons": 17.0
   },
   "Rn": {
     "filename": "Rn.pbe-dn-kjpaw_psl.1.0.0.UPF",
@@ -621,7 +698,8 @@
     "pseudopotential": "100PAW",
     "cutoff_wfc": 120.0,
     "cutoff_rho": 960.0,
-    "sha256": "3835b30b9c2994a0e6cbc75d11288abcea4c26ebe862191a0401d6ceb0869258"
+    "sha256": "3835b30b9c2994a0e6cbc75d11288abcea4c26ebe862191a0401d6ceb0869258",
+    "valence_electrons": 18.0
   },
   "Ru": {
     "filename": "Ru_ONCV_PBE-1.0.oncvpsp.upf",
@@ -629,7 +707,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 140.0,
-    "sha256": "b9e3df964a103d42e34c2027028361cb6592bdb0bff60275bbaa48c5eaf2adff"
+    "sha256": "b9e3df964a103d42e34c2027028361cb6592bdb0bff60275bbaa48c5eaf2adff",
+    "valence_electrons": 16.0
   },
   "S": {
     "filename": "s_pbe_v1.4.uspp.F.UPF",
@@ -637,7 +716,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 280.0,
-    "sha256": "84ad731864187f416f714e961c3ad2f04dcbf811618e724d277885c18cb470df"
+    "sha256": "84ad731864187f416f714e961c3ad2f04dcbf811618e724d277885c18cb470df",
+    "valence_electrons": 6.0
   },
   "Sb": {
     "filename": "sb_pbe_v1.4.uspp.F.UPF",
@@ -645,7 +725,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "efe7c83d2aca3ab7d66eb1fc5b50c6e865e18521318454a41a9c106cb1f456d0"
+    "sha256": "efe7c83d2aca3ab7d66eb1fc5b50c6e865e18521318454a41a9c106cb1f456d0",
+    "valence_electrons": 15.0
   },
   "Sc": {
     "filename": "Sc_ONCV_PBE-1.0.oncvpsp.upf",
@@ -653,7 +734,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 160.0,
-    "sha256": "60775605c9d2ea22ab38f061d8ef6421bb0e8ec71f0de4d7ea24a1e0936b702b"
+    "sha256": "60775605c9d2ea22ab38f061d8ef6421bb0e8ec71f0de4d7ea24a1e0936b702b",
+    "valence_electrons": 11.0
   },
   "Se": {
     "filename": "Se_pbe_v1.uspp.F.UPF",
@@ -661,7 +743,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "fcb1fe6e9c54d43fd3537f1103b9003ba92975e80c0a0214b21d1bf4abb494c8"
+    "sha256": "fcb1fe6e9c54d43fd3537f1103b9003ba92975e80c0a0214b21d1bf4abb494c8",
+    "valence_electrons": 6.0
   },
   "Si": {
     "filename": "Si.pbe-n-rrkjus_psl.1.0.0.UPF",
@@ -669,7 +752,8 @@
     "pseudopotential": "100US",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "ae3aefd0811f9499dbc4a72f1f9ae02ef4fc7f3568bf6f559b68668719c69e2b"
+    "sha256": "ae3aefd0811f9499dbc4a72f1f9ae02ef4fc7f3568bf6f559b68668719c69e2b",
+    "valence_electrons": 4.0
   },
   "Sm": {
     "filename": "Sm.paw.z_16.atompaw.wentzcovitch.v1.2.upf",
@@ -677,7 +761,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "184c92f8b08a6ef2411da67d63638f02e1cab575ce51a077558a9a123cbe2a4b"
+    "sha256": "184c92f8b08a6ef2411da67d63638f02e1cab575ce51a077558a9a123cbe2a4b",
+    "valence_electrons": 16.0
   },
   "Sn": {
     "filename": "Sn_pbe_v1.uspp.F.UPF",
@@ -685,7 +770,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "2985a215143f6458f0a627315a843123d534bff482dc09b40415af4605359431"
+    "sha256": "2985a215143f6458f0a627315a843123d534bff482dc09b40415af4605359431",
+    "valence_electrons": 14.0
   },
   "Sr": {
     "filename": "Sr_pbe_v1.uspp.F.UPF",
@@ -693,7 +779,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "292f7f1da5cae4b18da817ab2e82943ad90e74f267a06a6172db8dbcb6edf0ce"
+    "sha256": "292f7f1da5cae4b18da817ab2e82943ad90e74f267a06a6172db8dbcb6edf0ce",
+    "valence_electrons": 10.0
   },
   "Ta": {
     "filename": "Ta_pbe_v1.uspp.F.UPF",
@@ -701,7 +788,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 45.0,
     "cutoff_rho": 360.0,
-    "sha256": "e0850b94d7007d47691d131db1fa5ffdaaa6f6a573c1ebf1fb425e46ed891ee1"
+    "sha256": "e0850b94d7007d47691d131db1fa5ffdaaa6f6a573c1ebf1fb425e46ed891ee1",
+    "valence_electrons": 13.0
   },
   "Tb": {
     "filename": "Tb.paw.z_19.atompaw.wentzcovitch.v1.2.upf",
@@ -709,7 +797,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "3374f9a6df6df6d5eaac70e5570b4f1bdeac3b8480715ef0b02d760278bee16f"
+    "sha256": "3374f9a6df6df6d5eaac70e5570b4f1bdeac3b8480715ef0b02d760278bee16f",
+    "valence_electrons": 19.0
   },
   "Tc": {
     "filename": "Tc_ONCV_PBE-1.0.oncvpsp.upf",
@@ -717,7 +806,8 @@
     "pseudopotential": "SG15",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 120.0,
-    "sha256": "5a01ef59369df4bb2bf87ebf1db024bc5387caaa3924f19280e97bbce4b9fa21"
+    "sha256": "5a01ef59369df4bb2bf87ebf1db024bc5387caaa3924f19280e97bbce4b9fa21",
+    "valence_electrons": 15.0
   },
   "Te": {
     "filename": "Te_pbe_v1.uspp.F.UPF",
@@ -725,7 +815,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "5f18f14282ab78c660a46a08ed8787a1247036c7509b7c0436d8441faf497e36"
+    "sha256": "5f18f14282ab78c660a46a08ed8787a1247036c7509b7c0436d8441faf497e36",
+    "valence_electrons": 6.0
   },
   "Th": {
     "filename": "Th.paw.z_12.ld1.uni-marburg.v0.upf",
@@ -733,7 +824,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "49ca7222bde3238b4a06d01f8a4cc5908f11a1f11681684b16b107600e15c96c"
+    "sha256": "49ca7222bde3238b4a06d01f8a4cc5908f11a1f11681684b16b107600e15c96c",
+    "valence_electrons": 12.0
   },
   "Ti": {
     "filename": "ti_pbe_v1.4.uspp.F.UPF",
@@ -741,7 +833,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 280.0,
-    "sha256": "747afa52fa17dc061e9eff72bcea534e81ffa5a4a5d33af3eb8fc9f1b3aee580"
+    "sha256": "747afa52fa17dc061e9eff72bcea534e81ffa5a4a5d33af3eb8fc9f1b3aee580",
+    "valence_electrons": 12.0
   },
   "Tl": {
     "filename": "Tl_pbe_v1.2.uspp.F.UPF",
@@ -749,7 +842,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 50.0,
     "cutoff_rho": 400.0,
-    "sha256": "018619075345aa953f960db6fbb6d7bba035adf76a8b210d57179489d14b1be2"
+    "sha256": "018619075345aa953f960db6fbb6d7bba035adf76a8b210d57179489d14b1be2",
+    "valence_electrons": 13.0
   },
   "Tm": {
     "filename": "Tm.paw.z_23.atompaw.wentzcovitch.v1.2.upf",
@@ -757,7 +851,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "c1c41a375fa615f449e5f0e107a8de867587817dbc4669f1b184a1a31ed40c63"
+    "sha256": "c1c41a375fa615f449e5f0e107a8de867587817dbc4669f1b184a1a31ed40c63",
+    "valence_electrons": 23.0
   },
   "U": {
     "filename": "U.paw.z_14.ld1.uni-marburg.v0.upf",
@@ -765,7 +860,8 @@
     "pseudopotential": "MalteSachs",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 480.0,
-    "sha256": "93edc03742fddf3f1b6676de2a4bb6a853ee00dc8ac9fdae7adf5e99e125ba2d"
+    "sha256": "93edc03742fddf3f1b6676de2a4bb6a853ee00dc8ac9fdae7adf5e99e125ba2d",
+    "valence_electrons": 14.0
   },
   "V": {
     "filename": "v_pbe_v1.4.uspp.F.UPF",
@@ -773,7 +869,8 @@
     "pseudopotential": "GBRV-1.4",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 280.0,
-    "sha256": "4fc8afef98a911c82908fb9142edf71b2f598dd98762b355a6d291d834fb6d0c"
+    "sha256": "4fc8afef98a911c82908fb9142edf71b2f598dd98762b355a6d291d834fb6d0c",
+    "valence_electrons": 13.0
   },
   "W": {
     "filename": "W_pbe_v1.2.uspp.F.UPF",
@@ -781,7 +878,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "3cb024d05ba2413340c9e993bc149bf94d44fb23e609642466d87ca30c88c569"
+    "sha256": "3cb024d05ba2413340c9e993bc149bf94d44fb23e609642466d87ca30c88c569",
+    "valence_electrons": 14.0
   },
   "Xe": {
     "filename": "Xe_ONCV_PBE-1.1.oncvpsp.upf",
@@ -789,7 +887,8 @@
     "pseudopotential": "SG15-1.1",
     "cutoff_wfc": 60.0,
     "cutoff_rho": 240.0,
-    "sha256": "bb7980f7a3c73e56e18e737f07bc14e4396a3e5e8b95fcf1adc68807093b4fc3"
+    "sha256": "bb7980f7a3c73e56e18e737f07bc14e4396a3e5e8b95fcf1adc68807093b4fc3",
+    "valence_electrons": 18.0
   },
   "Y": {
     "filename": "Y_pbe_v1.uspp.F.UPF",
@@ -797,7 +896,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 35.0,
     "cutoff_rho": 280.0,
-    "sha256": "5be8c6f04a4624425acd919bf34103b4498606638e23b0adb6386ce4f6fc86fc"
+    "sha256": "5be8c6f04a4624425acd919bf34103b4498606638e23b0adb6386ce4f6fc86fc",
+    "valence_electrons": 11.0
   },
   "Yb": {
     "filename": "Yb.paw.z_24.atompaw.wentzcovitch.v1.2.upf",
@@ -805,7 +905,8 @@
     "pseudopotential": "Wentzcovitch",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "c966c2b8d6efeb97b0a77c05df8d658eb48bbe6ab00a099679c8b4aeff212ff6"
+    "sha256": "c966c2b8d6efeb97b0a77c05df8d658eb48bbe6ab00a099679c8b4aeff212ff6",
+    "valence_electrons": 24.0
   },
   "Zn": {
     "filename": "Zn_pbe_v1.uspp.F.UPF",
@@ -813,7 +914,8 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 40.0,
     "cutoff_rho": 320.0,
-    "sha256": "7710c776159022cdfa14188f04942712811d9a24ad0e74db5ce7c3bdfb95dbbf"
+    "sha256": "7710c776159022cdfa14188f04942712811d9a24ad0e74db5ce7c3bdfb95dbbf",
+    "valence_electrons": 20.0
   },
   "Zr": {
     "filename": "Zr_pbe_v1.uspp.F.UPF",
@@ -821,6 +923,7 @@
     "pseudopotential": "GBRV-1.2",
     "cutoff_wfc": 30.0,
     "cutoff_rho": 240.0,
-    "sha256": "d56e2997788a4b3d90bb829416161ff9eb6ccdfe377cb52acfbdd2175f4b4acf"
+    "sha256": "d56e2997788a4b3d90bb829416161ff9eb6ccdfe377cb52acfbdd2175f4b4acf",
+    "valence_electrons": 12.0
   }
 }

@@ -1,0 +1,1620 @@
+{
+ "families": {
+  "sr": {
+   "basis_file": "BASIS_MOLOPT",
+   "elements": {
+    "Ag": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q11",
+     "potentials": {
+      "LDA": "GTH-PADE-q11",
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Al": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q3",
+     "potentials": {
+      "LDA": "GTH-PADE-q3",
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Ar": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q8",
+     "potentials": {
+      "LDA": "GTH-PADE-q8",
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "As": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q5",
+     "potentials": {
+      "LDA": "GTH-PADE-q5",
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "At": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q7",
+     "potentials": {
+      "LDA": "GTH-PADE-q7",
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Au": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q11",
+     "potentials": {
+      "LDA": "GTH-PADE-q11",
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "B": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q3",
+     "potentials": {
+      "LDA": "GTH-PADE-q3",
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Ba": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q10",
+     "potentials": {
+      "LDA": "GTH-PADE-q10",
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Be": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q4",
+     "potentials": {
+      "LDA": "GTH-PADE-q4",
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Bi": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q5",
+     "potentials": {
+      "LDA": "GTH-PADE-q5",
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Br": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q7",
+     "potentials": {
+      "LDA": "GTH-PADE-q7",
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "C": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q4",
+     "potentials": {
+      "LDA": "GTH-PADE-q4",
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Ca": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q10",
+     "potentials": {
+      "LDA": "GTH-PADE-q10",
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Cd": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q12",
+     "potentials": {
+      "LDA": "GTH-PADE-q12",
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Cl": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q7",
+     "potentials": {
+      "LDA": "GTH-PADE-q7",
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Co": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q17",
+     "potentials": {
+      "LDA": "GTH-PADE-q17",
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "Cr": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q14",
+     "potentials": {
+      "LDA": "GTH-PADE-q14",
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "Cs": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q9",
+     "potentials": {
+      "LDA": "GTH-PADE-q9",
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Cu": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q11",
+     "potentials": {
+      "LDA": "GTH-PADE-q11",
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "F": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q7",
+     "potentials": {
+      "LDA": "GTH-PADE-q7",
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Fe": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q16",
+     "potentials": {
+      "LDA": "GTH-PADE-q16",
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "Ga": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q13",
+     "potentials": {
+      "LDA": "GTH-PADE-q13",
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ge": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q4",
+     "potentials": {
+      "LDA": "GTH-PADE-q4",
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "H": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q1",
+     "potentials": {
+      "LDA": "GTH-PADE-q1",
+      "PBE": "GTH-PBE-q1"
+     },
+     "valence": 1
+    },
+    "He": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q2",
+     "potentials": {
+      "LDA": "GTH-PADE-q2",
+      "PBE": "GTH-PBE-q2"
+     },
+     "valence": 2
+    },
+    "Hf": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q12",
+     "potentials": {
+      "LDA": "GTH-PADE-q12",
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Hg": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q12",
+     "potentials": {
+      "LDA": "GTH-PADE-q12",
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "I": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q7",
+     "potentials": {
+      "LDA": "GTH-PADE-q7",
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "In": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q13",
+     "potentials": {
+      "LDA": "GTH-PADE-q13",
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ir": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q17",
+     "potentials": {
+      "LDA": "GTH-PADE-q17",
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "K": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q9",
+     "potentials": {
+      "LDA": "GTH-PADE-q9",
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Kr": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q8",
+     "potentials": {
+      "LDA": "GTH-PADE-q8",
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Li": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q3",
+     "potentials": {
+      "LDA": "GTH-PADE-q3",
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Mg": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q10",
+     "potentials": {
+      "LDA": "GTH-PADE-q10",
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Mn": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q15",
+     "potentials": {
+      "LDA": "GTH-PADE-q15",
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Mo": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q14",
+     "potentials": {
+      "LDA": "GTH-PADE-q14",
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "N": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q5",
+     "potentials": {
+      "LDA": "GTH-PADE-q5",
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Na": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q9",
+     "potentials": {
+      "LDA": "GTH-PADE-q9",
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Nb": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q13",
+     "potentials": {
+      "LDA": "GTH-PADE-q13",
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ne": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q8",
+     "potentials": {
+      "LDA": "GTH-PADE-q8",
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Ni": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q18",
+     "potentials": {
+      "LDA": "GTH-PADE-q18",
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "O": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q6",
+     "potentials": {
+      "LDA": "GTH-PADE-q6",
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Os": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q16",
+     "potentials": {
+      "LDA": "GTH-PADE-q16",
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "P": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q5",
+     "potentials": {
+      "LDA": "GTH-PADE-q5",
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Pb": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q4",
+     "potentials": {
+      "LDA": "GTH-PADE-q4",
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Pd": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q18",
+     "potentials": {
+      "LDA": "GTH-PADE-q18",
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "Po": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q6",
+     "potentials": {
+      "LDA": "GTH-PADE-q6",
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Pt": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q18",
+     "potentials": {
+      "LDA": "GTH-PADE-q18",
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "Rb": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q9",
+     "potentials": {
+      "LDA": "GTH-PADE-q9",
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Re": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q15",
+     "potentials": {
+      "LDA": "GTH-PADE-q15",
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Rh": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q17",
+     "potentials": {
+      "LDA": "GTH-PADE-q17",
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "Rn": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q8",
+     "potentials": {
+      "LDA": "GTH-PADE-q8",
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Ru": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q16",
+     "potentials": {
+      "LDA": "GTH-PADE-q16",
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "S": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q6",
+     "potentials": {
+      "LDA": "GTH-PADE-q6",
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Sb": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q5",
+     "potentials": {
+      "LDA": "GTH-PADE-q5",
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Sc": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q11",
+     "potentials": {
+      "LDA": "GTH-PADE-q11",
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Se": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q6",
+     "potentials": {
+      "LDA": "GTH-PADE-q6",
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Si": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q4",
+     "potentials": {
+      "LDA": "GTH-PADE-q4",
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Sn": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q4",
+     "potentials": {
+      "LDA": "GTH-PADE-q4",
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Sr": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q10",
+     "potentials": {
+      "LDA": "GTH-PADE-q10",
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Ta": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q13",
+     "potentials": {
+      "LDA": "GTH-PADE-q13",
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Tc": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q15",
+     "potentials": {
+      "LDA": "GTH-PADE-q15",
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Te": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q6",
+     "potentials": {
+      "LDA": "GTH-PADE-q6",
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Ti": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q12",
+     "potentials": {
+      "LDA": "GTH-PADE-q12",
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Tl": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q13",
+     "potentials": {
+      "LDA": "GTH-PADE-q13",
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "V": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q13",
+     "potentials": {
+      "LDA": "GTH-PADE-q13",
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "W": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q14",
+     "potentials": {
+      "LDA": "GTH-PADE-q14",
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "Xe": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q8",
+     "potentials": {
+      "LDA": "GTH-PADE-q8",
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Y": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q11",
+     "potentials": {
+      "LDA": "GTH-PADE-q11",
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Zn": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q12",
+     "potentials": {
+      "LDA": "GTH-PADE-q12",
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Zr": {
+     "basis": "DZVP-MOLOPT-SR-GTH-q12",
+     "potentials": {
+      "LDA": "GTH-PADE-q12",
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    }
+   },
+   "label": "DZVP-MOLOPT-SR-GTH with GTH pseudopotentials",
+   "potential_file": "GTH_POTENTIALS"
+  },
+  "uzh_dzvp": {
+   "basis_file": "BASIS_MOLOPT_UZH",
+   "elements": {
+    "Ag": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Al": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q3",
+     "potentials": {
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Ar": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "As": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "At": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Au": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "B": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q3",
+     "potentials": {
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Ba": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q10",
+     "potentials": {
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Be": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Bi": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Br": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "C": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Ca": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q10",
+     "potentials": {
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Cd": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Cl": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Co": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q17",
+     "potentials": {
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "Cr": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q14",
+     "potentials": {
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "Cs": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q9",
+     "potentials": {
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Cu": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "F": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Fe": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q16",
+     "potentials": {
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "Ga": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ge": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "H": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q1",
+     "potentials": {
+      "PBE": "GTH-PBE-q1"
+     },
+     "valence": 1
+    },
+    "He": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q2",
+     "potentials": {
+      "PBE": "GTH-PBE-q2"
+     },
+     "valence": 2
+    },
+    "Hf": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Hg": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "I": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "In": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ir": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q17",
+     "potentials": {
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "K": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q9",
+     "potentials": {
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Kr": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Li": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q3",
+     "potentials": {
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Mg": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q10",
+     "potentials": {
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Mn": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q15",
+     "potentials": {
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Mo": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q14",
+     "potentials": {
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "N": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Na": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q9",
+     "potentials": {
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Nb": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ne": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Ni": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q18",
+     "potentials": {
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "O": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Os": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q16",
+     "potentials": {
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "P": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Pb": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Pd": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q18",
+     "potentials": {
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "Po": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Pt": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q18",
+     "potentials": {
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "Rb": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q9",
+     "potentials": {
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Re": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q15",
+     "potentials": {
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Rh": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q17",
+     "potentials": {
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "Rn": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Ru": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q16",
+     "potentials": {
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "S": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Sb": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Sc": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Se": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Si": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Sn": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Sr": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q10",
+     "potentials": {
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Ta": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Tc": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q15",
+     "potentials": {
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Te": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Ti": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Tl": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "V": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "W": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q14",
+     "potentials": {
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "Xe": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Y": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Zn": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Zr": {
+     "basis": "DZVP-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    }
+   },
+   "label": "DZVP-MOLOPT-PBE-GTH (UZH) with UZH pseudopotentials",
+   "potential_file": "POTENTIAL_UZH"
+  },
+  "uzh_tzv2p": {
+   "basis_file": "BASIS_MOLOPT_UZH",
+   "elements": {
+    "Ag": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Al": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q3",
+     "potentials": {
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Ar": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "As": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "At": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Au": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "B": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q3",
+     "potentials": {
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Ba": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q10",
+     "potentials": {
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Be": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Bi": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Br": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "C": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Ca": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q10",
+     "potentials": {
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Cd": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Cl": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Co": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q17",
+     "potentials": {
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "Cr": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q14",
+     "potentials": {
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "Cs": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q9",
+     "potentials": {
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Cu": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "F": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "Fe": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q16",
+     "potentials": {
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "Ga": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ge": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "H": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q1",
+     "potentials": {
+      "PBE": "GTH-PBE-q1"
+     },
+     "valence": 1
+    },
+    "He": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q2",
+     "potentials": {
+      "PBE": "GTH-PBE-q2"
+     },
+     "valence": 2
+    },
+    "Hf": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Hg": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "I": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q7",
+     "potentials": {
+      "PBE": "GTH-PBE-q7"
+     },
+     "valence": 7
+    },
+    "In": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ir": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q17",
+     "potentials": {
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "K": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q9",
+     "potentials": {
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Kr": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Li": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q3",
+     "potentials": {
+      "PBE": "GTH-PBE-q3"
+     },
+     "valence": 3
+    },
+    "Mg": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q10",
+     "potentials": {
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Mn": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q15",
+     "potentials": {
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Mo": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q14",
+     "potentials": {
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "N": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Na": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q9",
+     "potentials": {
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Nb": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Ne": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Ni": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q18",
+     "potentials": {
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "O": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Os": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q16",
+     "potentials": {
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "P": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Pb": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Pd": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q18",
+     "potentials": {
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "Po": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Pt": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q18",
+     "potentials": {
+      "PBE": "GTH-PBE-q18"
+     },
+     "valence": 18
+    },
+    "Rb": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q9",
+     "potentials": {
+      "PBE": "GTH-PBE-q9"
+     },
+     "valence": 9
+    },
+    "Re": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q15",
+     "potentials": {
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Rh": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q17",
+     "potentials": {
+      "PBE": "GTH-PBE-q17"
+     },
+     "valence": 17
+    },
+    "Rn": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Ru": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q16",
+     "potentials": {
+      "PBE": "GTH-PBE-q16"
+     },
+     "valence": 16
+    },
+    "S": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Sb": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q5",
+     "potentials": {
+      "PBE": "GTH-PBE-q5"
+     },
+     "valence": 5
+    },
+    "Sc": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Se": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Si": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Sn": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q4",
+     "potentials": {
+      "PBE": "GTH-PBE-q4"
+     },
+     "valence": 4
+    },
+    "Sr": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q10",
+     "potentials": {
+      "PBE": "GTH-PBE-q10"
+     },
+     "valence": 10
+    },
+    "Ta": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "Tc": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q15",
+     "potentials": {
+      "PBE": "GTH-PBE-q15"
+     },
+     "valence": 15
+    },
+    "Te": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q6",
+     "potentials": {
+      "PBE": "GTH-PBE-q6"
+     },
+     "valence": 6
+    },
+    "Ti": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Tl": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "V": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q13",
+     "potentials": {
+      "PBE": "GTH-PBE-q13"
+     },
+     "valence": 13
+    },
+    "W": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q14",
+     "potentials": {
+      "PBE": "GTH-PBE-q14"
+     },
+     "valence": 14
+    },
+    "Xe": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q8",
+     "potentials": {
+      "PBE": "GTH-PBE-q8"
+     },
+     "valence": 8
+    },
+    "Y": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q11",
+     "potentials": {
+      "PBE": "GTH-PBE-q11"
+     },
+     "valence": 11
+    },
+    "Zn": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    },
+    "Zr": {
+     "basis": "TZV2P-MOLOPT-PBE-GTH-q12",
+     "potentials": {
+      "PBE": "GTH-PBE-q12"
+     },
+     "valence": 12
+    }
+   },
+   "label": "TZV2P-MOLOPT-PBE-GTH (UZH) with UZH pseudopotentials",
+   "potential_file": "POTENTIAL_UZH"
+  }
+ },
+ "files": {
+  "BASIS_MOLOPT": {
+   "sha256": "686dd72e7601ee41d4a173e4c7c3946f1e750f03095090f44d3821c180a81a61",
+   "size": 127679,
+   "url": "https://raw.githubusercontent.com/cp2k/cp2k/v2026.2/data/BASIS_MOLOPT"
+  },
+  "BASIS_MOLOPT_UZH": {
+   "sha256": "8ca617142cc73b02e47d5806d97e91d2c3312444c411c5a093f4dfe8fb9355c4",
+   "size": 1592939,
+   "url": "https://raw.githubusercontent.com/cp2k/cp2k/v2026.2/data/BASIS_MOLOPT_UZH_2026.2"
+  },
+  "GTH_POTENTIALS": {
+   "sha256": "5a9bfbc3b37a55917ade4fb704b80546d210d843759b94e3915e74acfc3fafb2",
+   "size": 168128,
+   "url": "https://raw.githubusercontent.com/cp2k/cp2k/v2026.2/data/GTH_POTENTIALS"
+  },
+  "POTENTIAL_UZH": {
+   "sha256": "8ab49093391f67f2705679f0b3bfc5b84bbeb4003955b556ded322e9d1d6093d",
+   "size": 385520,
+   "url": "https://raw.githubusercontent.com/cp2k/cp2k/v2026.2/data/POTENTIAL_UZH_2026.2"
+  }
+ },
+ "license": {
+  "name": "GPL-2.0-or-later",
+  "url": "https://github.com/cp2k/cp2k/blob/v2026.2/LICENSE"
+ },
+ "schema_version": 1,
+ "source": {
+  "data_dir": "cp2k-2026.2/data",
+  "sha256": "f9bd86f580f57a53a0768c0045d1417f9f9a1d66d851ed7f662f496200043373",
+  "url": "https://github.com/cp2k/cp2k/releases/download/v2026.2/cp2k-2026.2.tar.bz2"
+ },
+ "version": "2026.2"
+}

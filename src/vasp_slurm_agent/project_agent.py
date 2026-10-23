@@ -23,12 +23,16 @@ when a structure file is the only structure in the project, use it. Reply in the
 user's language. Never invent parameters or results. Keep replies short and natural.
 workflow proposes a new ordered dependency graph. To revise the selected workflow,
 use workflow with replace_selected true; include every retained step. An executed
-workflow cannot be replaced: ask to create a new follow-up workflow instead.
-Step goals carry scientific intent. VASP and QE inputs are drafted separately by
-their validated adapters; never pretend those files are interchangeable. A later
-step may use the verified structure from a predecessor. Include that predecessor
-in depends_on. Only VASP/QE steps can transfer a predecessor's accepted native
-structure. Python/Wannier90 steps use existing reviewed .py/.win files and list
+workflow cannot be replaced. Use continue_step to calculate more from an accepted
+stage of a finished selected step; it creates a separate attempt and preserves old runs.
+Step goals carry scientific intent. VASP, QE, ABINIT, CP2K and Elk inputs are
+drafted separately by their validated adapters; never pretend those files are
+interchangeable. Open-source codes (QE, ABINIT, CP2K, Elk) can be installed by the
+app; VASP needs the user's licence. ABINIT and CP2K suit pseudopotential and
+Gaussian-basis calculations, Elk all-electron ones. A later step may use the
+verified structure from a predecessor. Include that predecessor in depends_on.
+Only VASP, QE, ABINIT, CP2K and Elk steps can transfer a predecessor's accepted
+native structure. Python/Wannier90 steps use existing reviewed .py/.win files and list
 additional project files in inputs, literal arguments and expected typed outputs.
 To consume a predecessor output, set input_artifacts to {step_id,path,name} entries:
 path is the declared output filename (for example geometry.json); name is its unique staged filename.
@@ -39,9 +43,12 @@ output names in a completed native run. Output files are checked and copied
 only after their source finishes. Python execution does not certify its science.
 Create or revise those files with read_file/write_file first; generic draft_step
 reviews files, not code generation. Commands come only from configured environments.
-Use empty inputs, input_artifacts, arguments and outputs arrays for VASP/QE steps.
+Use empty inputs, input_artifacts, arguments and outputs arrays for VASP, QE,
+ABINIT, CP2K and Elk steps.
 environment_id may be null until the user chooses a connection.
 draft_step refines the selected step using the user's complete current message.
+continue_step plans a new calculation from its accepted geometry; describe which
+stage to use. It preserves the source settings unless explicitly revised.
 repair_step drafts a separate repair of a failed selected step; it cannot launch.
 recover_step recovers interrupted local preparation without submitting a job.
 explain routes a result question to a fresh evidence-checked parser and explainer.
@@ -69,7 +76,7 @@ def _schema():
         "path": optional, "step_id": optional,
         "stage": agent._nullable({"type": "integer", "minimum": 0})})
     step = agent._object({"id": text, "name": text,
-        "engine": {"type": "string", "enum": ["vasp", "qe", "wannier90", "python"]},
+        "engine": {"type": "string", "enum": ["vasp", "qe", "abinit", "cp2k", "elk", "wannier90", "python"]},
         "goal": text, "source": source, "environment_id": optional,
         "depends_on": {"type": "array", "items": text},
         "inputs": {"type": "array", "items": text, "maxItems": 199},
@@ -80,7 +87,7 @@ def _schema():
             "path": text, "kind": {"type": "string", "enum": ["file", "text", "json", "csv", "npy", "npz", "wannier_hr"]},
             "required": {"type": "boolean"}})}})
     return agent._object({
-        "action": {"type": "string", "enum": ["workflow", "draft_step", "repair_step", "recover_step", "explain", "read_file", "write_file", "remember", "status", "clarify"]},
+        "action": {"type": "string", "enum": ["workflow", "draft_step", "continue_step", "repair_step", "recover_step", "explain", "read_file", "write_file", "remember", "status", "clarify"]},
         "message": text, "workflow_id": optional, "step_id": optional, "run_id": optional,
         "workflow": agent._nullable(agent._object({"title": text, "goal": text,
             "replace_selected": {"type": "boolean"},
@@ -194,9 +201,9 @@ def _steps(workspace, project_id, proposed, environments):
                 raise ValueError("A predecessor source must also be a dependency.")
             source = {"kind": "step", "step_id": source["step_id"], "stage": source["stage"]}
         extras = {key: item.get(key, []) for key in ("inputs", "input_artifacts", "arguments", "outputs")}
-        if item["engine"] in {"vasp", "qe"}:
+        if item["engine"] in {"vasp", "qe", "abinit", "cp2k", "elk"}:
             if any(extras.values()):
-                raise ValueError("VASP and QE inputs are prepared through their scientific adapters.")
+                raise ValueError("Structure calculations are prepared through their scientific adapters.")
         else:
             if source["kind"] != "file":
                 raise ValueError("Python and Wannier90 require reviewed project files as their source.")
@@ -246,7 +253,7 @@ def _execute(workspace, registry, project_id, session_id, message, settings, act
             result = workspace.create_workflow(project_id, session_id, draft["title"], draft["goal"], steps)
         names = " → ".join(f"{step['name']} ({step['engine'].upper()})" for step in result["steps"])
         return kind, f"Workflow “{result['title']}”: {names}.", result, result["id"], None
-    if kind in {"draft_step", "repair_step", "recover_step"}:
+    if kind in {"draft_step", "continue_step", "repair_step", "recover_step"}:
         workflow_id = action["workflow_id"] or selected_workflow
         step_id = action["step_id"] or selected_step
         if not workflow_id or not step_id:
@@ -259,6 +266,8 @@ def _execute(workspace, registry, project_id, session_id, message, settings, act
         execution = ProjectExecution(workspace, registry)
         if kind == "repair_step":
             result = execution.retry_step(project_id, workflow_id, step_id, settings, message=message)
+        elif kind == "continue_step":
+            result = execution.continue_step(project_id, workflow_id, step_id, settings, message=message)
         elif kind == "recover_step":
             result = execution.recover_step(project_id, workflow_id, step_id)
         else:

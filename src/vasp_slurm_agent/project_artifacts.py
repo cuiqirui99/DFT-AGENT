@@ -10,6 +10,8 @@ import numpy as np
 from pymatgen.io.vasp import Poscar
 
 from . import continuation, explanation, qe_continuation
+
+STRUCTURE_ENGINES = frozenset({"vasp", "qe", "abinit", "cp2k", "elk"})
 from .project_context import _run_path
 from .project_files import _atomic, _checked, _lock
 
@@ -27,9 +29,12 @@ def _source(workspace, project_id, run_id):
 
 
 def _inspect(record, root, stage):
-    if record["kind"] != "run" or record["engine"] not in {"vasp", "qe"}:
-        raise ValueError("Select a VASP or QE run with an accepted structure.")
-    helper = qe_continuation if record["engine"] == "qe" else continuation
+    if record["kind"] != "run" or record["engine"] not in STRUCTURE_ENGINES:
+        raise ValueError("Select a VASP, QE, ABINIT, CP2K or Elk run with an accepted structure.")
+    if record["engine"] in {"abinit", "cp2k", "elk"}:
+        from . import engine_context as helper
+    else:
+        helper = qe_continuation if record["engine"] == "qe" else continuation
     inspected = helper.inspect_continuation(root, stage)
     source = Path(inspected["structure_path"])
     if not source.is_relative_to(root) or source.is_symlink():
@@ -55,7 +60,7 @@ def inspect_run(workspace, project_id, run_id):
     for index, stage in enumerate(record["state"].get("stages", [])):
         accepted = context["facts"].get(f"stage_{index + 1}.accepted", {}).get("value") is True
         available = False
-        if accepted and record["engine"] in {"vasp", "qe"}:
+        if accepted and record["engine"] in STRUCTURE_ENGINES:
             try:
                 _inspect(record, root, index)
                 available = True
@@ -67,7 +72,7 @@ def inspect_run(workspace, project_id, run_id):
         accepted = context["facts"].get("run.accepted", {}).get("value") is True
     else:
         accepted = context["status"] == "succeeded"
-    if record["kind"] == "run" and record["engine"] in {"vasp", "qe"}:
+    if record["kind"] == "run" and record["engine"] in STRUCTURE_ENGINES:
         accepted = accepted and bool(stages) and all(item["accepted"] for item in stages)
     # Re-reading closes the interval used to inspect available structures.
     reader = script_workflow.load_run_context if record["engine"] in {"python", "wannier90"} else explanation.load_run_context
@@ -91,11 +96,11 @@ def _destination(workspace, project_id, relative):
 
 
 def _transfer_evidence(workspace, project_id, source_run_id, stage, target_engine, destination):
-    if target_engine not in {"vasp", "qe"}:
-        raise ValueError("Choose VASP or QE as the target structure engine.")
+    if target_engine not in STRUCTURE_ENGINES:
+        raise ValueError("Choose VASP, QE, ABINIT, CP2K or Elk as the target structure engine.")
     record, root = _source(workspace, project_id, source_run_id)
-    if record["kind"] != "run" or record["engine"] not in {"vasp", "qe"}:
-        raise ValueError("Select a VASP or QE run, not a batch or script.")
+    if record["kind"] != "run" or record["engine"] not in STRUCTURE_ENGINES:
+        raise ValueError("Select a VASP, QE, ABINIT, CP2K or Elk structure calculation, not a batch or script.")
     context = explanation.load_run_context(root)
     if stage is None:
         selected = None

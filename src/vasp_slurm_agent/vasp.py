@@ -19,7 +19,8 @@ from pymatgen.core import Structure
 from pymatgen.io.vasp import Incar, Kpoints, Poscar, Vasprun
 
 from .methods import METHOD_DEFAULTS, HYBRID_BAND_NELMIN, method_fingerprint, method_incar, normalize_method, validate_method_output
-from .numerical_defaults import potcar_choices, resolve_numerics
+from .numerical_defaults import high_symmetry_path, path_time_reversal, potcar_choices, resolve_numerics
+from .spectra import band_window
 
 
 TASKS = frozenset({"relax", "scf", "bands", "dos"})
@@ -39,6 +40,7 @@ DEFAULTS = {
     "nelm": 120,
     "line_density": 60,
     "nedos": 2001,
+    "kpar": None,
 }
 
 
@@ -95,6 +97,8 @@ def _parameters(parameters: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("nedos must be at least 2.")
     if type(result["cell_relax"]) is not bool:
         raise ValueError("cell_relax must be a boolean.")
+    if result["kpar"] is not None and (type(result["kpar"]) is not int or not 1 <= result["kpar"] <= 4096):
+        raise ValueError("kpar must be a positive integer.")
     if result["ismear"] is not None and (type(result["ismear"]) is not int or result["ismear"] not in {-5, -1, 0, 1, 2}):
         raise ValueError("ismear must be one of -5, -1, 0, 1, 2.")
     if result["electronic_type"] not in {"auto", "metal", "insulator"}:
@@ -158,6 +162,8 @@ def prepare_inputs(
         incar_data.update(NEDOS=settings["nedos"], LORBIT=11)
     if task == "bands":
         incar_data.update(ISYM=0, LORBIT=11)
+    if settings["kpar"] and settings["kpar"] > 1:
+        incar_data["KPAR"] = settings["kpar"]
     incar_data.update(method_incar(method, poscar.site_symbols, task))
     expected_method = {key: incar_data[key] for key in method_incar(method, poscar.site_symbols, task)}
     expected_method.update({key: incar_data.get(key, False) for key in ("LSORBIT", "LNONCOLLINEAR", "LDAU", "LHFCALC")})
@@ -180,17 +186,14 @@ def prepare_inputs(
         "scope": "Check convergence and the magnetic state for your material.",
     }
     if task == "bands":
-        import seekpath
-
         # orig_cell maps both the basis and rotation back to the input cell.
-        path = seekpath.get_explicit_k_path_orig_cell(
-            (structure.lattice.matrix, structure.frac_coords, [site.specie.Z for site in structure]),
-            reference_distance=1.0 / settings["line_density"],
-            with_time_reversal=method["spin"] == "none",
-        )
-        fractional = np.asarray(path["explicit_kpoints_rel"])
+        moments = method["magmom"] if method["spin"] != "none" else None
+        types = None if moments is None else [repr(np.round(np.asarray(m, dtype=float), 2).tolist()) for m in moments]
+        path = high_symmetry_path(structure, settings["line_density"], site_types=types,
+                                  time_reversal=path_time_reversal(moments, method["soc"] or method["spin"] == "noncollinear"))
+        fractional = np.asarray(path["reciprocal_fractional"])
         cartesian = structure.lattice.reciprocal_lattice.get_cartesian_coords(fractional)
-        point_labels = path["explicit_kpoints_labels"]
+        point_labels = path["labels"]
         if not len(fractional) or not np.isfinite(fractional).all():
             raise ValueError("Could not construct a finite high-symmetry path.")
         mesh_points = [list(point) for point in product(*(np.arange(n) / n for n in settings["mesh"]))] if hybrid else []
@@ -207,12 +210,13 @@ def prepare_inputs(
             metadata["hybrid_mesh"] = {"reciprocal_fractional": mesh_points, "weights": [1.0] * len(mesh_points)}
             metadata["band_convergence_note"] = "Zero-weight path convergence needs a separate check; SCF convergence alone does not prove it."
         metadata["band_path"] = {
-            "method": "seekpath_hpkot_orig_cell",
+            "method": path["method"], "symprec_angstrom": path["symprec_angstrom"],
+            "min_segment_points": path["min_segment_points"],
             "symmetry_basis": "structural; magnetic space group not inferred",
             "labels": point_labels, "reciprocal_fractional": fractional.tolist(),
             "cartesian_inv_angstrom": np.asarray(cartesian).tolist(),
-            "segments": path["explicit_segments"],
-            "distance_inv_angstrom": np.asarray(path["explicit_kpoints_linearcoord"]).tolist(),
+            "segments": path["segments"],
+            "distance_inv_angstrom": path["distance_inv_angstrom"],
             "is_supercell": bool(path["is_supercell"]),
         }
         # Tetrahedron integration requires a regular mesh, not a symmetry line.
@@ -228,6 +232,27 @@ def prepare_inputs(
     metadata["input_sha256"] = {name: _sha256(destination / name) for name in ("POSCAR", "INCAR", "KPOINTS")}
     _write_json(destination / "metadata.json", metadata)
     return metadata
+
+
+def hybrid_kpar(structure_path: str | Path, parameters: dict[str, Any], task: str, mpi_tasks: int) -> int:
+    """K-point groups for exact exchange on mpi_tasks ranks.
+
+    Without KPAR, VASP spreads the bands of each k-point over all ranks and rounds NBANDS up to
+    their number: silicon got 64 bands on 64 ranks, and its HSE06 SCF took 22 minutes instead of 34
+    seconds with KPAR = 16. Groups never outnumber the k-points, and larger cells keep a few ranks
+    per group for memory.
+    """
+    structure = Structure.from_file(structure_path)
+    settings, _ = resolve_numerics(structure, task, _parameters(parameters))
+    method = normalize_method(settings, [site.specie.symbol for site in structure])
+    mesh = settings["mesh"]
+    count = int(np.prod(mesh))
+    # Band paths keep the whole weighted mesh; noncollinear runs use no symmetry.
+    if task != "bands" and not (method["soc"] or method["spin"] == "noncollinear"):
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        count = len(SpacegroupAnalyzer(structure, symprec=1e-3).get_ir_reciprocal_mesh(mesh))
+    ranks_per_group = 1 + len(structure) // 16
+    return max(d for d in range(1, mpi_tasks + 1) if mpi_tasks % d == 0 and d <= count and d * ranks_per_group <= max(mpi_tasks, ranks_per_group))
 
 
 def _same_structure(actual: Structure, expected: Structure) -> bool:
@@ -337,9 +362,10 @@ def _save_figure(fig, output: Path, name: str) -> list[str]:
 
     if len(fig.axes) == 1:
         fig.tight_layout(pad=1.2)
-    with rc_context({"pdf.fonttype": 42, "svg.fonttype": "none"}):
+    with rc_context({"pdf.fonttype": 42, "svg.fonttype": "none", "svg.hashsalt": "dft-agent"}):
         for extension in ("png", "pdf", "svg"):
-            fig.savefig(output / f"{name}.{extension}", dpi=240, facecolor="white", bbox_inches="tight")
+            metadata = {"CreationDate": None, "ModDate": None} if extension == "pdf" else {"Date": None} if extension == "svg" else None
+            fig.savefig(output / f"{name}.{extension}", dpi=240, facecolor="white", bbox_inches="tight", metadata=metadata)
     return [f"{name}.{extension}" for extension in ("png", "pdf", "svg")]
 
 
@@ -509,7 +535,9 @@ def _export_plots(run: Vasprun, output: Path, task: str) -> list[str]:
             ax.set(xlabel="Ionic step", ylabel="Energy (eV)")
             ax.ticklabel_format(axis="y", useOffset=False)
             from matplotlib.ticker import MaxNLocator
-            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            # Whole steps only, also when the relaxation converged after one or two steps.
+            ax.set_xlim(0.5, len(energies) + 0.5)
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=1))
         elif task == "dos":
             dos = run.complete_dos
             if dos is None or not np.isfinite(dos.energies).all() or not math.isfinite(float(run.efermi)):
@@ -588,6 +616,7 @@ def _export_plots(run: Vasprun, output: Path, task: str) -> list[str]:
             rows = []
             mesh_rows = []
             spin_labels = {}
+            plotted = []
             for spin, eigenvalues in run.eigenvalues.items():
                 all_values = np.asarray(eigenvalues)
                 if all_values.ndim != 3 or all_values.shape[0] != len(all_kpts) or all_values.shape[2] != 2 or not np.isfinite(all_values).all():
@@ -597,6 +626,7 @@ def _export_plots(run: Vasprun, output: Path, task: str) -> list[str]:
                         mesh_rows.append([ik, *point, int(spin), ib + 1, all_values[ik, ib, 0] - fermi, all_values[ik, ib, 1]])
                 values = all_values[offset:]
                 energies = values[:, :, 0] - fermi
+                plotted.append(energies)
                 for start, stop in segments:
                     lines = ax.plot(distance[start:stop], energies[start:stop], color="#2366a8" if int(spin) == 1 else "#c26a24",
                                     linestyle="-" if int(spin) == 1 else "--", linewidth=1.15, alpha=0.95)
@@ -623,11 +653,15 @@ def _export_plots(run: Vasprun, output: Path, task: str) -> list[str]:
             ax.grid(False)
             if len(spin_labels) > 1:
                 ax.legend(list(spin_labels.values()), ["Spin ↑" if spin == 1 else "Spin ↓" for spin in spin_labels], frameon=False, fontsize=10)
-            ax.set_ylim(*PLOT_ENERGY_WINDOW_EV)
+            # Like the other codes' plots, stop just below the highest computed band: above it the
+            # bands were not computed, and that band follows whichever uncomputed band crosses it.
+            # With KPAR a silicon HSE06 path had 8 bands, whose highest showed false kinks at 7.6 eV.
+            window = band_window(np.asarray(plotted))
+            ax.set_ylim(*window)
             ax.set_xlim(float(distance[0]), float(distance[-1]))
             ax.axhline(0, color="#687588", linewidth=0.85, linestyle="--", zorder=0)
             details.update(energy_reference_ev=fermi, energy_reference_source="hybrid_scf_mesh" if hybrid else "preceding_scf",
-                           energy_window_ev=list(PLOT_ENERGY_WINDOW_EV), segments=segments,
+                           energy_window_ev=list(window), segments=segments,
                            ticks=[{"distance_inv_angstrom": position, "label": label} for position, label in ticks.items()],
                            kpoint_count=len(kpts), interpolation="none", band_path_method=path_metadata.get("method"))
         else:
@@ -696,7 +730,8 @@ def export_bands_dos(bands_dir: str | Path, dos_dir: str | Path) -> list[str]:
         left.set_xticks([tick["distance_inv_angstrom"] for tick in ticks], labels)
         for tick in ticks:
             left.axvline(tick["distance_inv_angstrom"], color="#e0e4ea", linewidth=0.6, zorder=0)
-        left.set(xlim=(float(x[0]), float(x[-1])), ylim=PLOT_ENERGY_WINDOW_EV, ylabel=r"$E - E_\mathrm{F}$ (eV)", title="Bands")
+        left.set(xlim=(float(x[0]), float(x[-1])), ylim=tuple(band_info.get("energy_window_ev", PLOT_ENERGY_WINDOW_EV)),
+                 ylabel=r"$E - E_\mathrm{F}$ (eV)", title="Bands")
         energy = np.asarray([float(row["energy_minus_fermi_ev"]) + dos_reference - reference for row in total])
         density = np.asarray([sum(float(value) for key, value in row.items() if key.startswith("dos_spin_")) for row in total])
         if not np.isfinite([energy, density]).all():
@@ -833,6 +868,11 @@ def analyze_outputs(output_dir: str | Path, task: str, expected_structure_path: 
         _validate_structure(expected)
         xml = output / "vasprun.xml"
         if not xml.is_file() or not xml.stat().st_size:
+            logs = "".join((output / name).read_text(errors="replace") for name in ("slurm.out", "OUTCAR") if (output / name).is_file())
+            if "No license file found" in logs:
+                raise ValueError("VASP stopped before the calculation because it found no licence file. This VASP 6 build looks for "
+                                 "your vasp_license key in ~/.vasp/, the run folder or VASP_LICENSE_FILE; install it as the cluster's "
+                                 "VASP notes describe, or set the environment's VASP command to a build your licence already covers.")
             raise ValueError("vasprun.xml is missing or empty. The job may have ended before VASP finished.")
         run = Vasprun(xml, parse_potcar_file=False, parse_eigen=task in {"scf", "bands", "dos"}, parse_dos=task in {"scf", "dos"} or (hybrid and task == "bands"), exception_on_bad_xml=True)
         result["vasprun_sha256"] = _sha256(xml)
@@ -920,7 +960,8 @@ def analyze_outputs(output_dir: str | Path, task: str, expected_structure_path: 
         if task in {"scf", "bands", "dos"}:
             result["band_gap"] = _band_gap(run, task, metadata)
         if task in {"bands", "dos"}:
-            result["plot_settings"] = {"energy_window_ev": list(PLOT_ENERGY_WINDOW_EV), "csv_contains_full_data": True}
+            window = json.loads((output / "plot_metadata.json").read_text()).get("energy_window_ev") if task == "bands" else None
+            result["plot_settings"] = {"energy_window_ev": window or list(PLOT_ENERGY_WINDOW_EV), "csv_contains_full_data": True}
         if task == "dos":
             result["energy_reference_ev"] = float(run.efermi)
             result["energy_reference_source"] = "dos_run_fermi"

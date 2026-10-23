@@ -25,6 +25,9 @@ _PW_KEYS = frozenset({"ecutwfc", "ecutrho", "conv_thr", "electron_maxstep", "fun
 PARAMETER_KEYS = _PW_KEYS | EPh_KEYS
 RY_THZ = 3289.828  # Matches lambda.f90, including its rounding.
 THZ_KELVIN = 47.9924
+RY_MEV = 13605.693122994
+RY_CM1 = 109737.31568160
+GAMMA_NOISE_CM1 = 10.0
 SOURCE = "https://github.com/QEF/q-e/blob/qe-7.4.1/PHonon/PH/lambda.f90"
 
 
@@ -226,7 +229,7 @@ def coupling_evidence(folder, parameters, *, require_real=False):
     """Verify q coordinates, star weights and all broadenings before lambda.x."""
     folder = Path(folder)
     points = _index(folder, parameters["qmesh"])
-    records, weights, hashes, full_grid = [], [], {}, []
+    records, weights, hashes, full_grid, zeroed = [], [], {}, [], {}
     reference = None
     for index, qpoint in enumerate(points, 1):
         relative = f"elph_dir/elph.inp_lambda.{index}"
@@ -239,7 +242,10 @@ def coupling_evidence(folder, parameters, *, require_real=False):
         if any(not np.isclose(spec["degauss_ry"], (i + 1) * parameters["el_ph_sigma"], atol=1e-7, rtol=0) for i, spec in enumerate(record["spectra"])):
             raise ValueError("The electronic broadening series differs from the plan.")
         if require_real and min(record["w2_ry2"]) < 0:
-            raise ValueError("Imaginary phonon frequencies prevent a physical lambda.x/Tc estimate; converge and inspect the structure first.")
+            silent = _silent_gamma_modes(record)
+            if silent is None:
+                raise ValueError("Imaginary phonon frequencies prevent a physical lambda.x/Tc estimate; converge and inspect the structure first.")
+            zeroed[index] = silent
         if any(s["dos_ef_states_spin_ry"] <= 0 for s in record["spectra"]):
             raise ValueError("A finite positive electronic DOS at the Fermi level is required.")
         signature = [{key: value for key, value in spec.items() if key != "modes"} for spec in record["spectra"]]
@@ -266,7 +272,39 @@ def coupling_evidence(folder, parameters, *, require_real=False):
     if len({record["nmodes"] for record in records}) != 1:
         raise ValueError("Electron-phonon mode counts differ between q points.")
     hashes[qe.PREFIX + ".dyn0"] = qe._hash(folder / (qe.PREFIX + ".dyn0"))
-    return {"qpoints": points, "weights": weights, "records": records, "sha256": hashes}
+    return {"qpoints": points, "weights": weights, "records": records, "sha256": hashes, "zeroed_modes": zeroed}
+
+
+def _silent_gamma_modes(record):
+    """Acoustic modes at Γ that ph.x leaves a few cm⁻¹ imaginary before the sum rule, with zero coupling.
+
+    lambda.x takes the square root of ω², so it would turn these weightless modes into NaN spectra;
+    aluminium's three came out at -2.5 cm⁻¹ with λ = 0 in every broadening. Anything else stays refused.
+    """
+    if not np.allclose(record["q"], 0, atol=1e-8):
+        return None
+    modes = [index for index, w2 in enumerate(record["w2_ry2"]) if w2 < 0]
+    if len(modes) > 3 or any(math.sqrt(-record["w2_ry2"][index]) * RY_CM1 > GAMMA_NOISE_CM1 for index in modes):
+        return None
+    if any(spectrum["modes"][index]["lambda"] > 1e-4 for spectrum in record["spectra"] for index in modes):
+        return None
+    return modes
+
+
+def require_norm_conserving(pseudopotentials, *, verified=False):
+    """QE 7.6 ph.x stopped with a segmentation fault in elphel -> adddvscf, the ultrasoft/PAW part of the
+    electron-phonon step, for PAW aluminium on Arrhenius; the same UPFs norm-conserving ran through."""
+    found = []
+    for element, entry in (pseudopotentials or {}).items():
+        kind = str(entry.get("pseudo_type", "")).upper() if isinstance(entry, dict) else ""
+        name = entry.get("filename", "") if isinstance(entry, dict) else str(entry)
+        if (kind in {"PAW", "US", "USPP"} or (verified and kind not in {"NC", "NCPP"})
+                or (not kind and re.search(r"paw|rrkjus|uspp|gbrv", name, re.I))):
+            found.append(element)
+    if found:
+        raise ValueError("Electron-phonon coupling here needs norm-conserving UPFs: QE 7.6 ph.x stopped with a segmentation "
+                         "fault in its electron-phonon step with PAW UPFs, and ultrasoft UPFs use the same code. Install the "
+                         f"PseudoDojo (NC) UPFs for {', '.join(sorted(found))} and plan again.")
 
 
 def prepare_inputs(structure_path, destination, task, parameters, pseudopotentials=None, *, evidence_dir=None):
@@ -275,7 +313,9 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
     structure = Structure.from_file(structure_path)
     p = validate_parameters(parameters, len(structure))
     destination = Path(destination)
+    extra_inputs = []
     if task in {"eph_dense_scf", "eph_scf"}:
+        require_norm_conserving(pseudopotentials)
         metadata = qe.prepare_inputs(structure_path, destination, "scf", _pw_parameters(p, task == "eph_dense_scf"), pseudopotentials)
         text = (destination / "pw.in").read_text()
         stem = "pw"
@@ -304,16 +344,29 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
                 evidence = coupling_evidence(evidence_dir, p, require_real=True)
                 if evidence["records"][0]["nmodes"] != 3 * len(structure):
                     raise ValueError("Electron-phonon modes do not match the calculation structure.")
-                highest = max(math.sqrt(max(record["w2_ry2"])) * RY_THZ for record in evidence["records"])
+                highest = max(math.sqrt(max(0.0, *record["w2_ry2"])) * RY_THZ for record in evidence["records"])
                 emax = p.get("omega_max_thz", highest + 6 * p["phonon_smearing_thz"])
                 if emax <= highest:
                     raise ValueError("omega_max_thz must exceed every computed phonon frequency.")
                 text = f"{emax:.12g} {p['phonon_smearing_thz']:.12g} 0\n{len(evidence['qpoints'])}\n"
                 text += "".join(" ".join(f"{x:.12g}" for x in [*point, weight]) + "\n" for point, weight in zip(evidence["qpoints"], evidence["weights"]))
-                text += "".join(f"elph_dir/elph.inp_lambda.{i}\n" for i in range(1, len(evidence["qpoints"]) + 1))
+                for index in range(1, len(evidence["qpoints"]) + 1):
+                    if index in evidence["zeroed_modes"]:
+                        # A copy with the weightless Γ acoustic modes at zero frequency; the evidence keeps the original.
+                        name = f"elph_zeroed.{index}"
+                        _zero_modes(Path(evidence_dir) / f"elph_dir/elph.inp_lambda.{index}", destination / name, evidence["zeroed_modes"][index])
+                        extra_inputs.append(name)
+                        text += name + "\n"
+                    else:
+                        text += f"elph_dir/elph.inp_lambda.{index}\n"
                 text += f"{p['mu_star']:.12g}\n"
                 metadata.update(evidence_sha256=evidence["sha256"], qpoint_weights=evidence["weights"], omega_max_thz=emax, preview_only=False)
-    metadata.update(task=task, canonical_task=task, parameters=p, executable=PROGRAMS[task], input_file=stem + ".in", output_file=stem + ".out", input_files=[stem + ".in", "structure.cif"], output_files=[stem + ".out"], requires_restart=task != "eph_dense_scf", scientific_accuracy_validated=False, sources=[SOURCE, "https://github.com/QEF/q-e/tree/qe-7.4.1/PHonon/examples/example03"])
+                if evidence["zeroed_modes"]:
+                    record = evidence["records"][0]
+                    metadata["zeroed_gamma_modes"] = {
+                        "modes": [index + 1 for index in evidence["zeroed_modes"][1]],
+                        "frequencies_cm1": [-math.sqrt(-record["w2_ry2"][index]) * RY_CM1 for index in evidence["zeroed_modes"][1]]}
+    metadata.update(task=task, canonical_task=task, parameters=p, executable=PROGRAMS[task], input_file=stem + ".in", output_file=stem + ".out", input_files=[stem + ".in", "structure.cif", *extra_inputs], output_files=[stem + ".out"], requires_restart=task != "eph_dense_scf", scientific_accuracy_validated=False, sources=[SOURCE, "https://github.com/QEF/q-e/tree/qe-7.4.1/PHonon/examples/example03"])
     (destination / metadata["input_file"]).write_text(text)
     metadata["input_sha256"] = {name: qe._hash(destination / name) for name in metadata["input_files"]}
     qe._json(destination / "qe-input.json", metadata)
@@ -356,7 +409,8 @@ def parse_lambda_output(folder, metadata):
     delta = metadata["omega_max_thz"] / 1999
     stdout = (folder / "lambda.out").read_text()
     table = stdout.split("T_c")[-1] if "T_c" in stdout else ""
-    tc_rows = re.findall(r"^\s*(" + qe.FLOAT + r")\s+(" + qe.FLOAT + r")\s+(" + qe.FLOAT + r")\s*$", table, re.M)
+    # lambda.x prints asterisks where the McMillan expression has no solution and overflows.
+    tc_rows = re.findall(r"^\s*(" + qe.FLOAT + r")\s+(" + qe.FLOAT + r")\s+(" + qe.FLOAT + r"|\*+)\s*$", table, re.M)
     if len(tc_rows) != len(data):
         raise ValueError("lambda.x did not produce the complete Tc table.")
     rows = []
@@ -372,12 +426,32 @@ def parse_lambda_output(folder, metadata):
             raise ValueError("alpha2F integrals disagree with lambda.dat beyond printed precision.")
         if not np.isclose(integral, lam, rtol=0.1, atol=0.002):
             raise ValueError("Spectral and mode-summed lambda differ by more than 10%; refine the spectral broadening/grid before reporting Tc.")
-        tc = tc_estimate(lam, omega, p["mu_star"])
-        printed = qe._floats(" ".join(tc_rows[i]))
-        if not np.allclose(printed, [lam, omega, tc], rtol=0, atol=0.0011):
+        if lam - p["mu_star"] * (1 + 0.62 * lam) <= 0:
+            # Coupling this weak has no McMillan Tc for this mu*; lambda.x prints an overflow there.
+            tc = None
+            printed = qe._floats(" ".join(tc_rows[i][:2])) + [None]
+            matches = np.allclose(printed[:2], [lam, omega], rtol=0, atol=0.0011)
+        else:
+            tc = tc_estimate(lam, omega, p["mu_star"])
+            matches = not tc_rows[i][2].startswith("*") and np.allclose(qe._floats(" ".join(tc_rows[i])), [lam, omega, tc], rtol=0, atol=0.0011)
+        if not matches:
             raise ValueError("The printed Tc does not match the source-defined formula.")
         rows.append({"degauss_ry": float(sigma), "lambda": float(lam), "lambda_spectral_integral": float(integral), "omega_log_kelvin": float(omega), "mu_star": p["mu_star"], "tc_estimate_kelvin": tc, "spectral_lambda_relative_difference": abs(integral - lam) / lam})
     return rows, spectrum
+
+
+NEGATIVE_LAMBDA_TOLERANCE = 0.01
+
+
+def _zero_modes(source, target, modes):
+    lines = Path(source).read_text().splitlines()
+    nmodes = int(qe._floats(lines[0])[4])
+    values, cursor = [], 1
+    while len(values) < nmodes:
+        values.extend(qe._floats(lines[cursor]))
+        cursor += 1
+    values = [0.0 if index in modes else value for index, value in enumerate(values)]
+    Path(target).write_text("\n".join([lines[0], " ".join(f"{value:.6E}" for value in values), *lines[cursor:]]) + "\n")
 
 
 def parse_interpolated_spectra(folder, parameters, nat):
@@ -413,18 +487,29 @@ def parse_interpolated_spectra(folder, parameters, nat):
         expected_grid = energy[0] + np.arange(len(energy)) * delta
         if np.any(np.abs(energy - expected_grid) > rounding + rounding[0] + 1e-14):
             raise ValueError("Interpolated alpha2F frequencies must form a positive regular grid in Ry.")
-        if data[:, 1:].min() < -1e-10:
-            raise ValueError("Negative interpolated electron-phonon weights prevent a Tc estimate; refine the electronic and phonon grids.")
-        if not np.allclose(spectrum, data[:, 2:].sum(axis=1), rtol=2e-5, atol=1e-9):
+        # Six printed digits per mode: where modes of both signs cancel, compare with their magnitudes.
+        if np.any(np.abs(spectrum - data[:, 2:].sum(axis=1)) > 2e-5 * np.abs(data[:, 2:]).sum(axis=1) + 1e-9):
             raise ValueError("Interpolated alpha2F mode weights disagree with the total spectrum.")
         integrated = float(2 * delta * np.sum(spectrum / energy))
         if not np.isclose(integrated, reported, rtol=2e-5, atol=1e-6):
             raise ValueError("The interpolated alpha2F integral differs from its reported value.")
         # This discrepancy is exposed rather than presented as a converged estimate.
-        rows.append({"degauss_ry": sigma, "lambda": lam, "lambda_spectral_integral": integrated, "dos_ef_states_spin_ry": dos, "spectral_lambda_relative_difference": abs(integrated - lam) / lam, "omega_log_kelvin": float(values[3]) if values[3] else None})
+        row = {"degauss_ry": sigma, "lambda": lam, "lambda_spectral_integral": integrated, "dos_ef_states_spin_ry": dos, "spectral_lambda_relative_difference": abs(integrated - lam) / lam, "omega_log_kelvin": float(values[3]) if values[3] else None}
+        negative = data[:, 1:] < -1e-10
+        if negative.any():
+            # Fourier interpolation leaves small negative weights at the lowest frequencies, mostly with the
+            # narrowest broadening (aluminium: below 5.6 meV, 0.5 % of lambda). Larger ones make that column unusable.
+            lost = max(float(-2 * delta * np.sum(np.minimum(column, 0) / energy)) for column in data[:, 1:].T)
+            row.update(negative_lambda_fraction=lost / max(integrated, 1e-12),
+                       negative_below_mev=float(energy[negative.any(axis=1)].max() * RY_MEV))
+            if row["negative_lambda_fraction"] > NEGATIVE_LAMBDA_TOLERANCE:
+                row["excluded"] = True
+        rows.append(row)
         csv_name = f"alpha2F_interpolated_{i}.csv"
         qe._csv(folder / csv_name, ["frequency_ry", "alpha2F_total"] + [f"mode_{j + 1}" for j in range(3 * nat)], data)
         artifacts += [name, csv_name]
+    if all(row.get("excluded") for row in rows):
+        raise ValueError("Negative interpolated electron-phonon weights prevent a Tc estimate; refine the electronic and phonon grids.")
     return rows, artifacts
 
 
@@ -482,8 +567,14 @@ def analyze_outputs(folder, task, expected_structure=None):
             rows, artifacts = parse_interpolated_spectra(folder, p, metadata["number_of_atoms"])
             result["interpolated_lambda"] = rows
             result["artifacts"] += artifacts
-            if any(row["spectral_lambda_relative_difference"] > 0.1 for row in rows):
+            if any(row["spectral_lambda_relative_difference"] > 0.1 for row in rows if not row.get("excluded")):
                 raise ValueError("Interpolated spectral and mode-summed lambda differ by more than 10%; refine the phonon DOS grid.")
+            for index, row in enumerate(rows, 1):
+                if "negative_lambda_fraction" in row:
+                    result["warnings"].append(
+                        f"Broadening {index} ({row['degauss_ry']:g} Ry) has negative interpolated weights below "
+                        f"{row['negative_below_mev']:.1f} meV, {100 * row['negative_lambda_fraction']:.2f} % of its lambda; "
+                        + ("it is excluded." if row.get("excluded") else "they are within 1 % and kept."))
         else:
             rows, spectrum = parse_lambda_output(folder, metadata)
             qe._csv(folder / "electron_phonon.csv", list(rows[0]), ([row[key] for key in rows[0]] for row in rows))
@@ -491,6 +582,10 @@ def analyze_outputs(folder, task, expected_structure=None):
             result["artifacts"] += ["lambda.dat", "alpha2F.dat", "electron_phonon.csv", "alpha2F.csv"] + qe._plot(folder, "alpha2F", spectrum[:, 0], spectrum[:, 1:], "Frequency (THz)", "α²F(ω)")
             result.update(electron_phonon=rows, integration_method="q-point mode sum with spectral broadening", tc_model="simplified Allen-Dynes/McMillan; f1=f2=1", tc_model_source=SOURCE, mu_star=p["mu_star"], scope="Conventional isotropic phonon-mediated pairing estimate. Mesh, broadening and pseudopotential convergence have not been established.")
             result["warnings"].append("Inspect the full broadening series; no single value has been selected as a prediction.")
+            for index, row in enumerate(rows, 1):
+                if row["tc_estimate_kelvin"] is None:
+                    result["warnings"].append(f"Broadening {index} ({row['degauss_ry']:g} Ry): lambda = {row['lambda']:.3f} is too weak "
+                                              f"for mu* = {row['mu_star']:g}; the McMillan expression gives no Tc there.")
         result["artifacts"] = list(dict.fromkeys(result["artifacts"]))
         result.update(success=True, reason="Required electron-phonon outputs passed consistency checks.")
     except (ValueError, OSError, KeyError, TypeError, IndexError, StopIteration, OverflowError, qe.ET.ParseError) as exc:

@@ -20,9 +20,9 @@ from .secret_guard import reject_ordinary_text, redact
 
 
 _MIGRATIONS = ((1, "001_workspace.sql"), (2, "002_connections.sql"), (3, "003_credential_slots.sql"),
-               (4, "004_step_attempts.sql"))
+               (4, "004_step_attempts.sql"), (5, "005_open_source_engines.sql"))
 _FOLDERS = ("files", "runs", "memory", "config", "artifacts")
-_ENGINES = {"vasp", "qe", "wannier90", "python"}
+_ENGINES = {"vasp", "qe", "abinit", "cp2k", "elk", "wannier90", "python"}
 _SECRET_KEYS = {"password", "passphrase", "apikey", "privatekey", "otp", "totp",
                 "credential", "credentials", "secret", "secretkey", "authorization",
                 "accesstoken", "refreshtoken", "bearertoken", "devicecode"}
@@ -143,8 +143,12 @@ class Workspace:
             db.close()
             for suffix in ("", "-wal", "-shm"):
                 path = Path(str(self.db_path) + suffix)
-                if path.is_file() and not path.is_symlink():
-                    path.chmod(0o600)
+                try:
+                    if path.is_file() and not path.is_symlink():
+                        path.chmod(0o600)
+                except FileNotFoundError:
+                    # Another process closed the last connection and SQLite removed the file.
+                    pass
 
     @contextmanager
     def _transaction(self, *, write=True):
@@ -160,6 +164,9 @@ class Workspace:
     def _migrate(self):
         with self._connection() as db:
             db.execute("PRAGMA journal_mode=WAL")
+            # Table rebuilds follow SQLite's documented procedure: references
+            # are checked once, after every migration, before the commit.
+            db.execute("PRAGMA foreign_keys=OFF")
             db.execute("BEGIN IMMEDIATE")
             try:
                 version = db.execute("PRAGMA user_version").fetchone()[0]
@@ -175,6 +182,8 @@ class Workspace:
                     db.execute("INSERT INTO schema_migrations VALUES (?, ?, ?)", (number, name, _now()))
                     db.execute(f"PRAGMA user_version={number}")
                     version = number
+                if db.execute("PRAGMA foreign_key_check").fetchone() is not None:
+                    raise ValueError("A workspace migration left inconsistent references.")
                 db.commit()
             except BaseException:
                 db.rollback()

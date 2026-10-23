@@ -5,22 +5,52 @@
   "number_of_atoms": 2,
   "parameters": {
     "encut": 400.0,
-    "ediff": 1e-05,
-    "ediffg": -0.03,
+    "ediff": 1e-06,
+    "ediffg": -0.01,
     "nsw": 100,
     "mesh": [
-      2,
-      2,
-      2
+      16,
+      16,
+      16
     ],
+    "kspacing": 0.25,
     "ismear": 0,
-    "sigma": 0.1,
-    "cell_relax": false,
+    "sigma": 0.05,
+    "electronic_type": "insulator",
+    "cell_relax": true,
     "nelm": 160,
-    "line_density": 1,
-    "nedos": 301
+    "line_density": 60,
+    "nedos": 2001
   },
-  "source_sha256": "7ff2750c75c9e651f5acfb830cc0a4abf95eff91821e7bf7266f797bb740930a",
+  "numerical_choices": {
+    "mesh_mode": "explicit",
+    "mesh": [
+      16,
+      16,
+      16
+    ],
+    "kspacing_inv_angstrom": 0.25,
+    "reciprocal_convention": "Physical reciprocal vectors include 2*pi; N_i=ceil(|G_i|/kspacing).",
+    "vacuum_axes": [],
+    "smearing_mode": "material_type",
+    "electronic_type": "insulator",
+    "ismear": 0,
+    "sigma_ev": 0.05,
+    "notes": [],
+    "sources": [
+      "https://vasp.at/wiki/KSPACING",
+      "https://vasp.at/wiki/Smearing_technique"
+    ]
+  },
+  "potential_choices": {
+    "policy": "MPRelaxSet 2026.9.24 with active f shells and W_sv; explicit labels take precedence.",
+    "overrides": {},
+    "sources": [
+      "https://pymatgen.org/pymatgen.io.vasp.html#pymatgen.io.vasp.sets.MPRelaxSet",
+      "https://vasp.at/wiki/Choosing_pseudopotentials"
+    ]
+  },
+  "source_sha256": "29e6498be73ff34abafa2793c61c82346b609aea9cfafe1fa66545c48c9f0a27",
   "potcar_labels": [
     "Si"
   ],
@@ -44,6 +74,7 @@
   },
   "method_incar_expected": {
     "ISPIN": 1,
+    "ISYM": 2,
     "LSORBIT": false,
     "LNONCOLLINEAR": false,
     "LDAU": false,
@@ -58,8 +89,8 @@
   ],
   "scope": "Check convergence and the magnetic state for your material.",
   "input_sha256": {
-    "POSCAR": "7ff2750c75c9e651f5acfb830cc0a4abf95eff91821e7bf7266f797bb740930a",
-    "INCAR": "c4afcd866bb67735b6d5c2c352067e36ebd23fc3407ebc8c3b915fd341d148e5",
-    "KPOINTS": "24c7b3aae43ed8aa47b1ce34dbc14ebed630342709daacb5f6bc17d5dbbd2a49"
+    "POSCAR": "29e6498be73ff34abafa2793c61c82346b609aea9cfafe1fa66545c48c9f0a27",
+    "INCAR": "91818a2e1da2779c84da707915619d40809e090835c5ab29659488f91234fc7c",
+    "KPOINTS": "cfb5535ed6976cdda1fcd8c81359b87bae775895bb65a3147d637b5034c45c90"
   }
 }

@@ -13,6 +13,7 @@ import json
 import math
 import re
 import xml.etree.ElementTree as ET
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,8 @@ import numpy as np
 from pymatgen.core import Element, Structure
 from pymatgen.io.vasp import Poscar
 
-from .numerical_defaults import vacuum_axes
+from .numerical_defaults import high_symmetry_path, path_time_reversal, vacuum_axes
+from .spectra import band_reference, plot_bands, plot_dos, plot_phonons
 
 RY_EV = 13.605693122994
 HA_EV = 2 * RY_EV
@@ -31,8 +33,13 @@ ALIASES = {"vc-relax": "relax", "ph": "phonon", "projwfc": "pdos", "matdyn": "ph
 TASKS = frozenset({"relax", "scf", "bands", "nscf", "dos", "pdos", "phonon", "q2r", "phonon_bands", "neb", "pp", *ALIASES})
 EXECUTABLES = {"relax": "pw.x", "scf": "pw.x", "bands": "pw.x", "nscf": "pw.x", "dos": "dos.x", "pdos": "projwfc.x", "phonon": "ph.x", "q2r": "q2r.x", "phonon_bands": "matdyn.x", "neb": "neb.x", "pp": "pp.x"}
 FILENAMES = {"relax": "pw", "scf": "pw", "bands": "pw", "nscf": "pw", "dos": "dos", "pdos": "projwfc", "phonon": "ph", "q2r": "q2r", "phonon_bands": "matdyn", "neb": "neb", "pp": "pp"}
-PARAMETER_KEYS = frozenset({"ecutwfc", "ecutrho", "conv_thr", "electron_maxstep", "functional", "spin", "soc", "starting_magnetization", "site_labels", "electronic_type", "degauss", "nbnd", "cell_relax", "nstep", "etot_conv_thr", "forc_conv_thr", "mesh", "kpoint_grid", "kspacing", "kpoints", "line_density", "hubbard", "hubbard_projector", "namelists", "deltae", "tr2_ph", "qmesh", "q_mesh", "phonon_grid", "qpoint", "qpoints", "asr", "images", "num_of_images", "nstep_path", "path_thr"})
+PARAMETER_KEYS = frozenset({"ecutwfc", "ecutrho", "conv_thr", "electron_maxstep", "functional", "spin", "soc", "starting_magnetization", "site_labels", "electronic_type", "degauss", "nbnd", "cell_relax", "nstep", "etot_conv_thr", "forc_conv_thr", "mesh", "kshift", "kpoint_grid", "kspacing", "kpoints", "line_density", "hubbard", "hubbard_projector", "namelists", "deltae", "tr2_ph", "qmesh", "q_mesh", "phonon_grid", "qpoint", "qpoints", "asr", "images", "num_of_images", "nstep_path", "path_thr"})
 FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eEdD][-+]?\d+)?"
+# Acoustic frequency at Γ before the sum rule, on Arrhenius: silicon with SSSP UPFs 20 cm-1, GaAs with
+# PseudoDojo norm-conserving UPFs 50 cm-1 (branches then within a few cm-1 of ABINIT), GaAs with SSSP's Ga
+# and As UPFs 118 cm-1 at any ecutrho or k mesh, with transverse branches 50 % too high or imaginary.
+ACOUSTIC_WARNING_CM1 = 75.0
+IMAGINARY_WARNING_CM1 = 10.0
 
 
 def _hash(path):
@@ -56,6 +63,15 @@ def _integer(value, label, minimum=1):
     if type(value) is not int or value < minimum:
         raise ValueError(f"{label} must be an integer >= {minimum}.")
     return value
+
+
+def _kshift(p):
+    """Half-step shifts of the k mesh per axis (0 or 1). A mesh through Γ, where GaAs's PBE gap is 0.5 eV,
+    gave its electronic dielectric constant as 27; the shifted 8x8x8 mesh gave 13.6."""
+    shift = p.get("kshift", [0, 0, 0])
+    if not isinstance(shift, list) or len(shift) != 3 or any(type(x) is not int or x not in (0, 1) for x in shift):
+        raise ValueError("kshift gives 0 or 1 per axis; 1 moves that axis of the k mesh by half a step.")
+    return shift
 
 
 def _vector(value, label, integers=False):
@@ -156,6 +172,13 @@ def validate_upf(path, element=None, require_soc=False):
             value = float(attrs[source])
             if value > 0:
                 result[target] = value
+    valence = attrs.get("z_valence") or (legacy_lines[5].split()[0] if not attrs and len(legacy_lines) >= 6 else "")
+    try:
+        value = float(valence.strip().lower().replace("d", "e"))
+    except ValueError:
+        value = 0.0
+    if 0 < value < 200:
+        result["valence_electrons"] = value
     return result
 
 
@@ -170,12 +193,66 @@ def _potentials(structure, mapping, soc):
         if entry.get("element", element) != element:
             raise ValueError(f"UPF element does not match {element}.")
         if soc and not (entry.get("fully_relativistic") is True or entry.get("relativistic") == "full"):
-            raise ValueError(f"SOC requires verified fully relativistic UPF metadata for {element}.")
+            raise ValueError(f"SOC requires verified fully relativistic UPF metadata for {element}. "
+                             "Install the PseudoDojo FR library (pseudodojo-fr) for these elements first.")
         result[element] = {**entry, "filename": filename, "element": element}
     return result
 
 
-def _path(structure, parameters, key="kpoints"):
+@lru_cache(maxsize=None)
+def _library_valence():
+    """Valence charges of the bundled UPF libraries: by file name with its SHA-256, and the largest per element."""
+    files, elements = {}, {}
+    for name in ("qe_pseudos.json", "qe_nc_pseudos.json", "qe_nc_fr_pseudos.json"):
+        data = json.loads(Path(__file__).with_name(name).read_text(encoding="utf-8"))
+        for element, entry in data.get("elements", data).items():
+            value = float(entry["valence_electrons"])
+            files[entry["filename"]] = (entry["sha256"], value)
+            elements[element] = max(value, elements.get(element, 0.0))
+    return files, elements
+
+
+def _valence(element, entry):
+    """Valence charge of a configured UPF: its checked header value or the bundled entry for the same file.
+    Another file gets the largest bundled value, which submission checks against the actual header."""
+    files, elements = _library_valence()
+    value = entry.get("valence_electrons")
+    if value is None and entry["filename"] in files:
+        digest, known = files[entry["filename"]]
+        if entry.get("sha256", digest) == digest:
+            value = known
+    if value is None:
+        value = elements.get(element)
+    return None if value is None else float(value)
+
+
+def _default_bands(structure, task, system, labels, species, potentials, metadata):
+    """Bands with empty states for gaps and band plots; pw.x gives an insulator only its occupied bands."""
+    if task not in {"bands", "nscf"} and system.get("occupations") != "fixed":
+        return None
+    charges = {element: _valence(element, entry) for element, entry in potentials.items()}
+    missing = sorted(element for element, charge in charges.items() if charge is None)
+    if missing:
+        if task in {"bands", "nscf"}:
+            raise ValueError(f"Set nbnd: the valence charge of the {', '.join(missing)} UPF is not recorded, "
+                             "so the number of empty bands is unknown.")
+        return None
+    electrons = sum(charges[site.specie.symbol] for site in structure) - float(system.get("tot_charge", 0))
+    if system.get("noncolin"):
+        occupied = math.ceil(electrons - 1e-6)
+    else:
+        # LSDA bands are counted per spin, so leave room for the starting moment in the majority channel.
+        moment = abs(float(system.get("tot_magnetization", 0)))
+        if system.get("nspin") == 2:
+            order = list(species)
+            moment = max(moment, sum(abs(float(system.get(f"starting_magnetization({order.index(label) + 1})", 0)))
+                                     * charges[site.specie.symbol] for label, site in zip(labels, structure)))
+        occupied = math.ceil((electrons + moment) / 2 - 1e-6)
+    metadata["valence_charges"] = charges
+    return occupied + (max(8, math.ceil(0.5 * occupied)) if task in {"bands", "nscf"} else max(4, math.ceil(0.2 * occupied)))
+
+
+def _path(structure, parameters, key="kpoints", time_reversal=None):
     supplied = parameters.get(key)
     if supplied is not None:
         if not isinstance(supplied, list) or len(supplied) < 2:
@@ -184,10 +261,14 @@ def _path(structure, parameters, key="kpoints"):
         cart = structure.lattice.reciprocal_lattice.get_cartesian_coords(points)
         distance = np.r_[0, np.cumsum(np.linalg.norm(np.diff(cart, axis=0), axis=1))]
         return {"reciprocal_fractional": points.tolist(), "distance_inv_angstrom": distance.tolist(), "labels": [""] * len(points), "segments": [[0, len(points)]], "method": "explicit"}
-    import seekpath
     density = _integer(parameters.get("line_density", 60), "line_density", 2)
-    path = seekpath.get_explicit_k_path_orig_cell((structure.lattice.matrix, structure.frac_coords, [site.specie.Z for site in structure]), reference_distance=1.0 / density, with_time_reversal=not bool(parameters.get("soc") or parameters.get("starting_magnetization")))
-    return {"reciprocal_fractional": np.asarray(path["explicit_kpoints_rel"]).tolist(), "distance_inv_angstrom": np.asarray(path["explicit_kpoints_linearcoord"]).tolist(), "labels": path["explicit_kpoints_labels"], "segments": path["explicit_segments"], "method": "seekpath_hpkot_orig_cell"}
+    # Species labels (Ni1/Ni2 with opposite starting moments) define the magnetic cell for electron bands.
+    types = parameters.get("site_labels") if key == "kpoints" else None
+    if time_reversal is None:
+        magnetization = parameters.get("starting_magnetization") or {}
+        time_reversal = path_time_reversal(list(magnetization.values()) if isinstance(magnetization, dict) else None,
+                                           bool(parameters.get("soc")) or parameters.get("spin") == "noncollinear")
+    return high_symmetry_path(structure, density, time_reversal=time_reversal, site_types=types)
 
 
 def _species(structure, parameters):
@@ -203,6 +284,16 @@ def _species(structure, parameters):
             raise ValueError("Each species label must identify one element.")
         species[label] = element
     return list(labels), species
+
+
+def _mesh(structure, p):
+    mesh = p.get("mesh", p.get("kpoint_grid"))
+    if mesh is None:
+        spacing = _number(p.get("kspacing", 0.25), "kspacing", True)
+        mesh = [max(1, math.ceil(x / spacing)) for x in structure.lattice.reciprocal_lattice.abc]
+        for axis in vacuum_axes(structure):
+            mesh[axis["axis"]] = 1
+    return _vector(mesh, "mesh", integers=True)
 
 
 def _positions(structure, labels):
@@ -283,8 +374,13 @@ def _pw(structure, task, p, potentials, metadata, include_positions=True):
         raise ValueError("ecutrho must be at least ecutwfc (both in Ry).")
     control = {"calculation": "vc-relax" if task == "relax" and p.get("cell_relax") else task, "prefix": PREFIX, "outdir": "./scratch", "pseudo_dir": "./pseudo", "tprnfor": True, "tstress": True, "verbosity": "high"}
     system = {"ibrav": 0, "nat": len(structure), "ntyp": len(species), "ecutwfc": ecut, "ecutrho": rho}
-    electrons = {"conv_thr": _number(p.get("conv_thr", 1e-8), "conv_thr", True), "electron_maxstep": _integer(p.get("electron_maxstep", 120), "electron_maxstep")}
     functional = p.get("functional", "PBE").upper()
+    # With exact exchange conv_thr also ends pw.x's outer EXX loop (dexx < conv_thr). For GaAs with SSSP UPFs
+    # dexx levelled off near 1e-7 Ry and the run hit its 2-hour limit at 1e-8, although the gap had settled to
+    # 0.2 meV at dexx 1e-6; QE's own default, 1e-6 Ry, ends that loop.
+    hybrid = functional in {"PBE0", "HSE", "HSE06"} or str(_extra(p, "system").get("input_dft", "")).upper() in {"PBE0", "HSE", "B3LYP"}
+    electrons = {"conv_thr": _number(p.get("conv_thr", 1e-6 if hybrid else 1e-8), "conv_thr", True),
+                 "electron_maxstep": _integer(p.get("electron_maxstep", 120), "electron_maxstep")}
     if functional not in {"PBE", "LDA", "PBE0", "HSE", "HSE06"}:
         raise ValueError("Use a supported functional or SYSTEM input_dft in native namelists.")
     system["input_dft"] = "HSE" if functional == "HSE06" else functional
@@ -314,7 +410,14 @@ def _pw(structure, task, p, potentials, metadata, include_positions=True):
     electronic_type = p.get("electronic_type", "auto")
     if electronic_type not in {"auto", "metal", "insulator"}:
         raise ValueError("electronic_type must be auto, metal or insulator.")
-    if electronic_type == "insulator":
+    if electronic_type == "insulator" and system.get("nspin") == 2 and not any(
+            key.lower() == "tot_magnetization" for key in _extra(p, "system")):
+        # pw.x stops on fixed occupations with two spins unless the total moment is fixed too
+        # ("fixed occupations and lsda need tot_magnetization"); keep the moment free with a narrow Gaussian.
+        system.update(occupations="smearing", smearing="gaussian", degauss=0.002)
+        metadata.setdefault("notes", []).append(
+            "Spin-polarized fixed occupations need tot_magnetization, so a 0.027 eV Gaussian smearing is used instead.")
+    elif electronic_type == "insulator":
         system["occupations"] = "fixed"
     else:
         system.update(occupations="smearing", smearing="mv" if electronic_type == "metal" else "gaussian", degauss=_number(p.get("degauss", 0.01), "degauss", True))
@@ -328,6 +431,15 @@ def _pw(structure, task, p, potentials, metadata, include_positions=True):
         control.update(nstep=_integer(p.get("nstep", 100), "nstep"), etot_conv_thr=_number(p.get("etot_conv_thr", 1e-5), "etot_conv_thr", True), forc_conv_thr=_number(p.get("forc_conv_thr", 1e-3), "forc_conv_thr", True))
     for name, section in (("control", control), ("system", system), ("electrons", electrons)):
         section.update(_extra(p, name))
+    if "nbnd" not in system:
+        bands = _default_bands(structure, task, system, labels, species, potentials, metadata)
+        if bands:
+            system["nbnd"] = bands
+            if task in {"bands", "nscf"} and "diago_thr_init" not in electrons:
+                # Plots and DOS need eigenvalues to ~1e-5 eV. pw.x would ask conv_thr/N/10 (~1e-11 Ry) at
+                # every point, where Davidson stalled or stopped for GaAs, Fe and CrI3. Wannier and EPW
+                # stages choose nbnd themselves and keep that default.
+                electrons["diago_thr_init"] = 1e-6
     if str(system.get("input_dft", "")).upper() in {"HSE", "HSE06", "PBE0", "B3LYP"}:
         known_nc = bool(potentials) and all(isinstance(value, dict) and str(value.get("pseudo_type", "")).upper() in {"NC", "NCPP"} for value in potentials.values())
         if task == "scf" and not known_nc:
@@ -369,15 +481,12 @@ def _pw(structure, task, p, potentials, metadata, include_positions=True):
         points = path["reciprocal_fractional"]
         text += f"K_POINTS crystal\n{len(points)}\n" + "\n".join(" ".join(f"{x:.14g}" for x in point) + " 1" for point in points) + "\n"
     else:
-        mesh = p.get("mesh", p.get("kpoint_grid"))
-        if mesh is None:
-            spacing = _number(p.get("kspacing", 0.25), "kspacing", True)
-            mesh = [max(1, math.ceil(x / spacing)) for x in structure.lattice.reciprocal_lattice.abc]
-            for axis in vacuum_axes(structure):
-                mesh[axis["axis"]] = 1
-        mesh = _vector(mesh, "mesh", integers=True)
+        mesh = _mesh(structure, p)
         metadata["mesh"] = mesh
-        text += "K_POINTS automatic\n" + " ".join(map(str, mesh)) + " 0 0 0\n"
+        shift = _kshift(p)
+        if any(shift):
+            metadata["kshift"] = shift
+        text += "K_POINTS automatic\n" + " ".join(map(str, mesh)) + " " + " ".join(map(str, shift)) + "\n"
         if system.get("occupations", "").startswith("tetrahedra") and min(mesh) < 2:
             raise ValueError("Tetrahedra occupations require a three-dimensional mesh.")
     hubbard = p.get("hubbard", [])
@@ -420,7 +529,7 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
             p[new] = p.pop(old)
     if original_task == "vc-relax":
         p["cell_relax"] = True
-    structure = Structure.from_file(structure_path)
+    structure, rotation = _standard_frame(Structure.from_file(structure_path), p)
     _validate_structure(structure)
     # Validate every native section even when it is not used in this stage.
     for section in p.get("namelists", {}):
@@ -436,7 +545,16 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
     if task in {"relax", "scf", "bands", "nscf"}:
         text = _pw(structure, task, p, potentials, metadata)
     elif task == "dos":
-        text = namelist("dos", {"prefix": PREFIX, "outdir": "./scratch", "fildos": "dos.dat", "deltae": _number(p.get("deltae", 0.01), "deltae", True), **_extra(p, "dos")})
+        values = {"prefix": PREFIX, "outdir": "./scratch", "fildos": "dos.dat", "deltae": _number(p.get("deltae", 0.01), "deltae", True)}
+        # dos.x otherwise keeps the NSCF occupations: almost no broadening for an insulator, a spiky DOS.
+        # Tetrahedra need a three-dimensional mesh; a monolayer gets a 0.14 eV Gaussian, as in ABINIT.
+        if min(_mesh(structure, p)) >= 2:
+            values["bz_sum"] = "tetrahedra_opt"
+            metadata["dos_method"] = "tetrahedron"
+        else:
+            values.update(ngauss=0, degauss=_number(p.get("degauss", 0.01), "degauss", True))
+            metadata["dos_method"] = "gaussian_smearing"
+        text = namelist("dos", {**values, **_extra(p, "dos")})
     elif task == "pdos":
         text = namelist("projwfc", {"prefix": PREFIX, "outdir": "./scratch", "filpdos": "pdos", "deltae": _number(p.get("deltae", 0.01), "deltae", True), **_extra(p, "projwfc")})
     elif task == "pp":
@@ -471,7 +589,7 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
         images = p.get("images")
         if not isinstance(images, list) or len(images) < 2:
             raise ValueError("NEB requires at least two image structure paths in parameters.images.")
-        image_structures = [Structure.from_file(path) for path in images]
+        image_structures = [_rotated(Structure.from_file(path), rotation) for path in images]
         for image in image_structures:
             _validate_structure(image)
             if [s.specie.symbol for s in image] != [s.specie.symbol for s in structure] or not np.allclose(image.lattice.matrix, structure.lattice.matrix, atol=1e-7, rtol=1e-7):
@@ -542,6 +660,49 @@ def _same_structure(actual, expected, positions=True):
     return bool(np.allclose(actual.lattice.matrix, expected.lattice.matrix, atol=1e-5, rtol=1e-6) and np.allclose(delta - np.rint(delta), 0, atol=1e-5))
 
 
+def _standard_frame(structure, parameters=None):
+    """The crystal rigidly rotated so its symmetry axes lie along x, y and z, with the rotation.
+
+    pw.x with ibrav = 0 looks for symmetry operations in fixed Cartesian axes. A cubic primitive cell
+    read from a CIF has c along z instead, and pw.x found only 2 of GaAs's 24 operations: an 8x8x8
+    SCF then used 150 k points instead of 29, and phonons 24 q points instead of 8. Fractional
+    positions, and so every reduced-coordinate input, are unchanged. Keep the supplied frame when
+    Cartesian directions are part of the request: rotating only the crystal would change the physics.
+    """
+    import warnings
+
+    import spglib
+
+    p = parameters or {}
+    native = p.get("namelists", {})
+    keys = {str(key).lower() for section in native.values() if isinstance(section, dict) for key in section}
+    system = _extra(p, "system")
+    noncollinear = bool(p.get("soc") or p.get("spin") == "noncollinear" or system.get("noncolin") or system.get("lspinorb"))
+    magnetization = p.get("starting_magnetization") or {}
+    seeds = list(magnetization.values()) if isinstance(magnetization, dict) else []
+    seeds += [value for key, value in system.items() if key.startswith("starting_magnetization(")]
+    directed = any(key.startswith(("angle1(", "angle2(", "fixed_magnetization(", "efield", "bfield"))
+                   or key in {"edir", "gdir", "tefield", "lelfield", "lberry", "cell_dofree",
+                              "assume_isolated", "constrained_magnetization"} for key in keys)
+    # ph.x takes a single q point in Cartesian 2*pi/alat, unlike crystal-coordinate band paths.
+    single_q = "qpoint" in p and any(_vector(p["qpoint"], "qpoint"))
+    if directed or single_q or (noncollinear and any(_number(value, "starting_magnetization") != 0 for value in seeds)):
+        return structure.copy(), np.eye(3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        data = spglib.get_symmetry_dataset((structure.lattice.matrix, structure.frac_coords, [site.specie.Z for site in structure]), symprec=1e-5)
+    rotation = np.asarray(data.std_rotation_matrix, dtype=float) if data is not None else np.eye(3)
+    if not np.allclose(rotation @ rotation.T, np.eye(3), atol=1e-8) or np.linalg.det(rotation) < 0:
+        rotation = np.eye(3)
+    return _rotated(structure, rotation), rotation
+
+
+def _rotated(structure, rotation):
+    return Structure(structure.lattice.matrix @ rotation.T, structure.species, structure.frac_coords,
+                     site_properties=structure.site_properties or None)
+
+
 def _expected_structure(folder, metadata, expected_structure=None):
     """Recover the submitted orientation and check it against the native input."""
     native = metadata.get("native_structure")
@@ -585,7 +746,8 @@ def _csv(path, header, rows):
         writer.writerows(rows)
 
 
-def _plot(folder, stem, x, y, xlabel, ylabel, labels=None, segments=None):
+def _plot(folder, stem, x, y, xlabel, ylabel, labels=None, segments=None, steps=False):
+    from matplotlib import rc_context
     from matplotlib.figure import Figure
     figure = Figure(figsize=(6.6, 4.4), constrained_layout=True)
     ax = figure.subplots()
@@ -593,8 +755,15 @@ def _plot(folder, stem, x, y, xlabel, ylabel, labels=None, segments=None):
     data = data[:, None] if data.ndim == 1 else data
     for column in range(data.shape[1]):
         for start, stop in segments or [[0, len(x)]]:
-            ax.plot(np.asarray(x)[start:stop], data[start:stop, column], color="#245a81", linewidth=1)
+            ax.plot(np.asarray(x)[start:stop], data[start:stop, column], color="#245a81", linewidth=1,
+                    marker="o" if steps else None, markersize=4)
     ax.set(xlabel=xlabel, ylabel=ylabel)
+    if steps:
+        # Whole steps only, and a visible point when a relaxation converged after one step.
+        from matplotlib.ticker import MaxNLocator
+        ax.set_xlim(0.5, len(x) + 0.5)
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=1))
+        ax.ticklabel_format(axis="y", useOffset=False)
     if labels and len(labels) == len(x):
         ticks = [(float(x[i]), label.replace("GAMMA", "Γ")) for i, label in enumerate(labels) if label]
         if ticks:
@@ -603,7 +772,9 @@ def _plot(folder, stem, x, y, xlabel, ylabel, labels=None, segments=None):
     names = []
     for ext in ("png", "pdf", "svg"):
         name = f"{stem}.{ext}"
-        figure.savefig(Path(folder) / name, dpi=180)
+        metadata = {"CreationDate": None, "ModDate": None} if ext == "pdf" else {"Date": None} if ext == "svg" else None
+        with rc_context({"svg.hashsalt": "dft-agent"}):
+            figure.savefig(Path(folder) / name, dpi=180, metadata=metadata)
         names.append(name)
     return names
 
@@ -661,11 +832,13 @@ def _bands(output, result, folder, metadata):
         x = path.get("distance_inv_angstrom", list(range(len(ev))))
         if len(x) != len(ev):
             raise ValueError("Band output k-point count differs from the prepared path.")
-        reference = result.get("fermi_energy_ev")
-        if reference is None:
-            reference = result["band_gap"].get("vbm_ev", 0.0)
-        result["plot_reference_ev"] = reference
-        result["artifacts"] += _plot(folder, "bands", x, ev - reference, "Wave vector", "Energy − reference (eV)", path.get("labels"), path.get("segments"))
+        reference, kind = band_reference(result["band_gap"], result.get("fermi_energy_ev"))
+        result.update(plot_reference_ev=reference, energy_reference=kind)
+        values = ev - reference
+        if (band.findtext("lsda") or "").strip().lower() == "true":
+            # LSDA lists the spin-up bands of each k point before the spin-down ones.
+            values = np.stack(np.split(values, 2, axis=1))
+        result["artifacts"] += plot_bands(folder, "bands", x, values, path.get("labels"), path.get("segments"), kind)
 
 
 def _pw_result(folder, task, text, metadata, expected, result):
@@ -819,7 +992,7 @@ def _pw_result(folder, task, text, metadata, expected, result):
         result["ionic_steps_count"] = len(values)
         result["artifacts"].append("relax_energy.csv")
         if task == "relax":
-            result["artifacts"] += _plot(folder, "relax_energy", list(range(1, len(values) + 1)), values, "Ionic step", "Energy (eV)")
+            result["artifacts"] += _plot(folder, "relax_energy", list(range(1, len(values) + 1)), values, "Ionic step", "Energy (eV)", steps=True)
     _bands(output, result, folder, metadata)
     if task in {"bands", "nscf"} and not result.get("kpoint_count"):
         raise ValueError("Band eigenvalues are missing.")
@@ -886,7 +1059,13 @@ def _post_result(folder, task, text, metadata, result):
         result["artifacts"].append(f"{task}.csv")
         # Last DOS column is integrated DOS; do not plot it as a density.
         density = data[:, 1:-1] if task == "dos" and data.shape[1] > 2 else data[:, 1:2]
-        result["artifacts"] += _plot(folder, task, data[:, 0], density, "Energy (eV)", "DOS (states/eV)")
+        header = (folder / name).read_text(errors="replace").split("\n", 1)[0]
+        fermi = re.search(r"EFermi\s*=\s*(" + FLOAT + r")\s*eV", header) if task == "dos" else None
+        if fermi:
+            result.update(fermi_energy_ev=float(fermi[1]), dos_reference_ev=float(fermi[1]))
+            result["artifacts"] += plot_dos(folder, task, data[:, 0] - float(fermi[1]), density)
+        else:
+            result["artifacts"] += _plot(folder, task, data[:, 0], density, "Energy (eV)", "DOS (states/eV)")
         result["energy_grid_points"] = len(data)
     elif task == "phonon":
         if re.search(r"convergence\s+NOT\s+achieved", text, re.I):
@@ -920,6 +1099,31 @@ def _post_result(folder, task, text, metadata, result):
             raise ValueError("The phonon output contains an incomplete mode set.")
         values = [_floats(x)[0] for x in frequencies]
         result.update(min_frequency_cm1=min(values), imaginary_mode_count=sum(x < -1 for x in values), phonon_mode_count=len(values), converged_phonon=True)
+        # The three acoustic modes at Γ should vanish; ph.x prints them before q2r/matdyn impose the sum rule.
+        first = re.search(r"Diagonalizing the dynamical matrix\s*\n\s*q = \(\s*(" + FLOAT + r")\s+(" + FLOAT + r")\s+(" + FLOAT + r")\s*\)", text)
+        others = values
+        if first and expected_modes and all(abs(_floats(x)[0]) < 1e-8 for x in first.groups()):
+            acoustic = sorted(range(expected_modes), key=lambda i: abs(values[i]))[:3]
+            others = [value for i, value in enumerate(values) if i not in acoustic]
+            violation = max(abs(values[i]) for i in acoustic)
+            result["acoustic_sum_rule_violation_cm1"] = violation
+            if violation > ACOUSTIC_WARNING_CM1:
+                result["warnings"].append(f"Before the sum rule was imposed, the acoustic modes at Γ were at {violation:.0f} cm⁻¹ instead of 0, "
+                                          "so the force constants are unreliable. GaAs with SSSP's Ga and As UPFs showed this at every "
+                                          "ecutrho and k mesh tried; repeat with norm-conserving UPFs (PseudoDojo) and compare the branches.")
+        # ph.x prints the sum of the Born charges before imposing neutrality; on a Γ-centred 8x8x8 mesh GaAs missed it
+        # by 0.26 with ε∞ = 27, and on the shifted mesh by 0.001 with ε∞ = 13.6.
+        neutrality = re.findall(r"Effective charges Sum:\s*Mean:\s*(" + FLOAT + ")", text)
+        if neutrality:
+            result["charge_neutrality_violation"] = abs(_floats(neutrality[0])[0])
+            if result["charge_neutrality_violation"] > 0.1:
+                result["warnings"].append(f"The Born charges missed charge neutrality by {result['charge_neutrality_violation']:.2f} e before it "
+                                          "was imposed, so the dielectric constant and the LO-TO splitting are not converged: use a "
+                                          "denser k mesh, or a shifted one (kshift).")
+        # Beyond the acoustic modes at Γ, frequencies more than a few cm-1 below zero are instabilities or numerical errors.
+        if others and min(others) < -IMAGINARY_WARNING_CM1:
+            result["warnings"].append(f"ph.x found imaginary frequencies down to {min(others):.0f} cm⁻¹ at the computed q points: "
+                                      "the structure is not at a stable minimum, or the force constants are not converged.")
         result["artifacts"] += [p.name for p in files]
         _csv(folder / "phonons.csv", ["mode_index", "frequency_cm1"], enumerate(values, 1))
         result["artifacts"].append("phonons.csv")
@@ -982,7 +1186,10 @@ def _post_result(folder, task, text, metadata, result):
             raise ValueError("Phonon output does not match the requested path.")
         requested = path_meta.get("reciprocal_fractional")
         if requested is not None:
-            structure = Structure.from_file(folder / "structure.cif")
+            # The frame this stage was prepared in: the standard frame, or the file's own for earlier runs.
+            native = metadata.get("native_structure")
+            structure = (Structure(native["lattice_angstrom"], native["elements"], native["fractional_positions"]) if native
+                         else Structure.from_file(folder / "structure.cif"))
             # Generated PW cells use ibrav=0 and alat=|a1|. matdyn converts
             # crystal q to Cartesian coordinates in units of 2*pi/alat.
             expected = np.asarray(requested) @ structure.lattice.reciprocal_lattice.matrix
@@ -990,8 +1197,12 @@ def _post_result(folder, task, text, metadata, result):
             if expected.shape != (nks, 3) or not np.allclose(data[:, :3], expected, atol=1e-6, rtol=0):
                 raise ValueError("matdyn q-point coordinates differ from the requested path.")
         _csv(folder / "phonon_bands.csv", ["q_index", "qx_2pi_alat", "qy_2pi_alat", "qz_2pi_alat"] + [f"mode_{i + 1}_cm1" for i in range(nbnd)], ([i + 1, *row] for i, row in enumerate(data)))
-        result["artifacts"] += ["phonon.freq", "phonon_bands.csv"] + _plot(folder, "phonon_bands", x, values, "Wave vector", "Frequency (cm⁻¹)", path_meta.get("labels"), path_meta.get("segments"))
+        result["artifacts"] += ["phonon.freq", "phonon_bands.csv"] + plot_phonons(folder, "phonon_bands", x, values, path_meta.get("labels"), path_meta.get("segments"))
         result.update(min_frequency_cm1=float(values.min()), imaginary_mode_count=int((values < -1).sum()), qpoint_count=nks)
+        unstable = values < -IMAGINARY_WARNING_CM1
+        if unstable.any():
+            result["warnings"].append(f"{int(unstable.sum())} interpolated frequencies along the path are imaginary, down to {values.min():.0f} cm⁻¹: "
+                                      "the structure is not at a stable minimum, or the force constants are not converged.")
     elif task == "neb":
         if not re.search(r"neb:\s+convergence achieved", text, re.I) or re.search(r"scf convergence\s+NOT\s+achieved", text, re.I):
             raise ValueError("NEB path and image convergence are not confirmed.")
@@ -1046,10 +1257,12 @@ def analyze_outputs(folder, task, expected_structure=None):
         if not output.is_file():
             raise ValueError(f"{output.name} is missing.")
         text = output.read_text(encoding="utf-8", errors="replace")
+        error = re.search(r"Error in routine\s+(\S+)\s*\(\s*-?\d+\s*\):[ \t]*\n\s*(\S[^\n]*)", text)
+        error = f' QE stopped in {error[1]}: "{error[2].strip()[:200]}".' if error else ""
         if "JOB DONE." not in text:
-            raise ValueError("QE did not finish normally.")
+            raise ValueError("QE did not finish normally." + error)
         if re.search(r"Error in routine|MPI_ABORT|convergence NOT achieved|Maximum CPU time exceeded", text, re.I):
-            raise ValueError("QE output reports a calculation error or incomplete convergence.")
+            raise ValueError("QE output reports a calculation error or incomplete convergence." + error)
         result["stdout_sha256"] = _hash(output)
         result["artifacts"].append(output.name)
         if task in {"relax", "scf", "bands", "nscf"}:

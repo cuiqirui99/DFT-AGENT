@@ -110,11 +110,11 @@ available only after reviewing the prepared inputs and resources. **Refresh
 status** reads the current state; **Reconnect** checks existing jobs after an
 interruption. **Settings** switches the interface language.
 
-## Agent mode
+## Automatic mode
 
-With a Codex CLI or Claude Code connection the chat runs in **Agent** mode by
-default; the **Mode** switch next to the model returns to **Guided**. In agent
-mode each message is one CLI run (`codex exec` or `claude -p`) whose only tools
+With a Codex CLI or Claude Code connection the chat runs in **Automatic** mode by
+default; the mode switch in the project header returns to **Step by step**. In
+automatic mode each message is one CLI run (`codex exec` or `claude -p`) whose only tools
 are the project's own, served by `dft-agent mcp` over stdio: project overview,
 reading and drafting files, describing structures, creating workflows, running
 the engine planners, preparing and reviewing inputs, refreshing status,

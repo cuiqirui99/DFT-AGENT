@@ -13,6 +13,15 @@ import tempfile
 from . import qe
 
 
+def saved_matches(saved, current):
+    """Every saved value still matches a fresh analysis; fields added by a later version may be missing."""
+    if isinstance(saved, dict):
+        return isinstance(current, dict) and all(key in current and saved_matches(value, current[key]) for key, value in saved.items())
+    if isinstance(saved, list):
+        return isinstance(current, list) and len(saved) == len(current) and all(map(saved_matches, saved, current))
+    return saved == current
+
+
 def _science(task):
     if task.startswith("wannier_") or task == "epw_interpolate":
         from . import qe_wannier
@@ -340,14 +349,16 @@ def load_run_context(run_dir):
                     # instead of showing one number there and another to a model.
                     keys = ("final_energy_ev", "final_energy_ev_per_atom", "final_max_force_ev_angstrom",
                             "fermi_energy_ev", "band_gap", "barrier_forward_ev", "barrier_reverse_ev",
-                            "reaction_energy_ev", "min_frequency_cm1", "imaginary_mode_count",
+                            "reaction_energy_ev", "min_frequency_cm1", "imaginary_mode_count", "acoustic_sum_rule_violation_cm1",
                             "electron_phonon", "interpolated_lambda", "mu_star", "tc_model", "integration_method",
                             "temperature_results", "tc_bracket_kelvin", "tc_bracketed", "pairing_model",
                             "lambda_integral", "omega_log_mev", "allen_dynes_estimate_kelvin",
                             "total_magnetization_mu_b", "total_magnetization_vector_mu_b", "absolute_magnetization_mu_b",
                             "stress_gpa", "pressure_gpa", "site_magnetization", "site_magnetization_scope",
                             "spin_mode", "spin_orbit_coupling", "converged_exx", "exx_exchange_error_ry")
-                    if accepted and any(current.get(key) != result.get(key) for key in keys):
+                    # Results saved by an earlier version lack fields added since (phonon sum-rule
+                    # checks in 0.4.5); every number they do hold must match.
+                    if accepted and any(key in result and not saved_matches(result[key], current.get(key)) for key in keys):
                         accepted = False
                         issue = "Saved numerical results differ from the verified solver output."
                     neb_keys = ("path_converged", "endpoint_forces_ev_angstrom", "endpoint_relaxed",
@@ -418,6 +429,7 @@ def load_run_context(run_dir):
             ("reaction_energy", "reaction_energy_ev", "Reaction energy", "eV"),
             ("minimum_phonon_frequency", "min_frequency_cm1", "Minimum phonon frequency", "cm⁻¹"),
             ("imaginary_mode_count", "imaginary_mode_count", "Sampled imaginary modes", "modes"),
+            ("acoustic_sum_rule_violation", "acoustic_sum_rule_violation_cm1", "Acoustic frequency at Γ before the sum rule", "cm⁻¹"),
             ("qpoint_count", "qpoint_count", "Phonon path points", "points"),
             ("total_magnetization", "total_magnetization_mu_b", "Total magnetization", "μB"),
             ("magnetization_vector", "total_magnetization_vector_mu_b", "Total magnetization vector", "μB"),
@@ -435,7 +447,8 @@ def load_run_context(run_dir):
                     fact(prefix + "." + suffix, f"{task}: {label}", current[key], source, unit)
         if task == "neb":
             fact(prefix + ".barrier_scope", "NEB barrier scope", current.get("barrier_scope"), source)
-            limits.extend(current.get("warnings", []))
+        # Every stage's own warnings, such as imaginary phonon branches, travel with its facts.
+        limits.extend(current.get("warnings", []))
         gap = current.get("band_gap") or {}
         if "gap_ev" not in gap and "energy_ev" in gap:
             gap = {**gap, "gap_ev": gap["energy_ev"]}

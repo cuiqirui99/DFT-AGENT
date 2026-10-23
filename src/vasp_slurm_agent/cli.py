@@ -52,6 +52,9 @@ def doctor(config, transport=None):
     if config.engine == "qe":
         from .qe_setup import doctor as qe_doctor
         return qe_doctor(config, transport=transport)
+    if config.engine in {"abinit", "cp2k", "elk"}:
+        from .engine_setup import doctor as engine_doctor
+        return engine_doctor(config, transport=transport)
     from .transport import SSHTransport
     owned = transport is None
     remote = transport or SSHTransport(config)
@@ -173,7 +176,7 @@ def main():
     plan.add_argument("--base-url", default="")
     plan.add_argument("--output", type=Path, default=Path("plan.json"))
     plan.add_argument("--runs", type=Path, help="Past runs for method guidance")
-    plan.add_argument("--engine", choices=("vasp", "qe"), default="vasp")
+    plan.add_argument("--engine", choices=("vasp", "qe", "abinit", "cp2k", "elk"), default="vasp")
     plan.add_argument("--config", type=Path, default=default_config)
     plan.add_argument("--images", type=Path, nargs="+", help="QE NEB endpoints or images")
     task = commands.add_parser("task", help="Plan edits, stages and comparisons")
@@ -185,7 +188,7 @@ def main():
     task.add_argument("--base-url", default="")
     task.add_argument("--output", type=Path, default=Path("task.json"))
     task.add_argument("--runs", type=Path)
-    task.add_argument("--engine", choices=("vasp", "qe"), default="vasp")
+    task.add_argument("--engine", choices=("vasp", "qe", "abinit", "cp2k", "elk"), default="vasp")
     task.add_argument("--config", type=Path, default=default_config)
     task.add_argument("--images", type=Path, nargs="+", help="QE NEB endpoints or images")
     for planner in (plan, task):
@@ -199,9 +202,21 @@ def main():
     qe_command.add_argument("--prefix")
     qe_command.add_argument("--build-cpus", type=int, default=8)
     qe_command.add_argument("--include-epw", action="store_true", help="Build EPW and Wannier90")
-    qe_command.add_argument("--library", choices=("sssp", "pseudodojo"), default="sssp", help="Public UPF library")
+    qe_command.add_argument("--library", choices=("sssp", "pseudodojo", "pseudodojo-fr"), default="sssp",
+                            help="Public UPF library; pseudodojo-fr is fully relativistic, for spin-orbit coupling")
     qe_command.add_argument("--elements", nargs="+")
     qe_command.add_argument("--password", action="store_true")
+    engine_command = commands.add_parser("engine", help="Install and check ABINIT, CP2K or Elk")
+    engine_command.add_argument("action", choices=("detect", "install-plan", "install", "install-status", "library", "doctor"))
+    engine_command.add_argument("--config", type=Path, default=default_config)
+    engine_command.add_argument("--engine", choices=("abinit", "cp2k", "elk"), help="Program to install (defaults to the config engine)")
+    engine_command.add_argument("--plan", type=Path, default=Path("engine-install-plan.json"))
+    engine_command.add_argument("--receipt", type=Path, default=Path("engine-install-receipt.json"))
+    engine_command.add_argument("--prefix")
+    engine_command.add_argument("--build-cpus", type=int, default=4)
+    engine_command.add_argument("--elements", nargs="+")
+    engine_command.add_argument("--soc", action="store_true", help="Fully relativistic ABINIT pseudopotentials")
+    engine_command.add_argument("--functional", choices=("PBE", "PBEsol"), default="PBE")
     structure_plan = commands.add_parser("structure-plan", help="Plan structure edits")
     structure_plan.add_argument("structure", type=Path)
     structure_plan.add_argument("goal")
@@ -338,10 +353,11 @@ def main():
             if not 1024 <= args.port <= 65535:
                 parser.error("Choose a local port between 1024 and 65535")
             from streamlit.web import cli as streamlit_cli
+            from .ui_style import THEME_FLAGS
             url = f"http://127.0.0.1:{args.port}"
             sys.argv = ["streamlit", "run", str(Path(__file__).with_name("app.py")), "--server.address=127.0.0.1",
                         f"--server.port={args.port}", "--server.headless=true", "--browser.gatherUsageStats=false",
-                        "--client.toolbarMode=minimal"]
+                        "--client.toolbarMode=minimal", *THEME_FLAGS]
             print(f"DFT Agent {__version__} · {url} · press Ctrl+C to stop", file=sys.stderr)
             if not args.no_browser and not os.environ.get("DFT_AGENT_NO_BROWSER"):
                 _open_browser_later(url)
@@ -482,6 +498,10 @@ def main():
             if args.pairing:
                 from .qe_pairing_agent import draft_task as draft_pairing_task
                 result = draft_pairing_task(goal, args.structure, settings, origin=args.origin, history=history)
+            elif args.engine in {"abinit", "cp2k", "elk"}:
+                from .engine_agent import draft_task as draft_engine_task
+                result = draft_engine_task(goal, args.structure, settings, history=history, engine=args.engine,
+                                           config=ClusterConfig.load(args.config) if args.config.is_file() else None)
             elif args.engine == "qe":
                 from .qe_agent import draft_task as draft_qe_task
                 result = draft_qe_task(goal, args.structure, settings, history=history,
@@ -513,13 +533,37 @@ def main():
                     raise ValueError("Give --elements, for example Si O.")
                 result = qe_setup.ensure_pseudos(config, args.elements, library=args.library)
                 mapping = dict(config.qe_pseudopotentials)
-                for element, item in result["elements"].items():
-                    mapping[element] = {"filename": item["filename"], "sha256": item["sha256"],
-                        "ecutwfc": item["cutoff_wfc"], "ecutrho": item["cutoff_rho"],
-                        "element": element, "relativistic": item["header"]["relativistic"]}
+                mapping.update(result["config_pseudopotentials"])
                 replace(config, qe_pseudopotentials=mapping).save(args.config)
             print(json.dumps(result, indent=2))
             return 1 if result.get("status") in {"failed", "needs_attention"} else 0
+        if args.command == "engine":
+            from . import engine_setup
+            config = ClusterConfig.load(args.config)
+            engine = args.engine or config.engine
+            if engine not in {"abinit", "cp2k", "elk"}:
+                raise ValueError("Choose --engine abinit, cp2k or elk.")
+            if args.action == "detect":
+                result = engine_setup.detect_platform(config)
+            elif args.action == "install-plan":
+                result = engine_setup.install_plan(config, engine, engine_setup.detect_platform(config), prefix=args.prefix,
+                                                   build_cpus=args.build_cpus)
+                args.plan.write_text(json.dumps(result, indent=2) + "\n")
+            elif args.action == "install":
+                result = engine_setup.start_install(config, json.loads(args.plan.read_text()))
+                args.receipt.write_text(json.dumps(result, indent=2) + "\n")
+            elif args.action == "install-status":
+                result = engine_setup.poll_install(config, json.loads(args.plan.read_text()), json.loads(args.receipt.read_text()))
+            elif args.action == "doctor":
+                result = engine_setup.doctor(config)
+            else:
+                if config.engine != engine:
+                    raise ValueError("Install library files with a config for that program.")
+                from dataclasses import replace
+                result = engine_setup.ensure_library(config, args.elements or [], soc=args.soc, functional=args.functional)
+                replace(config, engine_library={**config.engine_library, **result["files"]}).save(args.config)
+            print(json.dumps(result, indent=2))
+            return 1 if result.get("status") in {"failed", "needs_attention"} or result.get("ok") is False else 0
         if args.command == "structure-plan":
             from .agent import ModelSettings
             from .structure_agent import draft_structure
@@ -639,13 +683,16 @@ def main():
                 elif proposal.get("kind") == "qe_task":
                     from .qe_agent import prepare_task
                     result = prepare_task(args.structure, args.run_dir, config, proposal, images=args.images)
+                elif proposal.get("kind") in {"abinit_task", "cp2k_task", "elk_task"}:
+                    from .engine_agent import prepare_task
+                    result = prepare_task(args.structure, args.run_dir, config, proposal)
                 elif proposal.get("kind") == "task":
                     from .task_agent import prepare_task
                     result = prepare_task(args.structure, args.run_dir, config, proposal)
                 else:
                     result = prepare_plan(args.structure, args.run_dir, config, proposal["tasks"], proposal["parameters"],
                                           proposal.get("magnetic_states") or None, proposal.get("initial_moment", 3.0))
-                if proposal.get("kind") not in {"task", "qe_task", "qe_pairing"}:
+                if proposal.get("kind") not in {"task", "qe_task", "qe_pairing", "abinit_task", "cp2k_task", "elk_task"}:
                     (args.run_dir / "proposal.json").write_text(json.dumps(proposal, indent=2, ensure_ascii=False) + "\n")
             elif args.magnetic_states:
                 result = prepare_plan(args.structure, args.run_dir, config, [args.task or "scf"],

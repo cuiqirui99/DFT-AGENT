@@ -1,0 +1,22 @@
+
+┌─────────────────────────────────┐
+│ Elk code version 10.2.4 started │
+└─────────────────────────────────┘
+
+Number of MPI processes :      1
+Number of OpenMP threads per MPI process :    8
+Total number of threads (MPI x OpenMP) :      8
+Maximum OpenMP nesting level :    4
+Number of OpenMP threads at first nesting level :    8
+Number of MKL threads :    8
+
+RAM disk enabled
+
+┌──────────────────┐
+│ Current task : 0 │
+└──────────────────┘
+Info(checkmt): changed muffin-tin radius of species   1 (Si) from   2.2000 to   2.1964
+
+┌──────────────────┐
+│ Elk code stopped │
+└──────────────────┘

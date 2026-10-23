@@ -2,7 +2,7 @@
 
 ## 1. Install and create a project
 
-Download [v0.4.4](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.4),
+Download [v0.4.5](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5),
 install the Mac `.dmg` or Windows `.exe`, and open **DFT Agent**.
 Python and model SDKs are included. Linux and source installations are covered
 in [Install](install.md).
@@ -27,8 +27,8 @@ The connection test makes a real model request. Saved connections can be
 checked again with **Test connection**. API keys are stored in the system
 keychain. Do not enter them in chat. [Account and token guide](models.md).
 
-Codex and Claude CLI connections offer **Agent mode**, which lets the CLI use
-project tools across several steps. **Guided mode** uses checked actions one
+Codex and Claude CLI connections offer **Automatic** mode, which lets the CLI use
+project tools across several steps. **Step by step** uses checked actions one
 message at a time and is also used by API providers. Both require input review
 before a calculation is submitted.
 
@@ -56,7 +56,7 @@ the build**. [Installation details](install.md#your-first-cluster-setup).
 
 ## 4. Describe, review and submit
 
-1. Return with **Back to chat**. Open **Context → Files → Add files**, select
+1. Return with **Back to chat**. Open **Files and runs → Files → Add files**, select
    a CIF or POSCAR, and click **Import files**.
 2. Describe the calculation, including the engine if you have a preference.
    Answer questions and request changes in the same message box.
@@ -71,8 +71,8 @@ older run.
 
 ## 5. Follow results and continue
 
-Use **Tasks → Refresh status** and **Context → Jobs** to check progress and
-logs. **Context → Results** opens the selected run's plots, tables and retained
+Use **Tasks → Refresh status** and **Files and runs → Jobs** to check progress and
+logs. **Files and runs → Results** opens the selected run's plots, tables and retained
 outputs. Use **Prepare download** to create a results archive where offered.
 POTCAR is excluded from shared archives; large restart files remain on the cluster.
 

@@ -1,0 +1,182 @@
+
+
+Atomic position optimisation step :      1
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :     0.00905479   -0.01083785   -0.00000000
+   IBS                       :    -0.00090666    0.00007782    0.00000000
+   total force               :     0.00814814   -0.01076003   -0.00000000
+   total magnitude           :     0.01349705
+  atom :    2
+   Hellmann-Feynman          :    -0.00905479    0.01083785    0.00000000
+   IBS                       :     0.00090666   -0.00007782   -0.00000000
+   total force               :    -0.00814814    0.01076003    0.00000000
+   total magnitude           :     0.01349705
+
+Maximum force magnitude over all atoms (target) :   0.1349705131E-01 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :      2
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :     0.00832291   -0.01011434   -0.00000000
+   IBS                       :    -0.00084078    0.00008183    0.00000000
+   total force               :     0.00748214   -0.01003252   -0.00000000
+   total magnitude           :     0.01251534
+  atom :    2
+   Hellmann-Feynman          :    -0.00832291    0.01011434    0.00000000
+   IBS                       :     0.00084078   -0.00008183   -0.00000000
+   total force               :    -0.00748214    0.01003252    0.00000000
+   total magnitude           :     0.01251534
+
+Maximum force magnitude over all atoms (target) :   0.1251534001E-01 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :      3
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :     0.00549122   -0.00705122   -0.00000000
+   IBS                       :    -0.00052522   -0.00009875   -0.00000000
+   total force               :     0.00496600   -0.00714997   -0.00000000
+   total magnitude           :     0.00870535
+  atom :    2
+   Hellmann-Feynman          :    -0.00549122    0.00705122    0.00000000
+   IBS                       :     0.00052522    0.00009875    0.00000000
+   total force               :    -0.00496600    0.00714997    0.00000000
+   total magnitude           :     0.00870535
+
+Maximum force magnitude over all atoms (target) :   0.8705353730E-02 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :      4
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :     0.00216627   -0.00298918   -0.00000000
+   IBS                       :    -0.00008780   -0.00045744   -0.00000000
+   total force               :     0.00207846   -0.00344662   -0.00000000
+   total magnitude           :     0.00402482
+  atom :    2
+   Hellmann-Feynman          :    -0.00216627    0.00298918    0.00000000
+   IBS                       :     0.00008780    0.00045744    0.00000000
+   total force               :    -0.00207846    0.00344662    0.00000000
+   total magnitude           :     0.00402482
+
+Maximum force magnitude over all atoms (target) :   0.4024819420E-02 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :      5
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :    -0.00028114    0.00055618    0.00000000
+   IBS                       :     0.00023167   -0.00089645   -0.00000000
+   total force               :    -0.00004947   -0.00034027   -0.00000000
+   total magnitude           :     0.00034385
+  atom :    2
+   Hellmann-Feynman          :     0.00028114   -0.00055618   -0.00000000
+   IBS                       :    -0.00023167    0.00089645    0.00000000
+   total force               :     0.00004947    0.00034027    0.00000000
+   total magnitude           :     0.00034385
+
+Maximum force magnitude over all atoms (target) :   0.3438451098E-03 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :      6
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :    -0.00113496    0.00216581    0.00000000
+   IBS                       :     0.00033735   -0.00109647   -0.00000000
+   total force               :    -0.00079761    0.00106934    0.00000000
+   total magnitude           :     0.00133404
+  atom :    2
+   Hellmann-Feynman          :     0.00113496   -0.00216581   -0.00000000
+   IBS                       :    -0.00033735    0.00109647    0.00000000
+   total force               :     0.00079761   -0.00106934   -0.00000000
+   total magnitude           :     0.00133404
+
+Maximum force magnitude over all atoms (target) :   0.1334038972E-02 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :      7
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :    -0.00106448    0.00210370    0.00000000
+   IBS                       :     0.00032898   -0.00108879   -0.00000000
+   total force               :    -0.00073550    0.00101491    0.00000000
+   total magnitude           :     0.00125340
+  atom :    2
+   Hellmann-Feynman          :     0.00106448   -0.00210370   -0.00000000
+   IBS                       :    -0.00032898    0.00108879    0.00000000
+   total force               :     0.00073550   -0.00101491   -0.00000000
+   total magnitude           :     0.00125340
+
+Maximum force magnitude over all atoms (target) :   0.1253396844E-02 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :      8
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :    -0.00080854    0.00174865    0.00000000
+   IBS                       :     0.00029819   -0.00104497   -0.00000000
+   total force               :    -0.00051034    0.00070368    0.00000000
+   total magnitude           :     0.00086926
+  atom :    2
+   Hellmann-Feynman          :     0.00080854   -0.00174865   -0.00000000
+   IBS                       :    -0.00029819    0.00104497    0.00000000
+   total force               :     0.00051034   -0.00070368   -0.00000000
+   total magnitude           :     0.00086926
+
+Maximum force magnitude over all atoms (target) :   0.8692629719E-03 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :      9
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :    -0.00049433    0.00130998    0.00000000
+   IBS                       :     0.00025964   -0.00099058   -0.00000000
+   total force               :    -0.00023469    0.00031939    0.00000000
+   total magnitude           :     0.00039635
+  atom :    2
+   Hellmann-Feynman          :     0.00049433   -0.00130998   -0.00000000
+   IBS                       :    -0.00025964    0.00099058    0.00000000
+   total force               :     0.00023469   -0.00031939   -0.00000000
+   total magnitude           :     0.00039635
+
+Maximum force magnitude over all atoms (target) :   0.3963459509E-03 (  0.1944690381E-03)
+
+
+Atomic position optimisation step :     10
+
+Forces :
+ species :    1 (Si)
+  atom :    1
+   Hellmann-Feynman          :    -0.00024206    0.00096216    0.00000000
+   IBS                       :     0.00022810   -0.00094727   -0.00000000
+   total force               :    -0.00001395    0.00001490    0.00000000
+   total magnitude           :     0.00002041
+  atom :    2
+   Hellmann-Feynman          :     0.00024206   -0.00096216   -0.00000000
+   IBS                       :    -0.00022810    0.00094727    0.00000000
+   total force               :     0.00001395   -0.00001490   -0.00000000
+   total magnitude           :     0.00002041
+
+Maximum force magnitude over all atoms (target) :   0.2041106981E-04 (  0.1944690381E-03)
+
+Force convergence target achieved

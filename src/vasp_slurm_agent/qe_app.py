@@ -177,13 +177,13 @@ def new_run(upload, structure, config, runs_root, settings, mode):
             st.info("Missing UPFs: " + ", ".join(missing))
         else:
             st.caption("Using the UPFs in your cluster settings.")
-        library = st.selectbox("Library", ["SSSP", "PseudoDojo (NC)"], key="qe_pseudo_library")
-        st.caption("Choose NC for EPW. Both libraries use PBE; SOC needs fully relativistic UPFs.")
+        library = st.selectbox("Library", ["SSSP", "PseudoDojo (NC)", "PseudoDojo FR (NC, spin-orbit)"], key="qe_pseudo_library")
+        st.caption("Choose NC for EPW. All libraries use PBE; SOC needs the fully relativistic PseudoDojo FR set.")
         if st.button("Install public UPFs", key="qe_install_pseudos"):
             try:
                 with st.spinner("Installing pseudopotentials…"):
                     installed = _remote(qe_setup.ensure_pseudos, config, elements,
-                                        library="pseudodojo" if library == "PseudoDojo (NC)" else "sssp")
+                                        library={"PseudoDojo (NC)": "pseudodojo", "PseudoDojo FR (NC, spin-orbit)": "pseudodojo-fr"}.get(library, "sssp"))
                 mappings = dict(config.qe_pseudopotentials)
                 for element, item in installed["elements"].items():
                     mappings[element] = {"filename": item["filename"], "element": element, "ecutwfc": item["cutoff_wfc"], "ecutrho": item["cutoff_rho"], "sha256": item["sha256"], **item.get("header", {})}
@@ -247,7 +247,7 @@ def new_run(upload, structure, config, runs_root, settings, mode):
     for index, stage in enumerate(plan.get("stages", []), 1):
         st.write(f"{index}. {LABELS.get(stage['task'], stage['task'])}")
     with st.expander("Plan details"):
-        st.json({key: plan[key] for key in ("operations", "stages", "notes") if key in plan})
+        st.json({key: plan[key] for key in ("operations", "stages", "notes", "references") if key in plan})
     if st.button("Prepare inputs", disabled=plan.get("status") != "ready" or bool(plan.get("questions")) or bool(revision.strip()), key="qe_agent_prepare"):
         try:
             with _uploads(upload, endpoints) as (source, images):

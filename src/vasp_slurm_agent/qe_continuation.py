@@ -83,7 +83,8 @@ def inspect_continuation(source_run, source_stage):
         from pymatgen.core import Structure
         xml = root / stage["folder"] / "outputs/data-file-schema.xml"
         native = qe._xml_structure(qe._required(qe.ET.parse(xml).getroot(), "output/atomic_structure"))
-        if not qe._same_structure(native, Structure.from_file(root / relative)):
+        from . import qe_epw
+        if not qe_epw._matches_structure_file(native, Structure.from_file(root / relative), root / relative):
             raise ValueError("The accepted spectrum differs from its submitted structure.")
         artifact = {"path": relative, "sha256": expected}
     if artifact is None:
@@ -498,11 +499,16 @@ def repair_options(run_dir):
         if stage["name"] in {"scf", "relax", "vc-relax"} and re.search(r"convergence\s+NOT\s+achieved", logs, re.I):
             options.extend([{"action": "increase_electronic_steps", "reason": "The SCF iteration limit was reached."},
                             {"action": "reduce_mixing", "reason": "SCF did not converge; a smaller mixing step may help."}])
-        if stage["name"] in {"bands", "nscf"} and re.search(r"c_bands:.*eigenvalues not converged", logs, re.I):
+        unconverged = stage["name"] in {"bands", "nscf"} and re.search(r"c_bands:.*eigenvalues not converged", logs, re.I)
+        # Davidson stops when its subspace overlap turns singular (cdiaghg/rdiaghg); CG avoids that subspace.
+        singular = re.search(r"Error in routine [cr]diaghg|S matrix not positive definite|problems computing cholesky", logs, re.I)
+        if unconverged or singular:
             electrons = qe_workflow.qe._extra(stage["parameters"], "electrons")
             if (electrons.get("diagonalization") != "cg" or electrons.get("diago_cg_maxiter", 20) < 1000
                     or not electrons.get("diago_full_acc", False)):
-                options.append({"action": "use_cg_diagonalization", "reason": "Some band eigenvalues did not converge. Use CG with more iterations and full accuracy for empty states."})
+                reason = ("Some band eigenvalues did not converge." if unconverged
+                          else "The Davidson diagonalization stopped on a singular overlap matrix.")
+                options.append({"action": "use_cg_diagonalization", "reason": reason + " Use CG with more iterations and full accuracy for empty states."})
     return {"engine": "qe", "snapshot_sha256": digest, "attempt": attempt, "max_attempts": MAX_REPAIRS,
             "stage": stage["name"], "scheduler_state": stage["scheduler_state"], "actions": options,
             "requires_review": True, "submits_jobs": False}

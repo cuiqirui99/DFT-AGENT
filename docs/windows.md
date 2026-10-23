@@ -5,7 +5,7 @@ separate OpenSSH installation are not required.
 
 ## Install and connect
 
-1. Install [v0.4.4](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.4)
+1. Install [v0.4.5](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5)
    and open **DFT Agent** from the Start menu.
 2. Create a project. In **Connections → Model**, connect your CLI or API account.
 3. In **Connections → Cluster**, enter `ssh name@host` and follow the sign-in
@@ -13,7 +13,7 @@ separate OpenSSH installation are not required.
    when needed.
 4. Review the detected software and work folder. Use **Software** to add a
    solver or change its launcher, partition or queue, and resources.
-5. Return to chat, import a structure under **Context → Files**, and describe
+5. Return to chat, import a structure under **Files and runs → Files**, and describe
    your calculation. Review the inputs before submitting.
 
 Your cluster needs Linux, Slurm or PBS, Python 3 and SFTP. VASP needs a license

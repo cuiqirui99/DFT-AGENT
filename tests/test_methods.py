@@ -112,7 +112,8 @@ def test_hybrid_recipes_are_self_consistent(tmp_path, functional, task):
     incar = Incar.from_file(tmp_path / "INCAR")
     assert incar["LHFCALC"] and incar["AEXX"] == .25
     assert incar["HFSCREEN"] == (.2 if functional == "HSE06" else 0)
-    assert incar["HFRCUT"] == -1
+    # Only unscreened exchange truncates the Coulomb kernel; with HSE06 VASP 5.4.4 then lost the screening.
+    assert incar.get("HFRCUT") == (None if functional == "HSE06" else -1)
     assert incar["ALGO"].lower() == ("normal" if task == "bands" else "damped")
     assert incar["ICHARG"] == 2 and incar["ISTART"] == 0
     assert not meta["requires_chgcar"] and meta["spectral_charge_mode"] == "self_consistent"
@@ -174,16 +175,19 @@ def test_analyzer_accepts_vasp5_singleton_ldautype(monkeypatch, tmp_path):
 
 
 @pytest.mark.parametrize("version", ["5.4.4.18Apr17-6-g9f103f2a35", "6.2.1"])
-def test_hybrid_bands_without_ace_remain_rejected(monkeypatch, tmp_path, version):
-    _, run = _parser_stub(monkeypatch, tmp_path, "bands", {"functional": "PBE0", "soc": True})
-    run.vasp_version = version
+def test_hybrid_bands_need_ace_only_where_vasp_has_it(monkeypatch, tmp_path, version):
+    # VASP 5 has no adaptively compressed exchange and ignores LFOCKACE; silicon's HSE06 path on 5.4.4
+    # converged in 12 Davidson steps. VASP 6 records the tag and must use it.
+    meta, run = _parser_stub(monkeypatch, tmp_path, "bands", {"functional": "PBE0", "soc": True})
     del run.incar["LFOCKACE"]
-    result = vasp.analyze_outputs(tmp_path, "bands", EXAMPLES / "Si.cif")
-    assert not result["success"]
     if version.startswith("5."):
-        assert "Hybrid bands require VASP 6 with LFOCKACE support" in result["reason"]
+        validate_method_output(run.incar, meta, vasp_version=version)
     else:
-        assert "LFOCKACE is missing" in result["reason"]
+        with pytest.raises(ValueError, match="LFOCKACE is missing"):
+            validate_method_output(run.incar, meta, vasp_version=version)
+    run.vasp_version = version
+    reason = vasp.analyze_outputs(tmp_path, "bands", EXAMPLES / "Si.cif")["reason"] or ""
+    assert ("LFOCKACE" in reason) == (not version.startswith("5."))
 
 
 @pytest.mark.parametrize("parameters,tag,value", [

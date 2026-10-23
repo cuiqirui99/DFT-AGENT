@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "engine": "elk",
+  "task": "scf",
+  "canonical_task": "scf",
+  "formula": "Si",
+  "number_of_atoms": 2,
+  "parameters": {
+    "mesh": [
+      2,
+      2,
+      2
+    ],
+    "dos_mesh": [
+      3,
+      3,
+      3
+    ],
+    "rgkmax": 5.0,
+    "line_density": 4,
+    "max_ionic_steps": 20
+  },
+  "source_sha256": "b17dfeb8b221675c2f9a376dd3074133643066c9a8b751f4c2edb570d35d956b",
+  "requires_restart": false,
+  "native_structure": {
+    "lattice_angstrom": [
+      [
+        3.3251823072466795,
+        0.0,
+        1.919794899419646
+      ],
+      [
+        1.108394102527249,
+        3.135011943785995,
+        1.9197949000000005
+      ],
+      [
+        0.0,
+        0.0,
+        3.8395898
+      ]
+    ],
+    "elements": [
+      "Si",
+      "Si"
+    ],
+    "fractional_positions": [
+      [
+        0.00496592,
+        0.99495651,
+        3.879e-05
+      ],
+      [
+        0.25503408,
+        0.24504349,
+        0.24996121
+      ]
+    ]
+  },
+  "elements": [
+    "Si"
+  ],
+  "scientific_accuracy_validated": false,
+  "mesh": [
+    2,
+    2,
+    2
+  ],
+  "input_file": "elk.in",
+  "output_file": "elk.log",
+  "stdout_file": "elk.log",
+  "arguments": [],
+  "input_files": [
+    "elk.in",
+    "structure.cif",
+    "elk-input.json"
+  ],
+  "output_files": [
+    "elk.log",
+    "INFO.OUT",
+    "TOTENERGY.OUT",
+    "EFERMI.OUT",
+    "EIGVAL.OUT",
+    "GEOMETRY.OUT",
+    "GEOMETRY_OPT.OUT",
+    "FORCES_OPT.OUT",
+    "STRESS_OPT.OUT",
+    "BAND.OUT",
+    "BANDLINES.OUT",
+    "TDOS.OUT"
+  ],
+  "library_dir": "library",
+  "species": {
+    "Si": {
+      "filename": "Si.in",
+      "sha256": "e1a2718cdd95ce354e1976a1f307317ef34a8505aa437e93ad8e1641bb21c284",
+      "size": 1094,
+      "z": 14.0,
+      "element": "Si"
+    }
+  },
+  "library_files": {
+    "Si.in": {
+      "element": "Si",
+      "sha256": "e1a2718cdd95ce354e1976a1f307317ef34a8505aa437e93ad8e1641bb21c284",
+      "size": 1094,
+      "kind": "elk_species"
+    }
+  },
+  "functional": "PBE",
+  "xctype": 20,
+  "spin": "none",
+  "soc": false,
+  "starting_moments": null,
+  "hubbard": [],
+  "rgkmax": 5.0,
+  "gmaxvr": 12.0,
+  "nempty": 4,
+  "notes": []
+}

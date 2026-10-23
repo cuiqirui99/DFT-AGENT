@@ -1,0 +1,134 @@
+{
+ "schema_version": 1,
+ "operation": "Redact machine identifiers, account and filesystem paths; drop the cluster settings file.",
+ "scientific_inputs_unchanged": true,
+ "raw_numerical_results_unchanged": true,
+ "original_run_unchanged": true,
+ "files": [
+  {
+   "path": "01_relax/inputs/submit.sh",
+   "original_sha256": "3a8dbaafc5ef72745bc4e35488e7f905507e5ec6e3fc5b9379f284829f30a865",
+   "archive_sha256": "d17534a16d87753f25ad443152f8aa8c4862a4e5ae5ebd30715eebd1c060ada2"
+  },
+  {
+   "path": "01_relax/outputs/OUTCAR",
+   "original_sha256": "403e3b6ac20a8ba7db0fe60f9809b6b6a39f7b283182eb22dd2b7539f957434c",
+   "archive_sha256": "e7e8b1e8a67acd3c3e03817bcccea827485d7ade6efebcb85fdd7905bfd670a8"
+  },
+  {
+   "path": "01_relax/outputs/artifact_manifest.json",
+   "original_sha256": "ffe432d30ef9705758c8aca247936528874ecc15307d8960a06964e9de59aa15",
+   "archive_sha256": "226dfeac5aee331a5be675589422e09057fd1ce82f0ac524d22ff51c275ac4ec"
+  },
+  {
+   "path": "01_relax/outputs/result.json",
+   "original_sha256": "515c306bc06547a1f282c1ab29d5b62a8785320a15159db7d82883e155903de7",
+   "archive_sha256": "ec15960d0d45aebe56464b3b296cf7dcd4dc0e44f16632e5950ec15abf08ee56"
+  },
+  {
+   "path": "01_relax/outputs/slurm.err",
+   "original_sha256": "9bcfc0c06cf63b03d881fa11229ad2d6824aa2da9ffbeb4b93ed90ceaaee1cbf",
+   "archive_sha256": "9fa473736b4c79caeb3ecc85ca374f6c5c69433cf6155aa9c9908b5ee1a1299c"
+  },
+  {
+   "path": "01_relax/outputs/vasprun.xml",
+   "original_sha256": "3cdcd4e412ec787e1f605002647931de71dee74fad81bf3a8b0bed8d869d05b3",
+   "archive_sha256": "627db06df955489d22f1a58e1ac8d1ebd72f656201a39319e98d00332bd344a8"
+  },
+  {
+   "path": "02_scf/inputs/submit.sh",
+   "original_sha256": "3a8dbaafc5ef72745bc4e35488e7f905507e5ec6e3fc5b9379f284829f30a865",
+   "archive_sha256": "d17534a16d87753f25ad443152f8aa8c4862a4e5ae5ebd30715eebd1c060ada2"
+  },
+  {
+   "path": "02_scf/outputs/OUTCAR",
+   "original_sha256": "03934110fccae1c8f2e764442200ae53d80f7654d030c3dcc2155b1e4bb9a3ed",
+   "archive_sha256": "13a2b78b245b11547f3e2957fbda0718deeee598f68259f0483638f300715251"
+  },
+  {
+   "path": "02_scf/outputs/artifact_manifest.json",
+   "original_sha256": "4dfa752fce8447e97c4ae54dc4ca3d2e6596bad07909af31281f00bc66aa2eb8",
+   "archive_sha256": "77ea29e660761f4b9ed60184f753564a2b2354ca6ccecf8c1fc330fb1dad8612"
+  },
+  {
+   "path": "02_scf/outputs/result.json",
+   "original_sha256": "e57b1f27b3bad6eabb8f8194cd511dc9606bdd58c6f18b31baf79c5c83c5d9b2",
+   "archive_sha256": "74fb0f6dc864ba0ee721ed2d17cae4cfdd1e2d41ba7acbdca683c87eb6e6883b"
+  },
+  {
+   "path": "02_scf/outputs/slurm.err",
+   "original_sha256": "9bcfc0c06cf63b03d881fa11229ad2d6824aa2da9ffbeb4b93ed90ceaaee1cbf",
+   "archive_sha256": "9fa473736b4c79caeb3ecc85ca374f6c5c69433cf6155aa9c9908b5ee1a1299c"
+  },
+  {
+   "path": "02_scf/outputs/vasprun.xml",
+   "original_sha256": "529edf196db69fdb2ec2a3941b64fa3fa2f280b5b9ae4ddee5a2282f96278631",
+   "archive_sha256": "95b4e5d1a92956dd838489447f6cc86d6f3643b9ebfcbaf3b201048855efb4a4"
+  },
+  {
+   "path": "03_bands/inputs/submit.sh",
+   "original_sha256": "3a3606af220a39983b73b0d35ea3d482028ad9d697683188f08ad9cda1612214",
+   "archive_sha256": "2fd1a5f668cb4aa7721afa503578e4c9179c1295e02bca376313a602483f5af6"
+  },
+  {
+   "path": "03_bands/outputs/OUTCAR",
+   "original_sha256": "a2f05f45146ec07bc05ca4a5515b195ad542f6e3c388ef8955dd8965e0c11d5d",
+   "archive_sha256": "3c1eec9c90250ccefa9d6273f198f7a98e5d51be2703eab85b30fecfb84051c3"
+  },
+  {
+   "path": "03_bands/outputs/artifact_manifest.json",
+   "original_sha256": "cb5933261377b5c6c9d821cc019e1856d5b5bd55d7718c5ac6a8603287539584",
+   "archive_sha256": "b968d8e0ee7d2327733b64ba4475cf456210421869b2bea09ea3e1ccc94fa03c"
+  },
+  {
+   "path": "03_bands/outputs/result.json",
+   "original_sha256": "34e83d7adf8f09a18417c039528599b616545196d2c45ef81eb9dc6d3d74d309",
+   "archive_sha256": "bb68b537c7e4fd391d641b2521c664aa2088aa363f4262a571a125a5f13d11e1"
+  },
+  {
+   "path": "03_bands/outputs/slurm.err",
+   "original_sha256": "9bcfc0c06cf63b03d881fa11229ad2d6824aa2da9ffbeb4b93ed90ceaaee1cbf",
+   "archive_sha256": "9fa473736b4c79caeb3ecc85ca374f6c5c69433cf6155aa9c9908b5ee1a1299c"
+  },
+  {
+   "path": "03_bands/outputs/vasprun.xml",
+   "original_sha256": "12adf959b053dbec66fe0cf82a7887504100d5f914493a4232285b8b628a51ca",
+   "archive_sha256": "4f17509a4d87459e6b4ca34577f2c6ac8955beb7b3b691cca1a2d26b59ef56e2"
+  },
+  {
+   "path": "04_dos/inputs/submit.sh",
+   "original_sha256": "3a3606af220a39983b73b0d35ea3d482028ad9d697683188f08ad9cda1612214",
+   "archive_sha256": "2fd1a5f668cb4aa7721afa503578e4c9179c1295e02bca376313a602483f5af6"
+  },
+  {
+   "path": "04_dos/outputs/OUTCAR",
+   "original_sha256": "7c5c0f4578ab35e2401b0cdac4c605603b9326ae1f3b8b0678961ae327d27f7e",
+   "archive_sha256": "90dcc0f0863722da76cd150886c0dab6dc38fee6a8cb370dc6fe143c43750a03"
+  },
+  {
+   "path": "04_dos/outputs/artifact_manifest.json",
+   "original_sha256": "583ec18ecb297ebed00a4af4d917b2016b5756f90faf5828226bf96238623169",
+   "archive_sha256": "3fe95345f851f830692e4a50ca332e71b30b0faca58aec9dbd17b8b853a661ae"
+  },
+  {
+   "path": "04_dos/outputs/result.json",
+   "original_sha256": "22eeb04abba63d7af5d406f42fc8f1915e91424b495634920cb7ff4712dfa20d",
+   "archive_sha256": "cb477372c2e85f3b41e57e7770c844d5d0215677742a3d5c5ee07f09d34e51c9"
+  },
+  {
+   "path": "04_dos/outputs/slurm.err",
+   "original_sha256": "9bcfc0c06cf63b03d881fa11229ad2d6824aa2da9ffbeb4b93ed90ceaaee1cbf",
+   "archive_sha256": "9fa473736b4c79caeb3ecc85ca374f6c5c69433cf6155aa9c9908b5ee1a1299c"
+  },
+  {
+   "path": "04_dos/outputs/vasprun.xml",
+   "original_sha256": "7a48e2c5ea2a50d31a86a6af3387379a1d18eae5186b151f6bd26577e9276796",
+   "archive_sha256": "7d5fbc3a6fe88736f6635632f90d3e584d3f052dda99ae99b9a9530e6b14ad3e"
+  },
+  {
+   "path": "run.json",
+   "original_sha256": "3cbcd08ad70e3af886b4c7ebdf7d5af149cf0693061046e015bd905ea39066c9",
+   "archive_sha256": "7f267b7a84b432eb84b30ffb33e6f956a070de97a3dda686748b3ab3168c801f"
+  }
+ ]
+}

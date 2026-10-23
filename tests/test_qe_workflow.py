@@ -422,6 +422,41 @@ def test_submission_checks_real_upf_element_soc_and_known_hash(tmp_path, config)
         workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), cfg, stage)
 
 
+def test_submission_refuses_a_upf_with_more_electrons_than_the_empty_bands_assumed(tmp_path, config):
+    pseudo = tmp_path / "Si.UPF"
+    def write(valence):
+        pseudo.write_text(f'<UPF><PP_HEADER element="Si" functional="PBE" has_so="F" z_valence="{valence}"/><PP_MESH>' + " " * 220 + '</PP_MESH><PP_LOCAL>0</PP_LOCAL></UPF>')
+    stage = {"metadata": {"pseudo_files": ["Si.UPF"], "valence_charges": {"Si": 4.0}}, "parameters": {}}
+    write("4.0")
+    assert workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), config, stage)["Si.UPF"]["valence_electrons"] == 4.0
+    write("12.0")
+    with pytest.raises(ValueError, match="more than the 4 this stage was prepared for"):
+        workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), config, stage)
+    # Fewer electrons only leave more empty bands.
+    stage["metadata"]["valence_charges"] = {"Si": 14.0}
+    assert workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), config, stage)["Si.UPF"]["valence_electrons"] == 12.0
+
+
+@pytest.mark.parametrize("kind", ["PAW", "US", "", "NC"])
+def test_electron_phonon_submission_checks_actual_upf_type(tmp_path, config, kind):
+    # A custom file name and incomplete configured metadata must not bypass the NC-only route.
+    pseudo = tmp_path / "Si.UPF"
+    pseudo.write_text(f'<UPF><PP_HEADER element="Si" functional="PBE" pseudo_type="{kind}" has_so="F"/>'
+                      '<PP_MESH>' + ' ' * 220 + '</PP_MESH><PP_LOCAL>0</PP_LOCAL></UPF>')
+    stage = {"name": "eph_dense_scf", "metadata": {"pseudo_files": ["Si.UPF"]}, "parameters": {}}
+    if kind == "NC":
+        assert workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), config, stage)["Si.UPF"]["pseudo_type"] == "NC"
+    else:
+        with pytest.raises(ValueError, match="norm-conserving"):
+            workflow._pseudo_snapshot(LocalHeaderTransport(tmp_path), config, stage)
+
+
+def test_embedded_upf_validator_is_the_library_one():
+    import inspect
+    from vasp_slurm_agent import qe_setup
+    assert workflow._UPF_VALIDATOR == inspect.getsource(qe_setup.validate_upf)
+
+
 def test_submission_checks_actual_pp_type_and_functional(tmp_path, config):
     from dataclasses import replace
     pseudo = tmp_path / "Si.UPF"
@@ -640,3 +675,31 @@ def test_pbs_qe_mock_pipeline_preserves_identity_and_cancels(prepared):
     transport.queue, transport.accounting = "", "CANCELLED"
     assert workflow.advance(root, transport)["status"] == "cancelled"
     assert all(not command.startswith(("squeue ", "sacct ", "scancel ")) for command in transport.commands)
+
+
+@pytest.mark.parametrize("policy,kept", [
+    ("schema", ["dft_agent.dyn0", "elph_dir/elph.inp_lambda.1", "scratch/dft_agent.save/data-file-schema.xml"]),
+    ("density", ["dft_agent.dyn0", "elph_dir/elph.inp_lambda.1", "scratch/_ph0/dft_agent.dvscf1",
+                 "scratch/dft_agent.save/charge-density.dat", "scratch/dft_agent.save/data-file-schema.xml"]),
+    (None, None)])
+def test_runtime_copies_only_the_scratch_a_stage_reads(tmp_path, policy, kept):
+    root, pseudo, spec = runtime_fixture(tmp_path)
+    source = tmp_path / "previous"
+    files = {"scratch/_ph0/dft_agent.dvscf1": b"large potential derivative", "scratch/dft_agent.save/wfc1.dat": b"orbitals",
+             "scratch/dft_agent.wfc2": b"distributed orbitals", "scratch/dft_agent.save/charge-density.dat": b"density",
+             "scratch/dft_agent.save/data-file-schema.xml": b"<xml/>", "dft_agent.dyn0": b"4 4 4", "elph_dir/elph.inp_lambda.1": b"0 0 0"}
+    records = {}
+    for name, data in files.items():
+        (source / name).parent.mkdir(parents=True, exist_ok=True)
+        (source / name).write_bytes(data)
+        records[name] = {"size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+    receipt = source / "checkpoint.json"
+    receipt.write_text(json.dumps(records))
+    spec["dependencies"] = [{"directory": str(source), "sha256": workflow._digest(receipt), **({"scratch": policy} if policy else {})}]
+    (root / "runtime.json").write_text(json.dumps(spec))
+    result = subprocess.run([sys.executable, "qe_runtime.py", "prepare"], cwd=root, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    copied = sorted(path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file() and "pseudo" not in path.parts)
+    assert [name for name in copied if name in files] == (kept or sorted(files))
+    assert workflow.SCRATCH_POLICY == {"q2r": "schema", "matdyn": "schema", "eph_q2r": "schema", "eph_matdyn": "schema",
+                                       "eph_lambda": "schema", "bands": "density", "nscf": "density", "dos": "density"}

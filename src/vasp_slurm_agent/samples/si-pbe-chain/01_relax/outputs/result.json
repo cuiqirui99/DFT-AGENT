@@ -5,21 +5,32 @@
   "converged_electronic": true,
   "converged_ionic": true,
   "valid_structure": true,
-  "final_energy_ev": -8.29121948,
-  "final_max_force_ev_angstrom": 0.018107517621211915,
-  "vasp_version": "6.2.1",
+  "final_energy_ev": -10.84958958,
+  "final_max_force_ev_angstrom": 0.0,
+  "vasp_version": "5.4.4.18apr17-6-g9f103f2a35",
   "forces_available": true,
+  "ionic_steps_count": 3,
+  "ionic_iteration_limit_reached": false,
+  "ionic_force_limit_ev_angstrom": 0.01,
   "fermi_energy_ev": null,
-  "final_energy_ev_per_atom": -4.14560974,
+  "final_energy_ev_per_atom": -5.42479479,
   "reason": "The calculation finished and its output passed the checks for this task.",
   "artifacts": [
     "final_structure.cif",
     "final_structure.vasp",
     "relax_energy.csv",
-    "relax_energy.png"
+    "relax_energy.png",
+    "relax_energy.pdf",
+    "relax_energy.svg",
+    "plot_metadata.json",
+    "structure.json",
+    "ionic_steps.csv",
+    "electronic_steps.csv",
+    "forces.csv",
+    "stress.csv"
   ],
   "scientific_accuracy_validated": false,
-  "vasprun_sha256": "ad21b21c3bf0ae9876dbd51576a3cf61106decb63f48958e8eb96c2af66979c1",
+  "vasprun_sha256": "627db06df955489d22f1a58e1ac8d1ebd72f656201a39319e98d00332bd344a8",
   "method": {
     "spin": "none",
     "magmom": null,
@@ -49,8 +60,8 @@
     "note": "Site moments are PAW sphere projections; their sum is not the full cell moment."
   },
   "magnetic_ground_state_validated": false,
-  "final_structure_poscar_sha256": "7ff2750c75c9e651f5acfb830cc0a4abf95eff91821e7bf7266f797bb740930a",
+  "final_structure_poscar_sha256": "29e6498be73ff34abafa2793c61c82346b609aea9cfafe1fa66545c48c9f0a27",
   "input_identity_verified": true,
   "scheduler_state": "COMPLETED",
-  "final_structure_sha256": "85ba26f1cfc00905f68204a0ed696f82e253a345c74a5ca579de1b574e051a63"
+  "final_structure_sha256": "e708e089a9809230d828805cf04adafd22b39a08f263a491995c24a120bd4228"
 }

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "task": "bands",
+  "csv_contains_full_data": true,
+  "figure_formats": [
+    "png",
+    "pdf",
+    "svg"
+  ],
+  "energy_reference_ev": 5.87706294,
+  "energy_reference_source": "preceding_scf",
+  "energy_window_ev": [
+    -8.0,
+    8.0
+  ],
+  "segments": [
+    [
+      0,
+      68
+    ],
+    [
+      67,
+      91
+    ],
+    [
+      91,
+      164
+    ],
+    [
+      163,
+      222
+    ],
+    [
+      221,
+      269
+    ],
+    [
+      268,
+      302
+    ]
+  ],
+  "ticks": [
+    {
+      "distance_inv_angstrom": 0.0,
+      "label": "GAMMA"
+    },
+    {
+      "distance_inv_angstrom": 1.1490163162214408,
+      "label": "X"
+    },
+    {
+      "distance_inv_angstrom": 1.5552549306685242,
+      "label": "U|K"
+    },
+    {
+      "distance_inv_angstrom": 2.7739707740097743,
+      "label": "GAMMA"
+    },
+    {
+      "distance_inv_angstrom": 3.7690480932203556,
+      "label": "L"
+    },
+    {
+      "distance_inv_angstrom": 4.581525322114523,
+      "label": "W"
+    },
+    {
+      "distance_inv_angstrom": 5.156033480225243,
+      "label": "X"
+    }
+  ],
+  "kpoint_count": 302,
+  "interpolation": "none",
+  "band_path_method": "seekpath_hpkot_orig_cell"
+}

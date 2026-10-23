@@ -134,6 +134,9 @@ def load_run_context(run_dir: str | Path) -> dict[str, Any]:
     if selected_engine == "qe":
         from .qe_context import load_run_context as qe_context
         return qe_context(root)
+    if selected_engine in {"abinit", "cp2k", "elk"}:
+        from .engine_context import load_run_context as engine_context
+        return engine_context(root)
     if selected_engine in {"python", "wannier90"}:
         from .script_workflow import load_run_context as script_context
         return script_context(root)

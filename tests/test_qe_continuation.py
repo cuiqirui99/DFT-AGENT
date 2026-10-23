@@ -165,6 +165,17 @@ def test_eigenvalue_repair_keeps_thresholds_and_reuses_accepted_scf(accepted_qe,
     assert before == {str(path): qe_workflow._digest(path) for path in root.rglob("*") if path.is_file()}
 
 
+@pytest.mark.parametrize("name", ["scf", "bands"])
+def test_singular_davidson_overlap_offers_cg(accepted_qe, monkeypatch, name):
+    state = qe_workflow.read_state(accepted_qe)
+    failed = {"name": name, "scheduler_state": "FAILED", "parameters": {}}
+    log = "     Computing kpt #:     2  of   110\n     Error in routine cdiaghg (116):\n     S matrix not positive definite\n"
+    monkeypatch.setattr(continuation, "_failed_snapshot", lambda run: (accepted_qe, state, failed, 0, log, 1, "snapshot"))
+    actions = continuation.repair_options(accepted_qe)["actions"]
+    assert [entry["action"] for entry in actions] == ["use_cg_diagonalization"]
+    assert "singular overlap" in actions[0]["reason"]
+
+
 def test_cg_repair_stops_at_iteration_cap(accepted_qe, monkeypatch):
     state = qe_workflow.read_state(accepted_qe)
     failed = {"name": "bands", "scheduler_state": "COMPLETED", "parameters": {

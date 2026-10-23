@@ -6,6 +6,10 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 
+GENERIC_ENGINES = frozenset({"abinit", "cp2k", "elk"})
+ENGINES = frozenset({"vasp", "qe"}) | GENERIC_ENGINES
+
+
 @dataclass(frozen=True)
 class ClusterConfig:
     host: str
@@ -40,6 +44,9 @@ class ClusterConfig:
     ssh_identity_file: str = ""
     connection_id: str = ""
     connection_home: str = ""
+    engine_command: str = ""
+    engine_library_root: str = ""
+    engine_library: dict = field(default_factory=dict)
 
     def __post_init__(self):
         from .scheduler import get_scheduler
@@ -57,8 +64,8 @@ class ClusterConfig:
             raise ValueError("Invalid connection identity.")
         if not isinstance(self.ssh_jump_host, str) or (self.ssh_jump_host and not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.@:,\[\]-]*", self.ssh_jump_host)):
             raise ValueError("Use an SSH jump host or user@host:port.")
-        if self.engine not in {"vasp", "qe"}:
-            raise ValueError("Choose vasp or qe for engine.")
+        if self.engine not in ENGINES:
+            raise ValueError("Choose vasp, qe, abinit, cp2k or elk for engine.")
         if not isinstance(self.vaspkit_executable, str) or not self.vaspkit_executable.strip() or any(c in self.vaspkit_executable for c in "\n\r\x00"):
             raise ValueError("Enter the VASPKIT executable name or absolute path.")
         if not isinstance(self.ssh_control_path, str) or any(c in self.ssh_control_path for c in "\n\r\x00"):
@@ -72,7 +79,7 @@ class ClusterConfig:
             value = getattr(self, key)
             if not value or value.startswith("-") or re.search(r"[\s\x00-\x1f]", value):
                 raise ValueError(f"Enter an SSH {key} without spaces or line breaks; it cannot start with '-'.")
-        for key in ("remote_root", "potcar_root" if self.engine == "vasp" else "qe_pseudo_root"):
+        for key in ("remote_root", {"vasp": "potcar_root", "qe": "qe_pseudo_root"}.get(self.engine, "engine_library_root")):
             value = getattr(self, key)
             if not value.startswith("/") or any(c in value for c in "\n\r\x00"):
                 raise ValueError(f"Use an absolute path for {key}, starting with '/' and without line breaks.")
@@ -111,6 +118,16 @@ class ClusterConfig:
                 raise ValueError("Enter the QE launch command on a single line.")
             if self.qe_bin_dir and (not self.qe_bin_dir.startswith("/") or any(c in self.qe_bin_dir for c in "\n\r\x00")):
                 raise ValueError("Use an absolute path for qe_bin_dir.")
+        if self.engine in GENERIC_ENGINES:
+            if not self.engine_command.strip() or any(c in self.engine_command for c in "\n\r\x00"):
+                raise ValueError("Enter the program launch command on a single line.")
+        elif self.engine_command or self.engine_library_root or self.engine_library:
+            raise ValueError("Program library settings belong to ABINIT, CP2K or Elk environments.")
+        if not isinstance(self.engine_library, dict) or any(
+                not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.+-]*", name)
+                or not isinstance(entry, dict) or not re.fullmatch(r"[0-9a-f]{64}", str(entry.get("sha256", "")))
+                for name, entry in self.engine_library.items()):
+            raise ValueError("Record each library file by name with its SHA-256.")
         if not isinstance(self.qe_pseudopotentials, dict):
             raise ValueError("Map elements to QE UPF files.")
         for symbol, entry in self.qe_pseudopotentials.items():
@@ -199,7 +216,8 @@ class ClusterConfig:
         value = asdict(self)
         # New defaults must not invalidate previously frozen Slurm configs.
         defaults = {"scheduler": "slurm", "extra_pbs": [], "ssh_jump_host": "", "ssh_identity_file": "",
-                    "connection_id": "", "connection_home": ""}
+                    "connection_id": "", "connection_home": "", "engine_command": "", "engine_library_root": "",
+                    "engine_library": {}}
         for key, default in defaults.items():
             if value[key] == default:
                 value.pop(key)

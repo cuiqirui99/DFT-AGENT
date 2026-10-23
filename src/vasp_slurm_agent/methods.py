@@ -97,7 +97,12 @@ def method_incar(method: dict[str, Any], elements: list[str], task: str) -> dict
         )
     if method["functional"] != "PBE":
         tags.update(LHFCALC=True, AEXX=0.25, HFSCREEN=0.2 if method["functional"] == "HSE06" else 0.0,
-                    HFRCUT=-1, ALGO="Damped", TIME=0.4, ICHARG=2, ISTART=0)
+                    ALGO="Damped", TIME=0.4, ICHARG=2, ISTART=0)
+        if method["functional"] == "PBE0":
+            # A truncated Coulomb kernel speeds the k-point convergence of unscreened exchange. With HSE06's
+            # screening VASP 5.4.4 applied the truncated bare kernel instead: silicon came out with PBE0's gaps
+            # (4.0 eV at Γ, 0.7 eV above QE's HSE06 on the same mesh).
+            tags["HFRCUT"] = -1
         if task == "bands":
             # Davidson optimizes empty path states that Damped can leave unconverged.
             tags.update(ALGO="Normal", IMIX=1, AMIX=0.2, LFOCKACE=True,
@@ -125,8 +130,10 @@ def validate_method_output(incar: dict[str, Any], metadata: dict[str, Any], *, v
     for tag, planned in expected.items():
         actual = incar.get(tag, False if type(planned) is bool and not planned else None)
         if actual is None:
+            # VASP 5 has no adaptively compressed exchange: it ignores LFOCKACE and its Davidson iterations
+            # apply the full exchange operator. Silicon's HSE06 path on 5.4.4 converged in 12 steps.
             if tag == "LFOCKACE" and planned is True and vasp_version.startswith("5."):
-                raise ValueError("Hybrid bands require VASP 6 with LFOCKACE support; VASP 5 does not provide it.")
+                continue
             raise ValueError(f"Method mismatch: {tag} is missing from output INCAR.")
         # VASP 5 writes this scalar as a one-element XML vector.
         if (tag == "LDAUTYPE" and vasp_version.startswith("5.") and type(planned) is int

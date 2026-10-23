@@ -44,7 +44,7 @@ def dispatch(root: Path, name: str, reconcile_only: bool = False, scheduler="slu
             jobs = set()
             commands = adapter.reconcile_commands(name, original["date"])
             for command in commands:
-                result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, timeout=30)
                 if result.returncode:
                     raise RuntimeError("Cannot reconcile submission: scheduler query failed")
                 jobs.update(adapter.matching_jobs(result.stdout, name))
@@ -63,7 +63,7 @@ def dispatch(root: Path, name: str, reconcile_only: bool = False, scheduler="slu
         if script != "submit.sh":
             intent_value["script"] = script
         save(intent, intent_value)
-        result = subprocess.run(adapter.submit_command(name, script), cwd=root, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(adapter.submit_command(name, script), cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, timeout=60)
         job = adapter.submission_job_id(result.stdout)
         if result.returncode or not job:
             save(root / "submission_error.json", {"returncode": result.returncode, "stderr": result.stderr, "stdout": result.stdout})

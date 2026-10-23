@@ -82,7 +82,8 @@ def prepare_inputs(structure_path, destination, task, parameters, pseudopotentia
         raise ValueError("Unknown Wannier stage.")
     p = validate_parameters(parameters)
     folder = Path(destination)
-    structure = Structure.from_file(structure_path)
+    # The frame pw.x runs in, so this stage's frozen structure matches its checkpoints.
+    structure = qe._standard_frame(Structure.from_file(structure_path))[0]
     qe._validate_structure(structure)
     if task in {"wannier_scf", "wannier_nscf"}:
         _require_nc(pseudopotentials)

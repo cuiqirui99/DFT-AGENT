@@ -30,14 +30,23 @@ comparison cases. A ready plan has no unanswered questions.
 Return the complete replacement plan. Structure operations apply once to the ORIGINAL
 upload, with zero-based indices after preceding operations. Ask about missing sites,
 supercell size, strain, magnetic order, U/J values, or NEB endpoints. Never guess them.
+A named order that the cell fixes is not missing: for ferromagnetic order, or
+antiferromagnetic order with exactly two magnetic sites of one element, set it yourself
+(for the antiferromagnet, site_labels splitting the two sites into species such as Ni1
+and Ni2 with starting_magnetization of opposite sign, about 0.5) and state the
+assignment in notes. Ask only when several arrangements fit the request.
 The executor inserts SCF/NSCF prerequisites and phonon-grid/q2r/matdyn stages.
-Use phonon_bands for a full dispersion, phonon for a single q point. NEB is a separate
+Use phonon_bands for a full dispersion, phonon for a single q point. For a
+semiconductor's dielectric constant, Born charges and LO-TO splitting use kshift
+[1, 1, 1] on a cubic cell: a mesh through Γ gave GaAs ε∞ 27 instead of 13.6. Phonons
+report the acoustic frequency at Γ before the sum rule; GaAs with SSSP's Ga and As UPFs
+gave 118 cm-1 and wrong branches, PseudoDojo norm-conserving UPFs gave correct ones. NEB is a separate
 task and requires supplied endpoint/image files. Do not invent filenames or paths.
 NEB cannot be combined with structure operations; ask for edited endpoint files.
 Each parameters_json is a JSON object with QE parameters, not VASP keywords.
 Available keys: ecutwfc, ecutrho (Ry); conv_thr, etot_conv_thr (Ry);
-forc_conv_thr (Ry/bohr); mesh (three positive integers), kspacing (1/angstrom,
-including 2pi), nbnd, electronic_type (auto/metal/insulator), degauss (Ry),
+forc_conv_thr (Ry/bohr); mesh (three positive integers), kshift (0 or 1 per axis, a
+half-step shift of the mesh), kspacing (1/angstrom, including 2pi), nbnd, electronic_type (auto/metal/insulator), degauss (Ry),
 functional (PBE/LDA/HSE06/PBE0), spin (none/collinear/noncollinear), soc (boolean),
 starting_magnetization (species to fraction in [-1,1]), site_labels (one species label
 per site), hubbard (list of label, manifold, U and optional J0 in eV),
@@ -63,13 +72,21 @@ cannot calculate forces or stress; fixed-geometry runs must disable both outputs
 Phonons cannot use constrained magnetization; noncollinear magnetic phonons cannot
 use PAW UPFs. Match LDA/PBE UPFs to the method; PBE UPFs also support PBE hybrids.
 Mark unsupported requests unsupported, including unimplemented QE packages.
+references, when present, are excerpts from QE input descriptions and official
+examples, and checks DFT Agent ran on clusters. Check each source's version and
+applicability notes; fallback references may describe a different QE version. Use them for
+what a variable means, its units and typical values. Official examples demonstrate
+features and are not converged settings. They never override the keys above or the
+app's checks. Name a reference in notes when it informed a choice.
 No convergence accuracy is established by a default or a successful functional test.
 The electron_phonon task expands to dense SCF, coarse SCF, electron-phonon DFPT,
 q2r, phonon DOS and lambda.x. It extracts alpha2F, lambda and a simplified
 Allen-Dynes/McMillan Tc estimate across electronic broadenings. This is a
 phonon-mediated estimate, not proof that a material is superconducting.
 Require explicit dense_mesh, mesh, qmesh, phonon_dos_mesh and mu_star; ask when
-missing. Meshes must nest. It currently requires a scalar-relativistic,
+missing. It needs norm-conserving UPFs (install PseudoDojo NC for the elements):
+QE 7.6 ph.x crashed in the electron-phonon step with PAW UPFs, and ultrasoft UPFs
+share that code. Meshes must nest. It currently requires a scalar-relativistic,
 nonmagnetic PBE/LDA metal without Hubbard U, at most 33 atoms. Optional keys:
 el_ph_sigma (Ry), el_ph_nsigma (up to 10), phonon_smearing_thz,
 phonon_dos_points, omega_max_thz. Do not invent mu_star or mesh convergence.
@@ -170,7 +187,7 @@ def _check_intent(plan):
         intent["unsupported"] = unsupported
         plan["status"] = "unsupported"
     requested = Counter(_task_name(task) for task in intent["requested_tasks"])
-    if set(tasks) & {_task_name(task) for task in intent["forbidden_tasks"]} or any(tasks[task] < count for task, count in requested.items()):
+    if plan["status"] != "unsupported" and (set(tasks) & {_task_name(task) for task in intent["forbidden_tasks"]} or any(tasks[task] < count for task, count in requested.items())):
         _ask(plan, "Confirm the calculation sequence; it differs from your request.")
     if plan["questions"] and plan["status"] == "ready":
         plan["status"] = "needs_input"
@@ -233,7 +250,11 @@ def _recipes(plan, images=None, *, continuation_source=None):
 
 def _review(structure_path, plan, config, images=None):
     from .qe_workflow import prepare_plan
+    from .references import qe_namelist_problems
     stages = _recipes(plan, images)
+    problems = [problem for stage in stages for problem in qe_namelist_problems(stage["parameters"].get("namelists"), config)]
+    if problems:
+        raise ValueError(" ".join(dict.fromkeys(problems)))
     if any(stage["task"] == "neb" for stage in stages):
         from pymatgen.core import Structure
         from .qe import _same_structure
@@ -249,7 +270,8 @@ def _review(structure_path, plan, config, images=None):
     return stages
 
 
-def draft_task(goal, structure_path, settings: ModelSettings, history=None, *, config=None, images=None, runs_root=None, **kwargs):
+def draft_task(goal, structure_path, settings: ModelSettings, history=None, *, config=None, images=None, runs_root=None,
+               references=True, **kwargs):
     """Plan and check inputs locally, without submitting or changing cluster files."""
     settings = agent._settings(settings)
     if not isinstance(goal, str) or not goal.strip() or len(goal) > 20000:
@@ -270,12 +292,24 @@ def draft_task(goal, structure_path, settings: ModelSettings, history=None, *, c
     from .qe_guidance import build_context
     scientific_context = build_context(structure_path, runs_root=runs_root)
     potentials = getattr(config, "qe_pseudopotentials", {})
-    capabilities = {element: {"configured": bool(value), "fully_relativistic": isinstance(value, dict) and (value.get("fully_relativistic") is True or value.get("relativistic") == "full")}
+    capabilities = {element: {"configured": bool(value), "fully_relativistic": isinstance(value, dict) and (value.get("fully_relativistic") is True or value.get("relativistic") == "full"),
+                              **{key: value[key] for key in ("functional", "pseudo_type") if isinstance(value, dict) and value.get(key)}}
                     for element, value in potentials.items()}
-    payload = agent._redact(json.dumps({"goal": safe_goal, "history": compact_history(history, goal=safe_goal),
-        "structure": compact_structure(original["input"]), "engine": "Quantum ESPRESSO",
-        "pseudopotentials": capabilities, "neb_images_supplied": len(images or []),
-        "scientific_context": scientific_context}, ensure_ascii=False, allow_nan=False), secrets)
+    request = {"goal": safe_goal, "history": compact_history(history, goal=safe_goal),
+               "structure": compact_structure(original["input"]), "engine": "Quantum ESPRESSO",
+               "pseudopotentials": capabilities, "neb_images_supplied": len(images or []),
+               "scientific_context": scientific_context}
+    excerpts = []
+    if references:
+        # Official texts for this version, retrieved locally for the request.
+        from pymatgen.core import Structure
+
+        from .references import planner_context
+        elements = sorted({site.specie.symbol for site in Structure.from_file(structure_path)})
+        excerpts = planner_context("qe", safe_goal, elements=elements, config=config, history=history)
+        if excerpts:
+            request["references"] = excerpts
+    payload = agent._redact(json.dumps(request, ensure_ascii=False, allow_nan=False), secrets)
     raw = None
     try:
         schema = _schema()
@@ -306,6 +340,8 @@ def draft_task(goal, structure_path, settings: ModelSettings, history=None, *, c
                     provenance=agent.response_provenance(raw, settings),
                     model_usage=agent.response_usage(raw, settings))
         plan["scientific_report"] = json.loads(agent._redact(json.dumps(scientific_context), secrets))
+        if excerpts:
+            plan["references"] = [item["source"] for item in excerpts]
         dialogue = {k: v for k, v in plan.items() if k not in {"preview", "model_usage", "scientific_report"}}
         plan["dialogue"] = history + [{"role": "assistant", "content": json.dumps(dialogue)}]
         return plan
