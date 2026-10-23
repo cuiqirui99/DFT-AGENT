@@ -8,9 +8,9 @@ authors:
     affiliation: "KTH Royal Institute of Technology"
     orcid: "https://orcid.org/0009-0005-6165-3237"
     website: "https://www.kth.se/profile/qiruic?l=en"
-version: "0.4.5"
+version: "0.4.6"
 date-released: "2026-10-23"
 license: MIT
 repository-code: "https://github.com/cuiqirui99/DFT-AGENT"
-url: "https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5"
+url: "https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.6"
 abstract: "Run VASP, Quantum ESPRESSO, ABINIT, CP2K and Elk on Slurm."

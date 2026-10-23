@@ -2,7 +2,7 @@
 
 ![DFT Agent](docs/assets/dft-agent-logo.png)
 
-Version `0.4.5`. [中文说明](README.zh-CN.md)
+Version `0.4.6`. [中文说明](README.zh-CN.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology; [Anna Delin](https://www.kth.se/profile/annadel) · KTH Royal Institute of Technology
 
@@ -18,17 +18,17 @@ The built-in workflows cover structure edits, relaxation, SCF, bands, DOS, magne
 
 ## Install
 
-Download [v0.4.5](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5):
+Download [v0.4.6](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.6):
 
 - **Apple Silicon Mac, macOS 14+:** open the `.dmg`, copy **DFT Agent** to Applications, then open it.
 - **Windows x64:** run the `.exe` installer, then open **DFT Agent** from the Start menu.
 
-Python and model SDKs are included. Codex CLI and Claude Code CLI are optional, separate installations.
+Python and model SDKs are included. Codex CLI and Claude Code CLI are optional; the app installs either one and starts its sign-in when you ask it to.
 
-Or install from [PyPI](https://pypi.org/project/dft-agent/0.4.5/) with Python 3.11+:
+Or install from [PyPI](https://pypi.org/project/dft-agent/0.4.6/) with Python 3.11+:
 
 ```bash
-python -m pip install "dft-agent[agent]==0.4.5"
+python -m pip install "dft-agent[agent]==0.4.6"
 dft-agent ui
 ```
 
@@ -37,7 +37,7 @@ dft-agent ui
 ## Start a project
 
 1. Click **New project** and give it a name.
-2. Open **Connections → Model**. Connect a signed-in **Codex CLI** or **Claude Code CLI**, or enter your provider's API key and model name. **Test connection** checks a saved connection. [Model setup](docs/models.md).
+2. Open **Connections → Model**. Follow the steps to install and sign in to **Codex CLI** or **Claude Code CLI**, or paste your provider's API key. **Test connection** checks a saved connection. [Model setup](docs/models.md).
 3. Open **Cluster** and enter your SSH address, such as `ssh name@cluster`. The app tries your keys first, then asks for a password or login code when needed. Review the detected software, or add it under **Software**. If QE is missing, review and start its installation here. [Cluster setup](docs/install.md#your-first-cluster-setup).
 4. Return to chat. Open **Files and runs → Files → Add files**, upload your structure, and click **Import files**. Describe what you want to calculate and refine the plan in the same conversation.
 5. Click **Prepare inputs**, review the files and resources, tick the confirmation box, and click **Submit**. Follow the task in **Files and runs → Jobs** and open its outputs under **Results**.
@@ -56,7 +56,7 @@ Open **Settings → Legacy workbench → Runs → Load sample runs** to browse t
 
 ## Citation
 
-Cui, Q. (2026). *DFT Agent* (v0.4.5). [Source](https://github.com/cuiqirui99/DFT-AGENT).
+Cui, Q. (2026). *DFT Agent* (v0.4.6). [Source](https://github.com/cuiqirui99/DFT-AGENT).
 
 [Archived v0.4.4](https://doi.org/10.5281/zenodo.23476235).
 

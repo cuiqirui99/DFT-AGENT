@@ -491,6 +491,8 @@ class ConnectionRegistry:
                 detail = str(error)
                 if provider in _CLI and "too old" in detail:
                     detail += f" Installed: {details.get('cli_version', 'unknown version')} at {details.get('cli_path', '')}."
+                if error.code:
+                    details["error_code"] = error.code
             elif isinstance(error, credentials.CredentialError):
                 detail = str(error)
             else:

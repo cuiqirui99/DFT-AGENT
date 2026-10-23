@@ -79,9 +79,11 @@ def apply_style():
         font-weight:500; min-height:2.3rem; padding:.3rem .9rem; transition:background .12s, border-color .12s, box-shadow .12s; }}
     [data-testid="stButton"] button:hover, [data-testid="stDownloadButton"] button:hover {{ border-color:var(--dfa-accent); color:var(--dfa-accent-strong); background:var(--dfa-raised); }}
     [data-testid="stButton"] button:focus-visible {{ outline:none; box-shadow:0 0 0 3px var(--dfa-accent-soft); }}
-    [data-testid="stBaseButton-primary"], [data-testid="stButton"] button[kind="primary"] {{ background:var(--dfa-accent) !important; border-color:var(--dfa-accent) !important; color:#fff !important; font-weight:600; }}
-    [data-testid="stBaseButton-primary"]:hover, [data-testid="stButton"] button[kind="primary"]:hover {{ background:var(--dfa-accent-strong) !important; border-color:var(--dfa-accent-strong) !important; }}
-    [data-testid="stBaseButton-primary"]:disabled {{ opacity:.45; }}
+    [data-testid="stBaseButton-primary"], [data-testid="stButton"] button[kind="primary"],
+    [data-testid="stBaseButton-primaryFormSubmit"] {{ background:var(--dfa-accent) !important; border-color:var(--dfa-accent) !important; color:#fff !important; font-weight:600; }}
+    [data-testid="stBaseButton-primary"]:hover, [data-testid="stButton"] button[kind="primary"]:hover,
+    [data-testid="stBaseButton-primaryFormSubmit"]:hover {{ background:var(--dfa-accent-strong) !important; border-color:var(--dfa-accent-strong) !important; }}
+    [data-testid="stBaseButton-primary"]:disabled, [data-testid="stBaseButton-primaryFormSubmit"]:disabled {{ opacity:.45; }}
     [data-testid="stTextArea"] textarea, [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input,
     [data-testid="stSelectbox"] > div > div, [data-testid="stMultiSelect"] > div > div {{
         border:1px solid var(--dfa-line-strong) !important; border-radius:9px; background:var(--dfa-surface); color:var(--dfa-ink); }}
@@ -92,7 +94,8 @@ def apply_style():
     [data-testid="stCheckbox"] p, [data-testid="stRadio"] p {{ font-size:.92rem; }}
 
     /* surfaces */
-    [data-testid="stForm"] {{ background:var(--dfa-surface); border-color:var(--dfa-line); border-radius:14px; }}
+    /* Forms sit on their card like any other block; Streamlit 1.66 draws cards without a fill. */
+    [data-testid="stForm"] {{ background:transparent; border-color:var(--dfa-line); border-radius:14px; }}
     [data-testid="stExpander"] details {{ border:1px solid var(--dfa-line); border-radius:10px; background:var(--dfa-surface); }}
     [data-testid="stExpander"] summary {{ font-size:.92rem; color:var(--dfa-ink); }}
     [data-testid="stExpander"] summary:hover {{ color:var(--dfa-accent-strong); }}

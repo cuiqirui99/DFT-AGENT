@@ -52,6 +52,7 @@ def main():
                 assert b"<html" in response.read().lower()
             result = json.loads(report.read_text())
             assert result["frozen"] is True
+            assert all(result.get(key) is True for key in ("model_setup_ui", "cli_setup_script", "model_list_http"))
             if os.name == "nt":
                 assert result["windows_npm_cli"] == "checked", "Windows acceptance needs Node.js on PATH"
             result["installed_server"] = True

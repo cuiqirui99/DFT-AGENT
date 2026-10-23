@@ -41,6 +41,11 @@ def _known_locations(provider: str) -> list[Path]:
             base = os.environ.get(variable)
             if base:
                 folders += [Path(base) / "npm", Path(base) / "Programs" / name]
+        if provider == "codex" and os.environ.get("LOCALAPPDATA"):
+            # Where the official Windows installer puts it.
+            folders.append(Path(os.environ["LOCALAPPDATA"]) / "Programs" / "OpenAI" / "Codex" / "bin")
+    if provider == "codex" and os.environ.get("CODEX_INSTALL_DIR"):
+        folders.insert(0, Path(os.environ["CODEX_INSTALL_DIR"]).expanduser())
     return [folder / item for folder in folders for item in names]
 
 

@@ -8,6 +8,7 @@ submits a job; cluster access is limited to sign-in and read-only probes.
 import json
 import re
 import shlex
+import time
 
 import streamlit as st
 
@@ -17,8 +18,6 @@ from .secret_guard import redact
 
 _PROVIDER_ORDER = ("responses", "anthropic", "qwen", "deepseek", "glm", "grok", "chat_completions", "local")
 _CLI_PROVIDERS = {"codex", "claude_cli"}
-_SIGN_IN_COMMANDS = {"codex": "codex login", "claude_cli": "claude"}
-_INSTALL_HINTS = {"codex": "npm install -g @openai/codex", "claude_cli": "npm install -g @anthropic-ai/claude-code"}
 
 
 def _option_label(field, option):
@@ -72,13 +71,19 @@ def _credential_controls(registry, record, prefix, project_id=None):
         value = st.session_state.pop(key, "")
         try:
             _active_project(registry, project_id)
+            if record["kind"] == "model":
+                from .model_connect import clean_key
+
+                value = clean_key(value)
             registry.set_secret(record["id"], value)
             st.session_state[notice] = (True, t("Credential saved in the system keychain."))
         except Exception:
             st.session_state[notice] = (False, t("Could not save the credential. Check the system keychain."))
 
-    st.text_input(t("API key") if record["kind"] == "model" else t("SSH password"), type="password", key=key)
-    st.button(t("Save credential"), key=prefix + "save_secret", on_click=save_secret)
+    # A form sends a key typed but not yet confirmed with Enter.
+    with st.form(prefix + "secret_form", border=False):
+        st.text_input(t("API key") if record["kind"] == "model" else t("SSH password"), type="password", key=key)
+        st.form_submit_button(t("Save credential"), key=prefix + "save_secret", on_click=save_secret)
     if notice in st.session_state:
         ok, message = st.session_state[notice]
         (st.success if ok else st.error)(message)
@@ -331,95 +336,391 @@ def _saved_records(registry, kind, state_key, current):
 
 # --- Model -----------------------------------------------------------------
 
-def _cli_detection(prefix):
+# Where each API provider issues keys.
+_KEY_PAGES = {"responses": "https://platform.openai.com/api-keys", "anthropic": "https://platform.claude.com/settings/keys",
+              "qwen": "https://www.alibabacloud.com/help/en/model-studio/get-api-key",
+              "deepseek": "https://platform.deepseek.com/api_keys", "glm": "https://z.ai/manage-apikey/apikey-list",
+              "grok": "https://console.x.ai/"}
+_STEPS = (("install", "Install"), ("sign_in", "Sign in"), ("connect", "Connect"))
+# After a terminal window opens, its CLI is checked again every few seconds for this long.
+_WATCH_SECONDS = 900
+
+
+def _cli_detection(prefix, providers=()):
+    """The detected CLIs, kept for the page; providers are checked again."""
+    from . import cli_tools
+
     key = prefix + "cli_detect"
     if key not in st.session_state:
-        from . import cli_tools
-
         st.session_state[key] = cli_tools.detect()
+    elif providers:
+        fresh = {item["provider"]: item for item in cli_tools.detect(tuple(providers))}
+        st.session_state[key] = [fresh.get(item["provider"], item) for item in st.session_state[key]]
     return st.session_state[key]
 
 
-def _cli_caption(item):
+def _terminal_messages(provider):
+    from .cli_tools import LABELS
+
+    name, account = LABELS[provider], {"codex": t("your ChatGPT account"), "claude_cli": t("your Claude account")}[provider]
+    return {"title": t("DFT Agent: setting up {name}").format(name=name),
+            "installing": t("Installing {name} with its official installer…").format(name=name),
+            "failed": t("The installation did not finish. Check the internet connection and try again from DFT Agent, or use an API key instead."),
+            "missing": t("{name} is not where its installer puts it. Try again from DFT Agent.").format(name=name),
+            "signing_in": t("Signing in: a page opens in your browser. Sign in there with {account}.").format(account=account),
+            "sign_in_failed": t("Sign-in did not finish. Try again from DFT Agent."),
+            "done": t("Done. Close this window and go back to DFT Agent; it notices by itself."),
+            "close": t("Press Return to close this window.")}
+
+
+def _cli_actions(prefix, item, *, update=False, watched=True):
+    """The next step of a CLI that is missing, signed out or too old: one button that opens a
+    terminal doing it, and the same commands to paste by hand. watched: the page checks the CLI
+    again by itself, else the person tests the connection."""
+    from . import cli_setup
+
+    provider = item["provider"]
+    step = "update" if update else cli_setup.next_step(item)
+    label = {"install": t("Install and sign in"), "sign_in": t("Sign in"), "update": t("Update {name}").format(name=item["label"])}[step]
+    if st.button(label, key=prefix + "terminal_" + provider, type="primary", use_container_width=True):
+        try:
+            cli_setup.open_terminal(provider, item, _terminal_messages(provider), update=update)
+            st.session_state[prefix + "cli_watch"] = {"provider": provider, "until": time.time() + _WATCH_SECONDS}
+        except OSError as error:
+            st.session_state[prefix + "cli_notice"] = (False, t(str(error)))
+        st.rerun()
+    if (st.session_state.get(prefix + "cli_watch") or {}).get("provider") != provider:
+        st.caption(t("Opens a terminal window that does this for you. You only sign in on the page it opens in your browser."))
+    elif watched:
+        st.caption(t("A terminal window is open. Follow what it says; this page updates by itself when you are done."))
+    else:
+        st.caption(t("A terminal window is open. Follow what it says, then click Test connection."))
+    name = cli_setup.system()
+    with st.expander(t("Do it yourself in a terminal")):
+        st.caption({"macos": t("Open Terminal: press Command and Space, type Terminal, press Return."),
+                    "windows": t("Open PowerShell: open the Start menu, type PowerShell, press Enter."),
+                    "linux": t("Open a terminal, often with Ctrl+Alt+T.")}[name]
+                   + " " + t("Paste each line, press Return and follow what it asks."))
+        for line in cli_setup.commands(provider, item, update=update):
+            st.code(line, language="powershell" if name == "windows" else "bash", wrap_lines=True)
+
+
+def _cli_card(registry, project_id, prefix, state, item):
+    from . import cli_setup
     from .cli_tools import version_text
 
-    if not item["installed"]:
-        return t("Not installed")
-    version = version_text(item["version"])
-    if item["logged_in"]:
-        return f"{version} · " + t("Signed in") + (f" ({item['detail']})" if item["detail"] and item["detail"] != "Signed in" else "")
-    if item["logged_in"] is None:
-        return f"{version} · " + t("Sign-in state unknown")
-    return f"{version} · " + t("Not signed in")
+    step = cli_setup.next_step(item)
+    order = [name for name, _ in _STEPS]
+    with st.container(border=True):
+        st.markdown(f"**{item['label']}**")
+        st.caption(t(cli_setup.ACCOUNTS[item["provider"]]))
+        lines = []
+        for name, label in _STEPS:
+            detail = ""
+            if name == "install" and item["installed"]:
+                detail = " · " + version_text(item["version"])
+            elif name == "sign_in" and item["logged_in"] and item.get("detail") not in (None, "Signed in"):
+                detail = " · " + item["detail"]
+            if order.index(name) < order.index(step):
+                lines.append(f":green[:material/check_circle:] {t(label)}:gray[{detail}]")
+            elif name == step:
+                lines.append(f":material/arrow_circle_right: **{t(label)}**")
+            else:
+                lines.append(f":gray[:material/radio_button_unchecked: {t(label)}]")
+        st.markdown("  \n".join(lines))
+        if step != "connect":
+            _cli_actions(prefix, item)
+        elif st.button(t("Connect {name}").format(name=item["label"]), key=prefix + "cli_" + item["provider"], type="primary",
+                       use_container_width=True):
+            record = registry.create("model", item["label"], {"provider": item["provider"]})
+            if project_id:
+                registry.bind(project_id, record["id"], role="model")
+            state["record_id"] = record["id"]
+            with st.spinner(t("Testing the connection…")):
+                registry.probe(record["id"])
+            st.rerun()
+
+
+def _cli_cards(registry, project_id, prefix, state):
+    """One card per CLI with its three steps. While a terminal window works on one, the card
+    checks it again every few seconds instead of waiting for Check again."""
+    watch = st.session_state.get(prefix + "cli_watch")
+    if watch and watch["until"] < time.time():
+        st.session_state.pop(prefix + "cli_watch")
+        watch = None
+
+    @st.fragment(run_every=4 if watch else None)
+    def cards():
+        current = st.session_state.get(prefix + "cli_watch")
+        if current and current["until"] < time.time():
+            st.session_state.pop(prefix + "cli_watch")
+            st.rerun()
+        detected = _cli_detection(prefix, [current["provider"]] if current else ())
+        if current and next(item for item in detected if item["provider"] == current["provider"])["logged_in"]:
+            st.session_state.pop(prefix + "cli_watch")
+            st.rerun()
+        _notice(prefix + "cli_notice")
+        for column, item in zip(st.columns(len(detected)), detected):
+            with column:
+                _cli_card(registry, project_id, prefix, state, item)
+        if current:
+            if st.button(t("Stop checking"), key=prefix + "cli_stop"):
+                st.session_state.pop(prefix + "cli_watch", None)
+                st.rerun()
+            st.caption(t("Close the terminal window to cancel sign-in."))
+    cards()
+    if st.button(t("Check again"), key=prefix + "cli_refresh"):
+        st.session_state.pop(prefix + "cli_detect", None)
+        st.rerun()
 
 
 def _model_setup(registry, project_id, prefix, state_key):
-    from .providers import PROVIDERS
-
     state = st.session_state[state_key]
     _saved_records(registry, "model", state_key, prefix)
     if state["record_id"]:
         _model_record(registry, registry.get(state["record_id"]), prefix + state["record_id"] + "_", project_id, state)
         return
-    st.caption(t("A signed-in Codex or Claude Code CLI uses your existing subscription; no API key is needed."))
-    detected = _cli_detection(prefix)
-    columns = st.columns(len(detected))
-    for column, item in zip(columns, detected):
-        with column:
-            if st.button(item["label"], key=prefix + "cli_" + item["provider"], use_container_width=True,
-                         disabled=not item["installed"], type="primary" if item["logged_in"] else "secondary"):
-                record = registry.create("model", item["label"], {"provider": item["provider"]})
-                if project_id:
-                    registry.bind(project_id, record["id"], role="model")
-                state["record_id"] = record["id"]
-                if item["logged_in"]:
-                    with st.spinner(t("Testing the connection…")):
-                        registry.probe(record["id"])
-                st.rerun()
-            st.caption(_cli_caption(item))
-            if not item["installed"]:
-                st.code(_INSTALL_HINTS[item["provider"]], language="bash")
-    if st.button(t("Check again"), key=prefix + "cli_refresh"):
-        st.session_state.pop(prefix + "cli_detect", None)
-        st.rerun()
-    st.caption(t("Or use an API key"))
+    st.caption(t("DFT Agent understands your requests through an AI model. The easiest way is a ChatGPT or Claude plan you "
+                 "already have: install its official command-line tool and sign in once."))
+    _cli_cards(registry, project_id, prefix, state)
+    st.caption(t("No ChatGPT or Claude plan, or the installation does not work? Use an API key instead; the provider bills by use."))
     provider = st.pills(t("Provider"), _PROVIDER_ORDER, format_func=lambda option: _option_label("provider", option),
                         key=prefix + "provider", label_visibility="collapsed")
-    if not provider:
-        return
-    info = PROVIDERS[provider]
-    model = st.text_input(t("Model name"), value=info["model_example"], key=prefix + "model_" + provider,
-                          help=t("The exact model name offered by this provider."))
-    base_url = info["base_url"] or ""
-    if provider in {"qwen", "chat_completions", "local"}:
-        base_url = st.text_input(t("API address"), value=info["base_url"] or "", key=prefix + "base_url_" + provider,
-                                 placeholder="https://…/v1")
-    key = prefix + "api_key"
+    if provider == "local":
+        _local_setup(registry, project_id, prefix, state)
+    elif provider:
+        _api_setup(registry, project_id, prefix, state, provider)
+
+
+def _model_advice(provider, code, *, owner=None, host="", model=""):
+    """A failed model connection in plain words, with the links that fix it."""
+    from .model_connect import GUIDES
+
+    label, guide = _option_label("provider", provider), GUIDES.get(provider, {})
+    links = []
+    if code == "empty":
+        text = t("Paste the API key first.")
+    elif code == "address":
+        text = t("Check the API address. Use an HTTP(S) URL without credentials or query parameters; local models must run on this computer.")
+    elif code == "key":
+        text = t("{provider} did not accept this key. Copy it again in full; a key works only on the platform where it was created.").format(provider=label)
+        if owner:
+            text += " " + t("It looks like a {owner} key: choose {owner} above.").format(owner=_option_label("provider", owner))
+        links = [(t("Create a new key"), guide.get("keys"))]
+    elif code == "credit":
+        text = t("The key works, but the account has no API credit. Top it up, then test again; chat memberships do not include API use.")
+        links = [(t("Top up"), guide.get("billing"))]
+    elif code == "model":
+        text = (t("This account cannot use the model {model}. Choose another under Change the model.").format(model=model) if model
+                else t("Enter the model name your provider gave you."))
+    elif code == "denied":
+        text = t("The account may not use this model. Choose another under Change the model, or check the account's permissions.")
+    elif code in {"network", "timeout"}:
+        text = (t("Nothing answered at this address on your computer. Start the model server, then try again.") if provider == "local"
+                else t("Cannot reach {host}. Check the internet connection; some networks need a proxy for this service, and a provider closer to you may work better.").format(
+                    host=host or label))
+    elif code == "rate":
+        text = t("The service is limiting requests for now. Wait a minute, then test again.")
+    elif code == "format":
+        text = t("This model does not give the structured answers DFT Agent needs. Choose another under Change the model.")
+    elif code == "server":
+        text = t("The service has a temporary problem. Try again in a few minutes.")
+    else:
+        text = t("The connection did not work. Check the key and the model name, then try again.")
+    return text, [(name, url) for name, url in links if url]
+
+
+def _show_advice(provider, advice):
+    text, links = _model_advice(provider, advice["code"], owner=advice.get("owner"), host=advice.get("host", ""),
+                                model=advice.get("model", ""))
+    st.error(text)
+    for column, (name, url) in zip(st.columns(max(1, len(links))), links):
+        with column:
+            st.link_button(name, url)
+
+
+def _api_connect(registry, project_id, prefix, state, provider, secret, model, base_url):
+    """Check the key for free, then save the connection and test it; False with advice when the key cannot work."""
+    from . import model_connect
+    from .i18n import current_language
+
+    st.session_state.pop(prefix + "advice", None)
+    try:
+        _active_project(registry, project_id)
+        if provider != "local" and not secret:
+            raise model_connect.ConnectFailure("empty", "No key was entered.")
+        found = model_connect.find_endpoint(provider, secret, base_url=base_url, model=model, language=current_language())
+    except model_connect.ConnectFailure as failure:
+        st.session_state[prefix + "advice"] = {"code": failure.code, "provider": provider, **failure.details}
+        return False
+    settings = {"provider": provider, "model": found["model"]}
+    if found["base_url"]:
+        settings["base_url"] = found["base_url"]
+    try:
+        record = registry.create("model", _option_label("provider", provider), settings)
+    except ValueError as error:
+        st.error(redact(str(error)))
+        return False
+    state["record_id"] = record["id"]
+    st.session_state[prefix + "models_" + record["id"]] = found["models"]
     if provider != "local":
-        st.text_input(t("API key"), type="password", key=key, help=t("Stored in the system keychain, never in project files."))
-
-    def connect():
-        secret = st.session_state.pop(key, "")
         try:
-            _active_project(registry, project_id)
-            if provider != "local" and not secret:
-                st.session_state[prefix + "notice"] = (False, t("Enter the API key, then connect."))
-                return
-            settings = {"provider": provider, "model": model.strip()}
-            if provider in {"qwen", "chat_completions", "local"}:
-                settings["base_url"] = base_url.strip()
-            record = registry.create("model", _option_label("provider", provider), settings)
-            if project_id:
-                registry.bind(project_id, record["id"], role="model")
-            state["record_id"] = record["id"]
-            if provider != "local":
-                registry.set_secret(record["id"], secret)
-            registry.probe(record["id"])
-        except Exception as error:
-            st.session_state[prefix + "notice"] = (False, str(error))
+            registry.set_secret(record["id"], secret)
+        except Exception:
+            st.session_state[prefix + "notice"] = (False, t("Could not save the credential. Check the system keychain."))
+            return True
+    if project_id:
+        registry.bind(project_id, record["id"], role="model")
+    record = registry.probe(record["id"])
+    # A listed model that cannot answer in the required format gives way to the next best, twice at most.
+    tried = {found["model"]}
+    while (record["connection_status"] != "connected" and (record.get("probe") or {}).get("error_code") in {"model", "format"}
+           and len(tried) < 3):
+        alternative = model_connect.choose_model(provider, [name for name in found["models"] if name not in tried])
+        if not alternative or alternative in tried:
+            break
+        tried.add(alternative)
+        registry.update(record["id"], settings={"model": alternative})
+        record = registry.probe(record["id"])
+    return True
 
-    st.button(t("Connect"), key=prefix + "api_connect", type="primary", on_click=connect)
-    _notice(prefix + "notice")
+
+def _connect_button(prefix, key):
+    """Connect inside the key's form, so a key typed but not yet confirmed (Tab moves focus to the
+    password field's eye button without confirming it) is still sent. The key leaves the widget at
+    once and is used in the next run only."""
+    def submit():
+        from .model_connect import clean_key
+
+        st.session_state[prefix + "pending"] = clean_key(st.session_state.pop(key, ""))
+    st.form_submit_button(t("Connect"), key=prefix + "api_connect", type="primary", on_click=submit)
+
+
+def _api_setup(registry, project_id, prefix, state, provider):
+    from .model_connect import GUIDES, REGIONS
+    from .providers import PROVIDERS
+
+    info, guide, label = PROVIDERS[provider], GUIDES.get(provider), _option_label("provider", provider)
+    # One field per provider, so a key pasted for one is never sent to another.
+    key = prefix + "api_key_" + provider
+    with st.container(border=True):
+        st.markdown("**" + t("1. Get an API key") + "**")
+        if guide:
+            steps = [t("Open {site} and sign in; create an account if you have none.").format(site=guide["site"]),
+                     t("Add API credit there. API use is paid separately from chat memberships."),
+                     t("Create an API key and copy it.")]
+            st.markdown("\n".join(f"{index}. {step}" for index, step in enumerate(steps, 1)))
+            st.link_button(t("Open the {provider} key page").format(provider=label), guide["keys"])
+            if "abroad" in guide:
+                site, url = guide["abroad"]
+                st.caption(t("Account outside mainland China? Create the key on {site} instead; DFT Agent tries known regions.").format(
+                    site=f"[{site}]({url})"))
+        else:
+            st.markdown(t("Your provider gives you three things: the API address, which usually ends in /v1, a key and a model name."))
+        with st.form(prefix + "api_form_" + provider, border=False):
+            model, base_url = info["model_example"], ""
+            if not guide:
+                base_url = st.text_input(t("API address"), key=prefix + "base_url_" + provider, placeholder="https://…/v1")
+                model = st.text_input(t("Model name"), key=prefix + "model_" + provider,
+                                      help=t("The exact model name offered by this provider."))
+            st.markdown("**" + t("2. Paste the key") + "**")
+            st.text_input(t("API key"), type="password", key=key, placeholder=t("Paste the key here"),
+                          help=t("Stored in the system keychain, never in project files."))
+            st.markdown("**" + t("3. Connect") + "**")
+            st.caption(t("DFT Agent checks the key and region, then tests a model. Test requests use your API tokens."))
+            if guide:
+                with st.expander(t("Advanced settings (usually not needed)")):
+                    model = st.text_input(t("Model name"), value=info["model_example"], key=prefix + "model_" + provider,
+                                          help=t("The exact model name offered by this provider."))
+                    if provider in REGIONS:
+                        base_url = st.text_input(t("API address"), key=prefix + "base_url_" + provider, placeholder="https://…/v1",
+                                                 help=t("Leave empty to try known regions."))
+            _connect_button(prefix, key)
+        if prefix + "pending" in st.session_state:
+            secret = st.session_state.pop(prefix + "pending")
+            with st.spinner(t("Checking the key and choosing a model…")):
+                connected = _api_connect(registry, project_id, prefix, state, provider, secret, model.strip(), base_url.strip())
+            del secret
+            if connected:
+                st.rerun()
+        advice = st.session_state.get(prefix + "advice")
+        if advice and advice.get("provider") == provider:
+            _show_advice(provider, advice)
+
+
+def _local_setup(registry, project_id, prefix, state):
+    from . import model_connect
+
+    found_key = prefix + "local_servers"
+    if found_key not in st.session_state:
+        st.session_state[found_key] = model_connect.local_servers()
+    servers = st.session_state[found_key]
+    with st.container(border=True):
+        st.markdown("**" + t("1. Start a model server on this computer") + "**")
+        st.markdown(t("For example, install Ollama from ollama.com, then download a model in a terminal:"))
+        st.code("ollama pull qwen3", language="bash")
+        st.caption(t("LM Studio, llama.cpp and vLLM servers are found as well. Small models may plan poorly."))
+        st.markdown("**" + t("2. Choose a model") + "**")
+        options = [(server["name"], server["base_url"], name) for server in servers for name in server["models"]]
+        choice = None
+        if options:
+            choice = st.selectbox(t("Model"), options, format_func=lambda item: f"{item[2]} · {item[0]}", key=prefix + "local_model",
+                                  label_visibility="collapsed")
+        else:
+            st.info(t("No model server is running on this computer yet. Start one, then look again."))
+        if st.button(t("Look for local servers again"), key=prefix + "local_refresh"):
+            st.session_state.pop(found_key, None)
+            st.rerun()
+        st.markdown("**" + t("3. Connect") + "**")
+        if st.button(t("Connect"), key=prefix + "local_connect", type="primary", disabled=choice is None):
+            with st.spinner(t("Testing the connection…")):
+                if _api_connect(registry, project_id, prefix, state, "local", "", choice[2], choice[1]):
+                    st.rerun()
+        with st.expander(t("Other local server")):
+            with st.form(prefix + "local_manual_form", border=False):
+                address = st.text_input(t("API address"), key=prefix + "local_address", placeholder="http://127.0.0.1:9000/v1")
+                model = st.text_input(t("Model name"), key=prefix + "local_name")
+                submitted = st.form_submit_button(t("Connect local server"))
+            if submitted:
+                if not address.strip():
+                    st.error(t("Enter the local server's API address."))
+                else:
+                    with st.spinner(t("Testing the connection…")):
+                        if _api_connect(registry, project_id, prefix, state, "local", "", model.strip(), address.strip()):
+                            st.rerun()
+        advice = st.session_state.get(prefix + "advice")
+        if advice and advice.get("provider") == "local":
+            _show_advice("local", advice)
+
+
+def _model_summary(record):
+    from .model_connect import REGIONS
+
+    settings = record["settings"]
+    region = next((name for name, address in REGIONS.get(settings["provider"], ()) if address == settings.get("base_url")), None)
+    return t("Model: {model}").format(model=settings.get("model", "")) + (" · " + t("Region: {region}").format(region=t(region)) if region else "")
+
+
+def _change_model(registry, record, prefix):
+    """Another model for a saved API connection, from the account's list when it was read."""
+    models = st.session_state.get(prefix[:-len(record["id"]) - 1] + "models_" + record["id"]) or []
+    with st.expander(t("Change the model")):
+        current = record["settings"].get("model", "")
+        if models:
+            from .model_connect import _NOT_CHAT
+
+            listed = sorted(name for name in models if not _NOT_CHAT.search(name)) or sorted(models)
+            choice = st.selectbox(t("Model name"), listed, index=listed.index(current) if current in listed else 0, key=prefix + "model_choice")
+        else:
+            choice = st.text_input(t("Model name"), value=current, key=prefix + "model_choice")
+        if st.button(t("Save and test"), key=prefix + "model_save", disabled=not str(choice).strip() or choice == current):
+            try:
+                registry.update(record["id"], settings={"model": str(choice).strip()})
+                with st.spinner(t("Testing the connection…")):
+                    registry.probe(record["id"])
+            except ValueError as error:
+                st.session_state[prefix + "model_notice"] = (False, str(error))
+            st.rerun()
 
 
 def _model_record(registry, record, prefix, project_id, state):
@@ -427,19 +728,35 @@ def _model_record(registry, record, prefix, project_id, state):
     status = record["connection_status"]
     st.caption(f"{record['name']} · {_status_label(record)}")
     _notice(prefix[:-len(record["id"]) - 1] + "notice")
+    _notice(prefix + "model_notice")
     if record.get("revoked"):
         st.info(t("This connection has been revoked."))
         return
     detail = _probe_detail(record)
+    code = (record.get("probe") or {}).get("error_code")
     if status == "connected":
         st.success(t("Model connected."))
+        if provider not in _CLI_PROVIDERS:
+            st.caption(_model_summary(record))
+    elif code and provider not in _CLI_PROVIDERS:
+        from urllib.parse import urlsplit
+
+        _show_advice(provider, {"code": code, "model": record["settings"].get("model", ""),
+                                "host": urlsplit(record["settings"].get("base_url") or "").hostname or ""})
+        with st.expander(t("Technical details")):
+            st.caption(detail)
     elif detail:
         (st.warning if record["auth_status"] == "required" else st.error)(detail)
+    if provider not in _CLI_PROVIDERS:
+        _change_model(registry, record, prefix)
     if provider in _CLI_PROVIDERS and status != "connected":
-        st.write(t("Sign in with the CLI in a terminal, then test the connection again:"))
-        st.code(_SIGN_IN_COMMANDS[provider], language="bash")
-    if provider in _CLI_PROVIDERS and status == "error" and "too old" in detail:
-        st.code(_INSTALL_HINTS[provider], language="bash")
+        from .cli_setup import next_step
+
+        item = next(item for item in _cli_detection(prefix) if item["provider"] == provider)
+        outdated = status == "error" and "too old" in detail
+        if outdated or next_step(item) != "connect":
+            _notice(prefix + "cli_notice")
+            _cli_actions(prefix, item, update=outdated, watched=False)
     _credential_controls(registry, record, prefix, project_id)
     if st.button(t("Test connection"), key=prefix + "test", type="secondary" if status == "connected" else "primary"):
         with st.spinner(t("Testing the connection…")):

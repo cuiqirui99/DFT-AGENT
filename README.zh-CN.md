@@ -2,7 +2,7 @@
 
 ![DFT Agent](docs/assets/dft-agent-logo.png)
 
-版本 `0.4.5`。[English](README.md)
+版本 `0.4.6`。[English](README.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH 皇家理工学院 · [ORCID](https://orcid.org/0009-0005-6165-3237)
 
@@ -12,17 +12,17 @@
 
 ## 安装
 
-从 [v0.4.5](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5) 下载：
+从 [v0.4.6](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.6) 下载：
 
 - **Apple Silicon Mac，macOS 14+：**打开 `.dmg`，将 **DFT Agent** 拖入“应用程序”，再打开应用。
 - **Windows x64：**运行 `.exe` 安装程序，然后从开始菜单打开 **DFT Agent**。
 
-安装包内置 Python 和模型 SDK。Codex CLI、Claude Code CLI 为可选项，需要单独安装。
+安装包内置 Python 和模型 SDK。Codex CLI、Claude Code CLI 为可选项，可以在应用里一键安装并开始登录。
 
-也可使用 Python 3.11+ 从 [PyPI](https://pypi.org/project/dft-agent/0.4.5/) 安装：
+也可使用 Python 3.11+ 从 [PyPI](https://pypi.org/project/dft-agent/0.4.6/) 安装：
 
 ```bash
-python -m pip install "dft-agent[agent]==0.4.5"
+python -m pip install "dft-agent[agent]==0.4.6"
 dft-agent ui
 ```
 
@@ -31,7 +31,7 @@ dft-agent ui
 ## 开始使用
 
 1. 点击 **New project（新建项目）**，为项目命名。
-2. 打开 **Connections → Model（连接 → 模型）**。选择已登录的 **Codex CLI** 或 **Claude Code CLI**，也可以填写服务商的 API 密钥和模型名称。已有连接可用 **Test connection** 检查。[模型设置](docs/models.md)。
+2. 打开 **Connections → Model（连接 → 模型）**。按提示安装并登录 **Codex CLI** 或 **Claude Code CLI**，也可以填写服务商的 API 密钥。已有连接可用 **Test connection** 检查。[模型设置](docs/models.md)。
 3. 打开 **Cluster（集群）**，输入 `ssh 用户名@主机`。程序先尝试 SSH 密钥，再按集群要求询问密码或验证码。检查探测到的软件，或在 **Software（软件）** 中添加配置。缺少 QE 时，可在这里检查安装计划并启动构建。[集群设置](docs/install.md#your-first-cluster-setup)。
 4. 回到对话，在 **Files and runs → Files → Add files** 上传结构，点击 **Import files**，然后描述任务。后续修改继续在同一对话中完成。
 5. 点击 **Prepare inputs**，检查文件和计算资源，勾选确认框，再点击 **Submit**。在 **Files and runs → Jobs** 查看进度，在 **Results** 查看输出。
@@ -48,7 +48,7 @@ dft-agent ui
 
 ## 引用
 
-Cui, Q. (2026). *DFT Agent* (v0.4.5). [源码](https://github.com/cuiqirui99/DFT-AGENT).
+Cui, Q. (2026). *DFT Agent* (v0.4.6). [源码](https://github.com/cuiqirui99/DFT-AGENT).
 
 [v0.4.4 存档](https://doi.org/10.5281/zenodo.23476235)。
 

@@ -30,9 +30,11 @@ from .vasp import DEFAULTS, TASKS, _parameters, _validate_structure
 class AgentError(ValueError):
     """A safe, user-facing planning error, without provider response bodies."""
 
-    def __init__(self, message: str, *, model_usage: dict | None = None):
+    def __init__(self, message: str, *, model_usage: dict | None = None, code: str | None = None):
         super().__init__(message)
         self.model_usage = model_usage
+        # What went wrong with a provider (key, credit, model, ...), for plain-language advice.
+        self.code = code
 
 
 @dataclass(frozen=True)
@@ -373,7 +375,8 @@ def _request_structured(payload: str, schema: dict[str, Any], settings: ModelSet
         exc.model_usage = usage
         raise
     except Exception as exc:
-        raise AgentError(_provider_error_message(exc, settings.provider),
+        code, message = _provider_error(exc, settings.provider)
+        raise AgentError(message, code=code,
                          model_usage=usage or usage_record(settings.provider, settings.model,
                              latency_seconds=time.monotonic() - started, payload=payload,
                              instructions=instructions, schema=schema, max_output_tokens=limit)) from None
@@ -383,38 +386,40 @@ def _json_instructions(instructions: str, schema: dict) -> str:
     return instructions + "\nReturn one JSON object, with no Markdown, matching this schema:\n" + json.dumps(schema, separators=(",", ":"))
 
 
-def _provider_error_message(error: Exception, provider: str) -> str:
-    """Classify SDK failures without exposing response bodies or credentials."""
+def _provider_error(error: Exception, provider: str) -> tuple[str, str]:
+    """(code, message) for an SDK failure, without exposing response bodies or credentials."""
     label = PROVIDERS[provider]["label"]
     status = getattr(error, "status_code", None)
     body = getattr(error, "body", None)
     detail = body.get("error", body) if isinstance(body, dict) else {}
-    terms = " ".join(str(detail.get(key, "")) for key in ("type", "code", "message")) if isinstance(detail, dict) else ""
-    if status == 401:
-        return f"{label} rejected the API key. Check the key and selected provider."
+    terms = " ".join(str(detail.get(key, "")) for key in ("type", "code", "message")) if isinstance(detail, dict) else str(detail or "")
+    # xAI answers a wrong key with 400; DeepSeek and others name a missing model in a 400.
+    if status == 401 or (status == 400 and re.search(r"(?:incorrect|invalid|wrong) api[ _-]?key|authentication fail", terms, re.I)):
+        return "key", f"{label} rejected the API key. Check the key and selected provider."
     if status == 403:
-        return f"{label} denied access. Check model permissions and account or workspace access."
-    if status == 404:
-        return f"{label} model or endpoint was not found. Check the model name and API URL."
+        return "denied", f"{label} denied access. Check model permissions and account or workspace access."
+    if status == 404 or (status == 400 and re.search(r"model[_ ]not[_ ](?:found|exist)|model .{0,60}(?:does not exist|not found|not exist)|"
+                                                       r"(?:unknown|invalid|unsupported) model|no such model", terms, re.I)):
+        return "model", f"{label} model or endpoint was not found. Check the model name and API URL."
     if status == 402 or (status in {400, 429} and re.search(
-            r"insufficient[_ ]quota|credit balance|spend(?:ing)? (?:limit|cap)|billing|insufficient (?:balance|credits)|quota exceeded", terms, re.I)):
-        return f"{label} API credit or spending limit was reached. Check billing and account limits."
+            r"insufficient[_ ]quota|credit balance|spend(?:ing)? (?:limit|cap)|billing|insufficient (?:balance|credits)|quota exceeded|arrearage|overdue", terms, re.I)):
+        return "credit", f"{label} API credit or spending limit was reached. Check billing and account limits."
     if status == 429:
-        return f"{label} rate or usage limit was reached. Wait before another request and check account limits."
+        return "rate", f"{label} rate or usage limit was reached. Wait before another request and check account limits."
     names = {kind.__name__ for kind in type(error).__mro__}
     if "APIResponseValidationError" in names:
-        return f"{label} returned invalid structured data. No plan was accepted."
+        return "format", f"{label} returned invalid structured data. No plan was accepted."
     if status in {408, 504} or names & {"APITimeoutError", "TimeoutException", "TimeoutError", "ReadTimeout", "ConnectTimeout"}:
-        return f"{label} request timed out. Check the connection and try again."
+        return "timeout", f"{label} request timed out. Check the connection and try again."
     if names & {"APIConnectionError", "ConnectError", "NetworkError"}:
-        return f"Cannot connect to {label}. Check the API URL and network connection."
+        return "network", f"Cannot connect to {label}. Check the API URL and network connection."
     if status == 413:
-        return f"{label} rejected the request size. Use a smaller task or conversation."
+        return "size", f"{label} rejected the request size. Use a smaller task or conversation."
     if status in {400, 422}:
-        return f"{label} rejected the request format. Check the model and structured-output support."
+        return "format", f"{label} rejected the request format. Check the model and structured-output support."
     if type(status) is int and status >= 500:
-        return f"{label} is temporarily unavailable (HTTP {status}). Try again later."
-    return "The model request failed. Check the provider, model and connection."
+        return "server", f"{label} is temporarily unavailable (HTTP {status}). Try again later."
+    return "other", "The model request failed. Check the provider, model and connection."
 
 
 def _validate_json(output: str, schema: dict) -> None:
@@ -533,7 +538,8 @@ def _anthropic_request(payload: str, schema: dict, settings: ModelSettings, *, i
         exc.model_usage = usage
         raise
     except Exception as exc:
-        raise AgentError(_provider_error_message(exc, settings.provider),
+        code, message = _provider_error(exc, settings.provider)
+        raise AgentError(message, code=code,
                          model_usage=usage or usage_record(settings.provider, settings.model,
                              latency_seconds=time.monotonic() - started, payload=payload,
                              instructions=instructions, schema=request_schema, max_output_tokens=limit)) from None

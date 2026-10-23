@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.6 — 2026-10-23
+
+- Install and sign in to Codex CLI or Claude Code from Connections, with automatic status checks and clear failure messages.
+- Guide API setup with provider links, region detection, model discovery and a real connection test.
+- Detect local model servers and keep support for custom ports.
+- Fix model selection, failed credential saves and connection error messages.
+
 ## 0.4.5 — 2026-10-23
 
 - Read calculation outputs and saved metadata as UTF-8 on Windows, preserving Unicode labels and paths.

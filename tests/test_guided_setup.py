@@ -499,8 +499,10 @@ def test_signed_in_cli_connects_with_one_click(monkeypatch):
     monkeypatch.setattr(ConnectionRegistry, "_probe_model", probe)
     view = chat_app(project["id"])
     assert not view.text_input and not view.chat_input
-    assert widget(view.button, "Claude Code CLI").disabled
-    widget(view.button, "Codex CLI").click().run()
+    # Each CLI shows its next step: the missing one offers to install itself.
+    assert widget(view.button, "Install and sign in") and not widget(view.button, "Install and sign in").disabled
+    assert "npm" not in " ".join(item.value for item in view.code)
+    widget(view.button, "Connect Codex CLI").click().run()
     assert not view.exception and not view.error
     record = registry.project_connections(project["id"])[0]
     assert record["settings"]["provider"] == "codex" and record["connection_status"] == "connected"
@@ -509,19 +511,148 @@ def test_signed_in_cli_connects_with_one_click(monkeypatch):
     assert widget(view.button, "Back to chat")
 
 
-def test_unsigned_cli_connection_shows_sign_in_command(monkeypatch):
+def test_signed_out_cli_signs_in_through_a_terminal_and_the_card_follows(monkeypatch):
+    from vasp_slurm_agent import cli_setup
     registry = ConnectionRegistry()
+    items = detected(monkeypatch, codex_signed_in=False)
+    opened = []
+    monkeypatch.setattr(cli_setup, "open_terminal", lambda provider, item, messages, **kwargs: opened.append((provider, item, messages, kwargs)))
+    view = chat_app()
+    assert any(item.value == "/mock/codex login" for item in view.code)   # the same step by hand
+    widget(view.button, "Sign in").click().run()
+    assert not view.exception and not registry.list(kind="model")
+    provider, item, messages, options = opened[0]
+    assert (provider, item["path"], options) == ("codex", "/mock/codex", {"update": False})
+    assert set(messages) == set(cli_setup.MESSAGES) and "ChatGPT" in messages["signing_in"]
+    assert any("this page updates by itself" in item.value for item in view.caption)
+    # Signing in finishes in the terminal; the next check finds it and offers to connect.
+    items[0].update(logged_in=True, detail="ChatGPT")
+    view.run()
+    assert not view.exception and widget(view.button, "Connect Codex CLI")
+    assert not any("this page updates by itself" in item.value for item in view.caption)
+
+
+def test_saved_cli_connection_that_signed_out_offers_the_same_steps(monkeypatch):
+    from vasp_slurm_agent import cli_setup
+    registry = ConnectionRegistry()
+    record = registry.create("model", "Codex CLI", {"provider": "codex"})
     detected(monkeypatch, codex_signed_in=False)
     probe = Mock(return_value={"auth_status": "required", "connection_status": "untested", "detail": "Sign in with Codex CLI in your terminal, then test again."})
     monkeypatch.setattr(ConnectionRegistry, "_probe_model", probe)
+    opened = []
+    monkeypatch.setattr(cli_setup, "open_terminal", lambda provider, item, messages, **kwargs: opened.append(provider))
     view = chat_app()
     widget(view.button, "Codex CLI").click().run()
-    assert not view.exception
-    probe.assert_not_called()
-    assert any(item.value == "codex login" for item in view.code)
+    assert any(item.value == "/mock/codex login" for item in view.code)
+    widget(view.button, "Sign in").click().run()
+    assert opened == ["codex"] and any("then click Test connection" in item.value for item in view.caption)
     widget(view.button, "Test connection").click().run()
     probe.assert_called_once()
-    assert registry.list(kind="model")[0]["connection_status"] == "untested"
+    assert registry.get(record["id"])["connection_status"] == "untested"
+
+
+def test_cli_monitor_can_be_stopped_and_sign_in_retried(monkeypatch):
+    from vasp_slurm_agent import cli_setup
+
+    detected(monkeypatch, codex_signed_in=False)
+    opened = Mock()
+    monkeypatch.setattr(cli_setup, "open_terminal", opened)
+    view = chat_app()
+    widget(view.button, "Sign in").click().run()
+    assert any("Close the terminal window" in item.value for item in view.caption)
+    widget(view.button, "Stop checking").click().run()
+    assert not view.exception
+    assert "setup_chat_global_model_cli_watch" not in view.session_state
+    assert not any(item.label == "Stop checking" for item in view.button)
+    widget(view.button, "Sign in").click().run()
+    assert opened.call_count == 2
+    assert "setup_chat_global_model_cli_watch" in view.session_state
+
+
+def test_cli_without_a_working_runtime_offers_install_instead_of_sign_in(monkeypatch):
+    from vasp_slurm_agent import cli_setup
+
+    items = detected(monkeypatch, codex_signed_in=False)
+    items[0]["version"] = None
+    opened = Mock()
+    monkeypatch.setattr(cli_setup, "open_terminal", opened)
+    view = chat_app()
+    button = view.button(key="setup_chat_global_model_terminal_codex")
+    assert button.label == "Install and sign in"
+    button.click().run()
+    assert not view.exception
+    opened.assert_called_once()
+
+
+def test_saved_cli_with_a_broken_runtime_can_be_reinstalled(monkeypatch):
+    from vasp_slurm_agent import cli_setup
+
+    registry = ConnectionRegistry()
+    registry.create("model", "Codex CLI", {"provider": "codex"})
+    items = detected(monkeypatch)
+    items[0].update(version=None, logged_in=None, detail="Could not run the CLI.")
+    opened = Mock()
+    monkeypatch.setattr(cli_setup, "open_terminal", opened)
+    view = chat_app()
+    widget(view.button, "Codex CLI").click().run()
+    widget(view.button, "Install and sign in").click().run()
+    assert not view.exception
+    opened.assert_called_once()
+
+
+def test_cli_fragment_stops_after_its_deadline_without_a_full_page_rerun(monkeypatch):
+    from vasp_slurm_agent import setup_app
+
+    class Rerun(Exception):
+        pass
+
+    now = [100]
+    state = {"review_cli_watch": {"provider": "codex", "until": 110}}
+
+    def fragment(**kwargs):
+        assert kwargs["run_every"] == 4
+        def decorate(callback):
+            def expired_call():
+                now[0] = 111
+                callback()
+            return expired_call
+        return decorate
+
+    monkeypatch.setattr(setup_app, "time", SimpleNamespace(time=lambda: now[0]))
+    monkeypatch.setattr(setup_app, "st", SimpleNamespace(
+        session_state=state, fragment=fragment, rerun=Mock(side_effect=Rerun)))
+    detection = Mock()
+    monkeypatch.setattr(setup_app, "_cli_detection", detection)
+    with pytest.raises(Rerun):
+        setup_app._cli_cards(None, None, "review_", {})
+    assert not state
+    detection.assert_not_called()
+
+
+def test_model_setup_defaults_to_english_and_translates_sign_in_actions(monkeypatch):
+    from vasp_slurm_agent.i18n import current_language, set_language
+
+    detected(monkeypatch, codex_signed_in=False)
+    assert current_language() == "en"
+    view = chat_app()
+    assert widget(view.button, "Sign in") and widget(view.button, "Install and sign in")
+    set_language("zh")
+    view.run()
+    assert not view.exception
+    assert widget(view.button, "登录") and widget(view.button, "安装并登录")
+
+
+def models_listed(monkeypatch, answers):
+    """The free model-list check, answered per address: (status, models) or a callable."""
+    from vasp_slurm_agent import model_connect
+    asked = []
+
+    def list_models(provider, key, base_url, **kwargs):
+        asked.append(base_url)
+        answer = answers.get(base_url, answers.get("*", ("ok", [])))
+        return answer(key) if callable(answer) else answer
+    monkeypatch.setattr(model_connect, "list_models", list_models)
+    return asked
 
 
 def test_api_key_provider_connects_in_one_step_and_keeps_the_key_out_of_state(monkeypatch, keychain):
@@ -530,23 +661,313 @@ def test_api_key_provider_connects_in_one_step_and_keeps_the_key_out_of_state(mo
     detected(monkeypatch, codex_signed_in=False)
     probe = Mock(return_value={"auth_status": "available", "connection_status": "connected", "detail": "Mock model probe."})
     monkeypatch.setattr(ConnectionRegistry, "_probe_model", probe)
+    asked = models_listed(monkeypatch, {"https://api.openai.com/v1": ("ok", ["gpt-6.1-sol", "gpt-5", "text-embedding-3-large"])})
     view = chat_app(project["id"])
     widget(view.pills, "Provider").set_value("responses").run()
     assert widget(view.text_input, "Model name").value == "gpt-6.1-sol"
     secure = widget(view.text_input, "API key")
     assert secure.proto.type == secure.proto.PASSWORD
+    assert any(button.label == "Open the OpenAI key page" for button in view.get("link_button"))
     widget(view.button, "Connect").click().run()
-    assert not view.exception and any("Enter the API key" in item.value for item in view.error)
-    assert not registry.project_connections(project["id"])  # nothing bound without a usable credential
+    assert not view.exception and any("Paste the API key first" in item.value for item in view.error)
+    assert not registry.project_connections(project["id"]) and not asked  # nothing checked or bound without a key
     view = chat_app(project["id"])
     widget(view.pills, "Provider").set_value("responses").run()
-    widget(view.text_input, "API key").set_value("sk-test-1234567890abcdef")
+    # Copying often adds spaces or a line break; they are removed.
+    widget(view.text_input, "API key").set_value("  sk-test-1234567890abcdef\n")
     widget(view.button, "Connect").click().run()
     assert not view.exception and not view.error
     record = next(item for item in registry.project_connections(project["id"]) if item["has_secret"])
     assert record["settings"] == {"provider": "responses", "model": "gpt-6.1-sol", "base_url": None, "cli_path": None}
-    assert keychain.values and "sk-test" not in json.dumps({key: str(value) for key, value in view.session_state.items()})
+    assert keychain.values and "sk-test-1234567890abcdef" in keychain.values.values()
+    assert "sk-test" not in json.dumps({key: str(value) for key, value in view.session_state.items()})
     assert record["connection_status"] == "connected"
+    probe.assert_called_once()
+    assert any("Model: gpt-6.1-sol" in item.value for item in view.caption)
+
+
+def test_keychain_failure_keeps_one_recoverable_model_without_binding_it(monkeypatch, keychain):
+    registry = ConnectionRegistry()
+    project = registry.workspace.create_project("Study")["id"]
+    detected(monkeypatch)
+    models_listed(monkeypatch, {"*": ("ok", ["gpt-6.1-sol"])})
+    probe = Mock(return_value={"auth_status": "available", "connection_status": "connected", "detail": "ok"})
+    monkeypatch.setattr(ConnectionRegistry, "_probe_model", probe)
+    store = keychain.set_password
+    monkeypatch.setattr(keychain, "set_password", Mock(side_effect=OSError("Keychain locked")))
+    view = chat_app(project)
+    widget(view.pills, "Provider").set_value("responses").run()
+    widget(view.text_input, "API key").set_value("sk-recoverable-test")
+    widget(view.button, "Connect").click().run()
+    assert not view.exception and any("Check the system keychain" in item.value for item in view.error)
+    assert not registry.project_connections(project) and len(registry.list(kind="model")) == 1
+    probe.assert_not_called()
+    assert "sk-recoverable-test" not in str(dict(view.session_state.items()))
+    assert widget(view.text_input, "API key").proto.type == widget(view.text_input, "API key").proto.PASSWORD
+
+    monkeypatch.setattr(keychain, "set_password", store)
+    widget(view.text_input, "API key").set_value("  sk-recovered-test\n")
+    widget(view.button, "Save credential").click().run()
+    widget(view.button, "Test connection").click().run()
+    widget(view.button, "Use in this project").click().run()
+    assert not view.exception and any("Model connected" in item.value for item in view.success)
+    assert len(registry.list(kind="model")) == len(registry.project_connections(project)) == 1
+    assert "sk-recovered-test" in keychain.values.values()
+    assert "sk-recovered-test" not in str(dict(view.session_state.items()))
+
+
+def test_saved_model_edit_failure_is_visible_and_retry_survives_restart(monkeypatch, keychain):
+    registry = ConnectionRegistry()
+    record = registry.create("model", "My API", {"provider": "responses", "model": "first-model"})
+    registry.set_secret(record["id"], "sk-saved-test")
+    detected(monkeypatch)
+    probe = Mock(return_value={"auth_status": "available", "connection_status": "connected", "detail": "ok"})
+    monkeypatch.setattr(ConnectionRegistry, "_probe_model", probe)
+    view = chat_app()
+    widget(view.button, "My API").click().run()
+    widget(view.text_input, "Model name").set_value("m" * 201).run()
+    widget(view.button, "Save and test").click().run()
+    assert not view.exception and view.error
+    assert registry.get(record["id"])["settings"]["model"] == "first-model"
+    probe.assert_not_called()
+    widget(view.text_input, "Model name").set_value("second-model").run()
+    widget(view.button, "Save and test").click().run()
+    assert not view.exception and not view.error
+    assert registry.get(record["id"])["settings"]["model"] == "second-model"
+    probe.assert_called_once()
+    reopened = chat_app()
+    widget(reopened.button, "My API").click().run()
+    assert widget(reopened.text_input, "Model name").value == "second-model"
+    assert widget(reopened.text_input, "API key").value == ""
+    assert "sk-saved-test" not in str(dict(reopened.session_state.items()))
+
+
+def test_model_setup_keeps_project_selection_and_credentials_separate(monkeypatch, keychain):
+    registry = ConnectionRegistry()
+    first = registry.workspace.create_project("First")["id"]
+    second = registry.workspace.create_project("Second")["id"]
+    detected(monkeypatch)
+    models_listed(monkeypatch, {"*": ("ok", ["gpt-6.1-sol", "deepseek-flash"])})
+    monkeypatch.setattr(ConnectionRegistry, "_probe_model", Mock(return_value={
+        "auth_status": "available", "connection_status": "connected", "detail": "ok"}))
+    view = AppTest.from_string(f"""
+import streamlit as st
+from vasp_slurm_agent.connections import ConnectionRegistry
+from vasp_slurm_agent.setup_app import chat_panel
+project = st.selectbox('Project', {[first, second]!r})
+chat_panel(ConnectionRegistry(), project)
+""").run()
+    widget(view.pills, "Provider").set_value("responses").run()
+    widget(view.text_input, "API key").set_value("sk-first-project")
+    widget(view.button, "Connect").click().run()
+    first_model = registry.project_connections(first)[0]
+    widget(view.selectbox, "Project").select(second).run()
+    assert not registry.project_connections(second)
+    assert not any("Model connected" in item.value for item in view.success)
+    widget(view.pills, "Provider").set_value("deepseek").run()
+    assert widget(view.text_input, "API key").value == ""
+    widget(view.text_input, "API key").set_value("sk-second-project")
+    widget(view.button, "Connect").click().run()
+    second_model = registry.project_connections(second)[0]
+    assert first_model["id"] != second_model["id"]
+    widget(view.selectbox, "Project").select(first).run()
+    assert not view.exception and any("Model: gpt-6.1-sol" in item.value for item in view.caption)
+    assert not any("deepseek-flash" in item.value for item in view.caption)
+    assert "sk-first-project" not in str(dict(view.session_state.items()))
+    assert "sk-second-project" not in str(dict(view.session_state.items()))
+    assert registry.project_connections(first)[0]["id"] == first_model["id"]
+
+
+def test_a_key_typed_for_one_provider_is_not_offered_to_another(monkeypatch, keychain):
+    detected(monkeypatch)
+    asked = models_listed(monkeypatch, {"*": ("rejected", [])})
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("deepseek").run()
+    widget(view.text_input, "API key").set_value("sk-deepseek-only")
+    widget(view.pills, "Provider").set_value("qwen").run()
+    assert widget(view.text_input, "API key").value == ""
+    widget(view.button, "Connect").click().run()
+    assert not asked and any("Paste the API key first" in item.value for item in view.error)
+
+
+def test_qwen_key_finds_its_region_by_itself(monkeypatch, keychain):
+    from vasp_slurm_agent.model_connect import REGIONS
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    monkeypatch.setattr(ConnectionRegistry, "_probe_model", Mock(return_value={"auth_status": "available", "connection_status": "connected", "detail": "ok"}))
+    beijing, singapore = REGIONS["qwen"][0][1], REGIONS["qwen"][1][1]
+    asked = models_listed(monkeypatch, {"*": ("rejected", []), singapore: ("ok", ["qwen-max", "qwen-plus", "qwen-vl-plus"])})
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("qwen").run()
+    assert not any(item.label == "API address" and item.value for item in view.text_input)
+    widget(view.text_input, "API key").set_value("sk-qwen-test-key")
+    widget(view.button, "Connect").click().run()
+    # An English interface tries the international regions first and stops at the one that accepts the key.
+    assert not view.exception and not view.error and asked == [singapore] and beijing not in asked
+    record = registry.list(kind="model")[0]
+    assert record["settings"]["base_url"] == singapore and record["settings"]["model"] == "qwen-plus"
+    assert any("Region: Singapore" in item.value for item in view.caption)
+
+
+def test_a_rejected_key_is_explained_and_nothing_is_saved(monkeypatch, keychain):
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    models_listed(monkeypatch, {"*": ("rejected", [])})
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("responses").run()
+    widget(view.text_input, "API key").set_value("sk-ant-api03-wrong-provider")
+    widget(view.button, "Connect").click().run()
+    assert not view.exception and not registry.list(kind="model") and not keychain.values
+    message = " ".join(item.value for item in view.error)
+    assert "did not accept this key" in message and "It looks like a Claude key: choose Claude above." in message
+    assert any(button.label == "Create a new key" for button in view.get("link_button"))
+
+
+def test_no_credit_after_a_valid_key_points_to_top_up(monkeypatch, keychain):
+    from vasp_slurm_agent import agent
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    models_listed(monkeypatch, {"*": ("ok", ["deepseek-flash", "deepseek-v4-pro"])})
+
+    def broke(*args, **kwargs):
+        raise agent.AgentError("DeepSeek API credit or spending limit was reached.", code="credit")
+    monkeypatch.setattr(agent, "_request_structured", broke)
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("deepseek").run()
+    widget(view.text_input, "API key").set_value("sk-deepseek-test")
+    widget(view.button, "Connect").click().run()
+    assert not view.exception
+    record = registry.list(kind="model")[0]
+    assert record["connection_status"] == "error" and record["probe"]["error_code"] == "credit"
+    assert any("no API credit" in item.value for item in view.error)
+    assert [button.proto.url for button in view.get("link_button") if button.label == "Top up"] == ["https://platform.deepseek.com/top_up"]
+
+
+def test_a_model_that_cannot_answer_in_the_format_gives_way_to_the_next(monkeypatch, keychain):
+    from vasp_slurm_agent import agent
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    models_listed(monkeypatch, {"*": ("ok", ["glm-5.3", "glm-5.2", "glm-4.6"])})
+    tried = []
+
+    def answer(payload, schema, settings, **kwargs):
+        tried.append(settings.model if hasattr(settings, "model") else None)
+        if len(tried) == 1:
+            raise agent.AgentError("GLM rejected the request format.", code="format")
+        return agent.ModelResponse('{"status":"connected"}', {})
+    monkeypatch.setattr(agent, "_request_structured", answer)
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("glm").run()
+    widget(view.text_input, "API key").set_value("0123456789abcdef0123456789abcdef.ABCDEFGHIJKLMNOP")
+    widget(view.button, "Connect").click().run()
+    assert not view.exception and not view.error
+    record = registry.list(kind="model")[0]
+    assert record["connection_status"] == "connected" and record["settings"]["model"] == "glm-5.2" and len(tried) == 2
+
+
+def test_local_model_servers_are_found_and_connected(monkeypatch):
+    from vasp_slurm_agent import model_connect
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    monkeypatch.setattr(ConnectionRegistry, "_probe_model", Mock(return_value={"auth_status": "available", "connection_status": "connected", "detail": "ok"}))
+    servers = []
+    monkeypatch.setattr(model_connect, "local_servers", lambda **kwargs: list(servers))
+    models_listed(monkeypatch, {"http://127.0.0.1:11434/v1": ("ok", ["qwen3:8b"])})
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("local").run()
+    assert widget(view.button, "Connect").disabled and any("No model server is running" in item.value for item in view.info)
+    servers.append({"name": "Ollama", "base_url": "http://127.0.0.1:11434/v1", "models": ["qwen3:8b"]})
+    widget(view.button, "Look for local servers again").click().run()
+    widget(view.button, "Connect").click().run()
+    assert not view.exception
+    record = registry.list(kind="model")[0]
+    assert record["settings"] == {"provider": "local", "model": "qwen3:8b", "base_url": "http://127.0.0.1:11434/v1", "cli_path": None}
+
+
+def test_local_model_on_a_custom_port_can_be_entered_manually(monkeypatch):
+    from vasp_slurm_agent import model_connect
+
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    monkeypatch.setattr(model_connect, "local_servers", lambda **kwargs: [])
+    monkeypatch.setattr(ConnectionRegistry, "_probe_model", Mock(return_value={
+        "auth_status": "available", "connection_status": "connected", "detail": "ok"}))
+    asked = models_listed(monkeypatch, {"http://127.0.0.1:19000/v1": ("ok", ["custom-model"])})
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("local").run()
+    widget(view.button, "Connect local server").click().run()
+    assert not asked and not registry.list(kind="model")
+    assert any("Enter the local server's API address" in item.value for item in view.error)
+    widget(view.text_input, "API address").set_value("http://127.0.0.1:19000/v1")
+    widget(view.text_input, "Model name").set_value("custom-model")
+    widget(view.button, "Connect local server").click().run()
+    assert not view.exception and not view.error
+    record = registry.list(kind="model")[0]
+    assert record["connection_status"] == "connected" and not record["has_secret"]
+    assert record["settings"]["base_url"] == "http://127.0.0.1:19000/v1"
+    assert record["settings"]["model"] == "custom-model"
+
+
+def test_compatible_api_tries_the_v1_address_too(monkeypatch, keychain):
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    monkeypatch.setattr(ConnectionRegistry, "_probe_model", Mock(return_value={"auth_status": "available", "connection_status": "connected", "detail": "ok"}))
+    asked = models_listed(monkeypatch, {"https://llm.example.org": ("unsupported", []), "https://llm.example.org/v1": ("ok", ["kimi-k3"])})
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("chat_completions").run()
+    widget(view.text_input, "API address").set_value("https://llm.example.org")
+    widget(view.text_input, "API key").set_value("sk-compatible")
+    widget(view.button, "Connect").click().run()
+    assert not view.exception and not view.error and asked == ["https://llm.example.org", "https://llm.example.org/v1"]
+    record = registry.list(kind="model")[0]
+    assert record["settings"]["model"] == "kimi-k3" and record["settings"]["base_url"] == "https://llm.example.org/v1"
+
+
+@pytest.mark.parametrize("provider,address", [
+    ("local", "https://remote.example.org/v1"),
+    ("chat_completions", "https://user:private-value@api.example.org/v1"),
+])
+def test_invalid_api_address_shows_guidance_before_any_request(monkeypatch, provider, address):
+    from vasp_slurm_agent import model_connect
+
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    monkeypatch.setattr(model_connect, "local_servers", lambda **kwargs: [])
+    get = Mock(side_effect=AssertionError("Invalid addresses must not send credentials."))
+    monkeypatch.setattr(model_connect, "_get", get)
+    view = chat_app()
+    widget(view.pills, "Provider").set_value(provider).run()
+    widget(view.text_input, "API address").set_value(address)
+    widget(view.text_input, "Model name").set_value("test-model")
+    if provider != "local":
+        widget(view.text_input, "API key").set_value("private-api-key")
+    widget(view.button, "Connect local server" if provider == "local" else "Connect").click().run()
+    assert not view.exception and not registry.list(kind="model")
+    assert any("Check the API address." in item.value for item in view.error)
+    get.assert_not_called()
+    assert "private-api-key" not in str(dict(view.session_state.items()))
+
+
+def test_invalid_model_name_keeps_the_form_available_for_retry(monkeypatch, keychain):
+    registry = ConnectionRegistry()
+    detected(monkeypatch)
+    probe = Mock(return_value={"auth_status": "available", "connection_status": "connected", "detail": "ok"})
+    monkeypatch.setattr(ConnectionRegistry, "_probe_model", probe)
+    models_listed(monkeypatch, {"*": ("ok", [])})
+    view = chat_app()
+    widget(view.pills, "Provider").set_value("chat_completions").run()
+    widget(view.text_input, "API address").set_value("https://api.example.org/v1")
+    widget(view.text_input, "Model name").set_value("x" * 201)
+    widget(view.text_input, "API key").set_value("private-api-key")
+    widget(view.button, "Connect").click().run()
+    assert not view.exception and view.error and not registry.list(kind="model")
+    probe.assert_not_called()
+    assert "private-api-key" not in str(dict(view.session_state.items()))
+    widget(view.text_input, "Model name").set_value("valid-model")
+    widget(view.text_input, "API key").set_value("private-api-key")
+    widget(view.button, "Connect").click().run()
+    assert not view.exception and not view.error
+    assert registry.list(kind="model")[0]["settings"]["model"] == "valid-model"
     probe.assert_called_once()
 
 

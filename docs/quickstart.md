@@ -2,7 +2,7 @@
 
 ## 1. Install and create a project
 
-Download [v0.4.5](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5),
+Download [v0.4.6](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.6),
 install the Mac `.dmg` or Windows `.exe`, and open **DFT Agent**.
 Python and model SDKs are included. Linux and source installations are covered
 in [Install](install.md).
@@ -16,12 +16,15 @@ within the selected project.
 
 Open **Connections → Model**:
 
-- **Codex CLI or Claude Code CLI:** install and sign in to the CLI on this
-  computer, then select it in the app. Use **Check again** after installation.
-- **API:** choose a provider, enter an available **Model name** and **API key**,
-  then click **Connect**. Qwen and compatible services also need an **API address**.
-- **Local model:** start a compatible local server and supply its model name
-  and loopback API address.
+- **Codex CLI or Claude Code CLI:** uses a ChatGPT or Claude plan you already
+  have. Each card shows its next step; **Install and sign in** opens a terminal
+  window that installs the CLI and starts its sign-in in your browser. When you
+  have signed in, the card offers **Connect**.
+- **API:** choose a provider, paste its API key and click **Connect**. The app
+  checks the region and available models. **Compatible API** also needs the
+  address and model name from your provider.
+- **Local model:** start a compatible local server, select it and click **Connect**.
+  Use **Other local server** for a custom address or port.
 
 The connection test makes a real model request. Saved connections can be
 checked again with **Test connection**. API keys are stored in the system

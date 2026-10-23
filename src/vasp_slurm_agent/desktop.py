@@ -207,7 +207,7 @@ def _check_project_bundle(root):
     from . import project_files
     from .runtime import cli_command
 
-    for resource in ("agent_runner.py", "cli_tools.py", "mcp_server.py", "ssh_broker.py", "project_app.py",
+    for resource in ("agent_runner.py", "cli_tools.py", "cli_setup.py", "model_connect.py", "mcp_server.py", "ssh_broker.py", "project_app.py",
                      "project_execution.py", "project_analysis.py", "project_input_artifacts.py"):
         assert files("vasp_slurm_agent").joinpath(resource).is_file()
     original = dict(os.environ)
@@ -222,6 +222,7 @@ def _check_project_bundle(root):
         assert not app.exception, str(app.exception)
         assert app.chat_input[0].disabled
         assert {"Connect a model", "Connect a cluster"} <= {item.label for item in app.button}
+        _check_model_setup_bundle(root, app)
         workspace = Workspace()
         project = workspace.list_projects()[0]
         project_files.write_file(workspace, project["id"], "files/Si.cif",
@@ -251,6 +252,71 @@ def _check_project_bundle(root):
     finally:
         os.environ.clear()
         os.environ.update(original)
+
+
+def _check_model_setup_bundle(root, app):
+    """Exercise the installed setup modules without credentials or external services."""
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    import threading
+    from . import cli_setup, cli_tools, model_connect
+
+    original_detect = cli_tools.detect
+    try:
+        cli_tools.detect = lambda providers=("codex", "claude_cli"), **kwargs: [
+            {"provider": provider, "label": cli_tools.LABELS[provider], "installed": False,
+             "path": None, "version": None, "logged_in": None, "detail": "Not installed."}
+            for provider in providers]
+        next(item for item in app.button if item.label == "Connect a model").click().run(timeout=60)
+        assert not app.exception, str(app.exception)
+        assert sum(item.label == "Install and sign in" for item in app.button) == 2
+        next(item for item in app.pills if item.label == "Provider").set_value("responses").run(timeout=60)
+        assert not app.exception, str(app.exception)
+        assert any(item.label == "API key" for item in app.text_input)
+    finally:
+        cli_tools.detect = original_detect
+
+    launched = []
+    item = {"installed": True, "logged_in": False, "path": str(root / "CLI tools 研究者" / "codex"),
+            "version": (1, 0, 0, 1)}
+    script = cli_setup.open_terminal("codex", item, {key: "Setup test 研究者" for key in cli_setup.MESSAGES},
+        launch=lambda arguments, **kwargs: launched.append((arguments, kwargs)), which=lambda name: "/usr/bin/" + name)
+    try:
+        text = script.read_text(encoding="utf-8-sig")
+        assert item["path"] in text and "研究者" in text
+        assert len(launched) == 1 and launched[0][0][-1] == str(script)
+        if sys.platform == "win32":
+            assert script.read_bytes().startswith(b"\xef\xbb\xbf")
+            assert launched[0][0][0] == "powershell.exe" and launched[0][1]["creationflags"]
+        elif sys.platform == "darwin":
+            assert launched[0][0][:3] == ["open", "-a", "Terminal"]
+    finally:
+        script.unlink(missing_ok=True)
+        script.parent.rmdir()
+
+    requests = []
+    class Models(BaseHTTPRequestHandler):
+        def do_GET(self):
+            requests.append((self.path, self.headers.get("Authorization")))
+            body = b'{"data":[{"id":"dft-package-test"}]}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    with ThreadingHTTPServer(("127.0.0.1", 0), Models) as server:
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            result = model_connect.list_models("local", "", f"http://127.0.0.1:{server.server_port}/v1")
+            assert result == ("ok", ["dft-package-test"]), result
+            assert requests == [("/v1/models", None)]
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
 
 
 def _check_broker_bundle(root):
@@ -378,6 +444,7 @@ def check_bundle(output):
                   "native_keychain": sys.platform in {"darwin", "win32"},
                   "ssh_broker_lifecycle": sys.platform in {"darwin", "win32"},
                   "windows_npm_cli": npm_cli,
+                  "model_setup_ui": True, "cli_setup_script": True, "model_list_http": True,
                   "project_ui": True, "project_persistence": True, "mcp_subprocess": True,
                   "plot_exports": True, "qe_catalogues": True, "qe_input_preparation": True,
                   "qe_install_plan": True}

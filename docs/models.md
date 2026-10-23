@@ -10,20 +10,55 @@ projects through **Use an existing connection → Connect to project**.
 
 ## Codex CLI or Claude Code CLI
 
-Install the CLI on the computer running DFT Agent, then sign in through its
-terminal interface:
+These are the official command-line tools of OpenAI and Anthropic. They use a
+plan you already have, so no API key is needed:
 
-| CLI | Sign in | Installation |
+| CLI | Account | Official setup |
 | --- | --- | --- |
-| Codex CLI | `codex login` | [Codex CLI](https://developers.openai.com/codex/cli) |
-| Claude Code CLI | `claude` | [Claude Code](https://code.claude.com/docs/en/setup) |
+| Codex CLI | ChatGPT Plus, Pro, Business, Edu or Enterprise | [Codex CLI](https://developers.openai.com/codex/cli) |
+| Claude Code CLI | Claude Pro, Max, Team or Enterprise, or an Anthropic Console account | [Claude Code](https://code.claude.com/docs/en/setup) |
 
-In **Connections → Model**, click **Check again** after installation, then
-select the CLI. DFT Agent detects its sign-in status and tests it with a real
-request. Signing in to a chat website alone does not sign in the CLI. The CLI
-uses its configured account and applicable quota or billing; no separate API
-key is entered in DFT Agent for this route. Nothing needs to be installed on
-the cluster for model access.
+**Connections → Model** shows a card for each with three steps: install, sign
+in, connect. The card offers only the next step:
+
+1. **Install and sign in** opens a terminal window that runs the official
+   installer and then the sign-in. The installers need neither Node.js nor
+   administrator rights and put the program in your user folder.
+2. The sign-in opens a page in your browser. Sign in there; the terminal says
+   when it is done. Signing in to the chat website alone does not sign in the
+   CLI.
+3. Back in DFT Agent, the card notices the sign-in by itself within a few
+   seconds and offers **Connect**, which tests the CLI with a real request.
+
+A CLI that is installed but signed out offers **Sign in** instead.
+Use **Stop checking** to stop watching the sign-in status. Nothing is
+installed or signed in without that visible terminal window, and the sign-in
+never passes through DFT Agent. If the window cannot open, or you prefer to
+type yourself, **Do it yourself in a terminal** shows the same commands and
+how to open a terminal. On macOS:
+
+```bash
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
+```
+
+```bash
+codex login
+```
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+```bash
+claude auth login
+```
+
+On Windows, open PowerShell and use `irm https://chatgpt.com/codex/install.ps1 | iex`
+or `irm https://claude.ai/install.ps1 | iex` instead. An installation that
+needs network access the computer does not have, such as a blocked site,
+stops with a message; an API key is the alternative then. The CLI uses its own
+account and quota or billing. Nothing needs to be installed on the cluster for
+model access.
 
 CLI connections offer two modes, **Automatic** and **Step by step**. Automatic
 lets the CLI inspect project files and use the app's tools across several
@@ -33,41 +68,54 @@ in the app.
 
 ## API providers
 
-1. Create an API key with your provider and check its billing or credits.
-   Chat subscriptions do not automatically include API access.
-2. Under **Connections → Model**, choose the provider below the CLI options.
-3. Check **Model name** and enter the exact ID available to your account.
-   The prefilled example is editable and may not be available to every account.
-4. Paste the key into **API key**, then click **Connect**.
+Choose the provider below the CLI cards. Its card walks through three steps:
 
-| Provider | Account or setup | Address in this interface |
+1. **Get an API key.** The card names the site, links to its key page and
+   reminds you that API use is paid separately from chat memberships: add
+   credit there first.
+2. **Paste the key.** Spaces, line breaks and quotes that copying adds are
+   removed.
+3. **Connect.** The app checks the provider's model list and tries the known
+   Qwen or GLM regions. It selects an available model when the default is
+   missing, then tests it with a small structured request. If necessary, it
+   tries up to two alternatives. These test requests use your account's tokens.
+   Some accounts restrict model discovery; the app then tests the model directly.
+
+Errors explain what to check next, such as the key, permissions, API credit
+or network. Use **Change the model** on a saved connection to choose another.
+
+| Provider | Key page | Address |
 | --- | --- | --- |
-| OpenAI | [API keys](https://platform.openai.com/api-keys) | Preset |
-| Claude | [API keys](https://platform.claude.com/settings/keys) | Preset |
-| Qwen | [Model Studio](https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope) | Enter your workspace's regional base URL |
-| Grok | [xAI console](https://console.x.ai/) | Preset |
-| GLM | [Z.AI](https://docs.z.ai/api-reference/llm/chat-completion) | Z.AI preset |
-| DeepSeek | [API guide](https://api-docs.deepseek.com/en) | Preset |
-| Compatible API | Your provider | Enter its base URL |
+| OpenAI | [platform.openai.com](https://platform.openai.com/api-keys) | Preset |
+| Claude | [platform.claude.com](https://platform.claude.com/settings/keys) | Preset |
+| Qwen | [bailian.console.aliyun.com](https://bailian.console.aliyun.com/?apiKey=1), or [Model Studio](https://modelstudio.console.alibabacloud.com/ap-southeast-1/settings/api-key) outside mainland China | Found from the key |
+| DeepSeek | [platform.deepseek.com](https://platform.deepseek.com/api_keys) | Preset |
+| GLM | [bigmodel.cn](https://bigmodel.cn/usercenter/proj-mgmt/apikeys), or [z.ai](https://z.ai/manage-apikey/apikey-list) outside mainland China | Found from the key |
+| Grok | [console.x.ai](https://console.x.ai/) | Preset |
+| Compatible API | Your provider | Enter its address; `/v1` is tried when missing |
 
-Qwen keys and addresses must belong to the same region and workspace. Use
-the OpenAI-compatible base URL ending in `/compatible-mode/v1`.
-For a different endpoint, choose **Compatible API** and supply its URL, key
-and model ID. A compatible name alone is insufficient: that route requires
-the structured-output request format used by the app.
+A Qwen workspace with its own address can enter it under **Advanced
+settings**. **Compatible API** asks for the address, key and model name your
+provider gives you, and lists the provider's models when it can. A
+compatible name alone is insufficient: that route requires the
+structured-output request format used by the app, which the test request
+checks.
 
 OpenAI uses Responses, Claude uses its native Messages API, and the other
 presets use Chat Completions. API connections work **Step by step**. Every plan
-is checked locally before it can become a calculation. Provider adapters
-have offline tests; this does not establish live success for every model or
-account. No live Claude API acceptance is claimed.
+is checked locally before it can become a calculation. A successful test
+confirms the selected model and account, not every provider or model.
 
 ## Local model
 
-Start an OpenAI-compatible server on this computer. Select **Local model**,
-enter **Model name** and its loopback **API address**, then **Connect**.
-No API key is saved for this route. Use a model and server that support the
-required structured responses. A remote server uses **Compatible API** instead.
+Start an OpenAI-compatible server on this computer, for example Ollama:
+install it from ollama.com and download a model with `ollama pull qwen3`.
+Select **Local model**: servers of Ollama, LM Studio, llama.cpp and vLLM on
+their usual ports are found with their models. Choose one and **Connect**.
+For another port, use **Other local server** and enter the loopback API address
+and model name. No API key is saved for this route. Small models may plan poorly; the test
+request checks that the model gives structured answers. A remote server uses
+**Compatible API** instead.
 
 ## Test and use it
 
@@ -104,8 +152,8 @@ for the data in that project. Keep the app local.
 
 | Symptom | What to check |
 | --- | --- |
-| CLI missing or signed out | Install/update it, sign in in a terminal, then **Check again** or **Test connection**. |
-| Key rejected or access denied | Use a valid key for the provider and check model/workspace permissions. |
+| CLI missing or signed out | Use the card's **Install and sign in** or **Sign in**; a saved connection then needs **Test connection**. |
+| Key rejected or access denied | The card says which: copy the key again in full or make a new one with the link, or choose another model. |
 | Model or endpoint not found | Check the exact model ID and address; create the corrected connection. |
 | Quota, billing or rate limit | Check the provider's account dashboard; retry after the limit clears. |
 | Timeout or network failure | Check connectivity and the provider endpoint. |
