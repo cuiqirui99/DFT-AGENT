@@ -58,6 +58,6 @@ Open **Settings → Legacy workbench → Runs → Load sample runs** to browse t
 
 Cui, Q. (2026). *DFT Agent* (v0.4.6). [Source](https://github.com/cuiqirui99/DFT-AGENT).
 
-[Archived v0.4.4](https://doi.org/10.5281/zenodo.23476235).
+[Archived v0.4.6](https://doi.org/10.5281/zenodo.23599768).
 
 [Install](docs/install.md) · [Windows](docs/windows.md) · [Methods](docs/methods.md) · [Input defaults](docs/input-defaults.md) · [CLI examples](docs/examples.md) · [VASP validation](docs/validation-0.4.1.md) · [QE validation](validation/qe-0.4.3/README.md) · [ABINIT, CP2K, Elk checks](docs/validation-0.4.5.md) · [MIT license](LICENSE) · [Notices](NOTICE.md) · [Citation](CITATION.cff)
