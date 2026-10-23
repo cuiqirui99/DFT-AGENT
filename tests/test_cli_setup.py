@@ -64,7 +64,7 @@ def test_macos_opens_terminal_with_a_script_that_installs_then_signs_in(home):
     assert "if ! curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh; then" in lines
     assert f"if ! {shlex.quote(str(home / '.local' / 'bin' / 'codex'))} login; then" in lines
     # Signing in starts only after the install worked and the program is where the installer puts it.
-    assert text.index("install.sh") < text.index("[ ! -x") < text.index("codex login")
+    assert text.index("install.sh") < text.index("[ ! -x") < text.index(shlex.quote(str(home / ".local" / "bin" / "codex")) + " login")
     for key in cli_setup.MESSAGES:
         assert f"<{key}>" in text
 

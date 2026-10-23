@@ -511,14 +511,18 @@ def test_signed_in_cli_connects_with_one_click(monkeypatch):
     assert widget(view.button, "Back to chat")
 
 
-def test_signed_out_cli_signs_in_through_a_terminal_and_the_card_follows(monkeypatch):
+@pytest.mark.parametrize("terminal_system,command", [
+    ("macos", "/mock/codex login"), ("windows", "& '/mock/codex' login"),
+])
+def test_signed_out_cli_signs_in_through_a_terminal_and_the_card_follows(monkeypatch, terminal_system, command):
     from vasp_slurm_agent import cli_setup
     registry = ConnectionRegistry()
     items = detected(monkeypatch, codex_signed_in=False)
     opened = []
     monkeypatch.setattr(cli_setup, "open_terminal", lambda provider, item, messages, **kwargs: opened.append((provider, item, messages, kwargs)))
+    monkeypatch.setattr(cli_setup, "system", lambda: terminal_system)
     view = chat_app()
-    assert any(item.value == "/mock/codex login" for item in view.code)   # the same step by hand
+    assert any(item.value == command for item in view.code)   # the same step by hand
     widget(view.button, "Sign in").click().run()
     assert not view.exception and not registry.list(kind="model")
     provider, item, messages, options = opened[0]
@@ -532,7 +536,10 @@ def test_signed_out_cli_signs_in_through_a_terminal_and_the_card_follows(monkeyp
     assert not any("this page updates by itself" in item.value for item in view.caption)
 
 
-def test_saved_cli_connection_that_signed_out_offers_the_same_steps(monkeypatch):
+@pytest.mark.parametrize("terminal_system,command", [
+    ("macos", "/mock/codex login"), ("windows", "& '/mock/codex' login"),
+])
+def test_saved_cli_connection_that_signed_out_offers_the_same_steps(monkeypatch, terminal_system, command):
     from vasp_slurm_agent import cli_setup
     registry = ConnectionRegistry()
     record = registry.create("model", "Codex CLI", {"provider": "codex"})
@@ -541,9 +548,10 @@ def test_saved_cli_connection_that_signed_out_offers_the_same_steps(monkeypatch)
     monkeypatch.setattr(ConnectionRegistry, "_probe_model", probe)
     opened = []
     monkeypatch.setattr(cli_setup, "open_terminal", lambda provider, item, messages, **kwargs: opened.append(provider))
+    monkeypatch.setattr(cli_setup, "system", lambda: terminal_system)
     view = chat_app()
     widget(view.button, "Codex CLI").click().run()
-    assert any(item.value == "/mock/codex login" for item in view.code)
+    assert any(item.value == command for item in view.code)
     widget(view.button, "Sign in").click().run()
     assert opened == ["codex"] and any("then click Test connection" in item.value for item in view.caption)
     widget(view.button, "Test connection").click().run()
