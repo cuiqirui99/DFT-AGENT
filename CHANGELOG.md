@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.5 — Unreleased
+## 0.4.5 — 2026-10-23
 
 - Add ABINIT 10, CP2K 2026 and Elk 10 for relaxation, SCF, bands and DOS, with spin, spin–orbit coupling and DFT+U where each code supports them. Plan them in chat and combine them with VASP and QE steps.
 - Install these codes from **Connections** without compiling: the app picks pinned conda-forge packages for the cluster's architecture and glibc, checks every hash, and verifies the installation with a silicon calculation. Each package set is checked for the glibc symbols and shared libraries its programs actually load, a failed installation can be planned again without rebuilding its environment, and installer downloads are removed once the test passes.
