@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.7 — 2026-10-26
+
+- Use orange accents and align interface colors with the selected light or dark theme.
+
 ## 0.4.6 — 2026-10-23
 
 - Install and sign in to Codex CLI or Claude Code from Connections, with automatic status checks and clear failure messages.

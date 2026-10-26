@@ -422,7 +422,7 @@ def _cli_card(registry, project_id, prefix, state, item):
             elif name == "sign_in" and item["logged_in"] and item.get("detail") not in (None, "Signed in"):
                 detail = " · " + item["detail"]
             if order.index(name) < order.index(step):
-                lines.append(f":green[:material/check_circle:] {t(label)}:gray[{detail}]")
+                lines.append(f":primary[:material/check_circle:] {t(label)}:gray[{detail}]")
             elif name == step:
                 lines.append(f":material/arrow_circle_right: **{t(label)}**")
             else:

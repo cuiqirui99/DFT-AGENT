@@ -1,8 +1,10 @@
 """Shared look of the local app: one small set of design tokens, applied to Streamlit's widgets.
 
-Light mode is warm paper with a deep teal accent; dark mode keeps the same
-hierarchy. Native system fonts keep the app offline-friendly and familiar on
-each platform. Classes prefixed `dfa-` are the app's own small components.
+Light mode is warm paper with the logo's orange, deepened so white text on it
+stays readable; dark mode uses the logo's own orange with dark text. Warnings
+are ochre so they never read as the accent. Native system fonts keep the app
+offline-friendly and familiar on each platform. Classes prefixed `dfa-` are the
+app's own small components.
 """
 
 import streamlit as st
@@ -15,37 +17,41 @@ LOGO = """<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidde
 </svg>"""
 
 _LIGHT = dict(bg="#f6f5f1", surface="#ffffff", raised="#fbfaf7", ink="#1d2733", muted="#6b7684", faint="#9aa3ae",
-              line="#e4e1da", line_strong="#cfcbc2", accent="#0f766e", accent_strong="#0b5d57", accent_soft="#e3f1ee",
-              ok="#15803d", ok_soft="#e7f5ec", warn="#b45309", warn_soft="#fbf0df", bad="#b91c1c", bad_soft="#fbe9e9",
-              code="#f1efe9", shadow="0 1px 2px rgba(29,39,51,.05), 0 8px 24px -16px rgba(29,39,51,.25)")
+              line="#e4e1da", line_strong="#cfcbc2", accent="#b34e0a", accent_strong="#914008", accent_soft="#fdeedc",
+              on_accent="#ffffff", ok="#15803d", ok_soft="#e7f5ec", warn="#8a5a00", warn_soft="#fdf5d3", bad="#b91c1c",
+              bad_soft="#fbe9e9", code="#f1efe9", shadow="0 1px 2px rgba(29,39,51,.05), 0 8px 24px -16px rgba(29,39,51,.25)")
 _DARK = dict(bg="#101317", surface="#171b21", raised="#1c2128", ink="#e7eaee", muted="#9aa4b1", faint="#6f7a88",
-             line="#262d36", line_strong="#36404b", accent="#5fd3c4", accent_strong="#8ae3d8", accent_soft="#15302e",
-             ok="#4ade80", ok_soft="#14281c", warn="#fbbf24", warn_soft="#2c2414", bad="#f87171", bad_soft="#2d1818",
-             code="#1f252d", shadow="0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8)")
+             line="#262d36", line_strong="#36404b", accent="#ffa62b", accent_strong="#ffc65c", accent_soft="#33220f",
+             on_accent="#1b1206", ok="#4ade80", ok_soft="#14281c", warn="#facc15", warn_soft="#2b2610", bad="#f87171",
+             bad_soft="#2d1818", code="#1f252d", shadow="0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8)")
 
 # Streamlit's own widgets (radio, pills, toggles, progress) take this accent instead of its default red.
-THEME_FLAGS = ("--theme.primaryColor=#0f766e",)
+THEME_FLAGS = (f"--theme.light.primaryColor={_LIGHT['accent']}", f"--theme.dark.primaryColor={_DARK['accent']}")
 
 FONT = ('-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Helvetica Neue", "PingFang SC", '
         '"Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif')
 MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
 
 
-def tokens():
-    return _DARK if st.context.theme.type == "dark" else _LIGHT
+def _variables(palette):
+    """The palette as custom properties: line_strong becomes --dfa-line-strong."""
+    return " ".join(f"--dfa-{name.replace('_', '-')}:{value};" for name, value in palette.items())
 
 
 def apply_style():
-    c = tokens()
+    # Streamlit sets color-scheme from its active theme, including saved user preferences.
+    # light-dark() follows it without a rerun; older WebKit keeps the current theme as a fallback.
+    palette = _DARK if st.context.theme.type == "dark" else _LIGHT
+    adaptive_colors = {name: f"light-dark({value}, {_DARK[name]})"
+                       for name, value in _LIGHT.items() if name != "shadow"}
     st.html(f"""<style>
-    .stApp {{
-        --dfa-bg:{c['bg']}; --dfa-surface:{c['surface']}; --dfa-raised:{c['raised']}; --dfa-ink:{c['ink']};
-        --dfa-muted:{c['muted']}; --dfa-faint:{c['faint']}; --dfa-line:{c['line']}; --dfa-line-strong:{c['line_strong']};
-        --dfa-accent:{c['accent']}; --dfa-accent-strong:{c['accent_strong']}; --dfa-accent-soft:{c['accent_soft']};
-        --dfa-ok:{c['ok']}; --dfa-ok-soft:{c['ok_soft']}; --dfa-warn:{c['warn']}; --dfa-warn-soft:{c['warn_soft']};
-        --dfa-bad:{c['bad']}; --dfa-bad-soft:{c['bad_soft']}; --dfa-code:{c['code']}; --dfa-shadow:{c['shadow']};
+    .stApp {{ {_variables(palette)}
         background:var(--dfa-bg); color:var(--dfa-ink);
         font-family:{FONT}; font-size:15px; -webkit-font-smoothing:antialiased; }}
+    @supports (color:light-dark(white, black)) {{ .stApp {{ {_variables(adaptive_colors)}
+        --dfa-shadow:0 1px 2px light-dark(rgba(29,39,51,.05), rgba(0,0,0,.4)),
+                     0 8px 24px -16px light-dark(rgba(29,39,51,.25), rgba(0,0,0,.8));
+    }} }}
     .stApp p, .stApp li, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp label, .stApp button, .stApp input, .stApp textarea,
     .stApp select, .stApp td, .stApp th, .stApp summary, .stApp [data-testid="stMarkdownContainer"] {{ font-family:{FONT}; }}
     /* Streamlit's icons are a font too; never override them. */
@@ -60,6 +66,7 @@ def apply_style():
     h1 {{ font-size:1.9rem !important; padding-bottom:.2rem !important; }}
     h2 {{ font-size:1.45rem !important; padding:.2rem 0 .6rem !important; }}
     h3 {{ font-size:1.12rem !important; padding:.3rem 0 .4rem !important; }}
+    .stApp [data-testid="stCaptionContainer"] {{ opacity:1; }}
     [data-testid="stCaptionContainer"] p {{ color:var(--dfa-muted); font-size:.86rem; line-height:1.5; }}
 
     /* sidebar */
@@ -71,6 +78,7 @@ def apply_style():
     .dfa-eyebrow {{ color:var(--dfa-accent); font-size:.72rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; margin-bottom:.35rem; }}
     .dfa-workspace {{ color:var(--dfa-ink); font-size:1.2rem; font-weight:650; margin-bottom:1.4rem; }}
     .dfa-section, [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {{ color:var(--dfa-faint); font-size:.68rem; font-weight:650; letter-spacing:.12em; text-transform:uppercase; margin-top:.4rem; }}
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {{ color:var(--dfa-muted); }}
     .dfa-version {{ display:inline-block; color:var(--dfa-muted); border:1px solid var(--dfa-line); border-radius:20px; padding:.3rem .7rem; font-size:.75rem; margin-top:.7rem; }}
 
     /* buttons and inputs */
@@ -80,7 +88,7 @@ def apply_style():
     [data-testid="stButton"] button:hover, [data-testid="stDownloadButton"] button:hover {{ border-color:var(--dfa-accent); color:var(--dfa-accent-strong); background:var(--dfa-raised); }}
     [data-testid="stButton"] button:focus-visible {{ outline:none; box-shadow:0 0 0 3px var(--dfa-accent-soft); }}
     [data-testid="stBaseButton-primary"], [data-testid="stButton"] button[kind="primary"],
-    [data-testid="stBaseButton-primaryFormSubmit"] {{ background:var(--dfa-accent) !important; border-color:var(--dfa-accent) !important; color:#fff !important; font-weight:600; }}
+    [data-testid="stBaseButton-primaryFormSubmit"] {{ background:var(--dfa-accent) !important; border-color:var(--dfa-accent) !important; color:var(--dfa-on-accent) !important; font-weight:600; }}
     [data-testid="stBaseButton-primary"]:hover, [data-testid="stButton"] button[kind="primary"]:hover,
     [data-testid="stBaseButton-primaryFormSubmit"]:hover {{ background:var(--dfa-accent-strong) !important; border-color:var(--dfa-accent-strong) !important; }}
     [data-testid="stBaseButton-primary"]:disabled, [data-testid="stBaseButton-primaryFormSubmit"]:disabled {{ opacity:.45; }}
@@ -136,11 +144,11 @@ def apply_style():
     .dfa-step {{ display:flex; gap:.8rem; align-items:flex-start; padding:.9rem 1rem; border:1px solid var(--dfa-line); border-radius:14px; background:var(--dfa-surface); min-height:7.4rem; }}
     .dfa-step .n {{ flex:0 0 1.7rem; height:1.7rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:700;
         border:1.5px solid var(--dfa-line-strong); color:var(--dfa-muted); background:var(--dfa-raised); }}
-    .dfa-step.done .n {{ background:var(--dfa-accent); border-color:var(--dfa-accent); color:#fff; }}
+    .dfa-step.done .n {{ background:var(--dfa-accent); border-color:var(--dfa-accent); color:var(--dfa-on-accent); }}
     .dfa-step.now .n {{ border-color:var(--dfa-accent); color:var(--dfa-accent-strong); }}
     .dfa-step .t {{ font-weight:600; font-size:.95rem; color:var(--dfa-ink); margin-bottom:.15rem; }}
     .dfa-step .s {{ font-size:.86rem; color:var(--dfa-muted); line-height:1.45; }}
-    .dfa-step.done .s {{ color:var(--dfa-ok); }}
+    .dfa-step.done .s {{ color:var(--dfa-accent-strong); }}
     .dfa-hello {{ font-size:1.75rem; font-weight:600; letter-spacing:-.03em; color:var(--dfa-ink); margin:2.5rem 0 .3rem; }}
     .dfa-sub {{ color:var(--dfa-muted); font-size:.98rem; margin-bottom:1.4rem; }}
     .dfa-muted {{ color:var(--dfa-muted); }}

@@ -2,7 +2,7 @@
 
 ![DFT Agent](docs/assets/dft-agent-logo.png)
 
-Version `0.4.6`. [中文说明](README.zh-CN.md)
+Version `0.4.7`. [中文说明](README.zh-CN.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology; [Anna Delin](https://www.kth.se/profile/annadel) · KTH Royal Institute of Technology
 
@@ -18,17 +18,17 @@ The built-in workflows cover structure edits, relaxation, SCF, bands, DOS, magne
 
 ## Install
 
-Download [v0.4.6](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.6):
+Download [v0.4.7](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.7):
 
 - **Apple Silicon Mac, macOS 14+:** open the `.dmg`, copy **DFT Agent** to Applications, then open it.
 - **Windows x64:** run the `.exe` installer, then open **DFT Agent** from the Start menu.
 
 Python and model SDKs are included. Codex CLI and Claude Code CLI are optional; the app installs either one and starts its sign-in when you ask it to.
 
-Or install from [PyPI](https://pypi.org/project/dft-agent/0.4.6/) with Python 3.11+:
+Or install from [PyPI](https://pypi.org/project/dft-agent/0.4.7/) with Python 3.11+:
 
 ```bash
-python -m pip install "dft-agent[agent]==0.4.6"
+python -m pip install "dft-agent[agent]==0.4.7"
 dft-agent ui
 ```
 
@@ -56,8 +56,8 @@ Open **Settings → Legacy workbench → Runs → Load sample runs** to browse t
 
 ## Citation
 
-Cui, Q. (2026). *DFT Agent* (v0.4.6). [Source](https://github.com/cuiqirui99/DFT-AGENT).
+Cui, Q. (2026). *DFT Agent* (v0.4.7). [Source](https://github.com/cuiqirui99/DFT-AGENT).
 
-[Archived v0.4.6](https://doi.org/10.5281/zenodo.23599768).
+[Archived v0.4.7](https://doi.org/10.5281/zenodo.23664781).
 
 [Install](docs/install.md) · [Windows](docs/windows.md) · [Methods](docs/methods.md) · [Input defaults](docs/input-defaults.md) · [CLI examples](docs/examples.md) · [VASP validation](docs/validation-0.4.1.md) · [QE validation](validation/qe-0.4.3/README.md) · [ABINIT, CP2K, Elk checks](docs/validation-0.4.5.md) · [MIT license](LICENSE) · [Notices](NOTICE.md) · [Citation](CITATION.cff)

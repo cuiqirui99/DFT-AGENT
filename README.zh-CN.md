@@ -2,7 +2,7 @@
 
 ![DFT Agent](docs/assets/dft-agent-logo.png)
 
-版本 `0.4.6`。[English](README.md)
+版本 `0.4.7`。[English](README.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH 皇家理工学院 · [ORCID](https://orcid.org/0009-0005-6165-3237)
 
@@ -12,17 +12,17 @@
 
 ## 安装
 
-从 [v0.4.6](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.6) 下载：
+从 [v0.4.7](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.7) 下载：
 
 - **Apple Silicon Mac，macOS 14+：**打开 `.dmg`，将 **DFT Agent** 拖入“应用程序”，再打开应用。
 - **Windows x64：**运行 `.exe` 安装程序，然后从开始菜单打开 **DFT Agent**。
 
 安装包内置 Python 和模型 SDK。Codex CLI、Claude Code CLI 为可选项，可以在应用里一键安装并开始登录。
 
-也可使用 Python 3.11+ 从 [PyPI](https://pypi.org/project/dft-agent/0.4.6/) 安装：
+也可使用 Python 3.11+ 从 [PyPI](https://pypi.org/project/dft-agent/0.4.7/) 安装：
 
 ```bash
-python -m pip install "dft-agent[agent]==0.4.6"
+python -m pip install "dft-agent[agent]==0.4.7"
 dft-agent ui
 ```
 
@@ -48,8 +48,8 @@ dft-agent ui
 
 ## 引用
 
-Cui, Q. (2026). *DFT Agent* (v0.4.6). [源码](https://github.com/cuiqirui99/DFT-AGENT).
+Cui, Q. (2026). *DFT Agent* (v0.4.7). [源码](https://github.com/cuiqirui99/DFT-AGENT).
 
-[v0.4.6 存档](https://doi.org/10.5281/zenodo.23599768)。
+[v0.4.7 存档](https://doi.org/10.5281/zenodo.23664781)。
 
 [安装](docs/install.md) · [Windows](docs/windows.md) · [方法](docs/methods.md) · [输入默认值](docs/input-defaults.md) · [命令行示例](docs/examples.md) · [VASP 验证](docs/validation-0.4.1.md) · [QE 验证](validation/qe-0.4.3/README.md) · [ABINIT/CP2K/Elk 检查](docs/validation-0.4.5.md) · [MIT 许可证](LICENSE) · [声明](NOTICE.md) · [引用](CITATION.cff)
