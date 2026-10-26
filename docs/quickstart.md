@@ -2,7 +2,7 @@
 
 ## 1. Install and create a project
 
-Download [v0.4.6](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.6),
+Download [v0.4.7](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.7),
 install the Mac `.dmg` or Windows `.exe`, and open **DFT Agent**.
 Python and model SDKs are included. Linux and source installations are covered
 in [Install](install.md).
@@ -89,9 +89,9 @@ Closing the browser does not cancel submitted jobs. Keep the computer running
 and connected for local monitoring and subsequent stages. Project files and
 history are kept under `~/.dft-agent/`; see [storage and updates](install.md#files-and-updates).
 
-## Legacy workbench
+## Classic workbench
 
-Open **Settings → Legacy workbench** for the previous interface, manual
+Open **Settings → Classic workbench** for the previous interface, manual
 preparation, sample runs and the Memory browser. Its **New calculation**,
 **Cluster setup** and **Runs** instructions belong to that view.
 

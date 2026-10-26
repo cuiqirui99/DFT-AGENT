@@ -1,9 +1,9 @@
 # Desktop builds
 
-Version `0.4.4` provides installers for Apple Silicon Macs running macOS 14
+Version `0.4.7` provides installers for Apple Silicon Macs running macOS 14
 or later and Windows x64. Python and the scientific/model SDKs are
 bundled; VASP, POTCAR files, cluster time, API credentials and model credits
-are not. Download the installers from [v0.4.4](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.4).
+are not. Download the installers from [v0.4.7](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.7).
 Codex CLI and Claude Code are optional external tools; install and sign in to
 either one, or use an API connection in the app.
 
@@ -23,7 +23,7 @@ app has passed its checks:
 mkdir -p dist/dmg
 cp -R 'dist/DFT Agent.app' dist/dmg/
 ln -s /Applications dist/dmg/Applications
-hdiutil create -volname 'DFT Agent' -srcfolder dist/dmg -ov -format UDZO dist/DFT-Agent-0.4.4-macOS-arm64.dmg
+hdiutil create -volname 'DFT Agent' -srcfolder dist/dmg -ov -format UDZO dist/DFT-Agent-0.4.7-macOS-arm64.dmg
 ```
 
 On Windows, the app folder is `dist/DFT Agent`. The

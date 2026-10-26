@@ -30,7 +30,7 @@ your IT team. [Microsoft's guidance](https://learn.microsoft.com/en-us/windows/a
 3. Return to chat, import a structure under **Files and runs → Files → Add files**,
    and describe the calculation. Review **Prepare inputs** before **Submit**.
 
-For offline samples and manual preparation, open **Settings → Legacy workbench**.
+For offline samples and manual preparation, open **Settings → Classic workbench**.
 The previous **Runs**, **New calculation** and **Cluster setup** pages remain there.
 
 ## Your first cluster setup

@@ -1,18 +1,16 @@
-# DFT Agent
+# DFT AGENT
 
-![DFT Agent](docs/assets/dft-agent-logo.png)
+![DFT Agent: VASP, Quantum ESPRESSO, ABINIT, CP2K and Elk](docs/assets/dft-agent-banner.png)
 
-Version `0.4.7`. [中文说明](README.zh-CN.md)
+**[Download v0.4.7](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.7)** · [macOS](https://github.com/cuiqirui99/DFT-AGENT/releases/download/v0.4.7/DFT-Agent-0.4.7-macOS-arm64.dmg) · [Windows](https://github.com/cuiqirui99/DFT-AGENT/releases/download/v0.4.7/DFT-Agent-0.4.7-Windows-x64.exe) · [Python](https://pypi.org/project/dft-agent/0.4.7/) · [Quickstart](docs/quickstart.md) · [中文](README.zh-CN.md)
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology; [Anna Delin](https://www.kth.se/profile/annadel) · KTH Royal Institute of Technology
 
-Describe a calculation, review its inputs, and run VASP, Quantum ESPRESSO, ABINIT, CP2K or Elk on your own HPC cluster. Each project keeps its files, conversations and results together. You can revise tasks in chat, combine engines in a workflow, and discuss the results when they return.
+Describe your calculation in chat. DFT Agent prepares the inputs and runs VASP, Quantum ESPRESSO, ABINIT, CP2K or Elk on your HPC cluster. Each project keeps its files, conversations and results together, so you can revise tasks and discuss the results in one place.
 
 ![DFT Agent workflow](docs/assets/workflow.png)
 
-Conceptual overview. Current engines: VASP, Quantum ESPRESSO, ABINIT, CP2K and Elk (the last three from 0.4.5).
-
-The built-in workflows cover structure edits, relaxation, SCF, bands, DOS, magnetism, SOC, DFT+U and hybrid functionals. Available methods depend on the engine. [QE](docs/qe.md) also supports installation, phonons, NEB, electron–phonon coupling and conventional superconductivity. [ABINIT, CP2K and Elk](docs/open-source-codes.md) install from the app on supported Linux clusters: ABINIT adds phonons, CP2K large-cell calculations and molecular dynamics, and Elk optics and real-time TDDFT.
+Workflows include structure editing, relaxation, SCF, bands, DOS, magnetism, SOC, DFT+U and hybrid functionals. [QE](docs/qe.md) also supports phonons, NEB, electron–phonon coupling and conventional superconductivity. [ABINIT, CP2K and Elk](docs/open-source-codes.md) add methods for phonons, molecular dynamics and optical response. Available methods depend on the engine.
 
 ![SrTiO3 crystal](docs/assets/crystal.png)
 
@@ -32,25 +30,25 @@ python -m pip install "dft-agent[agent]==0.4.7"
 dft-agent ui
 ```
 
-[Source installation](docs/install.md#python-installation-from-source).
+[Installation help](docs/install.md#desktop-app) · [Source installation](docs/install.md#python-installation-from-source).
 
 ## Start a project
 
-1. Click **New project** and give it a name.
-2. Open **Connections → Model**. Follow the steps to install and sign in to **Codex CLI** or **Claude Code CLI**, or paste your provider's API key. **Test connection** checks a saved connection. [Model setup](docs/models.md).
-3. Open **Cluster** and enter your SSH address, such as `ssh name@cluster`. The app tries your keys first, then asks for a password or login code when needed. Review the detected software, or add it under **Software**. If QE is missing, review and start its installation here. [Cluster setup](docs/install.md#your-first-cluster-setup).
-4. Return to chat. Open **Files and runs → Files → Add files**, upload your structure, and click **Import files**. Describe what you want to calculate and refine the plan in the same conversation.
-5. Click **Prepare inputs**, review the files and resources, tick the confirmation box, and click **Submit**. Follow the task in **Files and runs → Jobs** and open its outputs under **Results**.
+Create a project with **New project**, then:
 
-The engine is selected per workflow step. A project can use one engine or several; it does not need a global switch. **Attach results** selects the runs for a follow-up discussion.
+1. **Connect AI.** Open **Connections → Model**. Sign in to Codex CLI or Claude Code CLI, or enter an API key, then click **Connect**. [Account and token guide](docs/models.md).
+2. **Connect your cluster.** In **Cluster**, enter your SSH address and follow the password or verification-code prompts. Select your installed software, or install an open-source engine on a supported cluster. [Cluster setup](docs/install.md#your-first-cluster-setup).
+3. **Run a calculation.** Upload your structure under **Files and runs → Files** and click **Import files**. Describe the task in chat and refine the plan. Click **Prepare inputs**, review the files and resources, then confirm **Submit**.
 
-Model calls use your own account and quota. API keys and saved SSH passwords stay in the system keychain; login codes are not saved. VASP requires licensed VASP and POTCAR files. QE, ABINIT, CP2K and Elk are open source; the app installs them and their public libraries. No model credits or cluster allocation are included.
+Track jobs and download outputs in **Files and runs**. Use **Attach results** to discuss a run. Each workflow step can use a different engine.
+
+Model calls use your own account and quota. You also need an HPC account; VASP requires licensed software and POTCAR files. [Requirements](docs/install.md#your-first-cluster-setup).
 
 ## Explore offline
 
 ![Band structure of a sample run](docs/assets/screenshot-results.png)
 
-Open **Settings → Legacy workbench → Runs → Load sample runs** to browse the bundled SrTiO3, Si, MgO and Fe results. The legacy workbench also retains manual input preparation, the original forms and Memory browser. Use **Settings → Language / 语言** to change the project interface language.
+Open **Settings → Classic workbench → Runs → Load sample runs** to explore the bundled SrTiO3, Si, MgO and Fe results without a cluster. Manual preparation and the Memory browser are also available there.
 
 [Quickstart](docs/quickstart.md) · [Project guide](docs/project-workspace.md#use-the-workspace) · [Workflows](docs/workflows.md) · [Scientific guidance](docs/harness.md) · [Memory](docs/memory.md)
 
