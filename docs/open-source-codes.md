@@ -8,7 +8,7 @@ DFT Agent can install, prepare and run three more open-source codes on your clus
 | [CP2K](https://www.cp2k.org/) | 2026.1 (managed, x86-64); 2026.2 (managed, Arm) | Gaussian and plane waves (GPW, Quickstep) | MOLOPT basis sets with GTH pseudopotentials from the CP2K 2026.2 data |
 | [Elk](https://elk.sourceforge.io/) | 10.2.4 | All-electron full-potential LAPW | Species files from the Elk 10.2.4 release |
 
-No licence is needed. Like QE, each code is chosen per workflow step, and a later step can continue from a relaxed structure computed by any of the five codes.
+These codes are open source. Like QE, each is chosen per workflow step, and a later step can continue from a relaxed structure computed by any of the five codes.
 
 ## Calculations
 

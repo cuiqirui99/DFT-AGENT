@@ -160,4 +160,4 @@ for the data in that project. Keep the app local.
 | Invalid or unsupported response | Choose a model supporting the required output format. No invalid plan is accepted. |
 
 For model-free sample browsing or manual input preparation, open
-**Settings → Legacy workbench**. Those controls are separate from project chat.
+**Settings → Classic workbench**. Those controls are separate from project chat.

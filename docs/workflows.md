@@ -1,6 +1,7 @@
 # Workflows
 
-These examples use VASP. See [Quantum ESPRESSO](qe.md) for QE tasks and continuations.
+These examples use VASP in **Settings → Classic workbench**. For project chat,
+follow the [Quickstart](quickstart.md). See [Quantum ESPRESSO](qe.md) for QE tasks and continuations.
 
 Upload a structure or choose an example. In **Agent** mode, write the full task
 in **Goal**, then click **Plan**. Structure edits and calculations share one
@@ -40,6 +41,10 @@ are inherited unless you request a change. Review the plan and click
 **Prepare continuation**, then confirm submission of the new run.
 
 The original run stays intact. The selected result is rechecked before reuse.
+
+For an interrupted project run, **Job controls → Reconnect** checks existing jobs.
+**Resume monitoring** restarts its worker and continues the remaining approved stages.
+
 A displayed **Sampled band gap** describes the computed k points; it is not a
 claim of full Brillouin-zone or numerical convergence.
 

@@ -24,7 +24,9 @@ from .secret_guard import redact, reject_ordinary_text
 PROTOCOL_VERSION = "2025-06-18"
 INSTRUCTIONS = (
     "Tools act on the user's current DFT Agent project. Read files and describe structures before planning. "
-    "create_workflow records steps; plan_step runs the engine planner, which proposes and validates settings and may ask "
+    "create_workflow records steps; revise_workflow updates an unprepared workflow's goals, methods and steps before "
+    "upstream calculations finish. Include every retained step. plan_step runs the engine planner, which needs "
+    "the actual input structure, proposes and validates settings and may ask "
     "questions; continue_step starts a separate calculation from an accepted stage of a finished step; repair_step "
     "drafts a bounded retry of a failed step. Old runs are preserved. prepare_inputs writes reviewable input files; "
     "review_inputs shows them. Submission is not a tool: after "
@@ -83,6 +85,7 @@ class ProjectTools:
             "goal": _text("Scientific goal of this step in one or two sentences"),
             "source_path": _text("Project file used as the input structure, for example files/Si.cif"),
             "source_step": _text("Id of an earlier step whose accepted structure this step continues from"),
+            "source_stage": {"type": "integer", "minimum": 0, "description": "Selected predecessor stage; omit to use its final accepted structure"},
             "depends_on": {"type": "array", "items": {"type": "string"}},
             **{name: draft_fields[name] for name in ("environment_id", "inputs", "input_artifacts", "arguments", "outputs")}}}
         return [
@@ -95,6 +98,9 @@ class ProjectTools:
             {"name": "create_workflow", "description": "Record an ordered set of calculation steps for this project. Does not run anything.", "inputSchema": _schema({
                 "title": _text("Short workflow title"), "goal": _text("Overall goal"),
                 "steps": {"type": "array", "minItems": 1, "maxItems": 32, "items": step}}, ["title", "goal", "steps"])},
+            {"name": "revise_workflow", "description": "Revise goals, methods or steps before inputs are prepared. Include every retained step. Upstream results are not required; the previous draft is preserved. Does not prepare or submit anything.", "inputSchema": _schema({
+                "workflow_id": _text("Workflow being revised"), "title": _text("Short workflow title"), "goal": _text("Revised overall goal"),
+                "steps": {"type": "array", "minItems": 1, "maxItems": 32, "items": step}}, ["workflow_id", "title", "goal", "steps"])},
             {"name": "plan_step", "description": "Run the engine planner for a step. It proposes validated settings from the goal and may return questions; answer them by calling plan_step again with instructions.", "inputSchema": _schema({
                 "workflow_id": _text(None), "step_id": _text(None), "instructions": _text("The user's requirements or answers to the planner's questions")}, ["workflow_id", "step_id"])},
             {"name": "continue_step", "description": "Draft a separate calculation from an accepted stage of a finished step. Describe the source stage and new task. Preserves old runs; nothing is submitted.", "inputSchema": _schema({
@@ -202,9 +208,20 @@ class ProjectTools:
             steps = []
             for step in item["steps"]:
                 attempt = self._attempt(item["id"], step["id"])
+                source = step["spec"].get("source", {})
+                source_fields = {}
+                if source.get("kind") == "file":
+                    source_fields["source_path"] = source["path"]
+                elif source.get("kind") == "step":
+                    source_fields["source_step"] = source["step_id"]
+                    if source.get("stage") is not None:
+                        source_fields["source_stage"] = source["stage"]
                 steps.append({"id": step["id"], "name": step["name"], "engine": step["engine"], "depends_on": step["depends_on"],
                               "goal": step["spec"].get("goal", ""), "state": attempt["state"] if attempt else step["status"],
-                              "run_id": attempt["run_id"] if attempt else None})
+                              **{key: step["spec"][key] for key in ("environment_id", "inputs", "input_artifacts", "arguments", "outputs")
+                                 if key in step["spec"]},
+                              **({"environment_id": attempt["environment_id"]} if attempt and attempt.get("environment_id") else {}),
+                              **source_fields, "run_id": attempt["run_id"] if attempt else None})
             workflows.append({"id": item["id"], "title": item["title"], "goal": item["goal"], "status": item["status"], "steps": steps})
         runs = [{"id": item["id"], "run_id": item["run_id"], "engine": item["engine"], "status": item["status"],
                  "workflow_id": item.get("workflow_id"), "step_id": item.get("step_id")} for item in self.workspace.list_runs(self.project_id)]
@@ -269,6 +286,12 @@ class ProjectTools:
         return {"path": result["path"], "sha256": result["sha256"]}
 
     def create_workflow(self, title, goal, steps):
+        return self._write_workflow(title, goal, steps)
+
+    def revise_workflow(self, workflow_id, title, goal, steps):
+        return self._write_workflow(title, goal, steps, workflow_id=workflow_id)
+
+    def _write_workflow(self, title, goal, steps, workflow_id=None):
         from .project_agent import _steps
 
         if not self.session_id:
@@ -278,9 +301,13 @@ class ProjectTools:
         for index, item in enumerate(steps):
             if not isinstance(item, dict):
                 raise ValueError("Each step must be an object.")
+            if item.get("source_step") and item.get("source_path"):
+                raise ValueError("Choose source_path or source_step, not both.")
+            if item.get("source_stage") is not None and not item.get("source_step"):
+                raise ValueError("A source_stage needs a source_step.")
             identifier = item.get("id") or f"step{index + 1}"
             if item.get("source_step"):
-                source = {"kind": "step", "path": None, "step_id": item["source_step"], "stage": None}
+                source = {"kind": "step", "path": None, "step_id": item["source_step"], "stage": item.get("source_stage")}
             else:
                 source = {"kind": "file", "path": item.get("source_path"), "step_id": None, "stage": None}
             depends_on = list(item.get("depends_on") or [])
@@ -294,10 +321,14 @@ class ProjectTools:
             if source["kind"] == "file" and not source["path"]:
                 raise ValueError(f"Step {identifier} needs source_path (a project file) or source_step.")
         checked = _steps(self.workspace, self.project_id, proposed, environments)
-        result = self.workspace.create_workflow(self.project_id, self.session_id, title, goal, checked)
+        if workflow_id:
+            result = self.execution.replace_workflow(self.project_id, workflow_id, title, goal, checked)
+        else:
+            result = self.workspace.create_workflow(self.project_id, self.session_id, title, goal, checked)
         return {"workflow_id": result["id"], "title": result["title"],
                 "steps": [{"id": step["id"], "name": step["name"], "engine": step["engine"], "depends_on": step["depends_on"],
-                           "environment_id": step["spec"].get("environment_id")} for step in result["steps"]]}
+                           "goal": step["spec"].get("goal"), "environment_id": step["spec"].get("environment_id")}
+                          for step in result["steps"]]}
 
     def plan_step(self, workflow_id, step_id, instructions=""):
         self.execution.draft_step(self.project_id, workflow_id, step_id, self._settings(), message=instructions or None)

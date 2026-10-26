@@ -650,6 +650,59 @@ class ProjectExecution:
                 result.append({'step_id': step['id'], 'attempt': attempt, 'result': report})
             return {'workflow': self.workspace.get_workflow(project_id, workflow_id), 'steps': result}
 
+    def resume_monitoring(self, project_id, workflow_id, step_id, *, confirmed=False):
+        """Restart a previously authorized run's worker with its original job identities."""
+        if confirmed is not True:
+            raise ValueError('Confirm resuming this calculation.')
+        with self._lock(project_id, workflow_id):
+            _, step = self._step(project_id, workflow_id, step_id)
+            attempt = self.latest(project_id, workflow_id, step_id)
+            if (not attempt or not attempt['run_id'] or not attempt['approved_digest']
+                    or attempt['state'] in (_BUSY - {'starting'}) | {'draft', 'ready', 'prepared', 'authorized', 'superseded'}):
+                raise ValueError('Submit the reviewed inputs before resuming monitoring.')
+            with self.workspace.edit_project(project_id):
+                pass
+            self._config(project_id, step, attempt, required=True)
+            review = self.review(project_id, workflow_id, step_id)
+            state, root = review['state'], Path(review['run_dir'])
+            terminal = workflow.TERMINAL
+            if step['engine'] in {'python', 'wannier90'}:
+                from .script_workflow import TERMINAL
+                terminal = TERMINAL
+            if state['status'] in terminal - {'needs_attention', 'failed'} or state.get('cancel_requested'):
+                raise ValueError('This calculation is finished or cancellation was requested.')
+            if review['kind'] == 'batch':
+                from .batch import _children, resume_batch, start_batch_worker
+                children = [(path, child) for _, path, child in _children(root, state)]
+            else:
+                children = [(root, state)]
+            for folder, child in children:
+                for stage in child.get('stages', []):
+                    for name, expected in stage.get('metadata', {}).get('input_sha256', {}).items():
+                        path = folder / stage['folder'] / 'inputs' / name
+                        if _digest(path) != expected:
+                            raise ValueError('Prepared inputs changed. Restore them before resuming monitoring.')
+            try:
+                if review['kind'] == 'batch':
+                    state = resume_batch(root)
+                    start = start_batch_worker
+                else:
+                    state = workflow.resume(root)
+                    if step['engine'] in {'python', 'wannier90'}:
+                        from .script_workflow import start_worker
+                        start = start_worker
+                    else:
+                        start = workflow.start_worker
+                if state['status'] in terminal:
+                    raise ValueError(state.get('last_error') or 'Review this run before resuming monitoring.')
+                # The existing worker lock prevents duplicate monitors. The executor
+                # reconciles submitted jobs and keeps every submission receipt.
+                start(root)
+                return self._save(attempt, state='active', last_error=None)
+            except Exception as error:
+                self._save(attempt, state='needs_attention', last_error=str(error))
+                raise
+
     def cancel_step(self, project_id, workflow_id, step_id, *, confirmed=False):
         if confirmed is not True:
             raise ValueError('Confirm cancellation for this step.')
@@ -675,6 +728,8 @@ class ProjectExecution:
     def replace_workflow(self, project_id, workflow_id, title, goal, steps):
         with self._lock(project_id, workflow_id):
             item = self.workspace.get_workflow(project_id, workflow_id)
+            if item['status'] == 'superseded':
+                raise ValueError('Open the revised workflow.')
             attempts = self.attempts(project_id, workflow_id)
             if any(a['run_id'] or a['approved_digest'] or a['state'] in _BUSY for a in attempts):
                 raise ValueError('This workflow has prepared or active work. Create a follow-up workflow instead.')

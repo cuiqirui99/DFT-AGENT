@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.8 — 2026-10-26
+
+- Resume interrupted project runs and continue their remaining approved stages.
+- Revise workflows in Automatic mode before preparing inputs, including steps waiting for earlier results.
+- Fix environment selection and replanning after a software environment changes.
+- Update setup guides, download links and the workflow diagram, and fix PyPI documentation and image links.
+
 ## 0.4.7 — 2026-10-26
 
 - Use orange accents and align interface colors with the selected light or dark theme.

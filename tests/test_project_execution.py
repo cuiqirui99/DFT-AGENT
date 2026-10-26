@@ -316,6 +316,94 @@ def test_reconnect_uses_locked_poll_only_for_known_submitted_stage(project, monk
     assert calls == [True]
 
 
+def test_resume_monitoring_restarts_existing_job_without_resubmitting(project, monkeypatch):
+    store, _, execution, pid, wid, _ = project
+    attempt = prepared(project, monkeypatch)
+    review = execution.review(pid, wid, 'scf')
+    execution.authorize_step(pid, wid, 'scf', review['digest'])
+    root = Path(review['run_dir'])
+    state = workflow.read_state(root)
+    state['status'] = 'needs_attention'
+    state['stages'][0].update(status='running', scheduler_state='RUNNING', job_id='123', staged=True)
+    (root / 'run.json').write_text(json.dumps(state))
+    execution._save(attempt, state='needs_attention')
+    launched = []
+    monkeypatch.setattr(workflow, 'start_worker', lambda path: launched.append(Path(path)))
+    monkeypatch.setattr(workflow, 'advance', lambda *a, **k: pytest.fail('Resuming must restart the existing worker path'))
+    resumed = execution.resume_monitoring(pid, wid, 'scf', confirmed=True)
+    assert resumed['state'] == 'active' and resumed['run_id'] == attempt['run_id']
+    assert launched == [root]
+    state = workflow.read_state(root)
+    assert state['status'] == 'queued' and state['stages'][0]['job_id'] == '123'
+    assert state['stages'][0]['staged'] and len(execution.attempts(pid, wid, 'scf')) == 1
+
+
+def test_resume_monitoring_can_continue_previously_authorized_remaining_stages(project, monkeypatch):
+    store, _, execution, pid, wid, _ = project
+    attempt = draft(project, monkeypatch)
+    _, step = execution._step(pid, wid, 'scf')
+    root = store.project_paths(pid)['runs'] / attempt['id']
+    workflow.prepare_plan(store.resolve_path(pid, 'files/Si.cif'), root,
+        execution._config(pid, step, attempt, required=True), ['scf', 'bands'])
+    run = store.register_run(pid, root, wid, 'scf')
+    attempt = execution._save(attempt, run_id=run['id'], state='prepared')
+    execution.authorize_step(pid, wid, 'scf', execution.review(pid, wid, 'scf')['digest'])
+    execution._save(attempt, state='active')
+    state = workflow.read_state(root)
+    state.update(status='planned', current_stage=1)
+    state['stages'][0].update(status='succeeded', scheduler_state='COMPLETED', job_id='123', staged=True)
+    (root / 'run.json').write_text(json.dumps(state))
+    launched = []
+    monkeypatch.setattr(workflow, 'start_worker', lambda path: launched.append(Path(path)))
+    result = execution.resume_monitoring(pid, wid, 'scf', confirmed=True)
+    assert launched == [root] and result['run_id'] == run['id']
+    current = workflow.read_state(root)
+    assert current['stages'][0]['job_id'] == '123'
+    assert current['stages'][1]['job_id'] is None and current['status'] == 'planned'
+
+
+@pytest.mark.parametrize('problem', ['unsubmitted', 'unconfirmed', 'cancelled', 'cancelling', 'inputs', 'config', 'revoked', 'archived'])
+def test_resume_monitoring_keeps_submission_and_integrity_gates(project, monkeypatch, problem):
+    store, registry, execution, pid, wid, connection = project
+    attempt = prepared(project, monkeypatch)
+    root = Path(store.get_run(pid, attempt['run_id'])['run_dir'])
+    if problem != 'unsubmitted':
+        execution.authorize_step(pid, wid, 'scf', execution.review(pid, wid, 'scf')['digest'])
+        execution._save(attempt, state='active')
+    if problem in {'cancelled', 'cancelling'}:
+        state = workflow.read_state(root)
+        state.update(status='cancelled' if problem == 'cancelled' else 'running', cancel_requested=True)
+        (root / 'run.json').write_text(json.dumps(state))
+    elif problem == 'inputs':
+        path = root / '01_scf/inputs/INCAR'
+        path.write_text(path.read_text() + '\nENCUT=100\n')
+    elif problem == 'config':
+        path = root / 'config.json'
+        path.write_text(path.read_text() + '\n')
+    elif problem == 'revoked':
+        registry.revoke(connection)
+    elif problem == 'archived':
+        store.archive_project(pid)
+    monkeypatch.setattr(workflow, 'start_worker', lambda *a, **k: pytest.fail('Invalid resume launched'))
+    with pytest.raises(ValueError):
+        execution.resume_monitoring(pid, wid, 'scf', confirmed=problem != 'unconfirmed')
+
+
+def test_resume_batch_monitoring_preserves_members_and_authorization(project, monkeypatch):
+    from vasp_slurm_agent import batch
+    _, _, execution, pid, wid, _ = project
+    attempt, root = batch_attempt(project)
+    execution.authorize_step(pid, wid, 'scf', execution.review(pid, wid, 'scf')['digest'])
+    execution._save(attempt, state='active')
+    before = [(member['run_id'], path) for member, path, _ in batch._children(root, batch.read_batch(root))]
+    launched = []
+    monkeypatch.setattr(batch, 'start_batch_worker', lambda path: launched.append(Path(path)))
+    monkeypatch.setattr(workflow, 'start_worker', lambda *a, **k: pytest.fail('Use the batch worker'))
+    result = execution.resume_monitoring(pid, wid, 'scf', confirmed=True)
+    assert launched == [root] and result['run_id'] == attempt['run_id']
+    assert before == [(member['run_id'], path) for member, path, _ in batch._children(root, batch.read_batch(root))]
+
+
 def script_graph(project, engine='python', environment=True):
     import shlex
     import sys
@@ -359,6 +447,35 @@ def test_generic_draft_prepare_restart_approval_and_single_launch(project, monke
     execution.launch_step(pid, wid, 'program')
     execution.launch_step(pid, wid, 'program')
     assert launched == [str(root)]
+
+
+@pytest.mark.parametrize('status', ['needs_attention', 'completed_unverified', 'failed', 'unconverged', 'missing_outputs', 'suspect'])
+def test_resume_script_monitoring_respects_execution_outcome(project, monkeypatch, status):
+    from vasp_slurm_agent import script_workflow
+    store, _, execution, pid, _, _ = project
+    wid, _ = script_graph(project)
+    execution.draft_step(pid, wid, 'program', SETTINGS)
+    attempt = execution.prepare_step(pid, wid, 'program')
+    review = execution.review(pid, wid, 'program')
+    execution.authorize_step(pid, wid, 'program', review['digest'])
+    execution._save(attempt, state='active')
+    root = Path(review['run_dir'])
+    state = workflow.read_state(root)
+    state['status'] = status
+    state['stages'][0].update(status=status, job_id='123', staged=True)
+    (root / 'run.json').write_text(json.dumps(state))
+    launched = []
+    monkeypatch.setattr(script_workflow, 'start_worker', lambda path: launched.append(Path(path)))
+    monkeypatch.setattr(workflow, 'start_worker', lambda *a: pytest.fail('Use the program worker'))
+    if status == 'needs_attention':
+        result = execution.resume_monitoring(pid, wid, 'program', confirmed=True)
+        assert result['state'] == 'active' and launched == [root]
+        assert workflow.read_state(root)['status'] == 'queued'
+    else:
+        with pytest.raises(ValueError):
+            execution.resume_monitoring(pid, wid, 'program', confirmed=True)
+        assert not launched and workflow.read_state(root)['status'] == status
+    assert workflow.read_state(root)['stages'][0]['job_id'] == '123'
 
 
 def test_generic_invalid_revision_clears_ready_and_new_source_is_reviewable(project):

@@ -1,6 +1,6 @@
-# Methods
+# VASP methods
 
-Use these settings in a model plan, the **Method** form, or CLI `--parameters`.
+These settings apply to VASP. Use them in a model plan, the **Method** form, or CLI `--parameters`.
 Defaults are starting values, not convergence studies.
 
 | Method | Settings |
@@ -63,5 +63,5 @@ supplied magnetic patterns, U/J values or strain points with the same stage
 sequence. Keep the cell fixed during strain relaxation. Compare energies only
 within a matching method and U/J choice. [Workflows](workflows.md).
 
-The structure editor supports substitutions, vacancies and slabs. Defect formation
-energies, phonons, NEB and MD remain outside this release.
+The structure editor supports substitutions, vacancies and slabs. VASP workflows
+do not yet include defect formation energies, phonons, NEB or MD.

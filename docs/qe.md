@@ -1,5 +1,8 @@
 # Quantum ESPRESSO
 
+For QE in project chat, name it in your request and follow the [Quickstart](quickstart.md).
+The form controls below are in **Settings → Classic workbench**.
+
 DFT Agent can prepare and run Quantum ESPRESSO on a Slurm cluster. You need an SSH account and compute allocation. A VASP license is not required.
 
 ## Connect

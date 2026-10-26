@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dft-agent"
-version = "0.4.7"
+version = "0.4.8"
 description = "Run electronic-structure calculations on your cluster."
 readme = "README.md"
 license = "MIT"
@@ -42,7 +42,7 @@ dev = ["pytest>=8,<10", "build>=1.2,<2", "streamlit>=1.65,<2"]
 [project.urls]
 Homepage = "https://github.com/cuiqirui99/DFT-AGENT"
 Repository = "https://github.com/cuiqirui99/DFT-AGENT"
-Documentation = "https://github.com/cuiqirui99/DFT-AGENT/blob/v0.4.7/README.md"
+Documentation = "https://github.com/cuiqirui99/DFT-AGENT/blob/v0.4.8/README.md"
 Issues = "https://github.com/cuiqirui99/DFT-AGENT/issues"
 
 [project.scripts]

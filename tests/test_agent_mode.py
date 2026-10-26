@@ -74,7 +74,7 @@ def test_mcp_handshake_and_tool_listing(project):
     assert mcp_server.handle(tools, {"jsonrpc": "2.0", "method": "notifications/initialized"}) is None
     listed = mcp_server.handle(tools, {"jsonrpc": "2.0", "id": 1, "method": "tools/list"})["result"]["tools"]
     names = {item["name"] for item in listed}
-    assert {"project_overview", "read_file", "describe_structure", "create_workflow", "plan_step", "prepare_inputs",
+    assert {"project_overview", "read_file", "describe_structure", "create_workflow", "revise_workflow", "plan_step", "prepare_inputs",
             "review_inputs", "request_submission", "explain_results", "qe_install_plan", "install_pseudopotentials"} <= names
     assert all(item["inputSchema"]["type"] == "object" for item in listed)
     assert "submit" not in names and "shell" not in names
@@ -126,8 +126,77 @@ def test_mcp_workflow_tools_plan_prepare_and_refuse_to_submit(project, monkeypat
     attempt = tools.execution.latest(project.pid, workflow_id, step_id)
     assert attempt["state"] == "prepared" and not attempt["approved_digest"]
     workflow.start_worker.assert_not_called()
+    error, text = call(tools, "revise_workflow", workflow_id=workflow_id, title="Changed", goal="Changed",
+                      steps=[{"name": "SCF", "engine": "vasp", "goal": "SCF", "source_path": "files/Si.cif"}])
+    assert error and "follow-up" in text
+    assert project.workspace.get_workflow(project.pid, workflow_id)["status"] != "superseded"
+    assert tools.execution.latest(project.pid, workflow_id, step_id)["run_id"] == attempt["run_id"]
     error, text = call(tools, "create_workflow", title="Bad", goal="x", steps=[{"name": "A", "engine": "vasp", "goal": "g"}])
     assert error and "source_path" in text
+
+
+def test_mcp_revises_downstream_intent_before_predecessors_finish(project, monkeypatch):
+    from vasp_slurm_agent import workflow
+    tools = tools_for(project)
+    monkeypatch.setattr(workflow, "start_worker", Mock(side_effect=AssertionError("No draft may submit")))
+    monkeypatch.setattr(agent, "_request_structured", Mock(side_effect=AssertionError("No unavailable structure may be planned")))
+    steps = [
+        {"id": "relax", "name": "Relax", "engine": "vasp", "goal": "Relax silicon", "source_path": "files/Si.cif"},
+        {"id": "bands", "name": "Bands", "engine": "vasp", "goal": "Bands", "source_step": "relax", "source_stage": 0},
+        {"id": "dos", "name": "DOS", "engine": "vasp", "goal": "DOS", "source_step": "relax", "depends_on": ["bands"]}]
+    original = tools.create_workflow("Silicon", "Relax, bands and DOS", steps)
+    old_id = original["workflow_id"]
+    error, text = call(tools, "plan_step", workflow_id=old_id, step_id="bands", instructions="Use PBE and SOC")
+    assert error and "preceding" in text
+    revised = [dict(item) for item in steps]
+    revised[0].update(name="PBE relaxation", goal="Relax silicon with PBE and no SOC.")
+    for item in revised[1:]:
+        item.update(name="PBE SOC " + item["name"], goal="Use PBE with SOC for " + item["goal"])
+    error, result = call(tools, "revise_workflow", workflow_id=old_id, title="PBE + SOC", goal="SOC after relaxation", steps=revised)
+    assert not error and result["workflow_id"] != old_id
+    graph = project.workspace.get_workflow(project.pid, result["workflow_id"])
+    assert [step["spec"]["goal"] for step in graph["steps"]] == [item["goal"] for item in revised]
+    assert [step["name"] for step in graph["steps"]] == [item["name"] for item in revised]
+    assert graph["steps"][1]["spec"]["source"] == {"kind": "step", "step_id": "relax", "stage": 0}
+    assert set(graph["steps"][2]["depends_on"]) == {"relax", "bands"}
+    assert project.workspace.get_workflow(project.pid, old_id)["status"] == "superseded"
+    assert tools.execution.attempts(project.pid, old_id)[0]["last_error"] == "Complete the preceding workflow steps first."
+    assert not tools.execution.attempts(project.pid, result["workflow_id"]) and not project.workspace.list_runs(project.pid)
+    overview = tools.project_overview()["workflows"]
+    assert len(overview) == 1 and overview[0]["id"] == result["workflow_id"] and overview[0]["title"] == "PBE + SOC"
+    assert overview[0]["steps"][0]["source_path"] == "files/Si.cif"
+    assert overview[0]["steps"][1]["source_step"] == "relax" and overview[0]["steps"][1]["source_stage"] == 0
+    error, text = call(tools, "revise_workflow", workflow_id=old_id, title="Stale", goal="Stale", steps=revised)
+    assert error and "revised workflow" in text and len(project.workspace.list_workflows(project.pid)) == 2
+    error, text = call(tools, "plan_step", workflow_id=result["workflow_id"], step_id="bands")
+    assert error and "preceding" in text
+    workflow.start_worker.assert_not_called()
+    agent._request_structured.assert_not_called()
+
+
+def test_mcp_revision_uses_current_environment_and_preserves_program_inputs(project):
+    tools = tools_for(project)
+    project_files.write_file(project.workspace, project.pid, "files/analyze.py", "print('analysis')\n")
+    cluster = project.registry.create("hpc", "Cluster", {"host": "fixture.invalid", "user": "researcher", "remote_base": "/scratch/researcher", "scheduler": "slurm"})
+    project.registry.bind(project.pid, cluster["id"])
+    environments = [project.registry.create_environment(cluster["id"], name, "python", {"command": "python3", "partition": name})
+                    for name in ("first", "second")]
+    created = tools.create_workflow("Analysis", "Analyze", [{"id": "analysis", "name": "Analysis", "engine": "python", "goal": "Analyze",
+        "source_path": "files/analyze.py", "environment_id": environments[0]["id"], "inputs": ["files/Si.cif"],
+        "arguments": ["--check"], "outputs": [{"path": "result.json", "kind": "json", "required": True}]}])
+    tools.execution.configure_step(project.pid, created["workflow_id"], "analysis", environments[1]["id"])
+    visible = tools.project_overview()["workflows"][0]["steps"][0]
+    assert visible["environment_id"] == environments[1]["id"]
+    fields = next(item for item in tools.definitions() if item["name"] == "revise_workflow")["inputSchema"]["properties"]["steps"]["items"]["properties"]
+    revised = {key: value for key, value in visible.items() if key in fields}
+    revised["goal"] = "Analyze and report results"
+    result = tools.revise_workflow(created["workflow_id"], "Analysis", revised["goal"], [revised])
+    saved = project.workspace.get_workflow(project.pid, result["workflow_id"])["steps"][0]["spec"]
+    assert saved["environment_id"] == environments[1]["id"]
+    for name in ("inputs", "input_artifacts", "arguments", "outputs"):
+        assert saved[name] == revised[name]
+    assert saved["source"] == {"kind": "file", "path": "files/analyze.py"}
+    assert not project.workspace.list_runs(project.pid)
 
 
 def test_mcp_server_runs_over_stdio(project):

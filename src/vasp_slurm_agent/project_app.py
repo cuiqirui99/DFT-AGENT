@@ -559,7 +559,7 @@ def _step_controls(workspace, registry, execution, identifier, item, step_id, mo
                 configured = environments[0]["id"]
             except ValueError as error:
                 st.caption(redact(str(error)))
-        if environments and (len(environments) > 1 or not configured):
+        if environments and (len(environments) > 1 or configured not in {environment["id"] for environment in environments}):
             preferred = configured
             environment = _select(t("Environment"), environments, prefix + "environment", preferred=preferred)
             if environment != configured and st.button(t("Use environment"), key=prefix + "configure"):
@@ -572,7 +572,7 @@ def _step_controls(workspace, registry, execution, identifier, item, step_id, mo
             else:
                 st.caption(t("Connect a cluster to prepare and submit this step. Planning works without it."))
                 _go_to_connections("hpc", identifier, prefix + "add_cluster", t("Connect a cluster"))
-        if not attempt or not attempt.get("proposal"):
+        if not attempt or not attempt.get("proposal") or attempt["state"] == "draft":
             if st.button(t("Plan step"), key=prefix + "plan", disabled=not model_id, type="primary"):
                 with st.spinner(t("Planning…")):
                     try:
@@ -626,8 +626,16 @@ def _step_controls(workspace, registry, execution, identifier, item, step_id, mo
                 except Exception as error:
                     st.session_state[prefix + "notice"] = redact(str(error))
                 st.rerun()
-    if attempt and attempt.get("run_id") and attempt["state"] not in {"succeeded", "cancelled"}:
+    if attempt and attempt.get("run_id") and attempt["state"] not in {"succeeded", "completed_unverified", "cancelled"}:
         with st.expander(t("Job controls")):
+            if attempt.get("approved_digest") and attempt["state"] not in {"prepared", "authorized"}:
+                if st.button(t("Resume monitoring"), key=prefix + "resume",
+                             help=t("Resume this run, including its remaining approved stages.")):
+                    try:
+                        execution.resume_monitoring(identifier, item["id"], step_id, confirmed=True)
+                    except Exception as error:
+                        st.session_state[prefix + "notice"] = redact(str(error))
+                    st.rerun()
             if st.button(t("Reconnect"), key=prefix + "reconnect"):
                 execution.refresh(identifier, item["id"], reconnect=True)
                 st.rerun()

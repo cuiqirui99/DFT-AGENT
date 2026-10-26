@@ -5,7 +5,7 @@ separate OpenSSH installation are not required.
 
 ## Install and connect
 
-1. Install [v0.4.5](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.5)
+1. Install [v0.4.8](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.8)
    and open **DFT Agent** from the Start menu.
 2. Create a project. In **Connections → Model**, connect your CLI or API account.
 3. In **Connections → Cluster**, enter `ssh name@host` and follow the sign-in

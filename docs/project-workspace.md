@@ -105,10 +105,12 @@ Create a project. The empty conversation shows three steps.
    asking. Planning works before a cluster is connected; preparing inputs needs
    an environment.
 
-A project can combine VASP, QE, Wannier90 and Python steps. **Submit** becomes
+A project can combine VASP, QE, ABINIT, CP2K and Elk calculations with Wannier90 and Python steps. **Submit** becomes
 available only after reviewing the prepared inputs and resources. **Refresh
-status** reads the current state; **Reconnect** checks existing jobs after an
-interruption. **Settings** switches the interface language.
+status** reads the current state. Under **Job controls**, **Reconnect** checks
+existing jobs; **Resume monitoring** restarts the worker and continues the same
+run's remaining approved stages. Sign in to the cluster again first if needed.
+**Settings** switches the interface language.
 
 ## Automatic mode
 
@@ -151,7 +153,7 @@ on Paracloud in 0.4.3.
 Conversations, workflows, files and notes are saved under their project. The
 context panel contains files, the workflow, jobs and results; it can be hidden
 or resized. Generated run inputs are read-only. Draft edits require the original
-file revision, and model-proposed edits need **Apply change**. **Legacy workbench**
+file revision, and model-proposed edits need **Apply change**. **Classic workbench**
 opens the previous interface for existing path-based runs. Archive and delete
 retain the project files and provide a restore action.
 

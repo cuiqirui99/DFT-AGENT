@@ -2,7 +2,7 @@
 
 ## 1. Install and create a project
 
-Download [v0.4.6](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.6),
+Download [v0.4.8](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.8),
 install the Mac `.dmg` or Windows `.exe`, and open **DFT Agent**.
 Python and model SDKs are included. Linux and source installations are covered
 in [Install](install.md).
@@ -64,7 +64,7 @@ the build**. [Installation details](install.md#your-first-cluster-setup).
 2. Describe the calculation, including the engine if you have a preference.
    Answer questions and request changes in the same message box.
 3. Open **Tasks** to select a workflow and step. Check its plan and environment.
-   VASP and QE belong to individual steps, so one project can use both.
+   The engine belongs to each step, so one project can combine supported codes.
 4. Click **Prepare inputs**. Review the generated inputs and resources.
 5. Tick **I reviewed the inputs and resources.** and click **Submit**.
 
@@ -81,17 +81,18 @@ POTCAR is excluded from shared archives; large restart files remain on the clust
 
 Select runs under **Attach results** and ask about them in chat. You can request
 a follow-up calculation from a completed stage; review and submit its new
-inputs before it runs. If a connection fails, read the error and use
-**Job controls → Reconnect**. **Cancel this calculation → Cancel job** requests
-cancellation of the selected attempt.
+inputs before it runs. After an interruption, sign in to the cluster again if
+needed. **Job controls → Reconnect** checks the existing jobs; **Resume monitoring**
+restarts the worker and continues the same run's remaining approved stages.
+**Cancel this calculation → Cancel job** requests cancellation of the selected attempt.
 
 Closing the browser does not cancel submitted jobs. Keep the computer running
 and connected for local monitoring and subsequent stages. Project files and
 history are kept under `~/.dft-agent/`; see [storage and updates](install.md#files-and-updates).
 
-## Legacy workbench
+## Classic workbench
 
-Open **Settings → Legacy workbench** for the previous interface, manual
+Open **Settings → Classic workbench** for the previous interface, manual
 preparation, sample runs and the Memory browser. Its **New calculation**,
 **Cluster setup** and **Runs** instructions belong to that view.
 

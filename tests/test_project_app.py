@@ -1,6 +1,7 @@
 """Project UI uses real local storage; model and process calls are explicit mocks."""
 
 from importlib.resources import files
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -200,6 +201,65 @@ def test_task_card_uses_the_only_matching_environment_without_asking(workspace):
     workflow.start_worker.assert_not_called()
 
 
+@pytest.mark.parametrize("change", ["add", "switch", "replace_revoked"])
+def test_environment_changes_allow_replanning_before_preparation(workspace, monkeypatch, change):
+    from vasp_slurm_agent import conversation
+    from test_conversation import provider as plan_provider, route, plan, SETTINGS
+
+    pid, sid, registry = seed(workspace)
+    project_files.write_file(workspace, pid, "files/Si.cif", files("vasp_slurm_agent").joinpath("examples/Si.cif").read_bytes())
+
+    def environment(name, partition):
+        cluster = registry.create("hpc", name, {"host": name + ".invalid", "user": "researcher",
+            "remote_base": "/scratch/researcher", "scheduler": "slurm"})
+        registry.bind(pid, cluster["id"])
+        software = registry.create_environment(cluster["id"], name + " VASP", "vasp",
+            {"vasp_command": "srun vasp_std", "potcar_root": "/licensed", "partition": partition})
+        return cluster, software
+
+    old_cluster, old_environment = environment("original", "old") if change != "add" else (None, None)
+    graph = workspace.create_workflow(pid, sid, "SCF", "Calculate SCF", [{"id": "scf", "name": "SCF", "engine": "vasp",
+        "spec": {"goal": "Calculate SCF", "source": {"kind": "file", "path": "files/Si.cif"},
+                 "environment_id": old_environment["id"] if old_environment else None}}])
+    execution = ProjectExecution(workspace, registry)
+    plan_provider(monkeypatch, [("dft_conversation", route()), ("dft_task", plan("vasp"))])
+    initial = execution.draft_step(pid, graph["id"], "scf", SETTINGS)
+    assert initial["state"] == "ready"
+    if change == "replace_revoked":
+        registry.revoke(old_cluster["id"])
+    _, new_environment = environment("replacement", "new")
+
+    ui = app()
+    if change != "add":
+        widget(ui.selectbox, "Environment").select(new_environment["id"]).run()
+        widget(ui.button, "Use environment").click().run()
+    assert not ui.exception and not ui.error
+    attempt = execution.latest(pid, graph["id"], "scf")
+    assert attempt["environment_id"] == new_environment["id"] and attempt["state"] == "draft"
+    assert attempt["proposal"]["status"] == "ready"
+    assert widget(ui.button, "Plan step") and not widget(ui.button, "Plan step").disabled
+    assert not any(button.label == "Prepare inputs" for button in ui.button)
+
+    configs = []
+    send = conversation.send
+    def record_config(*args, **kwargs):
+        configs.append(kwargs["config"])
+        return send(*args, **kwargs)
+    monkeypatch.setattr(conversation, "send", record_config)
+    plan_provider(monkeypatch, [("dft_conversation", route()), ("dft_task", plan("vasp"))])
+    widget(ui.button, "Plan step").click().run()
+    assert not ui.exception and not ui.error
+    assert configs[-1].host == "replacement.invalid" and configs[-1].partition == "new"
+    widget(ui.button, "Prepare inputs").click().run()
+    assert not ui.exception and not ui.error and widget(ui.button, "Submit").disabled
+    from vasp_slurm_agent.config import ClusterConfig
+    prepared = execution.latest(pid, graph["id"], "scf")
+    run = workspace.get_run(pid, prepared["run_id"])
+    frozen = ClusterConfig.load(Path(run["run_dir"]) / "config.json")
+    assert frozen.host == "replacement.invalid" and frozen.partition == "new"
+    workflow.start_worker.assert_not_called()
+
+
 def test_revoked_model_and_archive_remove_chat_capability(workspace):
     pid, sid, registry = seed(workspace)
     ui = app()
@@ -316,6 +376,40 @@ def test_prepared_run_requires_review_and_explicit_submit(workspace, monkeypatch
     ui.run()
     launched.assert_called_once()
     assert execution.latest(pid, graph["id"], "scf")["state"] == "active"
+
+
+@pytest.mark.parametrize("outcome", ["resume", "error", "completed_unverified"])
+def test_resume_monitoring_is_explicit_and_reports_errors_safely(workspace, monkeypatch, outcome):
+    pid, sid, _ = seed(workspace)
+    graph = workspace.create_workflow(pid, sid, "Program", "Run a program", [
+        {"id": "program", "name": "Program", "engine": "python", "spec": {"goal": "Run a program"}}])
+    attempt = {"state": "completed_unverified" if outcome == "completed_unverified" else "needs_attention",
+               "run_id": "fixture", "approved_digest": "reviewed"}
+    monkeypatch.setattr(ProjectExecution, "latest", lambda *a: attempt)
+    resumed = Mock(side_effect=ValueError("Connection failed: password=fixture-secret") if outcome == "error" else None)
+    monkeypatch.setattr(ProjectExecution, "resume_monitoring", resumed)
+    ui = AppTest.from_string(
+        "from vasp_slurm_agent.workspace import Workspace\n"
+        "from vasp_slurm_agent.connections import ConnectionRegistry\n"
+        "from vasp_slurm_agent.project_execution import ProjectExecution\n"
+        "from vasp_slurm_agent.project_app import _step_controls\n"
+        "workspace = Workspace()\nregistry = ConnectionRegistry(workspace)\n"
+        f"_step_controls(workspace, registry, ProjectExecution(workspace, registry), {pid!r}, "
+        f"workspace.get_workflow({pid!r}, {graph['id']!r}), 'program', None, False)"
+    ).run()
+    assert not ui.exception
+    resumed.assert_not_called()
+    if outcome == "completed_unverified":
+        assert not any(button.label == "Resume monitoring" for button in ui.button)
+        return
+    widget(ui.button, "Resume monitoring").click().run()
+    resumed.assert_called_once_with(pid, graph["id"], "program", confirmed=True)
+    assert not ui.exception
+    if outcome == "error":
+        assert ui.error and "[secret omitted]" in ui.error[0].value
+        assert "fixture-secret" not in ui.error[0].value
+    else:
+        assert not ui.error
 
 
 def test_context_can_hide_and_connections_use_secure_panel(workspace):
