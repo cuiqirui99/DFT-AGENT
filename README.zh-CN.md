@@ -8,7 +8,7 @@
 
 在对话中描述计算任务，DFT Agent 为你准备输入文件，并在自己的超算集群上运行 VASP、Quantum ESPRESSO、ABINIT、CP2K 或 Elk。每个项目独立保存文件、对话和结果，可以在同一处修改任务、讨论数据。
 
-![DFT Agent 工作流程](docs/assets/workflow.png)
+![DFT Agent 工作流程](https://raw.githubusercontent.com/cuiqirui99/DFT-AGENT/905b039bd9fbcffccfad738e927f27a55af4ec80/docs/assets/workflow.png)
 
 支持结构编辑、弛豫、SCF、能带、态密度、磁性、SOC、DFT+U 和杂化泛函。[QE](docs/qe.md)还支持声子、NEB、电子–声子耦合和常规超导计算。[ABINIT、CP2K 和 Elk](docs/open-source-codes.md)提供声子、分子动力学和光学响应等方法。具体能力取决于计算程序。
 

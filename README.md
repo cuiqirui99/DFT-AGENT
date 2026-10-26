@@ -8,7 +8,7 @@
 
 Describe your calculation in chat. DFT Agent prepares the inputs and runs VASP, Quantum ESPRESSO, ABINIT, CP2K or Elk on your HPC cluster. Each project keeps its files, conversations and results together, so you can revise tasks and discuss the results in one place.
 
-![DFT Agent workflow](docs/assets/workflow.png)
+![DFT Agent workflow](https://raw.githubusercontent.com/cuiqirui99/DFT-AGENT/905b039bd9fbcffccfad738e927f27a55af4ec80/docs/assets/workflow.png)
 
 Workflows include structure editing, relaxation, SCF, bands, DOS, magnetism, SOC, DFT+U and hybrid functionals. [QE](docs/qe.md) also supports phonons, NEB, electron–phonon coupling and conventional superconductivity. [ABINIT, CP2K and Elk](docs/open-source-codes.md) add methods for phonons, molecular dynamics and optical response. Available methods depend on the engine.
 
