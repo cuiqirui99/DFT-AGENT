@@ -7,7 +7,7 @@ from pathlib import Path
 
 from . import agent, explanation, project_files
 from .connections import ConnectionRegistry
-from .project_context import build_project_context, _private_file, _value
+from .project_context import build_project_context, check_context_budget, _private_file, _value
 from .secret_guard import reject_ordinary_text
 
 
@@ -170,6 +170,7 @@ def _context(workspace, registry, project_id, session_id, message, workflow_id, 
     elif step_id:
         raise ValueError("Select the step's workflow first.")
     reject_ordinary_text(json.dumps(result))
+    check_context_budget(result)
     return result
 
 
@@ -343,7 +344,10 @@ def send(workspace, project_id, session_id, message, model_connection_id, *,
         raise ValueError("Use the secure credential field. Do not put credentials in chat.")
     with _operation(workspace, project_id, session_id):
         # Check every supplied identity before accepting a turn or calling a model.
-        _context(workspace, registry, project_id, session_id, message, workflow_id, step_id, run_ids)
+        preview = _context(workspace, registry, project_id, session_id, message, workflow_id, step_id, run_ids)
+        preview["session"]["history"].append({"role": "user", "content": preview["question"]})
+        preview["session"]["revision"] += 1
+        check_context_budget(preview)
         session = workspace.get_session(project_id, session_id)
         session = workspace.append_message(project_id, session_id, "user", message, expected_revision=session["revision"])
         calls, observed = [], {}

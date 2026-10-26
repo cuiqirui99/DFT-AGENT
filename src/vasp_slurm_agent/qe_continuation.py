@@ -490,20 +490,44 @@ def _failed_snapshot(run_dir):
     return root, state, stage, index, "\n".join(tails), attempt, digest
 
 
+def _repair_electrons(stage):
+    """Read the options used by the failed calculation, including defaults."""
+    parameters = stage["parameters"]
+    return {"electron_maxstep": parameters.get("electron_maxstep", 120), "mixing_beta": 0.7,
+            **qe_workflow.qe._extra(parameters, "electrons"),
+            **stage.get("metadata", {}).get("namelists", {}).get("electrons", {})}
+
+
+def _update_electrons(parameters, changes):
+    electrons = qe_workflow.qe._extra(parameters, "electrons")
+    electrons.update(changes)
+    native = parameters.setdefault("namelists", {})
+    section = next((key for key in native if key.lower() == "electrons"), "electrons")
+    native[section] = electrons
+
+
 def repair_options(run_dir):
     root, state, stage, index, logs, attempt, digest = _failed_snapshot(run_dir)
     options = []
     if attempt <= MAX_REPAIRS:
         if stage["scheduler_state"] == "TIMEOUT":
-            options.append({"action": "increase_walltime", "reason": "Slurm recorded a time limit."})
+            try:
+                _longer_walltime(ClusterConfig.load(root / "config.json").walltime)
+            except ValueError:
+                pass
+            else:
+                options.append({"action": "increase_walltime", "reason": "Slurm recorded a time limit."})
         if stage["name"] in {"scf", "relax", "vc-relax"} and re.search(r"convergence\s+NOT\s+achieved", logs, re.I):
-            options.extend([{"action": "increase_electronic_steps", "reason": "The SCF iteration limit was reached."},
-                            {"action": "reduce_mixing", "reason": "SCF did not converge; a smaller mixing step may help."}])
+            electrons = _repair_electrons(stage)
+            if electrons["electron_maxstep"] < 1000:
+                options.append({"action": "increase_electronic_steps", "reason": "The SCF iteration limit was reached."})
+            if electrons["mixing_beta"] > 0.05:
+                options.append({"action": "reduce_mixing", "reason": "SCF did not converge; a smaller mixing step may help."})
         unconverged = stage["name"] in {"bands", "nscf"} and re.search(r"c_bands:.*eigenvalues not converged", logs, re.I)
         # Davidson stops when its subspace overlap turns singular (cdiaghg/rdiaghg); CG avoids that subspace.
         singular = re.search(r"Error in routine [cr]diaghg|S matrix not positive definite|problems computing cholesky", logs, re.I)
         if unconverged or singular:
-            electrons = qe_workflow.qe._extra(stage["parameters"], "electrons")
+            electrons = _repair_electrons(stage)
             if (electrons.get("diagonalization") != "cg" or electrons.get("diago_cg_maxiter", 20) < 1000
                     or not electrons.get("diago_full_acc", False)):
                 reason = ("Some band eigenvalues did not converge." if unconverged
@@ -617,27 +641,24 @@ def prepare_repair(source_run, run_dir, action, expected_snapshot_sha256):
         changes["walltime"] = {"before": config.walltime, "after": _longer_walltime(config.walltime)}
         config = replace(config, walltime=changes["walltime"]["after"])
     elif action == "increase_electronic_steps":
-        before = recipes[0].get("namelists", {}).get("electrons", {}).get("electron_maxstep", recipes[0].get("electron_maxstep", 100))
+        before = _repair_electrons(failed)["electron_maxstep"]
         after = min(1000, int(before) * 2)
         if after <= before:
             raise ValueError("The electronic iteration limit is already at the repair cap.")
-        recipes[0].setdefault("namelists", {}).setdefault("electrons", {})["electron_maxstep"] = after
+        _update_electrons(recipes[0], {"electron_maxstep": after})
         changes["electron_maxstep"] = {"before": before, "after": after}
     elif action == "use_cg_diagonalization":
-        electrons = qe_workflow.qe._extra(recipes[0], "electrons")
+        electrons = _repair_electrons(failed)
         updated = {"diagonalization": "cg", "diago_cg_maxiter": min(1000, max(200, int(electrons.get("diago_cg_maxiter", 20)) * 2)),
                    "diago_full_acc": True}
         changes.update({key: {"before": electrons.get(key), "after": value} for key, value in updated.items()})
-        electrons.update(updated)
-        native = recipes[0].setdefault("namelists", {})
-        section = next((key for key in native if key.lower() == "electrons"), "electrons")
-        native[section] = electrons
+        _update_electrons(recipes[0], updated)
     else:
-        before = recipes[0].get("namelists", {}).get("electrons", {}).get("mixing_beta", 0.7)
+        before = _repair_electrons(failed)["mixing_beta"]
         after = max(0.05, min(0.3, float(before) / 2))
         if after >= before:
             raise ValueError("The mixing step is already at the repair floor.")
-        recipes[0].setdefault("namelists", {}).setdefault("electrons", {})["mixing_beta"] = after
+        _update_electrons(recipes[0], {"mixing_beta": after})
         changes["mixing_beta"] = {"before": before, "after": after}
     with tempfile.TemporaryDirectory(prefix=".qe-repair-", dir=target.parent) as directory:
         prepared = Path(directory) / "run"

@@ -13,7 +13,7 @@ from .prompt_context import compact_history
 from .secret_guard import redact
 
 
-_LIMITS = {"messages": 40, "workflows": 12, "files": 40, "artifacts": 40, "memory": 24,
+_LIMITS = {"messages": None, "workflows": 12, "files": 40, "artifacts": 40, "memory": 24,
            "runs": 3, "characters": 80000}
 _LOCAL_PATH = re.compile(r"(?<![\w:/])(?:~?/[^\s,;\"']+|[A-Za-z]:\\[^\s,;\"']+)")
 
@@ -30,6 +30,14 @@ def _value(value):
     if isinstance(value, dict):
         return {_text(key): _value(item) for key, item in value.items()}
     return value
+
+
+def check_context_budget(context, characters=None):
+    serialized = json.dumps(context, ensure_ascii=False, allow_nan=False, sort_keys=True)
+    if len(serialized) > (characters if characters is not None else _LIMITS["characters"]):
+        raise ValueError("Project context is too large. Save the requirements in a workflow or project note, "
+                         "then start a shorter session or select fewer records.")
+    return serialized
 
 
 def _owned(record, project_id):
@@ -79,8 +87,8 @@ def build_project_context(workspace, project_id, *, session_id=None,
                           question="", limits=None):
     """Return bounded, path-free context; no model call or cluster access occurs.
 
-    All histories remain stored. Omitted counts tell a later reader which
-    sections need a narrower query. Selected run facts are never truncated.
+    Full conversation history is included by default within the character
+    budget. Explicit record limits report omissions; run facts stay complete.
     """
     bounds = dict(_LIMITS)
     if limits:
@@ -103,7 +111,7 @@ def build_project_context(workspace, project_id, *, session_id=None,
     if session_id is not None:
         session = _owned(workspace.get_session(project_id, session_id), project_id)
         messages = session.get("messages", [])
-        selected = messages[-bounds["messages"]:]
+        selected = messages if bounds["messages"] is None else messages[-bounds["messages"]:]
         context["session"] = {"id": session["id"], "title": _text(session["title"]),
                               "revision": session["revision"], "history": compact_history([
                                   {"role": item["role"], "content": _text(item["content"])}
@@ -163,8 +171,6 @@ def build_project_context(workspace, project_id, *, session_id=None,
                                 "status": evidence["status"], "outcome": _text(evidence["outcome"]),
                                 "context_sha256": evidence["context_sha256"], "facts": facts,
                                 "limits": _value(evidence.get("limits", []))})
-    serialized = json.dumps(context, ensure_ascii=False, allow_nan=False, sort_keys=True)
-    if len(serialized) > bounds["characters"]:
-        raise ValueError("Project context is too large. Select fewer records or a shorter session.")
+    serialized = check_context_budget(context, bounds["characters"])
     context["context_sha256"] = hashlib.sha256(serialized.encode()).hexdigest()
     return context

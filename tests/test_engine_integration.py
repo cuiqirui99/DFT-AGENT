@@ -199,6 +199,12 @@ _environments_panel(registry, registry.get({cid!r}), "t_", {{"discovered": True}
     start = next(button for button in view.button if button.label == "Start the installation")
     assert start.disabled
     assert any(plan["prefix"] in item.value for item in view.code)
+    planned = Mock()
+    monkeypatch.setattr(ConnectionRegistry, "engine_install_plan", planned)
+    next(item for item in view.text_area if item.label == "Scheduler options (optional)").set_value("--qos=required\n--mem=8G")
+    next(button for button in view.button if button.label == "Plan the installation").click().run()
+    assert not view.exception
+    planned.assert_called_once_with(cid, "elk", partition="cpu", account="naiss", extra_sbatch=["--qos=required", "--mem=8G"])
     started = Mock()
     monkeypatch.setattr(ConnectionRegistry, "engine_install_start", started)
     view.checkbox[0].check().run()

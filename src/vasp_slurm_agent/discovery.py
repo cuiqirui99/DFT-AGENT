@@ -1,4 +1,4 @@
-"""Find Slurm partitions, accounts, VASP modules and POTCAR folders on a cluster.
+"""Find scheduler queues, software modules and POTCAR folders on a cluster.
 
 One SSH session runs a read-only shell script. Its output is parsed into facts
 and turned into suggested settings that the user reviews before saving.
@@ -21,6 +21,10 @@ section user
 id -un 2>/dev/null
 section slurm
 for n in sbatch squeue sacct scancel sinfo; do command -v "$n" >/dev/null 2>&1 && printf '%s\n' "$n"; done
+section pbs
+for n in qsub qstat qdel; do command -v "$n" >/dev/null 2>&1 && printf '%s\n' "$n"; done
+section pbs_queues
+qstat -Qf -F json 2>/dev/null
 section partitions
 sinfo -h -o '%P|%a|%l|%D|%G' 2>/dev/null | head -n 50
 section accounts
@@ -48,7 +52,7 @@ for d in "$SCRATCH" "$WORK" "$WORKDIR" "$PDC_TMP" "/scratch/$u" "$HOME/scratch" 
   [ -n "$d" ] && [ -d "$d" ] && [ -w "$d" ] && printf '%s\n' "$d"
 done 2>/dev/null | awk '!seen[$0]++' | head -n 10
 """
-SECTIONS = ("home", "user", "slurm", "partitions", "accounts", "modules", "executables", "codes", "potcar", "scratch")
+SECTIONS = ("home", "user", "slurm", "pbs", "pbs_queues", "partitions", "accounts", "modules", "executables", "codes", "potcar", "scratch")
 CODES = {"abinit": ("abinit",), "cp2k": ("cp2k.psmp", "cp2k.popt", "cp2k"), "elk": ("elk",), "qe": ("pw.x",)}
 _SAFE_TEXT = re.compile(r"[^\x20-\x7e]")
 _NAME = re.compile(r"[\w.+/:@-]+")
@@ -60,12 +64,12 @@ class DiscoveryError(RuntimeError):
 
 
 def probe_config(host: str, user: str, port: int = 22, *, connect_timeout: int = 15, ssh_control_path: str = "",
-                 setup_commands: list[str] | None = None, compute_backend: str = "cpu") -> ClusterConfig:
+                 setup_commands: list[str] | None = None, compute_backend: str = "cpu", scheduler: str = "slurm") -> ClusterConfig:
     """A provisional configuration that only carries connection settings."""
     return ClusterConfig(host=host.strip(), user=user.strip(), remote_root="/tmp", vasp_command="vasp_std",
                          potcar_root="/tmp", partition="probe", port=int(port), connect_timeout=int(connect_timeout),
                          ssh_control_path=ssh_control_path or "", setup_commands=list(setup_commands or []),
-                         compute_backend=compute_backend, tasks=1 if compute_backend == "gpu" else 8)
+                         compute_backend=compute_backend, tasks=1 if compute_backend == "gpu" else 8, scheduler=scheduler)
 
 
 def _clean(line: str, limit: int = 300) -> str:
@@ -74,10 +78,12 @@ def _clean(line: str, limit: int = 300) -> str:
 
 def parse_probe(output: str) -> dict:
     """Turn the probe script output into plain facts. Unknown sections are ignored."""
+    if len(output) > 2_000_000:
+        raise DiscoveryError("The discovery response is too large. Enter the cluster settings manually.")
     sections: dict[str, list[str]] = {name: [] for name in SECTIONS}
     current = None
     for raw in output.splitlines():
-        line = _clean(raw)
+        line = _SAFE_TEXT.sub("", raw).strip() if current == "pbs_queues" else _clean(raw)
         if line.startswith(MARK):
             name = line[len(MARK):].strip()
             current = name if name in sections else None
@@ -97,6 +103,22 @@ def parse_probe(output: str) -> dict:
                            "nodes": fields[3] if len(fields) > 3 else "", "gres": gres,
                            "gpus_per_node": sum(int(count) for count in gpu_counts)})
     accounts = [line for line in sections["accounts"] if re.fullmatch(r"[\w.-]+", line)]
+    queues = []
+    try:
+        pbs = json.loads("\n".join(sections["pbs_queues"])).get("Queue", {})
+        if isinstance(pbs, dict):
+            for name, item in pbs.items():
+                if not re.fullmatch(r"[\w.-]+", name) or not isinstance(item, dict):
+                    continue
+                if (str(item.get("queue_type", "")).lower() != "execution"
+                        or str(item.get("enabled", "")).lower() != "true"
+                        or str(item.get("started", "")).lower() != "true"):
+                    continue
+                queues.append({"name": name, "default": False,
+                               "timelimit": item.get("resources_max", {}).get("walltime", ""),
+                               "gpus_per_node": 0})
+    except (ValueError, AttributeError, TypeError):
+        pass
     # Lmod's terse listing also prints bare folder names such as "VASP/".
     modules = [line for line in sections["modules"] if _NAME.fullmatch(line) and not line.endswith("/")]
     executables = {}
@@ -122,7 +144,8 @@ def parse_probe(output: str) -> dict:
     scratch = [line for line in sections["scratch"] if line.startswith("/")]
     home = next((line for line in sections["home"] if line.startswith("/")), "")
     return {"home": home, "user": sections["user"][0] if sections["user"] else "",
-            "slurm": sections["slurm"], "partitions": partitions, "accounts": accounts, "modules": modules,
+            "slurm": sections["slurm"], "pbs": sections["pbs"], "pbs_queues": queues,
+            "partitions": partitions, "accounts": accounts, "modules": modules,
             "executables": executables, "codes": codes, "potcar_roots": potcar, "scratch_dirs": scratch}
 
 
@@ -136,11 +159,14 @@ def preferred_module(names):
     return max(pool, key=lambda name: tuple(int(part) for part in re.findall(r"\d+", name.split("/", 1)[-1])[:3]))
 
 
-def suggest(facts: dict, compute_backend: str = "cpu") -> dict:
+def suggest(facts: dict, compute_backend: str = "cpu", scheduler: str = "slurm") -> dict:
     """Suggested settings and notes. Every value still needs the user's review."""
     suggested: dict = {}
     notes: list[str] = []
-    partitions = facts.get("partitions") or []
+    from .scheduler import get_scheduler
+    adapter = get_scheduler(scheduler)
+    launcher = "mpiexec" if scheduler == "pbs" else "srun"
+    partitions = facts.get("pbs_queues" if scheduler == "pbs" else "partitions") or []
     compatible = [item for item in partitions if bool(item.get("gpus_per_node")) == (compute_backend == "gpu")]
     if compatible:
         default = next((item for item in compatible if item["default"]), compatible[0])
@@ -152,8 +178,9 @@ def suggest(facts: dict, compute_backend: str = "cpu") -> dict:
     elif partitions:
         notes.append("Only GPU partitions were found. Select GPU to use them.")
     else:
-        notes.append("No Slurm partitions were listed. Check that Slurm commands are on the login node's PATH.")
-    if facts.get("accounts"):
+        notes.append("No OpenPBS execution queues were listed. Enter a queue or check qstat JSON support."
+                     if scheduler == "pbs" else "No Slurm partitions were listed. Check that Slurm commands are on the login node's PATH.")
+    if scheduler == "slurm" and facts.get("accounts"):
         suggested["account"] = facts["accounts"][0]
         if len(facts["accounts"]) > 1:
             notes.append("Several Slurm accounts are available: " + ", ".join(facts["accounts"][:6]) + ".")
@@ -172,13 +199,13 @@ def suggest(facts: dict, compute_backend: str = "cpu") -> dict:
     modules = [name for name in facts.get("modules") or []
                if bool(_GPU_MODULE.search(name)) == (compute_backend == "gpu")]
     if "vasp_std" in executables and compute_backend == "cpu":
-        suggested["vasp_command"] = "srun vasp_std"
-        suggested["vasp_ncl_command"] = "srun vasp_ncl" if "vasp_ncl" in executables else ""
+        suggested["vasp_command"] = f"{launcher} vasp_std"
+        suggested["vasp_ncl_command"] = f"{launcher} vasp_ncl" if "vasp_ncl" in executables else ""
     elif modules:
         chosen = preferred_module(modules)
         suggested["setup_commands"] = [f"module load {chosen}"]
-        suggested["vasp_command"] = "srun vasp_std"
-        suggested["vasp_ncl_command"] = "srun vasp_ncl"
+        suggested["vasp_command"] = f"{launcher} vasp_std"
+        suggested["vasp_ncl_command"] = f"{launcher} vasp_ncl"
         others = [name for name in modules if name != chosen]
         if others:
             notes.append("Other VASP modules: " + ", ".join(others[:5]) + ".")
@@ -186,9 +213,9 @@ def suggest(facts: dict, compute_backend: str = "cpu") -> dict:
         notes.append("No GPU VASP module was identified. Set the module and command for your GPU build.")
     else:
         notes.append("VASP was not found on the PATH or as a module. Use the full path to vasp_std in the VASP command.")
-    missing = {"sbatch", "squeue", "sacct", "scancel"} - set(facts.get("slurm") or [])
+    missing = set(adapter.required_commands) - set(facts.get(scheduler) or [])
     if missing:
-        notes.append("Missing Slurm commands: " + ", ".join(sorted(missing)) + ".")
+        notes.append(f"Missing {'OpenPBS' if scheduler == 'pbs' else 'Slurm'} commands: " + ", ".join(sorted(missing)) + ".")
     return {"suggested": suggested, "notes": notes}
 
 
@@ -224,7 +251,7 @@ def probe_cluster(config: ClusterConfig, transport=None, timeout: int = 90) -> d
             detail = (result.stderr or output or "no output").strip()[-500:]
             raise DiscoveryError(f"The cluster did not answer the probe: {detail}")
         facts = parse_probe(output)
-        report = suggest(facts, config.compute_backend)
+        report = suggest(facts, config.compute_backend, config.scheduler)
         if config.setup_commands and "setup_commands" in report["suggested"]:
             report["suggested"]["setup_commands"] = merge_suggestions(
                 {"setup_commands": config.setup_commands}, report["suggested"])["setup_commands"]

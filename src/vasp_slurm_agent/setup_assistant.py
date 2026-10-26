@@ -148,7 +148,8 @@ def answer(state, field, response):
             settings.pop("model", None)
             settings.pop("base_url", None)
         if field == "engine" and settings.get(field) != response:
-            for key in ("vasp_command", "potcar_root", "vasp_ncl_command", "qe_command", "qe_bin_dir", "qe_pseudo_root", "qe_pseudopotentials", "command"):
+            for key in ("vasp_command", "potcar_root", "vasp_ncl_command", "qe_command", "qe_bin_dir", "qe_pseudo_root", "qe_pseudopotentials", "command",
+                        "engine_command", "engine_library_root", "engine_library"):
                 settings.setdefault("config", {}).pop(key, None)
         settings[field] = response
     updated["history"].extend([{"role": "assistant", "content": question["label"]},

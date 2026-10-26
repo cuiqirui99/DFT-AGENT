@@ -1140,9 +1140,11 @@ _environments_panel(registry, registry.get({cid!r}), 'build_', {{'discovered': T
     assert not view.exception and widget(view.button, "Start the build").disabled
     assert widget(view.text_area, "Module commands (optional, one per line)").value == "module purge\nmodule load gcc openmpi"
     widget(view.text_input, "Account (optional)").set_value("my-other-allocation")
+    widget(view.text_area, "Scheduler options (optional)").set_value("--qos=required\n--mem=8G\n--constraint=zen4")
     widget(view.button, "Plan the build").click().run()
     assert not view.exception and planned[0][1]["account"] == "my-other-allocation"
     assert planned[0][1]["setup_commands"] == ["module purge", "module load gcc openmpi"]
+    assert planned[0][1]["extra_sbatch"] == ["--qos=required", "--mem=8G", "--constraint=zen4"]
     registry._store_probe(cid, "qe_install", {**install, "status": "failed", "error": "Compiler could not link MPI.", "job_id": "123"})
     view.run()
     assert any("Compiler could not link MPI" in item.value for item in view.error)

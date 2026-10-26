@@ -89,6 +89,8 @@ click **Plan the build**. Review the destination and resources, tick the
 confirmation box, then **Start the build**. **Check the build** shows progress
 or an error; a completed build adds its own QE environment.
 
+In any managed installer, use **Scheduler options** for required memory, QoS or constraints, one option per line.
+
 The agent can plan installation, but cannot replace the app's confirmation.
 Building requires a compatible MPI Fortran toolchain and source-download access.
 Cluster restrictions or missing dependencies may need administrator help.

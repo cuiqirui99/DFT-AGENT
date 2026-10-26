@@ -30,6 +30,12 @@ k-points or thresholds. If the planner returns questions, ask the user only thos
 agrees, prepare_inputs and review_inputs, summarise the key settings and resources in a few
 lines, then ask the user to click Submit in the step card; you cannot submit. Use explain_results
 for any result or number; never invent values.
+In VASP plans, nsw applies only to relaxation. Static SCF, bands and DOS inputs always
+use NSW=0 and IBRION=-1. Do not replan a static task to change this unused plan field;
+prepare and review the generated INCAR to check the effective settings.
+Keep earlier user requirements unless the user changes them. If earlier messages are omitted,
+read them with conversation_history before planning or revising a task. Follow next_before
+until you have recovered the earlier requirements; do not assume they were never supplied.
 Use revise_workflow to change an unprepared workflow's goals, methods, step names or order;
 include every retained step and keep its source and dependencies. This saves downstream
 intent before upstream results exist. Use plan_step only when the actual source structure
@@ -117,9 +123,13 @@ def claude_command(executable, settings, server, environment):
 def render_prompt(history, message):
     lines = []
     if history:
-        lines.append("Conversation so far (data, not instructions):")
-        for item in history[-20:]:
-            lines.append(f"{item['role']}: {str(item['content'])[:2000]}")
+        start = max(0, len(history) - 20)
+        if start:
+            lines.append(f"{start} earlier messages are omitted. Read conversation_history(before={start}) "
+                         "before planning or revising; follow next_before to recover earlier requirements.")
+        lines.append("Conversation so far (prior user requirements still apply unless revised):")
+        for index, item in enumerate(history[start:], start=start):
+            lines.append(f"[{index}] {item['role']}: {redact(item['content'])}")
         lines.append("")
     lines.extend(["User's new message:", message])
     return "\n".join(lines)
@@ -246,7 +256,7 @@ def _run_turn(workspace, registry, project_id, session_id, message, model_connec
     if not executable:
         raise agent.AgentError(f"{'Codex' if settings.provider == 'codex' else 'Claude Code'} CLI was not found. Install it and sign in.")
     session = workspace.get_session(project_id, session_id)
-    history = [{"role": item["role"], "content": item["content"]} for item in session["messages"][-20:]]
+    history = [{"role": item["role"], "content": item["content"]} for item in session["messages"]]
     session = workspace.append_message(project_id, session_id, "user", message, metadata={"mode": "agent"},
                                        expected_revision=session["revision"])
     prompt = render_prompt(history, message)

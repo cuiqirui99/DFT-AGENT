@@ -2,8 +2,10 @@ import json
 from pathlib import Path
 
 import pytest
+from pymatgen.core import Lattice, Structure
 
 from vasp_slurm_agent import qe_continuation as continuation, qe_workflow
+from vasp_slurm_agent.config import ClusterConfig
 from test_qe_context import accepted_qe
 from test_qe_workflow import FakeTransport, complete
 from test_qe import xml_output
@@ -72,9 +74,77 @@ def test_bounded_repair_uses_actual_failure_and_separate_run(accepted_qe, tmp_pa
     target = tmp_path / "repair"
     state = continuation.prepare_repair(accepted_qe, target, "increase_electronic_steps", options["snapshot_sha256"])
     assert state["status"] == "planned" and state["stages"][0]["job_id"] is None
-    assert state["stages"][0]["parameters"]["namelists"]["electrons"]["electron_maxstep"] == 200
+    assert state["stages"][0]["parameters"]["namelists"]["electrons"]["electron_maxstep"] == 240
     assert json.loads((target / "repair.json").read_text())["attempt"] == 1
     assert before == {str(path): qe_workflow._digest(path) for path in accepted_qe.rglob("*") if path.is_file()}
+
+
+def _failed_native_scf(tmp_path, parameters):
+    source = tmp_path / "Si.cif"
+    Structure(Lattice.cubic(5.43), ["Si", "Si"], [[0, 0, 0], [.25, .25, .25]]).to(filename=source)
+    config = ClusterConfig(engine="qe", host="test.invalid", user="test", partition="cpu",
+                           remote_root="/scratch/jobs", qe_pseudo_root="/pseudo",
+                           qe_pseudopotentials={"Si": "Si.UPF"})
+    root = tmp_path / "failed"
+    qe_workflow.prepare_plan(source, root, config, ["scf"], parameters)
+    transport = FakeTransport()
+    qe_workflow.advance(root, transport)
+    complete(root, transport)
+    output = tmp_path / "fixture"
+    output.mkdir()
+    xml_output(output, source)
+    transport.files["data-file-schema.xml"] = (output / "data-file-schema.xml").read_bytes()
+    transport.files["pw.out"] = b"convergence NOT achieved\nJOB DONE.\n"
+    state = qe_workflow.advance(root, transport)
+    assert state["status"] == "needs_attention" and not state["stages"][0]["result"]["success"]
+    return root
+
+
+@pytest.mark.parametrize("action", ["reduce_mixing", "increase_electronic_steps"])
+@pytest.mark.parametrize("section,key_case", [("ELECTRONS", str.upper), ("electrons", str.upper), ("electrons", str.lower)])
+def test_scf_repair_respects_native_capitalization(tmp_path, action, section, key_case):
+    parameters = {"conv_thr": 1e-10, "mesh": [4, 4, 4], "namelists": {
+        section: {key_case("mixing_beta"): .1, key_case("electron_maxstep"): 80,
+                  key_case("diagonalization"): "cg"}}}
+    root = _failed_native_scf(tmp_path, parameters)
+    before = {str(path): qe_workflow._digest(path) for path in root.rglob("*") if path.is_file()}
+    options = continuation.repair_options(root)
+    target = tmp_path / "repair"
+    state = continuation.prepare_repair(root, target, action, options["snapshot_sha256"])
+    actual = state["stages"][0]["metadata"]["namelists"]["electrons"]
+    assert actual["mixing_beta"] == (.05 if action == "reduce_mixing" else .1)
+    assert actual["electron_maxstep"] == (160 if action == "increase_electronic_steps" else 80)
+    assert actual["conv_thr"] == 1e-10 and actual["diagonalization"] == "cg"
+    assert state["stages"][0]["parameters"]["mesh"] == [4, 4, 4]
+    assert before == {str(path): qe_workflow._digest(path) for path in root.rglob("*") if path.is_file()}
+    assert not any(stage["job_id"] for stage in state["stages"])
+
+
+def test_scf_repair_reports_and_doubles_the_effective_default(accepted_qe, tmp_path):
+    fail_scf(accepted_qe)
+    options = continuation.repair_options(accepted_qe)
+    continuation.prepare_repair(accepted_qe, tmp_path / "repair", "increase_electronic_steps", options["snapshot_sha256"])
+    change = json.loads((tmp_path / "repair/repair.json").read_text())["changes"]["electron_maxstep"]
+    assert change == {"before": 120, "after": 240}
+
+
+def test_scf_repair_does_not_offer_exhausted_native_limits(tmp_path):
+    root = _failed_native_scf(tmp_path, {"namelists": {"ELECTRONS": {
+        "ELECTRON_MAXSTEP": 1000, "MIXING_BETA": .05}}})
+    options = continuation.repair_options(root)
+    assert options["actions"] == []
+    for action in ("increase_electronic_steps", "reduce_mixing"):
+        with pytest.raises(ValueError, match="available repair"):
+            continuation.prepare_repair(root, tmp_path / action, action, options["snapshot_sha256"])
+
+
+def test_timeout_repair_does_not_offer_walltime_above_cap(accepted_qe, monkeypatch):
+    from dataclasses import replace
+    config = ClusterConfig.load(accepted_qe / "config.json")
+    replace(config, walltime="168:00:00").save(accepted_qe / "config.json")
+    stage = {"name": "scf", "scheduler_state": "TIMEOUT", "parameters": {}}
+    monkeypatch.setattr(continuation, "_failed_snapshot", lambda root: (accepted_qe, {}, stage, 0, "time limit", 1, "snapshot"))
+    assert continuation.repair_options(accepted_qe)["actions"] == []
 
 
 def test_repair_budget_and_stale_evidence(accepted_qe, tmp_path):

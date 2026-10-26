@@ -126,10 +126,10 @@ disabled (`--sandbox read-only` and `features.shell_tool=false` for Codex;
 `--tools ""` with `--allowedTools mcp__dft__*` for Claude Code). Codex needs
 `mcp_servers.dft.default_tools_approval_mode = "approve"`, which the app sets;
 without it every tool call is rejected under `approval_policy = "never"`. The
-conversation history is passed with each turn; sessions are not persisted by
-the CLIs. Tool calls are listed under each reply. There is no submit tool: the
-agent prepares and reviews, then asks for the click. API providers always use
-the guided mode because they have no agent loop of their own.
+recent conversation is passed in full with each turn; older messages can be read
+with `conversation_history`. Sessions stay in the project, not in the CLIs.
+Tool calls are listed under each reply. There is no submit tool: the agent
+prepares and reviews, then asks for the click. API connections use guided mode.
 
 ## Quantum ESPRESSO installation
 

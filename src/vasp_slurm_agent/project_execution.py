@@ -375,6 +375,14 @@ class ProjectExecution:
                         record = conversation_store.load(folder)
                         record.update(messages=previous_messages, goal=previous_goal)
                         conversation_store.save(folder, record, expected_revision=record['revision'])
+                    elif step['spec'].get('goal') and step['spec']['goal'] != text:
+                        # A short follow-up still needs the saved step's original
+                        # requirements. Add them once, before later user revisions.
+                        goal = step['spec']['goal']
+                        reject_ordinary_text(goal)
+                        record = conversation_store.load(folder)
+                        record.update(messages=[{'role': 'user', 'content': goal}], goal=goal)
+                        conversation_store.save(folder, record, expected_revision=record['revision'])
                     relative = folder.relative_to(self.workspace.project_paths(project_id)['root']).as_posix()
                     attempt = self._save(attempt, conversation_path=relative, source_context=receipt)
                 else:

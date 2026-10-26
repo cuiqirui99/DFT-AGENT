@@ -675,8 +675,11 @@ class ConnectionRegistry:
         if item["connection_status"] != "connected":
             raise ValueError("Test the cluster connection first.")
         settings = item["settings"]
+        scheduler = self._scheduler_for(item)
+        launcher = "mpiexec" if scheduler == "pbs" else "srun"
         config = discovery.probe_config(settings["host"], settings["user"], settings["port"],
-                                        connect_timeout=settings["connect_timeout"], ssh_control_path=settings["ssh_control_path"])
+                                        connect_timeout=settings["connect_timeout"], ssh_control_path=settings["ssh_control_path"],
+                                        scheduler=scheduler)
         remote = SSHTransport(self._transport_config(item), password=self.ssh_password(identifier))
         try:
             report = discovery.probe_cluster(config, transport=remote)
@@ -698,7 +701,7 @@ class ConnectionRegistry:
                 missing["vasp"] = vasp_missing
             else:
                 values = {**base, "potcar_root": suggested["potcar_root"],
-                          "vasp_command": suggested.get("vasp_command") or "srun vasp_std",
+                          "vasp_command": suggested.get("vasp_command") or f"{launcher} vasp_std",
                           "vasp_ncl_command": suggested.get("vasp_ncl_command", ""),
                           "setup_commands": suggested.get("setup_commands", []), "walltime": "02:00:00"}
                 created.append(self.create_environment(identifier, "VASP · " + base["partition"], "vasp",
@@ -710,7 +713,7 @@ class ConnectionRegistry:
             if not base["partition"]:
                 missing["qe"] = ["partition"]
             else:
-                values = {**base, "qe_command": "srun pw.x",
+                values = {**base, "qe_command": f"{launcher} pw.x",
                           "qe_pseudo_root": str(PurePosixPath(settings["remote_base"] or "/tmp") / "pseudos"), "walltime": "02:00:00"}
                 if qe_modules and not qe_executables and "pw.x" not in tools:
                     values["setup_commands"] = [f"module load {discovery.preferred_module(qe_modules)}"]
@@ -719,10 +722,6 @@ class ConnectionRegistry:
                 created.append(self.create_environment(identifier, "Quantum ESPRESSO · " + base["partition"], "qe",
                                                        {key: value for key, value in values.items() if value not in ("", [], None)}))
         codes_found = []
-        try:
-            launcher = "mpiexec" if self._scheduler_for(item) == "pbs" else "srun"
-        except ValueError:
-            launcher = "srun"
         for engine, entry in sorted((facts.get("codes") or {}).items()):
             if engine == "qe":
                 continue
@@ -765,16 +764,19 @@ class ConnectionRegistry:
             db.execute("UPDATE connections SET probe=?,updated_at=? WHERE id=?", (_object(probe), _now(), identifier))
             self._event(db, identifier, key + ".updated", {})
 
-    def _scheduler_for(self, item):
+    def _scheduler_for(self, item, *, allow_unresolved=False):
         scheduler = item["settings"]["scheduler"]
         if scheduler == "auto":
             detected = (item["probe"] or {}).get("schedulers", [])
             if len(detected) != 1:
+                if allow_unresolved:
+                    # Syntax validation may precede login; execution may not.
+                    return "slurm"
                 raise ValueError("Choose Slurm or PBS in the cluster settings before continuing.")
             scheduler = detected[0]
         return scheduler
 
-    def _qe_base_config(self, item, *, partition, account="", setup_commands=(), qe_bin_dir=""):
+    def _qe_base_config(self, item, *, partition, account="", setup_commands=(), qe_bin_dir="", extra_sbatch=(), extra_pbs=()):
         """A QE cluster profile for installation and pseudopotentials; never for a project run."""
         from .config import ClusterConfig
 
@@ -784,6 +786,7 @@ class ConnectionRegistry:
         return ClusterConfig(engine="qe", host=settings["host"], user=settings["user"], port=settings["port"],
                              connect_timeout=settings["connect_timeout"], remote_root=settings["remote_base"],
                              partition=partition, account=account or "", setup_commands=list(setup_commands),
+                             extra_sbatch=list(extra_sbatch), extra_pbs=list(extra_pbs),
                              qe_command=("mpiexec pw.x" if self._scheduler_for(item) == "pbs" else "srun pw.x"), qe_bin_dir=qe_bin_dir or "",
                              qe_pseudo_root=str(PurePosixPath(settings["remote_base"]) / "pseudos"),
                              scheduler=self._scheduler_for(item), ssh_control_path=settings["ssh_control_path"],
@@ -795,7 +798,8 @@ class ConnectionRegistry:
 
         return SSHTransport(self._transport_config(item), password=self.ssh_password(item["id"]))
 
-    def qe_install_plan(self, identifier, *, build_cpus=8, include_epw=False, partition=None, account=None, setup_commands=None):
+    def qe_install_plan(self, identifier, *, build_cpus=8, include_epw=False, partition=None, account=None, setup_commands=None,
+                        extra_sbatch=(), extra_pbs=()):
         """Detect a toolchain and plan a managed QE build. Nothing is downloaded or submitted."""
         from . import qe_setup
 
@@ -805,6 +809,10 @@ class ConnectionRegistry:
         if item["connection_status"] != "connected":
             raise ValueError("Test the cluster connection first.")
         probe = item["probe"] or {}
+        previous = probe.get("qe_install") or {}
+        if previous.get("receipt") and previous.get("status") not in {"failed", "installed", "cancelled"}:
+            raise ValueError("A QE build is already tracked. Check its status before planning another installation.")
+        attempt = previous.get("attempt", 0) + 1 if previous.get("status") == "failed" else previous.get("attempt", 0)
         suggested = (probe.get("discovery") or {}).get("suggested", {})
         partition = (partition or suggested.get("partition") or "").strip()
         if not partition:
@@ -817,18 +825,21 @@ class ConnectionRegistry:
             reject_ordinary_text("\n".join(setup_commands))
         remote = self._qe_transport(item)
         try:
-            base = self._qe_base_config(item, partition=partition, account=account, setup_commands=setup_commands or ())
+            base = self._qe_base_config(item, partition=partition, account=account, setup_commands=setup_commands or (),
+                                        extra_sbatch=extra_sbatch, extra_pbs=extra_pbs)
             toolchain = qe_setup.detect_toolchain(base, transport=remote)
-            config = self._qe_base_config(item, partition=partition, account=account, setup_commands=toolchain["setup_commands"])
-            plan = qe_setup.install_plan(config, build_jobs=build_cpus, include_epw=include_epw)
+            config = self._qe_base_config(item, partition=partition, account=account, setup_commands=toolchain["setup_commands"],
+                                          extra_sbatch=extra_sbatch, extra_pbs=extra_pbs)
+            plan = qe_setup.install_plan(config, build_jobs=build_cpus, include_epw=include_epw, attempt=attempt)
         finally:
             remote.close()
         record = {"status": "planned", "plan": plan, "plan_id": plan["id"], "partition": partition, "account": account,
                   "setup_commands": toolchain["setup_commands"], "toolchain": {key: toolchain[key] for key in ("ready", "mpi_fortran", "notes", "modules_tried")},
-                  "planned_at": _now()}
+                  "planned_at": _now(), "attempt": attempt}
         self._store_probe(identifier, "qe_install", record)
         return {"plan_id": plan["id"], "version": plan["version"], "prefix": plan["prefix"], "partition": partition, "account": account,
                 "build_cpus": build_cpus, "walltime": plan["walltime"], "setup_commands": toolchain["setup_commands"],
+                "extra_sbatch": plan.get("extra_sbatch", []), "extra_pbs": plan.get("extra_pbs", []),
                 "toolchain_ready": toolchain["ready"], "notes": toolchain["notes"], "status": "planned",
                 "next": "Review the partition, account and module commands, then start the build." if toolchain["ready"]
                         else "Add the module commands that provide an MPI Fortran compiler, then plan again."}
@@ -843,7 +854,8 @@ class ConnectionRegistry:
             raise ValueError("Plan the installation first, then start the plan you reviewed.")
         if not record["toolchain"]["ready"]:
             raise ValueError("No MPI Fortran compiler was found. Add the cluster's module commands and plan again.")
-        config = self._qe_base_config(item, partition=record["partition"], account=record["account"], setup_commands=record["setup_commands"])
+        config = self._qe_base_config(item, partition=record["partition"], account=record["account"], setup_commands=record["setup_commands"],
+                                      extra_sbatch=record["plan"].get("extra_sbatch", []), extra_pbs=record["plan"].get("extra_pbs", []))
         remote = self._qe_transport(item)
         try:
             receipt = qe_setup.start_install(config, record["plan"], transport=remote)
@@ -853,7 +865,8 @@ class ConnectionRegistry:
         record.pop("error", None)
         self._store_probe(identifier, "qe_install", record)
         return {"status": record["status"], "job_id": record.get("job_id"), "plan_id": plan_id, "work_dir": receipt.get("work_dir"),
-                "prefix": record["plan"]["prefix"]}
+                "prefix": record["plan"]["prefix"], "extra_sbatch": record["plan"].get("extra_sbatch", []),
+                "extra_pbs": record["plan"].get("extra_pbs", [])}
 
     def qe_install_status(self, identifier):
         """Read the build's state; when it finished, create the QE environment."""
@@ -864,9 +877,11 @@ class ConnectionRegistry:
         if not record:
             return {"status": "not_planned"}
         summary_keys = ("status", "plan_id", "job_id", "prefix", "bin_dir", "error", "environment_id", "scheduler_state")
+        resources = {field: record["plan"].get(field, []) for field in ("extra_sbatch", "extra_pbs")}
         if record.get("status") == "installed" or not record.get("receipt"):
-            return {key: record.get(key) or (record["plan"]["prefix"] if key == "prefix" else None) for key in summary_keys}
-        config = self._qe_base_config(item, partition=record["partition"], account=record["account"], setup_commands=record["setup_commands"])
+            return {**{key: record.get(key) or (record["plan"]["prefix"] if key == "prefix" else None) for key in summary_keys}, **resources}
+        config = self._qe_base_config(item, partition=record["partition"], account=record["account"], setup_commands=record["setup_commands"],
+                                      extra_sbatch=record["plan"].get("extra_sbatch", []), extra_pbs=record["plan"].get("extra_pbs", []))
         remote = self._qe_transport(item)
         try:
             status = qe_setup.poll_install(config, record["receipt"], transport=remote)
@@ -885,14 +900,15 @@ class ConnectionRegistry:
                 environment = self.create_environment(identifier, f"Quantum ESPRESSO {record['plan']['version']} · {record['partition']}", "qe", {
                     key: value for key, value in {"partition": record["partition"], "account": record["account"],
                         "setup_commands": record["setup_commands"], "qe_command": config.qe_command, "qe_bin_dir": bin_dir,
-                        "qe_pseudo_root": config.qe_pseudo_root, "walltime": "02:00:00"}.items() if value not in ("", [], None)})
+                        "qe_pseudo_root": config.qe_pseudo_root, "walltime": "02:00:00",
+                        "extra_sbatch": config.extra_sbatch, "extra_pbs": config.extra_pbs}.items() if value not in ("", [], None)})
                 record["environment_id"] = environment["id"]
         self._store_probe(identifier, "qe_install", record)
-        return {key: record.get(key) or (record["plan"]["prefix"] if key == "prefix" else None) for key in summary_keys}
+        return {**{key: record.get(key) or (record["plan"]["prefix"] if key == "prefix" else None) for key in summary_keys}, **resources}
 
     # --- ABINIT, CP2K and Elk: managed installs and pinned libraries ---------
 
-    def _engine_base_config(self, item, engine, *, partition, account=""):
+    def _engine_base_config(self, item, engine, *, partition, account="", extra_sbatch=(), extra_pbs=()):
         """A cluster profile for an installation; never used for a project run."""
         from .config import ClusterConfig
 
@@ -902,6 +918,7 @@ class ConnectionRegistry:
         return ClusterConfig(engine=engine, host=settings["host"], user=settings["user"], port=settings["port"],
                              connect_timeout=settings["connect_timeout"], remote_root=settings["remote_base"],
                              partition=partition, account=account or "", engine_command=_CODE_PROGRAMS[engine][0],
+                             extra_sbatch=list(extra_sbatch), extra_pbs=list(extra_pbs),
                              engine_library_root=site_library_root(engine, settings["remote_base"]),
                              scheduler=self._scheduler_for(item), ssh_control_path=settings["ssh_control_path"],
                              ssh_jump_host=settings["jump_host"], ssh_identity_file=settings["identity_file"],
@@ -920,12 +937,13 @@ class ConnectionRegistry:
         plan = record.get("plan") or {}
         summary = {key: record.get(key) for key in ("status", "plan_id", "job_id", "error", "environment_id", "scheduler_state")}
         summary.update(engine=engine, prefix=plan.get("prefix"), version=plan.get("version"), platform=plan.get("platform"),
+                       extra_sbatch=plan.get("extra_sbatch", []), extra_pbs=plan.get("extra_pbs", []),
                        glibc=plan.get("glibc"), mpi=plan.get("mpi"), partition=record.get("partition"), account=record.get("account"),
                        download_mb=round(plan.get("download_size", 0) / 1e6) if plan else None, progress=record.get("progress"),
                        smoke=record.get("smoke"), retained_prefix=record.get("retained_prefix"))
         return summary
 
-    def engine_install_plan(self, identifier, engine, *, build_cpus=4, partition=None, account=None):
+    def engine_install_plan(self, identifier, engine, *, build_cpus=4, partition=None, account=None, extra_sbatch=(), extra_pbs=()):
         """Read the cluster's architecture and plan a pinned installation. Nothing is downloaded or submitted."""
         from . import engine_setup
 
@@ -937,7 +955,8 @@ class ConnectionRegistry:
         if not partition:
             raise ValueError("Choose a partition for the installation job; the cluster listed none.")
         account = suggested.get("account", "") if account is None else account.strip()
-        base = self._engine_base_config(item, engine, partition=partition, account=account)
+        base = self._engine_base_config(item, engine, partition=partition, account=account,
+                                        extra_sbatch=extra_sbatch, extra_pbs=extra_pbs)
         remote = self._qe_transport(item)
         try:
             platform = engine_setup.detect_platform(base, transport=remote)
@@ -968,7 +987,8 @@ class ConnectionRegistry:
         record = (item["probe"] or {}).get(f"{engine}_install")
         if not record or record.get("plan_id") != plan_id:
             raise ValueError("Plan the installation first, then start the plan you reviewed.")
-        base = self._engine_base_config(item, engine, partition=record["partition"], account=record["account"])
+        base = self._engine_base_config(item, engine, partition=record["partition"], account=record["account"],
+                                        extra_sbatch=record["plan"].get("extra_sbatch", []), extra_pbs=record["plan"].get("extra_pbs", []))
         remote = self._qe_transport(item)
         try:
             receipt = engine_setup.start_install(base, record["plan"], transport=remote, wait=wait)
@@ -996,7 +1016,8 @@ class ConnectionRegistry:
         if receipt.get("status") == "staging":
             # Continue the same reviewed plan; report progress instead of waiting long.
             return self.engine_install_start(identifier, engine, record["plan_id"], wait=45)
-        base = self._engine_base_config(item, engine, partition=record["partition"], account=record["account"])
+        base = self._engine_base_config(item, engine, partition=record["partition"], account=record["account"],
+                                        extra_sbatch=record["plan"].get("extra_sbatch", []), extra_pbs=record["plan"].get("extra_pbs", []))
         remote = self._qe_transport(item)
         try:
             status = engine_setup.poll_install(base, record["plan"], receipt, transport=remote)
@@ -1016,7 +1037,7 @@ class ConnectionRegistry:
                            for entry in engine_setup.plan_library(engine, [])}
             values = {"partition": record["partition"], "account": record["account"], "setup_commands": plan["setup_commands"],
                       "engine_command": plan["command"], "engine_library_root": plan["library_root"], "engine_library": library,
-                      "walltime": "02:00:00"}
+                      "walltime": "02:00:00", "extra_sbatch": plan.get("extra_sbatch", []), "extra_pbs": plan.get("extra_pbs", [])}
             values.update({"tasks": 1, "cpus_per_task": 8} if engine == "elk" else {"tasks": 8})
             environment = self.create_environment(identifier, f"{_CODE_LABELS[engine]} {plan['version']} · {record['partition']}", engine,
                                                   {key: value for key, value in values.items() if value not in ("", [], None)})
@@ -1161,7 +1182,7 @@ class ConnectionRegistry:
             ClusterConfig(**{**config, "engine": engine, "host": connection["host"],
                 "user": connection["user"], "port": connection["port"],
                 "remote_root": connection["remote_base"] or "/tmp",
-                "scheduler": connection["scheduler"] if connection["scheduler"] != "auto" else "slurm"})
+                "scheduler": self._scheduler_for(item, allow_unresolved=True)})
         elif not isinstance(config.get("command"), str) or not config["command"].strip() or re.search(r"[\r\n\x00]", config["command"]):
             raise ValueError("Enter the program command on one line.")
         else:
@@ -1172,7 +1193,7 @@ class ConnectionRegistry:
                 'engine': 'qe', 'qe_pseudo_root': '/', 'qe_command': config['command'],
                 'host': connection['host'], 'user': connection['user'], 'port': connection['port'],
                 'remote_root': connection['remote_base'] or '/tmp',
-                'scheduler': connection['scheduler'] if connection['scheduler'] != 'auto' else 'slurm'})
+                'scheduler': self._scheduler_for(item, allow_unresolved=True)})
         return config
 
     def create_environment(self, connection_id, name, engine, config):
@@ -1198,7 +1219,7 @@ class ConnectionRegistry:
             ClusterConfig(**{**config, "engine": engine, "host": connection["host"],
                 "user": connection["user"], "port": connection["port"],
                 "remote_root": connection["remote_base"] or "/tmp",
-                "scheduler": connection["scheduler"] if connection["scheduler"] != "auto" else "slurm"})
+                "scheduler": self._scheduler_for(item, allow_unresolved=True)})
         elif not isinstance(config.get("command"), str) or not config["command"].strip() or re.search(r"[\r\n\x00]", config["command"]):
             raise ValueError("Enter the program command on one line.")
         else:
@@ -1213,7 +1234,7 @@ class ConnectionRegistry:
                 'engine': 'qe', 'qe_pseudo_root': '/', 'qe_command': config['command'],
                 'host': connection['host'], 'user': connection['user'], 'port': connection['port'],
                 'remote_root': connection['remote_base'] or '/tmp',
-                'scheduler': connection['scheduler'] if connection['scheduler'] != 'auto' else 'slurm'})
+                'scheduler': self._scheduler_for(item, allow_unresolved=True)})
         identifier, now = str(uuid.uuid4()), _now()
         with self.workspace._transaction() as db:
             self._row(db, connection_id, active=True)

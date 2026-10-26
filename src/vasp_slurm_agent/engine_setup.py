@@ -206,9 +206,13 @@ def install_plan(config, engine, platform_info, *, prefix=None, build_cpus=4, wa
     names = [item["name"] for item in downloads]
     if len(set(names)) != len(names) or any(PurePosixPath(n).name != n or n.startswith(".") for n in names):
         raise ValueError("The pinned package list has unsafe or duplicate names.")
+    from .config import installation_sbatch_options
+    resources = ({"extra_sbatch": installation_sbatch_options(config)} if config.scheduler == "slurm"
+                 else {"extra_pbs": list(config.extra_pbs)})
+    resources = {key: value for key, value in resources.items() if value}
     identity = {"engine": engine, "version": version, "platform": platform_info["platform"], "variant": variant["min_glibc"],
                 "prefix": prefix, "partition": config.partition, "account": config.account, "scheduler": config.scheduler,
-                "build_cpus": build_cpus, "walltime": walltime, "downloads": [item["sha256"] for item in downloads]}
+                "build_cpus": build_cpus, "walltime": walltime, "downloads": [item["sha256"] for item in downloads], **resources}
     if attempt:
         identity["attempt"] = attempt
     plan_id = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:12]
@@ -220,7 +224,7 @@ def install_plan(config, engine, platform_info, *, prefix=None, build_cpus=4, wa
             "setup_commands": environment_setup(engine, variant), "partition": config.partition, "account": config.account,
             "scheduler": config.scheduler, "extra_pbs": list(config.extra_pbs), "build_cpus": build_cpus, "walltime": walltime,
             "download_size": sum(item["size"] for item in downloads), "downloads": downloads, "extras": extras,
-            "attempt": attempt}
+            "attempt": attempt, **resources}
 
 
 _STAGE_PY = r'''import fcntl, hashlib, json, os, pathlib, sys, tempfile, threading, time, urllib.request
@@ -469,12 +473,16 @@ except Exception as exc:
 
 def _job_script(plan):
     from types import SimpleNamespace
-    from .config import ClusterConfig
+    from .config import ClusterConfig, installation_sbatch_options
     cpus = plan["build_cpus"]
+    resources = ["#SBATCH " + option for option in installation_sbatch_options(
+        SimpleNamespace(extra_sbatch=plan.get("extra_sbatch", [])))]
+    if plan["engine"] == "elk" and cpus > 1:
+        resources.append(f"#SBATCH --cpus-per-task={cpus}")
     namespace = SimpleNamespace(partition=plan["partition"], account=plan["account"], nodes=1,
                                 tasks=1 if plan["engine"] == "elk" else min(2, cpus),
                                 cpus_per_task=cpus if plan["engine"] == "elk" else 1, walltime=plan["walltime"],
-                                sbatch_resource_lines=lambda: [f"#SBATCH --cpus-per-task={cpus}"] if plan["engine"] == "elk" and cpus > 1 else [],
+                                sbatch_resource_lines=lambda: resources,
                                 pbs_resource_lines=lambda: ClusterConfig.pbs_resource_lines(SimpleNamespace(extra_pbs=plan.get("extra_pbs", []))))
     adapter = get_scheduler(plan["scheduler"])
     lines = adapter.header(namespace, stdout="install.out", stderr="install.err")

@@ -961,6 +961,19 @@ def _environments_panel(registry, record, prefix, state):
         st.rerun()
 
 
+def _installation_resources(registry, record, install, key):
+    try:
+        scheduler = registry._scheduler_for(record)
+    except ValueError:
+        st.caption(t("Choose a scheduler to set installation options."))
+        return {}
+    field = "extra_pbs" if scheduler == "pbs" else "extra_sbatch"
+    value = st.text_area(t("Scheduler options (optional)"), "\n".join((install.get("plan") or {}).get(field, [])),
+                         key=key, placeholder="-l mem=8gb" if field == "extra_pbs" else "--qos=normal\n--mem=8G",
+                         help=t("Memory, QoS or constraints, one per line. CPU counts are set by the installer."))
+    return {field: [line.strip() for line in value.splitlines() if line.strip()]}
+
+
 def _qe_install_panel(registry, record, prefix):
     """Managed Quantum ESPRESSO build: detect a toolchain, review the plan, submit one build job, follow it."""
     install = (record.get("probe") or {}).get("qe_install") or {}
@@ -976,11 +989,12 @@ def _qe_install_panel(registry, record, prefix):
             modules = st.text_area(t("Module commands (optional, one per line)"), "\n".join(install.get("setup_commands") or []),
                                    key=prefix + "qe_modules", placeholder="module load gcc openmpi")
             cpus = st.number_input(t("Build CPUs"), 1, 64, int(install.get("plan", {}).get("build_jobs", 8)), key=prefix + "qe_cpus")
+            resources = _installation_resources(registry, record, install, prefix + "qe_resources")
             if st.button(t("Plan the build"), key=prefix + "qe_plan"):
                 try:
                     with st.spinner(t("Detecting compilers and MPI on the cluster…")):
                         registry.qe_install_plan(record["id"], build_cpus=int(cpus), partition=partition.strip() or None, account=account.strip(),
-                                                 setup_commands=[line.strip() for line in modules.splitlines() if line.strip()] or None)
+                                                 setup_commands=[line.strip() for line in modules.splitlines() if line.strip()] or None, **resources)
                     st.session_state.pop(prefix + "qe_replan", None)
                     st.rerun()
                 except (ValueError, OSError) as error:
@@ -1068,10 +1082,11 @@ def _engine_install_panel(registry, record, prefix, environments):
                                       key=prefix + engine + "_partition")
             account = st.text_input(t("Account (optional)"), install.get("account") or suggested.get("account", ""),
                                     key=prefix + engine + "_account")
+            resources = _installation_resources(registry, record, install, prefix + engine + "_resources")
             if st.button(t("Plan the installation"), key=prefix + engine + "_plan"):
                 try:
                     with st.spinner(t("Reading the cluster's architecture…")):
-                        registry.engine_install_plan(record["id"], engine, partition=partition.strip() or None, account=account.strip())
+                        registry.engine_install_plan(record["id"], engine, partition=partition.strip() or None, account=account.strip(), **resources)
                     st.session_state.pop(prefix + engine + "_replan", None)
                     st.rerun()
                 except (ValueError, OSError) as error:

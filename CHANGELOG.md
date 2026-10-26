@@ -5,6 +5,9 @@
 - Resume interrupted project runs and continue their remaining approved stages.
 - Revise workflows in Automatic mode before preparing inputs, including steps waiting for earlier results.
 - Fix environment selection and replanning after a software environment changes.
+- Preserve conversation requirements and saved step goals when planning inputs.
+- Fix QE repair parameters, installation retries and resource review.
+- Keep site resource options during installation and fix OpenPBS setup.
 - Update setup guides, download links and the workflow diagram, and fix PyPI documentation and image links.
 
 ## 0.4.7 — 2026-10-26

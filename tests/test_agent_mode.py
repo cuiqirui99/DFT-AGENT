@@ -65,6 +65,34 @@ def call(tools, name, **arguments):
     return response["result"]["isError"], (json.loads(content) if not response["result"]["isError"] else content)
 
 
+def test_prompt_preserves_long_requirements_and_user_revisions():
+    goal = "Details. " * 1000 + "Use QE, PBE, 73/584 Ry, a 7x7x7 mesh and conv_thr=1e-9."
+    history = [{"role": "user", "content": goal},
+               {"role": "assistant", "content": "Ready."},
+               {"role": "user", "content": "Change the mesh to 9x9x9; keep the other settings."}]
+    prompt = agent_runner.render_prompt(history, "Use the silicon structure.")
+    assert goal in prompt
+    assert prompt.index("7x7x7") < prompt.index("Change the mesh to 9x9x9")
+    assert "earlier messages are omitted" not in prompt
+    assert prompt.endswith("User's new message:\nUse the silicon structure.")
+
+
+def test_prompt_exposes_old_history_cursor_without_silently_dropping_requirements():
+    history = [{"role": "user", "content": f"Requirement {index}"} for index in range(25)]
+    prompt = agent_runner.render_prompt(history, "Continue.")
+    assert "conversation_history(before=5)" in prompt
+    assert "follow next_before" in prompt
+    assert "[5] user: Requirement 5" in prompt
+    assert "[24] user: Requirement 24" in prompt
+    assert "[0] user:" not in prompt
+
+
+def test_prompt_redacts_credentials_from_legacy_history():
+    prompt = agent_runner.render_prompt([{"role": "user", "content": "password=old-test-secret"}], "Continue.")
+    assert "old-test-secret" not in prompt
+    assert "[secret omitted]" in prompt
+
+
 # --- MCP server ----------------------------------------------------------------
 
 def test_mcp_handshake_and_tool_listing(project):

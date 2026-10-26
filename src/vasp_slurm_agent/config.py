@@ -10,6 +10,18 @@ GENERIC_ENGINES = frozenset({"abinit", "cp2k", "elk"})
 ENGINES = frozenset({"vasp", "qe"}) | GENERIC_ENGINES
 
 
+def installation_sbatch_options(config) -> list[str]:
+    """Keep site requirements; installers choose their own CPU/task layout."""
+    from types import SimpleNamespace
+
+    resources = SimpleNamespace(extra_sbatch=list(getattr(config, "extra_sbatch", [])),
+                                compute_backend="cpu", cpus_per_task=1, nodes=1, tasks=1)
+    layout = {"gpus", "gpus-per-node", "gpus-per-task", "gres", "mem-per-gpu",
+              "ntasks-per-node", "cpus-per-task"}
+    return [line.removeprefix("#SBATCH ") for line in ClusterConfig.sbatch_resource_lines(resources)
+            if line.removeprefix("#SBATCH --").split("=", 1)[0] not in layout]
+
+
 @dataclass(frozen=True)
 class ClusterConfig:
     host: str

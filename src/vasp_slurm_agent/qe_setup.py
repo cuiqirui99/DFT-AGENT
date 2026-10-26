@@ -300,7 +300,7 @@ def detect_toolchain(config, transport=None, *, trials=8) -> dict:
                 "modules_tried": tried, "notes": notes}
 
 
-def install_plan(config, prefix=None, *, build_jobs=8, build_walltime="02:00:00", include_epw=False) -> dict:
+def install_plan(config, prefix=None, *, build_jobs=8, build_walltime="02:00:00", include_epw=False, attempt=0) -> dict:
     """Return a reviewable CPU/MPI build plan. Nothing is downloaded or submitted."""
     if type(build_jobs) is not int or not 1 <= build_jobs <= 64:
         raise ValueError("Use 1 to 64 build CPUs.")
@@ -308,15 +308,24 @@ def install_plan(config, prefix=None, *, build_jobs=8, build_walltime="02:00:00"
         raise ValueError("Use HH:MM:SS for the build time limit.")
     if type(include_epw) is not bool:
         raise ValueError("Choose whether to include EPW.")
+    if type(attempt) is not int or attempt < 0:
+        raise ValueError("The installation attempt must be a whole number.")
     base = _absolute(config.remote_root) + "/software"
     plan = {"version": QE_VERSION, "backend": "cpu", "sources": deepcopy(SOURCES), "setup_commands": list(config.setup_commands), "partition": config.partition, "account": config.account, "build_jobs": build_jobs, "walltime": build_walltime, "programs": list(REQUIRED_PROGRAMS), "build_targets": list(BUILD_TARGETS)}
     if get_scheduler(config).name != "slurm":
         plan.update(scheduler=get_scheduler(config).name, extra_pbs=list(getattr(config, "extra_pbs", [])))
+    else:
+        from .config import installation_sbatch_options
+        resources = installation_sbatch_options(config)
+        if resources:
+            plan["extra_sbatch"] = resources
     if include_epw:
         plan.update(include_epw=True, sources=deepcopy(SOURCES | EPW_SOURCES),
                     programs=list(REQUIRED_PROGRAMS + EPW_PROGRAMS),
                     build_targets=[*BUILD_TARGETS, "epw"],
                     build_steps=[list(BUILD_TARGETS), ["epw"]])
+    if attempt:
+        plan["attempt"] = attempt
     signature = hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest()[:12]
     plan["prefix"] = _absolute(prefix) if prefix else base + f"/qe-{QE_VERSION}-{signature}"
     plan["id"] = hashlib.sha256(json.dumps(plan, sort_keys=True).encode()).hexdigest()[:16]
@@ -433,6 +442,11 @@ def _build_script(plan: dict) -> str:
     lines = ["#!/bin/bash", f"#SBATCH --job-name=qe-build-{plan['id']}", f"#SBATCH --partition={plan['partition']}", "#SBATCH --nodes=1", "#SBATCH --ntasks=1", f"#SBATCH --cpus-per-task={plan['build_jobs']}", f"#SBATCH --time={plan['walltime']}", "#SBATCH --output=build.out", "#SBATCH --error=build.err"]
     if plan["account"]:
         lines.append(f"#SBATCH --account={plan['account']}")
+    if plan.get("scheduler", "slurm") == "slurm":
+        from types import SimpleNamespace
+        from .config import installation_sbatch_options
+        lines.extend("#SBATCH " + option for option in installation_sbatch_options(
+            SimpleNamespace(extra_sbatch=plan.get("extra_sbatch", []))))
     if plan.get("scheduler") == "pbs":
         from types import SimpleNamespace
         from .config import ClusterConfig
@@ -532,7 +546,8 @@ print({_MARKER!r}+json.dumps(result))
 
 def start_install(config, plan: dict, transport=None, *, cache_dir=None) -> dict:
     """Stage verified source and submit one build. Repeated calls reuse its receipt."""
-    expected = install_plan(config, prefix=plan["prefix"], build_jobs=plan["build_jobs"], build_walltime=plan["walltime"], include_epw=plan.get("include_epw", False))
+    expected = install_plan(config, prefix=plan["prefix"], build_jobs=plan["build_jobs"], build_walltime=plan["walltime"],
+                            include_epw=plan.get("include_epw", False), attempt=plan.get("attempt", 0))
     if plan != expected:
         raise ValueError("The installation plan changed. Create and review a new plan.")
     cache = Path(cache_dir).expanduser() if cache_dir else Path.home() / ".dft-agent" / "downloads" / "qe"
