@@ -4,7 +4,8 @@
 
 **[Download v0.4.7](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.7)** · [macOS](https://github.com/cuiqirui99/DFT-AGENT/releases/download/v0.4.7/DFT-Agent-0.4.7-macOS-arm64.dmg) · [Windows](https://github.com/cuiqirui99/DFT-AGENT/releases/download/v0.4.7/DFT-Agent-0.4.7-Windows-x64.exe) · [Python](https://pypi.org/project/dft-agent/0.4.7/) · [Quickstart](docs/quickstart.md) · [中文](README.zh-CN.md)
 
-[Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology; [Anna Delin](https://www.kth.se/profile/annadel) · KTH Royal Institute of Technology
+[Qirui Cui](https://www.kth.se/profile/qiruic?l=en) · KTH Royal Institute of Technology; 
+[Anna Delin](https://www.kth.se/profile/annadel) · KTH Royal Institute of Technology
 
 Describe your calculation in chat. DFT Agent prepares the inputs and runs VASP, Quantum ESPRESSO, ABINIT, CP2K or Elk on your HPC cluster. Each project keeps its files, conversations and results together, so you can revise tasks and discuss the results in one place.
 
