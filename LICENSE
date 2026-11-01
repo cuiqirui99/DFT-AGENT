@@ -1,0 +1,34 @@
+DFT Agent Free Use License
+Version 1.0 — 1 November 2026
+
+Copyright (c) 2026 Qirui Cui
+
+Permission is granted, free of charge, to use DFT Agent 0.4.9 and later
+releases carrying this license for personal, academic or commercial work,
+and to copy and redistribute the unmodified official application and its
+documentation with this license and all accompanying notices intact.
+No registration or payment to the author is required.
+
+The application source tree is not distributed with this release. Rights
+not expressly granted are reserved. This license does not change any rights
+already granted for earlier MIT-licensed versions or components. Those
+versions remain available under their original licenses.
+
+Third-party software, data and separately installed calculation engines
+retain their own licenses. Their licenses prevail for those components.
+Nothing here restricts rights to inspect, modify or replace those components,
+or reverse-engineer the combined application to debug such modifications,
+where required by their licenses or applicable law. See THIRD-PARTY-NOTICES
+and NOTICE.md for details.
+
+Your structures, inputs, results and other research files remain yours.
+This license does not claim ownership of them or restrict their publication.
+Model providers and computing services may impose their own terms or fees.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

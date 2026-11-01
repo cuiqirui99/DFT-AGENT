@@ -1,0 +1,162 @@
+THIRD-PARTY NOTICES — DFT Agent 0.4.9
+
+Third-party components retain their own licenses. The DFT Agent Free Use License
+does not replace them. Full license texts, copyrights and notices are in the
+accompanying licenses/ directory. Some optional or build-time components listed
+below may not be present in every application bundle. No solver executables,
+licensed VASP pseudopotentials or user research files are included.
+
+License choices and source availability
+--------------------------------------
+ASE 3.29.0 is used under LGPL-2.1-or-later. Its source modules are supplied
+separately from the application archive so users can modify and replace them.
+See LGPL_REPLACEMENT.md and THIRD-PARTY-SOURCES.md.
+
+For dual-licensed components we select: BSD for bibtexparser; MIT for JSZip;
+MIT for orjson where offered (its MPL-covered components remain MPL-2.0);
+BSD-2-Clause for packaging; MIT for sniffio; the FreeType License for FreeType.
+Other component-specific terms still apply.
+
+Portions of this software are copyright © 1996–2026 The FreeType Project
+(https://freetype.org). All rights reserved. The full upstream license and
+copyright notices are preserved in the Pillow and Matplotlib notices.
+
+certifi, orjson and tqdm contain MPL-2.0-covered code or data. Their unchanged
+corresponding source archives are provided with this release. See
+THIRD-PARTY-SOURCES.md. This does not place independent DFT Agent code under MPL.
+
+Bundled interfaces and data
+--------------------------
+WEAS 0.2.10, Three.js 0.169.0 and dat.gui 0.7.9 notices are reproduced in
+licenses/structure-editor/THIRD_PARTY_NOTICES.txt.
+PORMAKE coordinate data retain their MIT notice in licenses/pormake/LICENSE.txt.
+Streamlit frontend dependencies and fonts retain the complete upstream notices
+in licenses/streamlit-1.66.1/. Its NOTICES file covers 411 dependency entries.
+Matplotlib fonts retain the DejaVu and STIX licenses.
+
+External databases and engines
+------------------------------
+Materials Project/JARVIS/PubChem and other remote structures are downloaded only
+when requested; source records and provider terms apply to those downloads.
+Calculation engines and pseudopotential/potential libraries are installed or
+selected separately and retain their own licenses. Their availability does not
+grant a right to redistribute a VASP installation or a private potential file.
+
+Python and dependency inventory
+-------------------------------
+Python 3.13 license and historical notices: licenses/Python-3.13/LICENSE.txt.
+
+altair 6.3.0 — BSD License
+altgraph 0.17.5 — MIT License
+annotated-types 0.8.0 — MIT
+anthropic 1.17.0 — MIT License
+anyio 4.16.0 — MIT
+ase 3.29.0 — LGPL-2.1-or-later
+attrs 26.1.0 — MIT
+bibtexparser 1.4.4 — BSD option selected (dual LGPLv3 or BSD)
+bottle 0.13.4 — MIT License
+build 1.6.1 — MIT
+certifi 2026.10.23 — Mozilla Public License 2.0 (MPL 2.0)
+charset-normalizer 3.5.2 — MIT
+click 8.5.0 — BSD-3-Clause
+cloudpickle 3.1.2 — BSD License
+contourpy 1.4.0 — BSD-3-Clause
+cycler 0.12.1 — BSD License
+distro 1.9.0 — Apache Software License
+docstring_parser 0.18.0 — MIT License
+dscribe 2.1.2 — Apache Software License
+fonttools 4.68.0 — MIT
+h11 0.16.0 — MIT License
+httpcore 1.0.9 — BSD-3-Clause
+httpcore2 2.16.0 — BSD-3-Clause
+httpx 0.28.1 — BSD License
+httpx2 2.16.0 — BSD-3-Clause
+idna 3.20 — BSD-3-Clause
+ImageIO 2.38.1 — BSD-2-Clause
+iniconfig 2.3.1 — MIT
+itsdangerous 2.2.0 — BSD License
+jaraco.classes 3.4.0 — MIT License
+jaraco.context 6.1.2 — MIT
+jaraco.functools 4.6.0 — MIT
+Jinja2 3.1.6 — BSD License
+jiter 0.18.0 — MIT
+joblib 1.6.0 — BSD-3-Clause
+jsonschema 4.26.0 — MIT
+jsonschema-specifications 2025.9.1 — MIT
+keyring 25.7.0 — MIT
+kiwisolver 1.5.1 — BSD License
+lazy-loader 0.6 — BSD-3-Clause
+llvmlite 0.50.0 — BSD-2-Clause AND Apache-2.0 WITH LLVM-exception
+lxml 6.1.3 — BSD-3-Clause
+macholib 1.16.4 — MIT License
+MarkupSafe 3.0.4 — BSD-3-Clause
+matplotlib 3.11.2 — Matplotlib license, PSF-style; bundled fonts retain own licenses
+monty 2026.10.21 — MIT License
+more-itertools 11.2.1 — MIT
+mp-pyrho 0.5.2 — modified BSD
+mpmath 1.3.0 — BSD License
+narwhals 2.28.0 — MIT
+networkx 3.7 — BSD-3-Clause
+numba 0.68.1 — BSD License
+numpy 2.5.4 — BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0
+openai 2.54.0 — Apache Software License
+opentelemetry-api 1.45.2 — Apache-2.0
+orjson 3.13.0 — MPL-2.0 AND (Apache-2.0 OR MIT)
+packaging 26.3 — Apache-2.0 OR BSD-2-Clause
+palettable 3.3.3 — MIT and palette-specific notices; see source-notices
+pandas 3.1.0 — BSD-3-Clause
+pillow 13.0.0 — MIT-CMU; native notices included
+pip 25.0.1 — MIT License
+plotly 7.1.0 — MIT
+pluggy 1.7.0 — MIT License
+protobuf 7.36.2 — 3-Clause BSD License
+proxy_tools 0.1.0 — BSD-2-Clause (upstream LICENSE; metadata says MIT)
+pyarrow 26.0.0 — Apache-2.0; native notices included
+pydantic 2.14.2 — MIT
+pydantic_core 2.50.2 — MIT
+pydeck 0.9.3 — Apache License 2.0
+Pygments 2.21.0 — BSD-2-Clause
+pyinstaller 6.22.3 — GPL-2.0-or-later with bootloader exception; build tool
+pyinstaller-hooks-contrib 2026.9 — Apache-2.0 / GPL-2.0-or-later; build hooks
+pymatgen 2026.10.24 — MIT
+pymatgen-analysis-defects 2026.10.24 — BSD-3-Clause-LBNL
+pymatgen-core 2026.10.31 — MIT
+pyobjc-core 13.0 — MIT
+pyobjc-framework-Cocoa 13.0 — MIT
+pyobjc-framework-Quartz 13.0 — MIT
+pyobjc-framework-Security 13.0 — MIT
+pyobjc-framework-UniformTypeIdentifiers 13.0 — MIT
+pyobjc-framework-WebKit 13.0 — MIT
+pyparsing 3.3.3 — MIT
+pyproject_hooks 1.3.3 — MIT
+pytest 9.2.0 — MIT
+python-dateutil 4.0.0 — BSD-3-Clause
+python-multipart 0.0.33 — Apache-2.0
+pywebview 6.2.1 — BSD License
+referencing 0.37.0 — MIT
+requests 2.34.2 — Apache Software License
+rpds-py 2026.9.1 — MIT
+ruamel.yaml 0.19.1 — MIT License
+scikit-image 0.26.0 — BSD License
+scikit-learn 1.9.1 — BSD-3-Clause
+scipy 1.18.1 — BSD-3-Clause; runtime notices included
+seekpath 2.2.2 — MIT License
+setuptools 84.2.1 — MIT
+sniffio 1.3.1 — MIT License, Apache Software License
+sparse 0.19.3 — BSD License
+spglib 2.8.0 — BSD-3-Clause
+starlette 1.10.0 — BSD-3-Clause
+streamlit 1.66.1 — Apache-2.0; frontend notices included
+sympy 1.14.0 — BSD License
+tabulate 0.10.0 — MIT
+threadpoolctl 3.7.0 — BSD-3-Clause
+tifffile 2026.10.15 — BSD-3-Clause
+tqdm 4.70.1 — MPL-2.0 AND MIT
+truststore 0.10.5 — MIT
+typing-inspection 0.4.4 — MIT
+typing_extensions 4.16.0 — PSF-2.0
+tzdata 2026.6 — Apache-2.0; IANA data public domain
+uncertainties 3.2.3 — BSD License
+urllib3 2.8.0 — MIT
+uvicorn 0.54.0 — BSD-3-Clause
+websockets 17.4 — BSD-3-Clause

@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "Please cite this software and report your version and settings."
+title: "DFT Agent"
+type: software
+authors:
+  - family-names: "Cui"
+    given-names: "Qirui"
+    affiliation: "KTH Royal Institute of Technology"
+    orcid: "https://orcid.org/0009-0005-6165-3237"
+    website: "https://www.kth.se/profile/qiruic?l=en"
+version: "0.4.9"
+doi: "10.5281/zenodo.23867341"
+date-released: "2026-11-01"
+license: LicenseRef-DFT-Agent-Free-Use
+repository: "https://github.com/cuiqirui99/DFT-AGENT"
+url: "https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.9"
+abstract: "Run VASP, Quantum ESPRESSO, ABINIT, CP2K, Elk and SIESTA on your cluster."
