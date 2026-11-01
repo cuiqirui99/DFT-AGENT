@@ -1,6 +1,6 @@
-# DFT Agent
+# DFT AGENT
 
-![DFT Agent](docs/assets/dft-agent-logo.png)
+![DFT Agent](docs/assets/dft-agent-banner.png)
 
 Version **0.4.9** · [Download for Mac](https://github.com/cuiqirui99/DFT-AGENT/releases/download/v0.4.9/DFT-Agent-0.4.9-macOS-arm64.dmg) · [Quickstart](docs/quickstart.md) · [中文](README.zh-CN.md)
 
