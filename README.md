@@ -32,9 +32,13 @@ Refine calculation parameters and cluster resources in the conversation. Review 
 
 Ask about the results, compare runs, change a plot, or request a report. Download retained engine outputs, CSV/JSON tables, HTML reports and PNG/PDF/SVG figures from the project.
 
-![DFT Agent conversation with calculation results and downloadable reports](docs/assets/results-0.4.9.png)
+![SrTiO3 band structure and element-resolved density of states](docs/assets/srtio3-results.png)
 
-*A completed GaN calculation: inspect the results, revise a plot and export a report.*
+*SrTiO₃: band structure and element-resolved DOS from a VASP calculation.*
+
+![Aluminium phonon dispersion and electron–phonon coupling spectrum](docs/assets/al-electron-phonon-results.png)
+
+*Aluminium: phonon dispersion and electron–phonon coupling from Quantum ESPRESSO calculations.*
 
 ## Calculations
 

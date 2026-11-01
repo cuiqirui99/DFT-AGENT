@@ -32,9 +32,13 @@ VASP · Quantum ESPRESSO · ABINIT · CP2K · Elk · SIESTA
 
 继续提问、比较运行结果、修改图表或生成报告。项目中可下载保留的引擎原始输出、CSV/JSON 数据表、HTML 报告，以及 PNG/PDF/SVG 图片。
 
-![DFT Agent 对话中的计算结果与下载报告](docs/assets/results-0.4.9.png)
+![SrTiO3 能带与分元素态密度](docs/assets/srtio3-results.png)
 
-*已完成的 GaN 计算：检查结果、修改图表并导出报告。*
+*SrTiO₃：VASP 实算的能带与分元素态密度。*
+
+![铝的声子色散与电子–声子耦合谱](docs/assets/al-electron-phonon-results.png)
+
+*铝：Quantum ESPRESSO 实算的声子色散与电子–声子耦合谱。*
 
 ## 计算能力
 
