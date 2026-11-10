@@ -1,4 +1,4 @@
-THIRD-PARTY NOTICES — DFT Agent 0.4.9
+THIRD-PARTY NOTICES — DFT Agent 0.5.0
 
 Third-party components retain their own licenses. The DFT Agent Free Use License
 does not replace them. Full license texts, copyrights and notices are in the
@@ -45,6 +45,9 @@ grant a right to redistribute a VASP installation or a private potential file.
 Python and dependency inventory
 -------------------------------
 Python 3.13 license and historical notices: licenses/Python-3.13/LICENSE.txt.
+pyobjc-framework-Security and pyobjc-framework-UniformTypeIdentifiers 13.0 ship
+no license file of their own; they are covered by the PyObjC MIT license in
+licenses/pyobjc-core-13.0/License.txt.
 
 altair 6.3.0 — BSD License
 altgraph 0.17.5 — MIT License

@@ -2,11 +2,11 @@
 
 ![DFT Agent](docs/assets/dft-agent-banner.png)
 
-**[Download for Mac](https://github.com/cuiqirui99/DFT-AGENT/releases/download/v0.4.9/DFT-Agent-0.4.9-macOS-arm64.dmg)** · v0.4.9 · [Getting started](docs/quickstart.md) · [Zenodo](https://doi.org/10.5281/zenodo.23867341) · [中文](README.zh-CN.md)
+**[Download for Mac](https://github.com/cuiqirui99/DFT-AGENT/releases/download/v0.5.0/DFT-Agent-0.5.0-macOS-arm64.dmg)** · v0.5.0 · [Getting started](docs/quickstart.md) · [Zenodo](https://doi.org/10.5281/zenodo.24116923) · [中文](README.zh-CN.md)
 
 Build materials, run calculations and explore the results in conversation. DFT Agent connects your AI account to your computing cluster, with structures, tasks and results kept together in a project.
 
-VASP · Quantum ESPRESSO · ABINIT · CP2K · Elk · SIESTA
+VASP · Quantum ESPRESSO · ABINIT · CP2K · Elk · SIESTA · LAMMPS · RSPt · UppASD
 
 [Qirui Cui](https://www.kth.se/profile/qiruic?l=en), KTH Royal Institute of Technology. With contributions from [Anna Delin](https://www.kth.se/profile/annadel).
 
@@ -48,20 +48,21 @@ Ask about the results, compare runs, change a plot, or request a report. Downloa
 | Defects | Vacancies, substitutions and interstitials; charge states, defect levels and supported charged-cell corrections. |
 | Lattice and superconductivity | Phonons, NEB, electron–phonon coupling and conventional superconductivity. |
 | Molecular dynamics | First-principles MD, selected LAMMPS potentials, trajectories, thermodynamic data, RDF and MSD. |
+| Magnetism | RSPt SCF, bands, DOS, exchange tensors and anisotropy with your existing installation; UppASD spin dynamics, Monte Carlo sampling and magnon spectra. |
 
-Available methods depend on the engine. [VASP and methods](docs/methods.md) · [Quantum ESPRESSO](docs/qe.md) · [ABINIT, CP2K and Elk](docs/open-source-codes.md) · [SIESTA](docs/siesta.md) · [Molecular dynamics](docs/molecular-dynamics.md)
+Available methods depend on the engine. [VASP and methods](docs/methods.md) · [Quantum ESPRESSO](docs/qe.md) · [ABINIT, CP2K and Elk](docs/open-source-codes.md) · [SIESTA](docs/siesta.md) · [Molecular dynamics](docs/molecular-dynamics.md) · [RSPt](docs/rspt.md) · [UppASD](docs/uppasd.md)
 
 ## Start here
 
 For **Apple Silicon Macs with macOS 14 or later**. Open the download, drag **DFT Agent** to Applications, and launch it. Python and the scientific libraries are included. Create your first project, then:
 
 1. **Connect AI.** Sign in with Codex CLI or Claude Code CLI, or enter an API key in **Connections → Model**. [Accounts and tokens](docs/models.md).
-2. **Connect your cluster.** Enter its SSH address and follow the password or verification-code prompts. Use installed software or review an installation plan for a supported open-source engine. [Cluster setup](docs/install.md#your-first-cluster-setup).
+2. **Connect your cluster.** Enter its SSH address and follow the password or verification-code prompts. After the sign-in the app probes the cluster read-only, and the connected model judges its scheduler and software from that output. The app then submits a short test job for VASP, Quantum ESPRESSO, ABINIT, CP2K, Elk, SIESTA, LAMMPS and UppASD, and checks Python, Wannier90 and RSPt on the login node. Missing open-source programs are offered for installation. [Cluster setup](docs/install.md#your-first-cluster-setup).
 3. **Start a calculation.** Upload or build a structure, describe the calculation, and refine the plan. Review its inputs and resources before submitting.
 
 Model calls use your own account and quota; calculations use your cluster allocation. VASP requires your licensed installation and potentials. Codex CLI and Claude Code CLI can use project tools across several steps; API connections work one step at a time.
 
-[Installation help](docs/install.md) · [Project guide](docs/project-workspace.md) · [Scientific guidance](docs/harness.md) · [Memory](docs/memory.md) · [Report an issue](https://github.com/cuiqirui99/DFT-AGENT/issues)
+[Installation help](docs/install.md) · [Project guide](docs/quickstart.md) · [Scientific guidance](docs/harness.md) · [Memory](docs/memory.md) · [Report an issue](https://github.com/cuiqirui99/DFT-AGENT/issues)
 
 <details>
 <summary>Workflow</summary>
@@ -74,6 +75,6 @@ Free for personal, academic and commercial use. This release distributes the app
 
 ## Citation
 
-Cui, Q. (2026). *DFT Agent* (Version 0.4.9). Zenodo. [doi:10.5281/zenodo.23867341](https://doi.org/10.5281/zenodo.23867341).
+Cui, Q. (2026). *DFT Agent* (Version 0.5.0). Zenodo. [doi:10.5281/zenodo.24116923](https://doi.org/10.5281/zenodo.24116923).
 
 [Release notes](CHANGELOG.md) · [Notices](NOTICE.md)

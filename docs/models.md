@@ -62,9 +62,12 @@ model access.
 
 CLI connections offer two modes, **Automatic** and **Step by step**. Automatic
 lets the CLI inspect project files and use the app's tools across several
-actions. Step by step processes one checked action at a time. Neither mode can authorize
-its own calculation submission or QE installation: review and confirm those
-in the app.
+actions. Step by step processes one checked action at a time. Neither mode
+submits a calculation by itself: you review the inputs and click **Submit**.
+An agent can start a software check, which submits short test jobs, and while
+automatic installation is on it can also start installing a missing
+open-source program. Turn automatic installation off to approve each
+installation yourself.
 
 ## API providers
 
@@ -121,9 +124,10 @@ request checks that the model gives structured answers. A remote server uses
 
 A successful **Connect** test shows that the selected model answered. Use
 **Test connection** to retry a saved connection. Return with **Back to chat**,
-import a structure through **Files and runs → Files → Add files → Import files**, and
-describe the calculation. Follow-up messages can revise the plan or discuss
-selected runs under **Attach results**. [Quickstart](quickstart.md).
+import a structure under **Structures and runs → Structures → Add a structure →
+Upload** (select the file, then **Import files**), and describe the calculation.
+Follow-up messages can revise the plan or discuss selected runs under
+**Attach results**. [Quickstart](quickstart.md).
 
 The model selector at the top of the conversation shows **Last response usage**
 when token counts are reported. CLI agent turns may make several model and

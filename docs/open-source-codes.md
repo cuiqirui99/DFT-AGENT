@@ -73,7 +73,7 @@ With the selected mixing method, [CP2K checks the density residual against `EPS_
 
 ## Install on your cluster
 
-Open **Connections → Cluster** after the connection test. Under **Install open-source codes**, choose a code, check the partition and account, and click **Plan the installation**. The app reads the login node's CPU architecture and GNU C library version and picks a pinned conda-forge package set:
+After sign-in, **Connections → Software** offers **Install** for a missing code, or installs it without asking when automatic installation is on and the app can read your storage quota; the app then plans and runs the installation below by itself. To plan one yourself, open **Connections → Cluster → Advanced installation**. Under **Install open-source codes**, choose a code, check the partition and account, and click **Plan the installation**. The app reads the login node's CPU architecture and GNU C library version and picks a pinned conda-forge package set:
 
 | Code | linux-64 (x86-64) | linux-aarch64 (Arm) | Size |
 |---|---|---|---|
@@ -95,7 +95,7 @@ If the installation fails, **Plan again** creates a new attempt with its own job
 
 Nothing is compiled and no administrator rights are needed. After a passed test, the downloaded package archives and the unpacked package cache are removed, so only the environment stays. Programs live under `<work folder>/software/`, ABINIT pseudopotentials under `<work folder>/pseudos/abinit` and CP2K data files under `<work folder>/libraries/cp2k-2026.2`. The CP2K data files are pinned separately from the program, so managed and cluster-provided CP2K use the same files.
 
-A code that the cluster already provides is detected when you detect software, from the PATH or from `module avail`, and gets its own environment. Its pinned library then goes to `<work folder>/libraries/`.
+A code that the cluster already provides is found by the automatic setup after sign-in or with **Check again**, from the PATH or from `module avail`, and gets its own environment. Its pinned library then goes to `<work folder>/libraries/`.
 
 Use the [bundled CLI](install.md#command-line) with a saved `cluster.json`:
 

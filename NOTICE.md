@@ -1,17 +1,22 @@
 # Notices
 
-DFT Agent 0.4.9 is distributed under the [DFT Agent Free Use License](LICENSE), copyright 2026 Qirui Cui. The application source tree is not included. Runtime helpers and generated job scripts remain available where execution requires them. Earlier MIT-licensed releases retain their original terms; see LICENSE-MIT-PREVIOUS.txt. Third-party components retain the licenses listed in THIRD-PARTY-NOTICES.
+DFT Agent 0.5.0 is distributed under the [DFT Agent Free Use License](LICENSE), copyright 2026 Qirui Cui. The application source tree is not included. Runtime helpers and generated job scripts remain available where execution requires them. Earlier MIT-licensed releases retain their original terms; see LICENSE-MIT-PREVIOUS.txt. Third-party components retain the licenses listed in THIRD-PARTY-NOTICES.
 
 VASP and POTCAR are not included. Use your own licensed installation and follow its terms.
+
+RSPt is supplied separately by the user. DFT Agent does not include or download its source, binaries or manual.
+
+UppASD is a separate GPL-3.0 program. DFT Agent does not bundle its source or binaries.
+When you install it from the app, your cluster downloads the pinned UppASD 6.0.2 source from [GitHub](https://github.com/UppASD/UppASD) and builds it in your own folder there; if the cluster cannot reach GitHub, the app downloads the same checked archive and uploads it. You can use an existing installation instead. Cite the code when using its results.
 
 Dependencies have their own licenses and citation requirements.
 
 The local structure editor bundles [WEAS](https://github.com/superstar54/weas) 0.2.10
-and its JavaScript dependencies. Licenses and source details are included in
-`vasp_slurm_agent/components/structure_editor`.
+and its JavaScript dependencies. Their licenses and sources are listed in
+`licenses/structure-editor/THIRD_PARTY_NOTICES.txt`.
 
 The MOF building-block example includes coordinates from [PORMAKE](https://github.com/Sangwon91/PORMAKE)
-under its MIT license. The source record and license are in `vasp_slurm_agent/framework_data`.
+under its MIT license, which is in `licenses/pormake/LICENSE.txt`.
 
 Charged-defect corrections use [pymatgen-analysis-defects](https://github.com/materialsproject/pymatgen-analysis-defects).
 Cite [Freysoldt, Neugebauer and Van de Walle (2009)](https://doi.org/10.1103/PhysRevLett.102.016402) when using this correction method.

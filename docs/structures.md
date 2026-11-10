@@ -13,8 +13,9 @@ change”. Select an earlier structure to work on that version. Each edit saves 
 
 To move a structure between projects, download **Structure (ZIP)** and import the
 `.dft.zip` file through **Upload**. It keeps periodic directions, fixed atoms and
-magnetic moments together with the coordinates; bare CIF/POSCAR files cannot keep
-all of these settings.
+magnetic moments and recorded source references together with the coordinates; bare
+CIF/POSCAR files cannot keep all of these settings. References describe the original
+inputs, not validation of the edited structure.
 
 ## Find a published structure
 

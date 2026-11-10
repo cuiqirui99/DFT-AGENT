@@ -2,9 +2,11 @@
 
 ## 1. Install and create a project
 
-Download [v0.4.9](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.4.9),
+Download [v0.5.0](https://github.com/cuiqirui99/DFT-AGENT/releases/tag/v0.5.0),
 open the Mac `.dmg`, drag **DFT Agent** to Applications, and launch it.
-Python and model SDKs are included. [Installation help](install.md).
+Python and model SDKs are included. The app is not notarized, so you allow
+its first launch under **System Settings → Privacy & Security**; see
+[Installation help](install.md#desktop-app).
 
 Click **Create your first project**, enter a name, then **Create project**.
 Each project has its own conversations, files and calculations. Use
@@ -44,22 +46,41 @@ The authenticated session is reused by later actions and background workers.
 Codes are not saved. If the session expires, return to
 **Connections → Cluster**, sign in again, then reconnect the affected task.
 
-After sign-in, review **Work folder**, **Scheduler** and the detected software.
-When detection is incomplete, use **Connections → Software** to enter the
-site's launcher, partition or queue, and resources. Ask your cluster support
-for a working job example if these are unknown.
+After sign-in the app sets the cluster up by itself. It reads the cluster
+read-only, and the connected model judges the scheduler, the partition and
+account, and the module or program for each code. The app then submits a short
+test job for VASP, Quantum ESPRESSO, ABINIT, CP2K, Elk, SIESTA, LAMMPS and
+UppASD, and checks Python, Wannier90 and RSPt on the login node.
+Follow the progress in **Connections → Software**, where each program shows its
+status. For a cluster saved by an earlier version, the setup starts when you
+press **Test connection** there. Installations and test jobs use the
+**Work folder** shown under **Connections → Cluster**; change it there if your
+site needs another directory.
 
-VASP needs your licensed POTCAR folder. If QE is missing, use **Install Quantum
-ESPRESSO**: check the partition, account and module commands, click **Plan the
-build**, review it, then confirm **Start the build**. The agent can prepare
-this plan; the app's confirmation submits the build job. Compatible compilers,
-MPI and access to source downloads are required. Check progress with **Check
-the build**. [Installation details](install.md#your-first-cluster-setup).
+Missing open-source programs (Quantum ESPRESSO, ABINIT, CP2K, Elk, SIESTA,
+LAMMPS and UppASD) are offered one by one: the app asks before installing each
+one and shows an **Install** button. Each installation runs one job in your
+cluster account and storage, then a small test. Tick **Install missing
+open-source software automatically** to skip the question; automatic
+installation needs a storage quota that the app can read.
+VASP and RSPt use your own installation. If the app does not find it, enter the
+path to the program under **Connections → Software**; VASP also needs your
+licensed POTCAR folder, which you enter there when it is not found.
+
+If the automatic setup does not suit your cluster, use **Manual setup** under
+**Connections → Software** to add or change an environment. **Connections →
+Cluster → Advanced installation** keeps the manual installers: while QE is
+missing, **Install Quantum ESPRESSO** lets you check the partition, account and
+module commands, click **Plan the build**, review it, then confirm **Start the
+build**. Compatible compilers, MPI and access to source downloads are required.
+Check progress with **Check the build**.
+[Installation details](install.md#your-first-cluster-setup).
 
 ## 4. Describe, review and submit
 
-1. Return with **Back to chat**. Upload a CIF or POSCAR under **Files and runs → Files → Add files**,
-   or describe a structure to build. Inspect it in the viewer before continuing. [Structure tools](structures.md).
+1. Return with **Back to chat**. Upload a CIF or POSCAR under **Structures and runs →
+   Structures → Add a structure → Upload**, or describe a structure to build. Inspect
+   it in the viewer before continuing. [Structure tools](structures.md).
 2. Describe the calculation, including the engine if you have a preference.
    Answer questions and request changes in the same message box.
 3. Open **Tasks** to select a workflow and step. Check its plan and environment.
@@ -73,19 +94,21 @@ older run.
 
 ## 5. Follow results and continue
 
-Use **Tasks → Refresh status** and **Files and runs → Jobs** to check progress and
-logs. **Files and runs → Results** opens the selected run's plots, tables and retained
-outputs. Use **Prepare download** to create a results archive where offered.
+Use **Tasks → Refresh status** to update progress. **Structures and runs →
+Calculations** shows each step's status and the selected run's plots, tables and
+retained outputs; **Program output** there shows the logs. Use **Prepare download**
+to create a results archive where offered.
 POTCAR is excluded from shared archives; large restart files remain on the cluster.
 
-Select runs under **Attach results** and ask about them in chat. You can request
-a follow-up calculation from a completed stage; review and submit its new
-inputs before it runs. After an interruption, sign in to the cluster again if
-needed. **Job controls → Reconnect** checks the existing jobs; **Resume monitoring**
-restarts the worker and continues the same run's remaining approved stages.
+Open **Attach results**, select runs under **Results to discuss** and ask about
+them in chat. You can request a follow-up calculation from a completed stage;
+review and submit its new inputs before it runs. After an interruption, sign in
+to the cluster again if needed. **Job controls → Reconnect** checks the existing
+jobs; **Resume monitoring** restarts the worker and continues the same run's
+remaining approved stages.
 **Cancel this calculation → Cancel job** requests cancellation of the selected attempt.
 
-Closing the browser does not cancel submitted jobs. Keep the computer running
+Closing the app does not cancel submitted jobs. Keep the computer running
 and connected for local monitoring and subsequent stages. Project files and
 history are kept under `~/.dft-agent/`; see [storage and updates](install.md#files-and-updates).
 

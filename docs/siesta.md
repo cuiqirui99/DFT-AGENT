@@ -15,7 +15,9 @@ conversation and cluster workflow as the other engines.
 ## Start
 
 1. Connect your model and cluster.
-2. In **Connections**, detect an existing SIESTA installation or review a managed installation plan.
+2. After sign-in the app looks for SIESTA. When it is missing, **Connections → Software** offers **Install**
+   (Linux x86-64 only). To review the managed installation plan yourself, open
+   **Connections → Cluster → Advanced installation**.
 3. Install the PBE pseudopotentials for the elements in your structure.
 4. Build, import or upload a structure in your project, then describe the task.
 
