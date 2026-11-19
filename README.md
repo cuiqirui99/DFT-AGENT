@@ -8,8 +8,7 @@ Build materials, run calculations and explore the results in conversation. DFT A
 
 VASP · Quantum ESPRESSO · ABINIT · CP2K · Elk · SIESTA · LAMMPS · RSPt · UppASD
 
-[Qirui Cui](https://www.kth.se/profile/qiruic?l=en), KTH Royal Institute of Technology. 
-[Anna Delin](https://www.kth.se/profile/annadel), KTH Royal Institute of Technology.
+[Qirui Cui](https://www.kth.se/profile/qiruic?l=en), KTH Royal Institute of Technology. With the support from [Anna Delin](https://www.kth.se/profile/annadel), KTH Royal Institute of Technology.
 
 ## Work in a project
 
